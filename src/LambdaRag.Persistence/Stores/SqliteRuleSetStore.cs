@@ -29,6 +29,8 @@ public sealed class SqliteRuleSetStore : IRuleSetStore
         var fingerprint = ruleSet.Fingerprint().Value;
 
         using var conn = new SqliteConnection(_connectionString);
+        await conn.OpenAsync(ct);
+        using var tx = await conn.BeginTransactionAsync(ct);
         await conn.ExecuteAsync(
             """
             INSERT OR IGNORE INTO rule_sets
@@ -45,8 +47,36 @@ public sealed class SqliteRuleSetStore : IRuleSetStore
                 PublishedAt = ruleSet.PublishedAt.ToString("O"),
                 MetadataJson = metadataJson,
                 RulesJson = rulesJson,
-            });
-        _logger.LogDebug("Published rule set {Id} v{Version}", ruleSet.Id, ruleSet.Version);
+            }, transaction: tx);
+
+        // Project per-rule hashes for queryable audit.
+        foreach (var rule in ruleSet.Rules)
+        {
+            await conn.ExecuteAsync(
+                """
+                INSERT OR REPLACE INTO rules
+                    (rule_set_id, rule_set_version, rule_id, rule_version,
+                     severity, predicate_hash, lambda_hash, remediation_hash, fingerprint)
+                VALUES
+                    (@RuleSetId, @RuleSetVersion, @RuleId, @RuleVersion,
+                     @Severity, @PredicateHash, @LambdaHash, @RemediationHash, @Fingerprint)
+                """,
+                new
+                {
+                    RuleSetId = ruleSet.Id,
+                    RuleSetVersion = ruleSet.Version,
+                    RuleId = rule.Id,
+                    RuleVersion = rule.Version,
+                    Severity = rule.Severity.ToString(),
+                    PredicateHash = rule.PredicateHash().Value,
+                    LambdaHash = rule.LambdaHash().Value,
+                    RemediationHash = rule.RemediationHash().Value,
+                    Fingerprint = rule.Fingerprint().Value,
+                }, transaction: tx);
+        }
+
+        await tx.CommitAsync(ct);
+        _logger.LogDebug("Published rule set {Id} v{Version} ({Count} rules)", ruleSet.Id, ruleSet.Version, ruleSet.Rules.Count);
     }
 
     public async Task<RuleSet?> GetAsync(string id, string version, CancellationToken ct = default)

@@ -1,5 +1,8 @@
+using System.Text.Json;
+using LambdaRag.Authoring;
 using LambdaRag.Cli;
 using LambdaRag.Core.Abstractions;
+using LambdaRag.Core.Domain;
 using LambdaRag.Evaluation;
 using LambdaRag.Evaluation.Engine;
 using LambdaRag.Parsing;
@@ -24,9 +27,11 @@ static class CliEntry
         {
             return args[0] switch
             {
-                "review"  => await ReviewAsync(args.Skip(1).ToArray()),
-                "project" => await ProjectAsync(args.Skip(1).ToArray()),
-                "parse"   => await ParseAsync(args.Skip(1).ToArray()),
+                "review"   => await ReviewAsync(args.Skip(1).ToArray()),
+                "project"  => await ProjectAsync(args.Skip(1).ToArray()),
+                "parse"    => await ParseAsync(args.Skip(1).ToArray()),
+                "coverage" => await CoverageAsync(args.Skip(1).ToArray()),
+                "author"   => await AuthorAsync(args.Skip(1).ToArray()),
                 _ => UnknownCommand(args[0]),
             };
         }
@@ -50,9 +55,11 @@ static class CliEntry
             lambda-rag — deterministic rules-over-documents
 
             Usage:
-              lambda-rag review  --document <path> --ruleset <path> --out <dir>
-              lambda-rag project --document <path> --out <path>
-              lambda-rag parse   --document <path> --out <path>
+              lambda-rag review   --document <path> --ruleset <path> --out <dir>
+              lambda-rag project  --document <path> --out <path>
+              lambda-rag parse    --document <path> --out <path>
+              lambda-rag coverage --document <path> --ruleset <path> --out <path>
+              lambda-rag author   --chunk <path> --domain <name> --prefix <id-prefix> --out <path>
             """);
     }
 
@@ -66,7 +73,9 @@ static class CliEntry
             .AddLambdaRagParsing()
             .AddLambdaRagProjection()
             .AddLambdaRagSelectors()
-            .AddLambdaRagEvaluation();
+            .AddLambdaRagEvaluation()
+            .AddLambdaRagAuthoring();
+        services.AddSingleton<CoverageService>();
         return services.BuildServiceProvider();
     }
 
@@ -110,6 +119,9 @@ static class CliEntry
         Console.WriteLine($"RuleSet:   {ruleset.Id}@{ruleset.Version}");
         Console.WriteLine($"Score:     {report.Score:F4}");
         Console.WriteLine($"Verdicts:  pass={report.Passed} fail={report.Failed} n/a={report.NotApplicable} err={report.Errored}");
+        var withRemediation = report.Verdicts.Count(v => !string.IsNullOrEmpty(v.RemediationText));
+        if (withRemediation > 0)
+            Console.WriteLine($"Rewrites:  {withRemediation} verdict(s) include a suggested remediation");
         Console.WriteLine($"Wrote:     {reportPath}");
         return 0;
     }
@@ -154,6 +166,78 @@ static class CliEntry
             }),
         };
         File.WriteAllText(outPath, System.Text.Json.JsonSerializer.Serialize(dump, LambdaRag.Core.CanonicalJson.Options));
+        Console.WriteLine($"Wrote:     {outPath}");
+        return 0;
+    }
+
+    static async Task<int> CoverageAsync(string[] args)
+    {
+        var f = ParseFlags(args);
+        var documentPath = f.GetValueOrDefault("document") ?? throw new ArgumentException("--document required");
+        var rulesetPath = f.GetValueOrDefault("ruleset") ?? throw new ArgumentException("--ruleset required");
+        var outPath = f.GetValueOrDefault("out") ?? "coverage.json";
+
+        await using var sp = (ServiceProvider)BuildServices();
+        var parsers = sp.GetRequiredService<ParserRegistry>();
+        var projector = sp.GetRequiredService<IDocumentProjector>();
+        var coverage = sp.GetRequiredService<CoverageService>();
+
+        var ruleset = RuleSetIO.Load(rulesetPath);
+        var parsed = await parsers.ParseAsync(documentPath);
+        var projected = await projector.ProjectAsync(parsed);
+        var report = await coverage.AnalyzeAsync(ruleset, projected);
+
+        File.WriteAllText(outPath, JsonSerializer.Serialize(report, LambdaRag.Core.CanonicalJson.Options));
+
+        Console.WriteLine($"Document:  {parsed.Source.Id}");
+        Console.WriteLine($"RuleSet:   {ruleset.Id}@{ruleset.Version}");
+        foreach (var rc in report.Rules)
+        {
+            Console.WriteLine($"  {rc.RuleId}: candidates={rc.CandidateCount} applied={rc.AppliedCount}");
+        }
+        Console.WriteLine($"Wrote:     {outPath}");
+        return 0;
+    }
+
+    static async Task<int> AuthorAsync(string[] args)
+    {
+        var f = ParseFlags(args);
+        var chunkPath = f.GetValueOrDefault("chunk") ?? throw new ArgumentException("--chunk required");
+        var domain = f.GetValueOrDefault("domain") ?? "contract";
+        var prefix = f.GetValueOrDefault("prefix") ?? string.Empty;
+        var outPath = f.GetValueOrDefault("out") ?? "authored.json";
+
+        await using var sp = (ServiceProvider)BuildServices();
+        var agent = sp.GetRequiredService<IRuleAuthoringAgent>();
+
+        var content = await File.ReadAllTextAsync(chunkPath);
+        var span = new SourceSpan(
+            DocumentId: Path.GetFileName(chunkPath),
+            CharStart: 0,
+            CharLength: content.Length,
+            PageNumber: 1,
+            HeadingPath: null);
+
+        var suggestions = await agent.AuthorAsync(new RuleAuthoringRequest(
+            SourceContent: content,
+            Domain: domain,
+            RuleIdPrefix: prefix,
+            SourceSpan: span));
+
+        File.WriteAllText(outPath, JsonSerializer.Serialize(
+            new { suggestions = suggestions.Select(s => new
+            {
+                rule = s.Rule,
+                confidence = s.Confidence,
+                rationale = s.Rationale,
+            }) },
+            LambdaRag.Core.CanonicalJson.Options));
+
+        Console.WriteLine($"Authored:  {suggestions.Count} suggestion(s)");
+        foreach (var s in suggestions)
+        {
+            Console.WriteLine($"  {s.Rule.Id}  conf={s.Confidence:F2}  predicate=\"{s.Rule.Predicate}\"");
+        }
         Console.WriteLine($"Wrote:     {outPath}");
         return 0;
     }
