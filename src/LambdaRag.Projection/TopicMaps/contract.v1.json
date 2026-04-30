@@ -1,0 +1,38 @@
+{
+  "domain": "contract",
+  "version": "1.0.0",
+  "topics": [
+    { "id": "payment_terms",   "keywords": ["payment", "fees", "compensation", "invoice"] },
+    { "id": "termination",     "keywords": ["termination", "cancel"] },
+    { "id": "governing_law",   "keywords": ["governing law", "jurisdiction", "venue", "applicable law"] },
+    { "id": "warranty",        "keywords": ["warranty", "warranties", "disclaimer"] },
+    { "id": "confidentiality", "keywords": ["confidential", "non-disclosure", "nda"] },
+    { "id": "indemnification", "keywords": ["indemn", "infringement", "misappropriation", "third party claim", "third-party claim"] },
+    { "id": "liability",       "keywords": ["liabil"] },
+    { "id": "privacy",         "keywords": ["data protection", "privacy", "gdpr", "personal data", "data processing"] },
+    { "id": "security",        "keywords": ["security", "infosec", "information security"] },
+    { "id": "service_levels",  "keywords": ["service level", "sla"] },
+    { "id": "ip_ownership",    "keywords": ["intellectual property", "ownership", "rights and restrictions", "license to", "work product"] },
+    { "id": "audit",           "keywords": ["audit", "verifying compliance", "right to verify", "inspection", "books and records"] },
+    { "id": "insurance",       "keywords": ["insurance", "coverage"] },
+    { "id": "support",         "keywords": ["supportability", "support and maintenance", "technical support"] },
+    { "id": "force_majeure",   "keywords": ["force majeure"] },
+    { "id": "assignment",      "keywords": ["assignment", "assignability"] },
+    { "id": "notices",         "keywords": ["notice", "notices"] },
+    { "id": "definitions",     "keywords": ["definitions", "defined terms"] },
+    { "id": "miscellaneous",   "keywords": ["miscellaneous", "general provisions", "boilerplate"] },
+    { "id": "term",            "keywords": ["duration", "effective date", "term of agreement", "term of this agreement"] },
+    { "id": "parties",         "keywords": ["parties", "party", "between"] }
+  ],
+  "axes": {
+    "jurisdiction": {
+      "headingPatterns": [
+        "albania","argentina","australia","austria","bangladesh","belgium","bolivia","brazil","bulgaria","canada","chile","china","colombia","costa rica","croatia","cyprus","czech republic","denmark","ecuador","egypt","estonia","finland","france","germany","greece","guatemala","honduras","hong kong","hungary","iceland","india","indonesia","ireland","israel","italy","japan","jordan","kazakhstan","kenya","korea","kuwait","latvia","lebanon","lithuania","luxembourg","malaysia","malta","mexico","morocco","netherlands","new zealand","nicaragua","nigeria","norway","pakistan","panama","paraguay","peru","philippines","poland","portugal","qatar","quebec","ontario","romania","russia","saudi arabia","serbia","singapore","slovak republic","slovakia","slovenia","south africa","spain","sri lanka","sweden","switzerland","taiwan","thailand","tunisia","turkey","ukraine","united arab emirates","united kingdom","united states","uruguay","venezuela","vietnam"
+      ]
+    }
+  },
+  "amendmentPatterns": [
+    "(?i)(?:replace|supplement)\\s+(?:terms\\s+and\\s+conditions\\s+)?(?:sub)?section\\s+\\d+\\w*\\s+titled\\s+[\"'\u201C]([^\"'\u201D]+)[\"'\u201D]",
+    "(?i)(?:replace|supplement)\\s+(?:section|article|clause)\\s+\\d+\\w*\\s+\\(([^)]+)\\)"
+  ]
+}
