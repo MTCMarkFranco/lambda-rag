@@ -1,6 +1,7 @@
 using System.Text.Json;
 using LambdaRag.Authoring;
 using LambdaRag.Cli;
+using LambdaRag.Core;
 using LambdaRag.Core.Abstractions;
 using LambdaRag.Core.Domain;
 using LambdaRag.Evaluation;
@@ -38,6 +39,7 @@ static class CliEntry
                 "index"    => await IndexAsync(args.Skip(1).ToArray()),
                 "topic-map" => await TopicMapAsync(args.Skip(1).ToArray()),
                 "extract-rules" => await ExtractRulesAsync(args.Skip(1).ToArray()),
+                "rules"    => await RulesCommand.RunAsync(args.Skip(1).ToArray(), TimeProvider.System),
                 _ => UnknownCommand(args[0]),
             };
         }
@@ -61,7 +63,7 @@ static class CliEntry
             lambda-rag — deterministic rules-over-documents
 
             Usage:
-              lambda-rag review   --document <path> --ruleset <path> --out <dir> [--mode report|markup|both]
+              lambda-rag review   --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>]
               lambda-rag project  --document <path> --out <path>
               lambda-rag parse    --document <path> --out <path>
               lambda-rag coverage --document <path> --ruleset <path> --out <path>
@@ -72,6 +74,11 @@ static class CliEntry
               lambda-rag topic-map coverage --ruleset <path> [--topic-map <id-or-path>]
               lambda-rag extract-rules --policy-dir <dir> --domain <name> --id <ruleset-id> --out <path>
                                        [--min-chars 200] [--prefix <id-prefix>]
+              lambda-rag rules diff     <old.json> <new.json> [--out diff.json]
+              lambda-rag rules show     --ruleset <path> --rule <id>
+              lambda-rag rules disable  --ruleset <path> --overlay <path> --rule <id> --reason "..." [--by <name>]
+              lambda-rag rules enable   --ruleset <path> --overlay <path> --rule <id>
+              lambda-rag rules annotate --ruleset <path> --overlay <path> --rule <id> --note "..." [--by <name>]
 
             Common flags:
               --topic-map <id-or-path>   Override default contract.v1 topic map.
@@ -131,6 +138,18 @@ static class CliEntry
         var markup = sp.GetRequiredService<OpenXmlMarkupService>();
 
         var ruleset = RuleSetIO.Load(rulesetPath);
+        OverlayApplied? overlayAudit = null;
+        var overlayPath = f.GetValueOrDefault("overlay");
+        if (overlayPath is not null)
+        {
+            var overlay = OverlayIO.Load(overlayPath);
+            var applied = OverlayApplier.Apply(ruleset, overlay);
+            ruleset = applied.RuleSet;
+            overlayAudit = applied.Audit;
+            if (applied.UnknownRuleIds.Count > 0)
+                Console.WriteLine($"Overlay:   {applied.UnknownRuleIds.Count} unknown rule id(s) ignored: {string.Join(", ", applied.UnknownRuleIds)}");
+            Console.WriteLine($"Overlay:   {overlayPath}  fp={applied.Audit.Fingerprint.Value[..12]}…  disabled={applied.Audit.DisabledCount} notes={applied.Audit.AnnotatedCount}");
+        }
         sigIndex.Build(ruleset);
         var parsed = await parsers.ParseAsync(documentPath);
         var topicMapSpec = f.GetValueOrDefault("topic-map");
@@ -139,6 +158,8 @@ static class CliEntry
             : new LambdaRag.Projection.Projectors.DeterministicContractProjector(TopicMapRegistry.Load(topicMapSpec));
         var projected = await effectiveProjector.ProjectAsync(parsed);
         var report = await evaluator.EvaluateAsync(ruleset, projected);
+        if (overlayAudit is not null)
+            report = report with { OverlayApplied = overlayAudit };
 
         var emitReport = mode is "report" or "both";
         var emitMarkup = mode is "markup" or "both";
