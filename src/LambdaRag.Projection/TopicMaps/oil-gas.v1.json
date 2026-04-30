@@ -1,0 +1,64 @@
+{
+  "domain": "oil-gas",
+  "version": "1.0.0",
+  "description": "Oil & Gas — upstream, midstream, HSE, and regulatory. Topics cover drilling/well control, process safety, environmental, decommissioning, and the dominant commercial agreements (JOA, PSA, MSA, IADC drilling). Use cases: HSE policy review, JOA/PSA contract review, drilling program review, environmental impact review, pipeline integrity plan review, decommissioning liability assessment.",
+  "topics": [
+    { "id": "hse_general",          "keywords": ["health, safety", "hse", "ehs", "safe work", "stop work authority"] },
+    { "id": "well_control",         "keywords": ["well control", "kick", "blowout", "shut-in", "kill weight"] },
+    { "id": "blowout_prevention",   "keywords": ["blowout preventer", "bop", "diverter", "ram preventer", "annular preventer", "api spec 16a"] },
+    { "id": "simops",               "keywords": ["simultaneous operations", "simops", "concurrent operations"] },
+    { "id": "permit_to_work",       "keywords": ["permit to work", "ptw", "lockout tagout", "loto", "energy isolation"] },
+    { "id": "hot_work",             "keywords": ["hot work permit", "hot work", "welding", "cutting", "spark"] },
+    { "id": "confined_space",       "keywords": ["confined space", "permit-required confined space", "atmospheric testing"] },
+    { "id": "h2s_safety",           "keywords": ["hydrogen sulfide", "h2s", "sour gas", "sour service", "scba"] },
+    { "id": "process_safety",       "keywords": ["process safety management", "psm", "pha", "hazop", "lopa", "api rp 754"] },
+    { "id": "asset_integrity",      "keywords": ["asset integrity", "mechanical integrity", "rbi", "risk-based inspection", "api 580", "api 581"] },
+    { "id": "spill_prevention",     "keywords": ["spcc", "spill prevention", "secondary containment", "facility response plan"] },
+    { "id": "air_emissions",        "keywords": ["air emissions", "voc", "nox", "criteria pollutant", "title v", "leak detection and repair", "ldar"] },
+    { "id": "methane_management",   "keywords": ["methane", "methane intensity", "ogmp 2.0", "fugitive emissions", "vent and flare"] },
+    { "id": "ghg_reporting",        "keywords": ["greenhouse gas", "ghg", "subpart w", "carbon intensity", "scope 1", "scope 2", "scope 3"] },
+    { "id": "water_management",     "keywords": ["produced water", "flowback", "water reuse", "underground injection", "uic"] },
+    { "id": "waste_management",     "keywords": ["e&p waste", "naturally occurring radioactive material", "norm", "drilling waste"] },
+    { "id": "decommissioning",      "keywords": ["decommissioning", "abandonment", "p&a", "plug and abandon", "rig removal", "asset retirement obligation", "aro"] },
+    { "id": "mineral_rights",       "keywords": ["mineral rights", "mineral interest", "fee mineral", "leased acreage"] },
+    { "id": "royalty",              "keywords": ["royalty", "overriding royalty", "orri", "net royalty interest"] },
+    { "id": "working_interest",     "keywords": ["working interest", "net revenue interest", "nri", "after payout", "before payout"] },
+    { "id": "joa",                  "keywords": ["joint operating agreement", "joa", "aapl 610", "operating committee"] },
+    { "id": "afe",                  "keywords": ["authorization for expenditure", "afe", "non-consent", "penalty"] },
+    { "id": "take_or_pay",          "keywords": ["take or pay", "minimum take", "deficiency payment"] },
+    { "id": "knock_for_knock",      "keywords": ["knock for knock", "mutual indemnity", "consequential losses waiver"] },
+    { "id": "force_majeure",        "keywords": ["force majeure", "act of god", "excused performance"] },
+    { "id": "drilling_program",     "keywords": ["drilling program", "well design", "casing design", "cement program", "mud program"] },
+    { "id": "iadc_drilling",        "keywords": ["iadc", "daywork", "footage rate", "turnkey", "rig contract"] },
+    { "id": "production_sharing",   "keywords": ["production sharing agreement", "psa", "psc", "cost recovery", "profit oil"] },
+    { "id": "pipeline_integrity",   "keywords": ["pipeline integrity management", "pim", "phmsa", "api 1160", "api 1163", "in-line inspection", "ili"] },
+    { "id": "leak_detection",       "keywords": ["leak detection system", "lds", "cpm", "rupture detection"] },
+    { "id": "regulatory_reporting", "keywords": ["bsee", "blm", "sec", "asc 932", "form 1", "form 2", "ihs", "regulatory submission"] },
+    { "id": "reserves_classification","keywords": ["proved reserves", "1p", "2p", "3p", "spe-prms", "sec reserves rule", "reserves audit"] },
+    { "id": "esg_emissions",        "keywords": ["net zero", "decarbonization", "carbon capture", "ccus", "scope 3 reporting"] },
+    { "id": "environmental_review", "keywords": ["environmental impact assessment", "eia", "nepa", "eis", "categorical exclusion"] },
+    { "id": "indigenous_consultation","keywords": ["consultation and accommodation", "first nations", "indigenous", "tribal consultation", "free prior informed consent", "fpic"] },
+    { "id": "emergency_response",   "keywords": ["emergency response plan", "erp", "oil spill response", "osrp", "incident command system", "ics"] }
+  ],
+  "axes": {
+    "jurisdiction": {
+      "headingPatterns": [
+        "united states","u.s.","alaska","gulf of mexico","texas","oklahoma","north dakota","colorado","wyoming","new mexico","california","alberta","british columbia","saskatchewan","newfoundland","north sea","uk continental shelf","norway","netherlands","saudi arabia","uae","qatar","kuwait","oman","iraq","nigeria","angola","brazil","argentina","colombia","mexico","guyana","trinidad","australia","indonesia","malaysia","papua new guinea"
+      ]
+    },
+    "regulator": {
+      "headingPatterns": [
+        "bsee","blm","epa","phmsa","osha","aer","cer","aer","npd","ogel","oepa","norsok","dnv","api","iso 29001"
+      ]
+    },
+    "lifecycle_phase": {
+      "headingPatterns": [
+        "exploration","appraisal","development","drilling","completion","production","workover","abandonment","decommissioning","midstream","downstream"
+      ]
+    }
+  },
+  "amendmentPatterns": [
+    "(?i)(?:replace|supplement|amend)\\s+(?:section|article|exhibit|appendix)\\s+\\d+\\w*\\s+titled\\s+[\"'\u201C]([^\"'\u201D]+)[\"'\u201D]",
+    "(?i)(?:exhibit|appendix)\\s+[A-Z]\\s+\\(([^)]+)\\)"
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "domain": "architecture-review",
+  "version": "1.0.0",
+  "description": "Architecture review — covers AWS/Azure/GCP Well-Architected pillars plus enterprise concerns. Use cases: cloud architecture design review (Well-Architected style), threat-model gap analysis, FinOps review, reliability engineering review, design-doc completeness check, ADR quality gate.",
+  "topics": [
+    { "id": "operational_excellence","keywords": ["operational excellence", "runbook", "playbook", "incident management", "post-incident review", "blameless postmortem"] },
+    { "id": "observability",        "keywords": ["observability", "logging", "metrics", "tracing", "telemetry", "open telemetry", "otel", "slo", "sli"] },
+    { "id": "monitoring_alerting",  "keywords": ["monitoring", "alerting", "alert fatigue", "pager duty", "on-call rotation"] },
+    { "id": "reliability",          "keywords": ["reliability", "fault tolerance", "graceful degradation", "circuit breaker", "retry with backoff", "idempotency"] },
+    { "id": "availability",         "keywords": ["availability target", "nines", "uptime sla", "five nines", "four nines"] },
+    { "id": "disaster_recovery",    "keywords": ["disaster recovery", "dr", "rpo", "rto", "warm standby", "hot standby", "pilot light"] },
+    { "id": "backup_restore",       "keywords": ["backup", "restore", "snapshot policy", "point-in-time recovery", "ransomware-resilient backup"] },
+    { "id": "multi_region",         "keywords": ["multi-region", "active-active", "active-passive", "geo-replication", "cross-region failover"] },
+    { "id": "single_point_failure", "keywords": ["single point of failure", "spof", "redundancy", "n+1", "n+2"] },
+    { "id": "capacity_planning",    "keywords": ["capacity planning", "headroom", "scaling limits", "service quotas", "soft limit", "hard limit"] },
+    { "id": "scalability",          "keywords": ["horizontal scaling", "vertical scaling", "autoscaling", "load testing", "throughput target"] },
+    { "id": "performance_efficiency","keywords": ["performance efficiency", "latency target", "p95", "p99", "tail latency", "cache hit ratio"] },
+    { "id": "cost_optimization",    "keywords": ["cost optimization", "reserved instance", "savings plan", "spot instance", "right-sizing", "idle resources"] },
+    { "id": "finops",               "keywords": ["finops", "showback", "chargeback", "cost allocation tag", "unit economics", "cost per transaction"] },
+    { "id": "security_iam",         "keywords": ["identity and access", "iam", "least privilege", "rbac", "abac", "service principal", "managed identity"] },
+    { "id": "zero_trust",           "keywords": ["zero trust", "never trust always verify", "micro-segmentation", "explicit verification"] },
+    { "id": "network_segmentation", "keywords": ["network segmentation", "vnet", "vpc", "subnet", "private endpoint", "private link", "nsg", "security group"] },
+    { "id": "encryption_at_rest",   "keywords": ["encryption at rest", "customer-managed key", "cmk", "bring your own key", "byok", "key vault", "kms"] },
+    { "id": "encryption_in_transit","keywords": ["encryption in transit", "tls 1.2", "tls 1.3", "mtls", "mutual tls"] },
+    { "id": "secrets_management",   "keywords": ["secrets management", "secret rotation", "no secrets in code", "key rotation policy"] },
+    { "id": "key_rotation",         "keywords": ["key rotation", "rotation cadence", "rekey"] },
+    { "id": "threat_modeling",      "keywords": ["threat model", "stride", "trike", "attack tree", "data flow diagram"] },
+    { "id": "vulnerability_mgmt",   "keywords": ["vulnerability management", "patching cadence", "cve", "cvss", "ssa"] },
+    { "id": "supply_chain_security","keywords": ["software supply chain", "sbom", "slsa", "in-toto", "sigstore", "dependency pinning"] },
+    { "id": "data_residency",       "keywords": ["data residency", "data sovereignty", "in-region storage"] },
+    { "id": "data_classification",  "keywords": ["data classification", "public", "internal", "confidential", "restricted", "pii", "phi"] },
+    { "id": "data_retention",       "keywords": ["retention policy", "data lifecycle", "wormable storage", "legal hold"] },
+    { "id": "deletion_right",       "keywords": ["right to be forgotten", "deletion sla", "verifiable deletion"] },
+    { "id": "compliance_posture",   "keywords": ["soc 2", "iso 27001", "hipaa", "pci dss", "fedramp", "irap", "gdpr", "ccpa"] },
+    { "id": "audit_logging",        "keywords": ["audit log", "tamper-evident log", "immutable log", "log retention"] },
+    { "id": "change_management",    "keywords": ["change advisory board", "cab", "change ticket", "change window"] },
+    { "id": "release_management",   "keywords": ["progressive delivery", "canary release", "blue-green", "feature flag"] },
+    { "id": "ci_cd",                "keywords": ["ci/cd", "continuous integration", "continuous delivery", "pipeline as code"] },
+    { "id": "infra_as_code",        "keywords": ["infrastructure as code", "iac", "terraform", "bicep", "cloudformation", "arm template"] },
+    { "id": "sustainability",       "keywords": ["sustainability", "carbon-aware", "energy efficiency", "green software"] },
+    { "id": "vendor_lockin",        "keywords": ["vendor lock-in", "portability", "exit strategy", "open standards"] },
+    { "id": "open_source_governance","keywords": ["open source license", "license compliance", "gpl", "agpl", "apache 2.0", "mit license"] }
+  ],
+  "axes": {
+    "pillar": {
+      "headingPatterns": [
+        "operational excellence","security","reliability","performance efficiency","cost optimization","sustainability"
+      ]
+    },
+    "platform": {
+      "headingPatterns": [
+        "azure","aws","gcp","kubernetes","openshift","on-premises","hybrid","multi-cloud","edge"
+      ]
+    }
+  },
+  "amendmentPatterns": [
+    "(?i)(?:see|refer to)\\s+(?:section|adr|chapter|appendix)\\s+\\d+\\w*\\s+\\(([^)]+)\\)",
+    "(?i)(?:supersedes|replaces)\\s+adr\\s+\\d+\\w*\\s+([A-Za-z][A-Za-z0-9\\s\\-]+)"
+  ]
+}

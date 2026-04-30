@@ -35,6 +35,7 @@ static class CliEntry
                 "coverage" => await CoverageAsync(args.Skip(1).ToArray()),
                 "author"   => await AuthorAsync(args.Skip(1).ToArray()),
                 "index"    => await IndexAsync(args.Skip(1).ToArray()),
+                "topic-map" => await TopicMapAsync(args.Skip(1).ToArray()),
                 _ => UnknownCommand(args[0]),
             };
         }
@@ -64,6 +65,13 @@ static class CliEntry
               lambda-rag coverage --document <path> --ruleset <path> --out <path>
               lambda-rag author   --chunk <path> --domain <name> --prefix <id-prefix> --out <path>
               lambda-rag index    --ruleset <path> [--out <path>]
+              lambda-rag topic-map list
+              lambda-rag topic-map show <id-or-path>
+              lambda-rag topic-map coverage --ruleset <path> [--topic-map <id-or-path>]
+
+            Common flags:
+              --topic-map <id-or-path>   Override default contract.v1 topic map.
+                                         Try `lambda-rag topic-map list` for ids.
             """);
     }
 
@@ -116,7 +124,11 @@ static class CliEntry
         var ruleset = RuleSetIO.Load(rulesetPath);
         sigIndex.Build(ruleset);
         var parsed = await parsers.ParseAsync(documentPath);
-        var projected = await projector.ProjectAsync(parsed);
+        var topicMapSpec = f.GetValueOrDefault("topic-map");
+        var effectiveProjector = topicMapSpec is null
+            ? projector
+            : new LambdaRag.Projection.Projectors.DeterministicContractProjector(TopicMapRegistry.Load(topicMapSpec));
+        var projected = await effectiveProjector.ProjectAsync(parsed);
         var report = await evaluator.EvaluateAsync(ruleset, projected);
 
         var reportPath = Path.Combine(outDir, "report.json");
@@ -144,7 +156,11 @@ static class CliEntry
         var projector = sp.GetRequiredService<IDocumentProjector>();
 
         var parsed = await parsers.ParseAsync(documentPath);
-        var projected = await projector.ProjectAsync(parsed);
+        var topicMapSpec = f.GetValueOrDefault("topic-map");
+        var effectiveProjector = topicMapSpec is null
+            ? projector
+            : new LambdaRag.Projection.Projectors.DeterministicContractProjector(TopicMapRegistry.Load(topicMapSpec));
+        var projected = await effectiveProjector.ProjectAsync(parsed);
         File.WriteAllText(outPath, projected.Graph.ToJsonString(LambdaRag.Core.CanonicalJson.Options));
         Console.WriteLine($"Wrote:     {outPath}");
         return 0;
@@ -282,5 +298,66 @@ static class CliEntry
             Console.WriteLine($"Wrote:        {outPath}");
         }
         return Task.FromResult(0);
+    }
+
+    static Task<int> TopicMapAsync(string[] args)
+    {
+        if (args.Length == 0)
+        {
+            Console.Error.WriteLine("usage: lambda-rag topic-map <list|show|coverage> [args]");
+            return Task.FromResult(64);
+        }
+
+        switch (args[0])
+        {
+            case "list":
+            {
+                Console.WriteLine("Embedded topic maps:");
+                foreach (var id in TopicMapRegistry.ListEmbedded())
+                    Console.WriteLine($"  {id}");
+                return Task.FromResult(0);
+            }
+            case "show":
+            {
+                if (args.Length < 2) { Console.Error.WriteLine("usage: lambda-rag topic-map show <id-or-path>"); return Task.FromResult(64); }
+                var map = TopicMapRegistry.Load(args[1]);
+                Console.WriteLine($"Domain:    {map.Domain}");
+                Console.WriteLine($"Version:   {map.Version}");
+                Console.WriteLine($"Topics:    {map.Topics.Count}");
+                foreach (var t in map.Topics.OrderBy(t => t.Id, StringComparer.Ordinal))
+                    Console.WriteLine($"  {(t.Axis is null ? "•" : "↳")} {t.Id}{(t.Axis is null ? "" : $" [axis={t.Axis}]")}  kw={t.Keywords.Count}");
+                return Task.FromResult(0);
+            }
+            case "coverage":
+            {
+                var f = ParseFlags(args.Skip(1).ToArray());
+                var rulesetPath = f.GetValueOrDefault("ruleset") ?? throw new ArgumentException("--ruleset required");
+                var topicMapSpec = f.GetValueOrDefault("topic-map") ?? "contract.v1";
+                var ruleset = RuleSetIO.Load(rulesetPath);
+                var map = TopicMapRegistry.Load(topicMapSpec);
+                var cov = RulesetTopicVocabulary.Coverage(ruleset.Rules, map);
+
+                Console.WriteLine($"Topic map:           {map.Domain} v{map.Version}");
+                Console.WriteLine($"Ruleset:             {ruleset.Id}@{ruleset.Version} ({ruleset.Rules.Count} rules)");
+                Console.WriteLine($"Topics referenced:   {cov.Referenced.Count}");
+                Console.WriteLine($"Topics declared:     {cov.Declared.Count}");
+                Console.WriteLine($"Missing from map:    {cov.MissingFromMap.Count}");
+                foreach (var t in cov.MissingFromMap) Console.WriteLine($"  ! {t}");
+                Console.WriteLine($"Unused in rules:     {cov.UnusedInRules.Count}");
+                if (f.ContainsKey("verbose"))
+                    foreach (var t in cov.UnusedInRules) Console.WriteLine($"  - {t}");
+
+                var outPath = f.GetValueOrDefault("out");
+                if (outPath is not null)
+                {
+                    File.WriteAllText(outPath, JsonSerializer.Serialize(cov, LambdaRag.Core.CanonicalJson.Options));
+                    Console.WriteLine($"Wrote:               {outPath}");
+                }
+                return Task.FromResult(cov.IsFullyCovered ? 0 : 2);
+            }
+            default:
+                Console.Error.WriteLine($"unknown topic-map action: {args[0]}");
+                return Task.FromResult(64);
+        }
     }
 }
