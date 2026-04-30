@@ -79,4 +79,12 @@ public sealed record ComplianceReport(
     /// score: <c>Score = pass / (pass + fail + gap)</c>.
     /// </summary>
     public int Gaps { get; init; }
+
+    /// <summary>
+    /// When a review was run with <c>--overlay</c>, this captures which
+    /// overlay was applied (fingerprint + disabled list + annotations) so
+    /// the audit trail proves that suppressing rule X was a documented
+    /// governance decision, not silent rule editing.
+    /// </summary>
+    public OverlayApplied? OverlayApplied { get; init; }
 }

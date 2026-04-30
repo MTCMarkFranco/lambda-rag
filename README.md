@@ -165,7 +165,7 @@ and pass `--topic-map my-industry.v1` to the extractor.
 ## CLI cheat sheet
 
 ```
-lambda-rag review        --document <path> --ruleset <path> --out <dir> [--mode report|markup|both]
+lambda-rag review        --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>]
 lambda-rag extract-rules --policy-dir <dir> --domain <name> --id <ruleset-id> --out <path>
 lambda-rag author        --chunk <path> --domain <name> --prefix <id-prefix> --out <path>
 lambda-rag coverage      --document <path> --ruleset <path> --out <path>
@@ -173,10 +173,95 @@ lambda-rag project       --document <path> --out <path>
 lambda-rag parse         --document <path> --out <path>
 lambda-rag index         --ruleset <path> [--out <path>]
 lambda-rag topic-map     <list|show|coverage> [args]
+
+# Governance — never edits the ruleset; works through diffs and overlays
+lambda-rag rules diff     <old.json> <new.json> [--out diff.json]
+lambda-rag rules show     --ruleset <path> --rule <id>
+lambda-rag rules disable  --ruleset <path> --overlay <path> --rule <id> --reason "..." [--by <name>]
+lambda-rag rules enable   --ruleset <path> --overlay <path> --rule <id>
+lambda-rag rules annotate --ruleset <path> --overlay <path> --rule <id> --note "..." [--by <name>]
 ```
 
 > A web UI is on the roadmap. For now everything runs from the CLI
 > and produces files you can diff, hash, sign, and ship.
+
+## 🛡️ Rule governance — *no rule editor by design*
+
+Lambda-RAG **deliberately ships without an in-place rule editor**.
+The legal-defensibility chain is:
+
+```
+Signed policy PDF  →  extract-rules  →  RuleSet.json (in git)  →  review  →  Verdict
+```
+
+Editing a rule directly in the index would break the cited source span,
+silently invalidate idempotency, and create two competing sources of
+truth. So the platform is opinionated:
+
+> **The policy document is law. The RuleSet is its compiled form. Both
+> are versioned. Neither is edited in production.**
+
+When a rule legitimately needs to change, edit the policy doc and
+re-run `extract-rules`. To see what changed:
+
+```pwsh
+lambda-rag rules diff old-ruleset.json new-ruleset.json --out delta.json
+```
+
+You'll get added / removed / changed rules, and for each *changed* rule
+the exact list of fields that drifted (`predicate`, `lambda`,
+`severity`, `applicability`, `schema`, `naturalLanguage`, `version`).
+Exit code is `2` when there are deltas — wire it into CI to gate
+ruleset promotions.
+
+### When you legitimately need to "edit a rule" without re-extracting
+
+There are exactly two such cases, and both are handled via a
+**RuleOverlay** sidecar — *never* by mutating the ruleset:
+
+1. **Suppress a rule** — e.g. "rule X is superseded by a side-letter"
+
+   ```pwsh
+   lambda-rag rules disable `
+     --ruleset rulesets/acme.json `
+     --overlay rulesets/acme.overlay.json `
+     --rule    ACME-PAY-003 `
+     --reason  "superseded by 2026-Q2 side-letter clause 4.2" `
+     --by      legal@acme.com
+   ```
+
+2. **Annotate a rule** — reviewer commentary that does *not* change the verdict
+
+   ```pwsh
+   lambda-rag rules annotate `
+     --ruleset rulesets/acme.json `
+     --overlay rulesets/acme.overlay.json `
+     --rule    ACME-LIAB-001 `
+     --note    "see clause 7.2 in MSA — capped at fees paid in prior 12 months" `
+     --by      legal@acme.com
+   ```
+
+Then run a review with the overlay applied:
+
+```pwsh
+lambda-rag review `
+  --document customer-doc.docx `
+  --ruleset  rulesets/acme.json `
+  --overlay  rulesets/acme.overlay.json `
+  --out      out/customer
+```
+
+Properties of overlays that make them **safe**:
+
+- 🔒 **Bound to a specific RuleSet id + version** — refuse to apply to a different ruleset
+- 🧾 **Every disable carries a `reason` and an `at` timestamp** (and optionally `by`) — `--reason` is required
+- 🔍 **Recorded on the report** — `report.json` has an `overlayApplied` block with the overlay's SHA-256 fingerprint, the disabled list, and the annotations, so any reviewer can see exactly which governance decisions were active for that run
+- 📁 **Sidecar JSON, not a database** — store next to the ruleset in git; review via PR; revert via `rules enable`
+- ➖ **Never edits a rule's predicate, lambda, severity, or applicability** — those changes have to flow through the policy → extract pipeline
+
+This is the pattern used by signed-binary release management, applied
+to rules. You get all the practical value of an "editor" (turn a rule
+off, attach a note) with none of the chain-of-custody risk.
 
 ## Solution layout
 
