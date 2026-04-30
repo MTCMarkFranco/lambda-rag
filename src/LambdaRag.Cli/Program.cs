@@ -319,7 +319,9 @@ static class CliEntry
 
         var policyFiles = Directory.EnumerateFiles(policyDir)
             .Where(p => p.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase)
-                     || p.EndsWith(".docx", StringComparison.OrdinalIgnoreCase))
+                     || p.EndsWith(".docx", StringComparison.OrdinalIgnoreCase)
+                     || p.EndsWith(".md", StringComparison.OrdinalIgnoreCase)
+                     || p.EndsWith(".markdown", StringComparison.OrdinalIgnoreCase))
             .OrderBy(p => p, StringComparer.Ordinal)
             .ToList();
 

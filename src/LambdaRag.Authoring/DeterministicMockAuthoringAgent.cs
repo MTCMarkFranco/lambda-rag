@@ -64,6 +64,89 @@ public sealed class DeterministicMockAuthoringAgent : IRuleAuthoringAgent
             suggestions.Add(await BuildIpOwnershipRule(request).ConfigureAwait(false));
         }
 
+        // ---- Cloud architecture review patterns (FSI / regulated industries) ----
+        if (ContainsAny(lowered, "encryption at rest", "encrypted at rest", "data at rest"))
+        {
+            suggestions.Add(await BuildArchRule(
+                request, "ENCRYPT-REST-001", "encryption_at_rest",
+                "Data at rest must be encrypted using customer-managed keys (CMK) or platform-managed keys with documented rotation.",
+                "input1.text.Contains(\"AES-256\") || input1.text.ToLower().Contains(\"customer-managed\") || input1.text.ToLower().Contains(\"platform-managed\") || input1.text.Contains(\"TDE\") || input1.text.ToLower().Contains(\"cmk\")",
+                "Specify the encryption algorithm and key management model (e.g., \"AES-256 with customer-managed keys in Azure Key Vault\")."
+            ).ConfigureAwait(false));
+        }
+        if (ContainsAny(lowered, "encryption in transit", "tls", "https", "in-transit", "transport layer"))
+        {
+            suggestions.Add(await BuildArchRule(
+                request, "ENCRYPT-TRANSIT-001", "encryption_in_transit",
+                "Data in transit must be protected by TLS 1.2 or higher.",
+                "input1.text.Contains(\"TLS 1.2\") || input1.text.Contains(\"TLS 1.3\") || input1.text.Contains(\"TLS1.2\") || input1.text.Contains(\"TLS1.3\")",
+                "State the minimum TLS version explicitly (TLS 1.2 or TLS 1.3)."
+            ).ConfigureAwait(false));
+        }
+        if (ContainsAny(lowered, "multi-factor", "multifactor", " mfa ", "two-factor", "2fa"))
+        {
+            suggestions.Add(await BuildArchRule(
+                request, "IDENT-MFA-001", "security_iam",
+                "Privileged and remote access must require phishing-resistant MFA.",
+                "input1.text.ToLower().Contains(\"mfa\") || input1.text.ToLower().Contains(\"multi-factor\") || input1.text.ToLower().Contains(\"fido2\") || input1.text.ToLower().Contains(\"passkey\")",
+                "Add a clause requiring phishing-resistant MFA (FIDO2 / passkeys) for privileged and remote access."
+            ).ConfigureAwait(false));
+        }
+        if (ContainsAny(lowered, "private endpoint", "privatelink", "private link", "private network"))
+        {
+            suggestions.Add(await BuildArchRule(
+                request, "NET-PRIVATE-001", "network_segmentation",
+                "Public PaaS data planes must be reached via Private Endpoint / PrivateLink (no public network access).",
+                "input1.text.ToLower().Contains(\"private endpoint\") || input1.text.ToLower().Contains(\"privatelink\") || input1.text.ToLower().Contains(\"private link\")",
+                "Replace public-internet access with a Private Endpoint and disable the public network access flag on the resource."
+            ).ConfigureAwait(false));
+        }
+        if (ContainsAny(lowered, "data residency", "residency", "in-country", "in-region"))
+        {
+            suggestions.Add(await BuildArchRule(
+                request, "DATA-RES-001", "data_residency",
+                "Customer data must remain in the contracted residency region.",
+                "input1.text.ToLower().Contains(\"canada\") || input1.text.ToLower().Contains(\"residency\") || input1.text.Contains(\"region\")",
+                "Pin the workload region(s) explicitly (e.g., Canada Central + Canada East) and disable cross-region replication for protected data."
+            ).ConfigureAwait(false));
+        }
+        if (ContainsAny(lowered, "audit log", "logging", "sentinel", "log analytics", "siem"))
+        {
+            suggestions.Add(await BuildArchRule(
+                request, "AUDIT-LOG-001", "audit_logging",
+                "Control-plane and data-plane audit logs must be forwarded to a tamper-resistant SIEM with the documented retention.",
+                "input1.text.ToLower().Contains(\"sentinel\") || input1.text.ToLower().Contains(\"log analytics\") || input1.text.ToLower().Contains(\"siem\") || input1.text.ToLower().Contains(\"audit log\")",
+                "Forward control-plane and data-plane audit logs to Microsoft Sentinel (or equivalent SIEM) with a defined retention policy."
+            ).ConfigureAwait(false));
+        }
+        if (ContainsAny(lowered, "backup", "restore", "recovery", "rpo", "rto"))
+        {
+            suggestions.Add(await BuildArchRule(
+                request, "DR-BACKUP-001", "backup_restore",
+                "Backup, restore and DR must have stated RPO and RTO.",
+                "input1.text.ToLower().Contains(\"rpo\") || input1.text.ToLower().Contains(\"rto\") || input1.text.ToLower().Contains(\"recovery point\") || input1.text.ToLower().Contains(\"recovery time\")",
+                "State explicit RPO and RTO targets and the test cadence for restore drills."
+            ).ConfigureAwait(false));
+        }
+        if (ContainsAny(lowered, "infrastructure as code", "infra as code", "iac", "terraform", "bicep", "arm template"))
+        {
+            suggestions.Add(await BuildArchRule(
+                request, "IAC-001", "infra_as_code",
+                "Infrastructure must be deployed via Infrastructure-as-Code with policy-as-code guardrails.",
+                "input1.text.ToLower().Contains(\"terraform\") || input1.text.ToLower().Contains(\"bicep\") || input1.text.ToLower().Contains(\"arm template\") || input1.text.ToLower().Contains(\"infrastructure as code\")",
+                "Adopt Terraform or Bicep with PR-gated CI and Azure Policy / OPA as policy-as-code."
+            ).ConfigureAwait(false));
+        }
+        if (ContainsAny(lowered, "shared responsibility", "shared-responsibility"))
+        {
+            suggestions.Add(await BuildArchRule(
+                request, "SHARED-RESP-001", "compliance_posture",
+                "Solution design must explicitly map controls to the Shared Responsibility Model.",
+                "input1.text.ToLower().Contains(\"shared responsibility\") || input1.text.ToLower().Contains(\"customer responsibility\") || input1.text.ToLower().Contains(\"csp responsibility\")",
+                "Add a Shared Responsibility matrix mapping each control to Customer / CSP / Joint."
+            ).ConfigureAwait(false));
+        }
+
         // Stable order — sort by Id so consumers can rely on deterministic output.
         return suggestions
             .OrderBy(s => s.Rule.Id, StringComparer.Ordinal)
@@ -262,6 +345,34 @@ public sealed class DeterministicMockAuthoringAgent : IRuleAuthoringAgent
             SourceEmbedding = await _embedder.EmbedAsync(req.SourceContent).ConfigureAwait(false),
         };
         return new RuleAuthoringSuggestion(rule, 0.83, "Chunk references intellectual property / ownership; emitting assignment rule.");
+    }
+
+    private async Task<RuleAuthoringSuggestion> BuildArchRule(
+        RuleAuthoringRequest req,
+        string idSuffix,
+        string category,
+        string naturalLanguage,
+        string lambda,
+        string remediation)
+    {
+        var rule = new Rule(
+            Id: $"{req.RuleIdPrefix}{idSuffix}",
+            Version: "1.0.0",
+            NaturalLanguage: naturalLanguage,
+            Lambda: lambda,
+            AppliesToSchema: SectionTextSchema(),
+            Selector: new PathSelector("$.sections[*]"),
+            Severity: RuleSeverity.Violation,
+            SourceSpan: req.SourceSpan,
+            EvidenceQuote: category,
+            Metadata: new Dictionary<string, string> { ["topic"] = category })
+        {
+            Predicate = $"input1.category == \"{category}\"",
+            Remediation = remediation,
+            SourceContent = req.SourceContent,
+            SourceEmbedding = await _embedder.EmbedAsync(req.SourceContent).ConfigureAwait(false),
+        };
+        return new RuleAuthoringSuggestion(rule, 0.85, $"Chunk matches architecture pattern '{category}'.");
     }
 
     private static JsonObject SectionTextSchema() => new()
