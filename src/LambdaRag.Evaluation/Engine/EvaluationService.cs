@@ -6,23 +6,27 @@ using LambdaRag.Core.Hashing;
 using LambdaRag.Evaluation.Workflow;
 using Microsoft.Extensions.Logging;
 using RE = RulesEngine;
-using REM = RulesEngine.Models;
 
 namespace LambdaRag.Evaluation.Engine;
 
 /// <summary>
 /// The deterministic core of lambda-rag.
 ///
-/// Pipeline per rule:
-///   1. Run the rule's selector against the projected document (pure code,
-///      no LLM) → MatchedSections.
-///   2. For each matched section, convert the sub-graph to an ExpandoObject
-///      and execute a one-rule RulesEngine workflow.
-///   3. Capture the verdict with full audit trail (lambda text, evaluated
-///      input, source span, error if any).
+/// Pipeline per rule (sorted by Id for stable verdict order):
+///   1. Run the rule's <see cref="Rule.Selector"/> against the projected
+///      document → candidate <see cref="MatchedSection"/>s. Pure code.
+///   2. For each candidate, run the rule's <see cref="Rule.Predicate"/>
+///      (a compiled RulesEngine bool LambdaExpression) — the *applicability
+///      gate*. Sections that fail the predicate are skipped.
+///   3. For each surviving candidate, run the rule's <see cref="Rule.Lambda"/>.
+///      The bool result becomes Pass / Fail.
+///   4. If the lambda returned Fail and the rule defined a remediation
+///      template, render it via <see cref="RemediationRenderer"/>.
+///   5. If no candidates passed the predicate, emit a single NotApplicable
+///      verdict so the audit trail still cites the rule.
 ///
-/// No LLM is involved at any step here. Given the same RuleSet and the
-/// same ProjectedDocument, results are byte-for-byte identical.
+/// No LLM is involved at any step. Given the same RuleSet and the same
+/// ProjectedDocument, results are byte-for-byte identical.
 /// </summary>
 public sealed class EvaluationService
 {
@@ -46,7 +50,6 @@ public sealed class EvaluationService
         CancellationToken ct = default)
     {
         var verdicts = new List<Verdict>();
-        // Stable iteration: rules sorted by Id so verdict order is deterministic.
         foreach (var rule in ruleSet.Rules.OrderBy(r => r.Id, StringComparer.Ordinal))
         {
             ct.ThrowIfCancellationRequested();
@@ -54,37 +57,85 @@ public sealed class EvaluationService
 
             if (matches.Count == 0)
             {
-                // Rule did not apply to this document — record as NotApplicable
-                // so the audit trail still mentions the rule.
                 verdicts.Add(BuildVerdict(
                     rule, ruleSet,
                     outcome: VerdictOutcome.NotApplicable,
+                    section: null,
                     input: new JsonObject(),
                     span: rule.SourceSpan,
-                    error: null));
+                    error: null,
+                    remediationText: null));
                 continue;
             }
 
+            var emittedForRule = 0;
             foreach (var section in matches)
             {
-                var verdict = await EvaluateRuleAsync(rule, ruleSet, section, ct).ConfigureAwait(false);
+                var (predicateApplies, predicateError) = await EvaluatePredicateAsync(rule, section).ConfigureAwait(false);
+                if (predicateError is not null)
+                {
+                    verdicts.Add(BuildVerdict(
+                        rule, ruleSet,
+                        outcome: VerdictOutcome.Error,
+                        section: section,
+                        input: SnapshotInput(section),
+                        span: section.Span,
+                        error: $"predicate: {predicateError}",
+                        remediationText: null));
+                    emittedForRule++;
+                    continue;
+                }
+                if (!predicateApplies)
+                {
+                    continue;
+                }
+
+                var verdict = await EvaluateRuleAsync(rule, ruleSet, section).ConfigureAwait(false);
                 verdicts.Add(verdict);
+                emittedForRule++;
+            }
+
+            if (emittedForRule == 0)
+            {
+                verdicts.Add(BuildVerdict(
+                    rule, ruleSet,
+                    outcome: VerdictOutcome.NotApplicable,
+                    section: null,
+                    input: new JsonObject(),
+                    span: rule.SourceSpan,
+                    error: null,
+                    remediationText: null));
             }
         }
 
         return BuildReport(ruleSet, document, verdicts);
     }
 
-    private async Task<Verdict> EvaluateRuleAsync(
-        Rule rule,
-        RuleSet ruleSet,
-        MatchedSection section,
-        CancellationToken ct)
+    private async Task<(bool Applies, string? Error)> EvaluatePredicateAsync(Rule rule, MatchedSection section)
     {
-        // Snapshot the input we evaluate against — this is what an auditor sees.
-        var inputJson = section.Node is JsonObject obj
-            ? CanonicalJson.Clone(obj)
-            : new JsonObject { ["value"] = section.Node.DeepClone() };
+        try
+        {
+            var input = JsonToExpando.Convert(section.Node);
+            var workflow = WorkflowFactory.ForPredicate(rule);
+            var engine = new RE.RulesEngine([workflow]);
+            var results = await engine
+                .ExecuteAllRulesAsync(WorkflowFactory.PredicateWorkflowName, input!)
+                .ConfigureAwait(false);
+            var result = results.Single();
+            return (result.IsSuccess, null);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Predicate for rule {RuleId} ({RuleVersion}) errored at {Path}",
+                rule.Id, rule.Version, section.Path);
+            return (false, ex.Message);
+        }
+    }
+
+    private async Task<Verdict> EvaluateRuleAsync(Rule rule, RuleSet ruleSet, MatchedSection section)
+    {
+        var inputJson = SnapshotInput(section);
 
         try
         {
@@ -92,41 +143,70 @@ public sealed class EvaluationService
             var workflow = WorkflowFactory.ForRule(rule);
             var engine = new RE.RulesEngine([workflow]);
             var results = await engine.ExecuteAllRulesAsync(WorkflowFactory.WorkflowName, input!).ConfigureAwait(false);
-
-            // Single-rule workflow → single result.
             var result = results.Single();
             var outcome = result.IsSuccess ? VerdictOutcome.Pass : VerdictOutcome.Fail;
-            return BuildVerdict(rule, ruleSet, outcome, inputJson, section.Span, error: result.IsSuccess ? null : result.ExceptionMessage);
+            var remediationText = outcome == VerdictOutcome.Fail
+                ? RemediationRenderer.Render(rule.Remediation, rule, section)
+                : null;
+            return BuildVerdict(
+                rule, ruleSet, outcome,
+                section: section,
+                input: inputJson,
+                span: section.Span,
+                error: result.IsSuccess ? null : result.ExceptionMessage,
+                remediationText: remediationText);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Rule {RuleId} ({RuleVersion}) errored evaluating against {Path}",
                 rule.Id, rule.Version, section.Path);
-            return BuildVerdict(rule, ruleSet, VerdictOutcome.Error, inputJson, section.Span, ex.Message);
+            return BuildVerdict(
+                rule, ruleSet, VerdictOutcome.Error,
+                section: section,
+                input: inputJson,
+                span: section.Span,
+                error: ex.Message,
+                remediationText: null);
         }
     }
+
+    private static JsonObject SnapshotInput(MatchedSection section) =>
+        section.Node is JsonObject obj
+            ? CanonicalJson.Clone(obj)
+            : new JsonObject { ["value"] = section.Node.DeepClone() };
 
     private Verdict BuildVerdict(
         Rule rule,
         RuleSet ruleSet,
         VerdictOutcome outcome,
+        MatchedSection? section,
         JsonObject input,
         SourceSpan span,
-        string? error)
+        string? error,
+        string? remediationText)
     {
-        // Stable verdict id derived from rule + ruleset + span — gives idempotent
-        // ids across runs, which is critical for the markup engine's stable
-        // change-id story.
+        // Stable verdict id derived from rule + ruleset + predicate + span.
+        // Predicate hash is folded in so a predicate-only change creates a
+        // different verdict id even if every other input is identical.
         var id = ContentHash.Compose(
             "verdict",
             rule.Id,
             rule.Version,
             ruleSet.Id,
             ruleSet.Version,
+            rule.PredicateHash().Value,
             span.DocumentId,
             span.CharStart.ToString(System.Globalization.CultureInfo.InvariantCulture),
             span.CharLength.ToString(System.Globalization.CultureInfo.InvariantCulture),
             outcome.ToString()).Value;
+
+        var matchedSectionId = section?.Node is JsonObject obj && obj["id"] is JsonNode idNode
+            ? idNode.GetValue<string>()
+            : null;
+
+        var predicateText = string.Equals(rule.Predicate, "true", StringComparison.Ordinal)
+            ? string.Empty
+            : rule.Predicate;
 
         return new Verdict(
             Id: id,
@@ -138,13 +218,16 @@ public sealed class EvaluationService
             SourceSpan: span,
             ErrorMessage: error,
             EvidenceQuotes: rule.EvidenceQuote is { Length: > 0 } ? [rule.EvidenceQuote] : [],
-            EvaluatedAt: _time.GetUtcNow());
+            EvaluatedAt: _time.GetUtcNow())
+        {
+            MatchedSectionId = matchedSectionId,
+            RemediationText = remediationText,
+            PredicateText = predicateText,
+        };
     }
 
     private ComplianceReport BuildReport(RuleSet ruleSet, ProjectedDocument document, List<Verdict> verdicts)
     {
-        // Score: pass / (pass + fail), excluding NotApplicable and Error
-        // (errors are surfaced separately; NotApplicable doesn't move the score).
         var pass = verdicts.Count(v => v.Outcome == VerdictOutcome.Pass);
         var fail = verdicts.Count(v => v.Outcome == VerdictOutcome.Fail);
         var na = verdicts.Count(v => v.Outcome == VerdictOutcome.NotApplicable);

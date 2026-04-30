@@ -45,6 +45,25 @@ public sealed class LambdaRagPersistenceInitializer
             PRIMARY KEY (id, version)
         );
 
+        -- Per-rule hash columns: each component (predicate, lambda, remediation)
+        -- is hashed separately so a change in any one alone forces a new rule
+        -- version downstream. The whole rule still lives in rule_sets.rules_json;
+        -- this table provides a queryable, indexed projection for audits.
+        CREATE TABLE IF NOT EXISTS rules (
+            rule_set_id      TEXT NOT NULL,
+            rule_set_version TEXT NOT NULL,
+            rule_id          TEXT NOT NULL,
+            rule_version     TEXT NOT NULL,
+            severity         TEXT NOT NULL,
+            predicate_hash   TEXT NOT NULL,
+            lambda_hash      TEXT NOT NULL,
+            remediation_hash TEXT NOT NULL,
+            fingerprint      TEXT NOT NULL,
+            PRIMARY KEY (rule_set_id, rule_set_version, rule_id)
+        );
+        CREATE INDEX IF NOT EXISTS ix_rules_pred ON rules(predicate_hash);
+        CREATE INDEX IF NOT EXISTS ix_rules_lam  ON rules(lambda_hash);
+
         CREATE TABLE IF NOT EXISTS projections (
             cache_key     TEXT PRIMARY KEY,
             source_id     TEXT NOT NULL,
