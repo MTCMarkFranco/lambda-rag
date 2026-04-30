@@ -284,13 +284,24 @@ src/
   LambdaRag.Api/          ASP.NET Core minimal API (future-facing)
   LambdaRag.Cli/          `lambda-rag` command-line tool
 tests/
-  LambdaRag.UnitTests/             100 unit tests
-  LambdaRag.IdempotencyTests/      Run-twice byte-equality proofs
+  LambdaRag.UnitTests/             106 unit tests
+  LambdaRag.IdempotencyTests/      4 run-twice + golden-master byte-equality proofs (report.json + reviewed.docx)
 samples/contracts/                 contract.md + ruleset.json
 docs/                              ARCHITECTURE.md, DETERMINISM.md, SELECTORS.md
 ```
 
 ## Roadmap
+
+> **Phase 0 (credibility close-out) — ✅ complete.** Contoso gap analysis,
+> reviewed.docx golden-master idempotency, defensible accuracy framing,
+> [`what-lambda-rag-is-not.md`](docs/what-lambda-rag-is-not.md), and a
+> [Roslyn-scripting contingency](docs/dependencies/rules-engine-risk.md)
+> for the RulesEngine dependency are all shipped. See
+> [`CHANGELOG.md`](CHANGELOG.md) and the
+> [phase-0 backlog filter](https://github.com/MTCMarkFranco/lambda-rag/issues?q=is%3Aissue+label%3Aphase-0-credibility).
+
+Phases 1–5 (canonical pattern, Canadian regulatory wedges, distribution,
+governance + tooling, ecosystem) live as labelled GitHub issues. Near-term:
 
 - 🖥️ Lightweight web UI (drag-drop document + ruleset → verdict + redlined .docx download)
 - 🔌 Live Word task-pane add-in for in-place review (currently offline `.docx` markup only)
