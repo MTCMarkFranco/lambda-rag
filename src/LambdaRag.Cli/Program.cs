@@ -7,6 +7,7 @@ using LambdaRag.Evaluation;
 using LambdaRag.Evaluation.Engine;
 using LambdaRag.Indexing;
 using LambdaRag.Indexing.Abstractions;
+using LambdaRag.Markup;
 using LambdaRag.Parsing;
 using LambdaRag.Projection;
 using LambdaRag.Selectors;
@@ -60,7 +61,7 @@ static class CliEntry
             lambda-rag — deterministic rules-over-documents
 
             Usage:
-              lambda-rag review   --document <path> --ruleset <path> --out <dir>
+              lambda-rag review   --document <path> --ruleset <path> --out <dir> [--mode report|markup|both]
               lambda-rag project  --document <path> --out <path>
               lambda-rag parse    --document <path> --out <path>
               lambda-rag coverage --document <path> --ruleset <path> --out <path>
@@ -90,7 +91,8 @@ static class CliEntry
             .AddLambdaRagSelectors()
             .AddLambdaRagEvaluation()
             .AddLambdaRagAuthoring()
-            .AddLambdaRagIndexing();
+            .AddLambdaRagIndexing()
+            .AddLambdaRagMarkup();
         services.AddSingleton<CoverageService>();
         return services.BuildServiceProvider();
     }
@@ -115,6 +117,9 @@ static class CliEntry
         var documentPath = f.GetValueOrDefault("document") ?? throw new ArgumentException("--document required");
         var rulesetPath = f.GetValueOrDefault("ruleset") ?? throw new ArgumentException("--ruleset required");
         var outDir = f.GetValueOrDefault("out") ?? "out";
+        var mode = (f.GetValueOrDefault("mode") ?? "report").ToLowerInvariant();
+        if (mode is not ("report" or "markup" or "both"))
+            throw new ArgumentException("--mode must be one of: report, markup, both");
         Directory.CreateDirectory(outDir);
 
         await using var sp = (ServiceProvider)BuildServices();
@@ -123,6 +128,7 @@ static class CliEntry
         var projector = sp.GetRequiredService<IDocumentProjector>();
         var evaluator = sp.GetRequiredService<EvaluationService>();
         var sigIndex = sp.GetRequiredService<IRuleSignatureIndex>();
+        var markup = sp.GetRequiredService<OpenXmlMarkupService>();
 
         var ruleset = RuleSetIO.Load(rulesetPath);
         sigIndex.Build(ruleset);
@@ -134,8 +140,36 @@ static class CliEntry
         var projected = await effectiveProjector.ProjectAsync(parsed);
         var report = await evaluator.EvaluateAsync(ruleset, projected);
 
-        var reportPath = Path.Combine(outDir, "report.json");
-        File.WriteAllText(reportPath, RuleSetIO.SerializeReport(report));
+        var emitReport = mode is "report" or "both";
+        var emitMarkup = mode is "markup" or "both";
+
+        string? reportPath = null;
+        if (emitReport)
+        {
+            reportPath = Path.Combine(outDir, "report.json");
+            File.WriteAllText(reportPath, RuleSetIO.SerializeReport(report));
+        }
+
+        string? markupPath = null;
+        if (emitMarkup)
+        {
+            // Markup mode requires a .docx source so OpenXmlMarkupService can
+            // inject comments + tracked changes. For non-docx inputs we still
+            // produce the report (when --mode both) and emit a clear note.
+            if (!documentPath.EndsWith(".docx", StringComparison.OrdinalIgnoreCase))
+            {
+                Console.WriteLine($"Markup:    skipped — --mode {mode} requires a .docx source (got '{Path.GetExtension(documentPath)}')");
+            }
+            else
+            {
+                markupPath = Path.Combine(outDir, "reviewed.docx");
+                var ruleLookup = ruleset.Rules.ToDictionary(r => r.Id, r => r, StringComparer.Ordinal);
+                var annotations = AnnotationFactory.FromReport(report, ruleLookup).ToList();
+                var gapsSummary = AnnotationFactory.BuildGapsSummary(report, ruleLookup);
+                if (gapsSummary is not null) annotations.Insert(0, gapsSummary);
+                markup.Apply(documentPath, markupPath, annotations);
+            }
+        }
 
         Console.WriteLine($"Document:  {parsed.Source.Id}");
         Console.WriteLine($"RuleSet:   {ruleset.Id}@{ruleset.Version}");
@@ -144,7 +178,8 @@ static class CliEntry
         var withRemediation = report.Verdicts.Count(v => !string.IsNullOrEmpty(v.RemediationText));
         if (withRemediation > 0)
             Console.WriteLine($"Rewrites:  {withRemediation} verdict(s) include a suggested remediation");
-        Console.WriteLine($"Wrote:     {reportPath}");
+        if (reportPath is not null) Console.WriteLine($"Wrote:     {reportPath}");
+        if (markupPath is not null) Console.WriteLine($"Markup:    {markupPath}");
         return 0;
     }
 

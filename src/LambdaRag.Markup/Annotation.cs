@@ -33,10 +33,14 @@ public static class AnnotationFactory
     public const string Author = "lambda-rag";
 
     /// <summary>
-    /// Default mapping: every Failed verdict becomes a Comment whose body
-    /// is the rule's natural-language statement plus the failure reason.
-    /// Callers can post-process to upgrade to Insert/Delete/Replace when a
-    /// rule supplies a remediation string in its metadata.
+    /// Default mapping: every Failed / Error verdict becomes a Comment
+    /// anchored to the matched section, with the rule's natural-language
+    /// statement and (when present) the rendered remediation text.
+    ///
+    /// Gap verdicts are deliberately excluded here — they are not tied to
+    /// a specific paragraph in the reviewed document. Use
+    /// <see cref="BuildGapsSummary"/> to render them as a single summary
+    /// comment anchored to the top of the document.
     /// </summary>
     public static IEnumerable<Annotation> FromReport(ComplianceReport report, IReadOnlyDictionary<string, Rule> rules)
     {
@@ -47,6 +51,8 @@ public static class AnnotationFactory
             var text = rule is null
                 ? $"Rule {v.RuleId} reported {v.Outcome}."
                 : $"[{rule.Severity}] {rule.NaturalLanguage}";
+            if (!string.IsNullOrWhiteSpace(v.RemediationText))
+                text += $"\n\nSuggested remediation: {v.RemediationText}";
             if (v.ErrorMessage is { Length: > 0 })
                 text += $"\n\nDetail: {v.ErrorMessage}";
 
@@ -58,5 +64,37 @@ public static class AnnotationFactory
                 Text: text,
                 Replacement: null);
         }
+    }
+
+    /// <summary>
+    /// Build a single summary Annotation that lists every Gap verdict —
+    /// mandatory rules the reviewed document is silent on. Anchored to
+    /// the top of the document (charStart=0). Returns <c>null</c> when
+    /// the report has no gaps so callers can skip emission entirely.
+    /// </summary>
+    public static Annotation? BuildGapsSummary(ComplianceReport report, IReadOnlyDictionary<string, Rule> rules)
+    {
+        var gaps = report.Verdicts
+            .Where(v => v.Outcome == VerdictOutcome.Gap)
+            .OrderBy(v => v.RuleId, StringComparer.Ordinal)
+            .ToList();
+        if (gaps.Count == 0) return null;
+
+        var sb = new System.Text.StringBuilder();
+        sb.Append("LAMBDA-RAG GAP ANALYSIS — ").Append(gaps.Count).AppendLine(" mandatory topic(s) not addressed:");
+        foreach (var v in gaps)
+        {
+            var rule = rules.GetValueOrDefault(v.RuleId);
+            var nl = rule?.NaturalLanguage ?? v.RuleId;
+            sb.Append("\n• [").Append(v.RuleId).Append("] ").Append(nl);
+        }
+        var anchorSpan = new SourceSpan(report.DocumentId.Value, 0, 0, null, null);
+        return new Annotation(
+            Id: ContentHash.Compose("annot", "gaps-summary", report.RuleSetFingerprint.Value).Value,
+            Kind: AnnotationKind.Comment,
+            Span: anchorSpan,
+            Author: Author,
+            Text: sb.ToString(),
+            Replacement: null);
     }
 }
