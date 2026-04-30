@@ -7,6 +7,30 @@ namespace LambdaRag.Core.Domain;
 public enum RuleSeverity { Suggestion, Deviation, Violation, Critical }
 
 /// <summary>
+/// Whether a rule MUST apply to every document in the domain.
+///
+/// • <see cref="Mandatory"/>: every document is expected to address this
+///   rule. If no section in the projected document matches the rule's
+///   selector / predicate, the evaluator emits a <c>Gap</c> verdict — the
+///   document is silently missing required content. This is the default
+///   for a compliance review where "the doc didn't address X" is itself
+///   a finding.
+/// • <see cref="Conditional"/>: the rule applies only when its scope
+///   condition is met (typically captured in the predicate). If the
+///   predicate matches no section, that's by design, not a gap. Emits
+///   <c>NotApplicable</c>.
+/// • <see cref="Optional"/>: the rule is a recommendation, not a
+///   requirement. A document that doesn't address it is fine. Emits
+///   <c>NotApplicable</c>.
+///
+/// Inferred deterministically at authoring time from the policy text:
+/// "must / shall / required / mandatory" → Mandatory; "should /
+/// recommended / preferred" → Optional; "if / when / where / unless" →
+/// Conditional. Default is Mandatory.
+/// </summary>
+public enum RuleApplicability { Mandatory, Conditional, Optional }
+
+/// <summary>
 /// A rule extracted from a source policy. The combination of
 /// (selector, predicate, lambda, applies_to_schema) is what makes rule
 /// application 100% deterministic at runtime.
@@ -50,6 +74,14 @@ public sealed record Rule(
     public string Predicate { get; init; } = "true";
 
     /// <summary>
+    /// Whether the document MUST address this rule. Drives the Gap-vs-
+    /// NotApplicable decision when no section matches. Defaults to
+    /// <see cref="RuleApplicability.Mandatory"/> so compliance reviews
+    /// surface silent gaps by default. See <see cref="RuleApplicability"/>.
+    /// </summary>
+    public RuleApplicability Applicability { get; init; } = RuleApplicability.Mandatory;
+
+    /// <summary>
     /// Optional string template rendered when the lambda returns false.
     /// Supported placeholders are described in
     /// <c>LambdaRag.Evaluation.Engine.RemediationRenderer</c>.
@@ -90,7 +122,8 @@ public sealed record Rule(
         Lambda,
         Remediation ?? string.Empty,
         AppliesToSchema.ToJsonString(),
-        Severity.ToString());
+        Severity.ToString(),
+        Applicability.ToString());
 }
 
 /// <summary>

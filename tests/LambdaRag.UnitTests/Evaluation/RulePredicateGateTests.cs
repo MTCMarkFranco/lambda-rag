@@ -105,8 +105,10 @@ public class RulePredicateGateTests
     }
 
     [Fact]
-    public async Task PredicateMatchesNoSection_EmitsExactlyOneNotApplicable()
+    public async Task PredicateMatchesNoSection_EmitsExactlyOneGap_ForMandatoryRule()
     {
+        // Default Applicability is Mandatory → no matching section means
+        // the document is silently failing to address this rule.
         var rule = MakeRule(
             "PAY-001",
             predicate: "input1.category == \"payment_terms\"",
@@ -118,7 +120,8 @@ public class RulePredicateGateTests
         var report = await Build().EvaluateAsync(RuleSet(rule), doc);
 
         report.Verdicts.Should().HaveCount(1);
-        report.Verdicts.Single().Outcome.Should().Be(VerdictOutcome.NotApplicable);
+        report.Verdicts.Single().Outcome.Should().Be(VerdictOutcome.Gap);
+        report.Gaps.Should().Be(1);
     }
 
     [Fact]

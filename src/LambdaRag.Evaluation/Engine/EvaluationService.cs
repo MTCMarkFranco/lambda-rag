@@ -62,12 +62,12 @@ public sealed class EvaluationService
             {
                 verdicts.Add(BuildVerdict(
                     rule, ruleSet,
-                    outcome: VerdictOutcome.NotApplicable,
+                    outcome: NoMatchOutcome(rule),
                     section: null,
                     input: new JsonObject(),
                     span: rule.SourceSpan,
                     error: null,
-                    remediationText: null));
+                    remediationText: NoMatchRemediation(rule)));
                 continue;
             }
 
@@ -113,17 +113,39 @@ public sealed class EvaluationService
             {
                 verdicts.Add(BuildVerdict(
                     rule, ruleSet,
-                    outcome: VerdictOutcome.NotApplicable,
+                    outcome: NoMatchOutcome(rule),
                     section: null,
                     input: new JsonObject(),
                     span: rule.SourceSpan,
                     error: null,
-                    remediationText: null));
+                    remediationText: NoMatchRemediation(rule)));
             }
         }
 
         return BuildReport(ruleSet, document, verdicts);
     }
+
+    /// <summary>
+    /// Decide what to emit when no section matched the rule's selector or
+    /// passed the predicate: a Mandatory rule produces a <c>Gap</c>
+    /// (the document silently failed to address it); Conditional /
+    /// Optional rules produce <c>NotApplicable</c> (their scope simply
+    /// wasn't met).
+    /// </summary>
+    private static VerdictOutcome NoMatchOutcome(Rule rule) =>
+        rule.Applicability == RuleApplicability.Mandatory
+            ? VerdictOutcome.Gap
+            : VerdictOutcome.NotApplicable;
+
+    /// <summary>
+    /// For a <c>Gap</c> verdict the suggested remediation is simply the
+    /// rule's natural-language statement — the user knows what content
+    /// they need to add. For <c>NotApplicable</c> we emit nothing.
+    /// </summary>
+    private static string? NoMatchRemediation(Rule rule) =>
+        rule.Applicability == RuleApplicability.Mandatory
+            ? $"Document does not address: {rule.NaturalLanguage}"
+            : null;
 
     private async Task<(bool Applies, string? Error)> EvaluatePredicateAsync(Rule rule, MatchedSection section)
     {
@@ -245,8 +267,11 @@ public sealed class EvaluationService
         var pass = verdicts.Count(v => v.Outcome == VerdictOutcome.Pass);
         var fail = verdicts.Count(v => v.Outcome == VerdictOutcome.Fail);
         var na = verdicts.Count(v => v.Outcome == VerdictOutcome.NotApplicable);
+        var gap = verdicts.Count(v => v.Outcome == VerdictOutcome.Gap);
         var err = verdicts.Count(v => v.Outcome == VerdictOutcome.Error);
-        var denominator = pass + fail;
+        // Gaps count against the score: a Mandatory rule the document
+        // never addressed is just as much a finding as an explicit fail.
+        var denominator = pass + fail + gap;
         var score = denominator == 0 ? 1.0 : (double)pass / denominator;
 
         return new ComplianceReport(
@@ -267,6 +292,9 @@ public sealed class EvaluationService
                 .ThenBy(v => v.SourceSpan.CharStart)
                 .ThenBy(v => v.Id, StringComparer.Ordinal)
                 .ToList(),
-            GeneratedAt: _time.GetUtcNow());
+            GeneratedAt: _time.GetUtcNow())
+        {
+            Gaps = gap,
+        };
     }
 }

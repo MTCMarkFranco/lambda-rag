@@ -171,6 +171,7 @@ public sealed class DeterministicMockAuthoringAgent : IRuleAuthoringAgent
             })
         {
             Predicate = "input1.category == \"payment_terms\"",
+            Applicability = InferApplicability(req.SourceContent),
             Remediation = "Replace the {section.heading} clause with: \"Customer shall pay all undisputed invoices within {meta.maxDays} days of the invoice date.\"",
             SourceContent = req.SourceContent,
             SourceEmbedding = await _embedder.EmbedAsync(req.SourceContent).ConfigureAwait(false),
@@ -199,6 +200,7 @@ public sealed class DeterministicMockAuthoringAgent : IRuleAuthoringAgent
             })
         {
             Predicate = "input1.category == \"governing_law\"",
+            Applicability = InferApplicability(req.SourceContent),
             Remediation = "Replace the {section.heading} clause with: \"This Agreement is governed by the laws of the State of {meta.requiredJurisdiction}.\"",
             SourceContent = req.SourceContent,
             SourceEmbedding = await _embedder.EmbedAsync(req.SourceContent).ConfigureAwait(false),
@@ -227,6 +229,7 @@ public sealed class DeterministicMockAuthoringAgent : IRuleAuthoringAgent
             })
         {
             Predicate = "input1.category == \"privacy\"",
+            Applicability = InferApplicability(req.SourceContent),
             Remediation = "Add to the {section.heading} clause: \"Provider shall maintain security controls aligned with {meta.requiredStandard}.\"",
             SourceContent = req.SourceContent,
             SourceEmbedding = await _embedder.EmbedAsync(req.SourceContent).ConfigureAwait(false),
@@ -252,6 +255,7 @@ public sealed class DeterministicMockAuthoringAgent : IRuleAuthoringAgent
             Metadata: new Dictionary<string, string> { ["minYears"] = "5" })
         {
             Predicate = "input1.category == \"confidentiality\"",
+            Applicability = InferApplicability(req.SourceContent),
             Remediation = "Add an explicit survival period to the {section.heading} clause: \"obligations survive for {meta.minYears} years from termination.\"",
             SourceContent = req.SourceContent,
             SourceEmbedding = await _embedder.EmbedAsync(req.SourceContent).ConfigureAwait(false),
@@ -274,6 +278,7 @@ public sealed class DeterministicMockAuthoringAgent : IRuleAuthoringAgent
             Metadata: new Dictionary<string, string> { ["capWindow"] = "12 months" })
         {
             Predicate = "input1.category == \"liability\"",
+            Applicability = InferApplicability(req.SourceContent),
             Remediation = "Add an explicit cap to the {section.heading} clause: \"total liability shall not exceed the fees paid in the {meta.capWindow} preceding the claim.\"",
             SourceContent = req.SourceContent,
             SourceEmbedding = await _embedder.EmbedAsync(req.SourceContent).ConfigureAwait(false),
@@ -296,6 +301,7 @@ public sealed class DeterministicMockAuthoringAgent : IRuleAuthoringAgent
             Metadata: new Dictionary<string, string> { ["cureDays"] = "30" })
         {
             Predicate = "input1.category == \"warranty\"",
+            Applicability = InferApplicability(req.SourceContent),
             Remediation = "Specify a cure window in the {section.heading} clause: \"Provider shall correct non-conforming Services within {meta.cureDays} days.\"",
             SourceContent = req.SourceContent,
             SourceEmbedding = await _embedder.EmbedAsync(req.SourceContent).ConfigureAwait(false),
@@ -318,6 +324,7 @@ public sealed class DeterministicMockAuthoringAgent : IRuleAuthoringAgent
             Metadata: new Dictionary<string, string> { ["minNoticeDays"] = "60" })
         {
             Predicate = "input1.category == \"termination\"",
+            Applicability = InferApplicability(req.SourceContent),
             Remediation = "Update the {section.heading} clause to require at least {meta.minNoticeDays} calendar days prior written notice to terminate for convenience.",
             SourceContent = req.SourceContent,
             SourceEmbedding = await _embedder.EmbedAsync(req.SourceContent).ConfigureAwait(false),
@@ -340,6 +347,7 @@ public sealed class DeterministicMockAuthoringAgent : IRuleAuthoringAgent
             Metadata: new Dictionary<string, string> { ["preferredModel"] = "work-for-hire" })
         {
             Predicate = "input1.category == \"ip_ownership\"",
+            Applicability = InferApplicability(req.SourceContent),
             Remediation = "Clarify the {section.heading} clause: prefer a {meta.preferredModel} assignment of all deliverables, or a perpetual, irrevocable, royalty-free license.",
             SourceContent = req.SourceContent,
             SourceEmbedding = await _embedder.EmbedAsync(req.SourceContent).ConfigureAwait(false),
@@ -368,11 +376,39 @@ public sealed class DeterministicMockAuthoringAgent : IRuleAuthoringAgent
             Metadata: new Dictionary<string, string> { ["topic"] = category })
         {
             Predicate = $"input1.category == \"{category}\"",
+            Applicability = InferApplicability(req.SourceContent),
             Remediation = remediation,
             SourceContent = req.SourceContent,
             SourceEmbedding = await _embedder.EmbedAsync(req.SourceContent).ConfigureAwait(false),
         };
         return new RuleAuthoringSuggestion(rule, 0.85, $"Chunk matches architecture pattern '{category}'.");
+    }
+
+    /// <summary>
+    /// Deterministically infer rule applicability from the policy text.
+    /// "must / shall / required / mandatory / will" → Mandatory.
+    /// "should / recommended / preferred / encouraged" → Optional.
+    /// "if / when / where / unless / conditional / applicable" → Conditional.
+    /// Default is Mandatory (compliance-safe: when in doubt, treat absence
+    /// as a gap rather than silently passing).
+    /// </summary>
+    internal static RuleApplicability InferApplicability(string sourceContent)
+    {
+        if (string.IsNullOrWhiteSpace(sourceContent))
+            return RuleApplicability.Mandatory;
+
+        var lowered = sourceContent.ToLowerInvariant();
+        var hasMust = ContainsAny(lowered,
+            "must ", "shall ", " required", "mandatory", "will ");
+        var hasShould = ContainsAny(lowered,
+            "should ", "recommended", "preferred", "encouraged", "may ");
+        var hasConditional = ContainsAny(lowered,
+            " if ", " when ", " where ", "unless ", "conditional", "applicable to", "where applicable");
+
+        if (hasMust) return RuleApplicability.Mandatory;
+        if (hasConditional) return RuleApplicability.Conditional;
+        if (hasShould) return RuleApplicability.Optional;
+        return RuleApplicability.Mandatory;
     }
 
     private static JsonObject SectionTextSchema() => new()
