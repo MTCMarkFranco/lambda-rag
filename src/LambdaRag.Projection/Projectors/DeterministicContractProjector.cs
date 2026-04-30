@@ -1,37 +1,72 @@
+using System.Reflection;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using LambdaRag.Core.Abstractions;
 using LambdaRag.Core.Domain;
-using LambdaRag.Core.Hashing;
 
 namespace LambdaRag.Projection.Projectors;
 
 /// <summary>
 /// Deterministic contract projector. Walks the heading hierarchy of a
-/// parsed document and bins paragraphs into well-known contract sections
-/// (parties, term, payment_terms, governing_law, termination, ...). All
-/// classification is rule-based — no LLM is involved.
+/// parsed document and produces a multi-label topic vector for each
+/// section using a data-driven <see cref="TopicMap"/> (default loaded
+/// from embedded <c>TopicMaps/contract.v1.json</c>; override via ctor
+/// to onboard new industries without recompile).
 ///
-/// Output graph shape (simplified):
+/// Output graph shape (v1.2):
 /// <code>
 /// {
 ///   "doc_kind": "contract",
+///   "topic_map": "contract@1.0.0",
 ///   "sections": [
-///     { "id": "s_00000123", "heading": "...", "heading_path": "/...",
-///       "category": "payment_terms", "text": "..." }
+///     {
+///       "id": "s_00000123",
+///       "heading": "...",
+///       "heading_path": "/...",
+///       "category": "liability",        // primary topic, kept as alias
+///       "primary_topic": "liability",
+///       "topics": ["liability", "jurisdiction:hungary"],
+///       "topic_scores": { "liability": 0.62, "jurisdiction:hungary": 1.0 },
+///       "inherited_from": "s_00000005",  // present iff amendment xref matched
+///       "text": "..."
+///     }
 ///   ],
-///   "categories": { "payment_terms": [ &lt;section ids&gt; ], ... }
+///   "categories": { "liability": [ &lt;ids&gt; ], ... },
+///   "unknown_sections": [ &lt;ids&gt; ]    // sections with no primary topic
 /// }
 /// </code>
-///
-/// Span map: each section has a span entry under "$.sections[i]" pointing
-/// at the source span of its first block.
 /// </summary>
 public sealed class DeterministicContractProjector : IDocumentProjector
 {
     public string Id => "contract";
-    public string Version => "1.1.0";
+    public string Version => "1.2.0";
     public string Domain => "contract";
     public JsonObject Schema => SchemaInstance;
+
+    private readonly TopicMap _topicMap;
+
+    public DeterministicContractProjector() : this(LoadDefaultTopicMap()) { }
+
+    public DeterministicContractProjector(TopicMap topicMap)
+    {
+        _topicMap = topicMap ?? throw new ArgumentNullException(nameof(topicMap));
+    }
+
+    public TopicMap TopicMap => _topicMap;
+
+    private static TopicMap LoadDefaultTopicMap()
+    {
+        var asm = typeof(DeterministicContractProjector).Assembly;
+        var resourceName = asm.GetManifestResourceNames()
+            .FirstOrDefault(n => n.EndsWith("TopicMaps.contract.v1.json", StringComparison.Ordinal))
+            ?? throw new InvalidOperationException(
+                "Embedded resource 'TopicMaps/contract.v1.json' not found. "
+                + "Available: " + string.Join(", ", asm.GetManifestResourceNames()));
+        using var stream = asm.GetManifestResourceStream(resourceName)
+            ?? throw new InvalidOperationException($"Could not open resource {resourceName}");
+        using var reader = new StreamReader(stream);
+        return TopicMap.LoadFromJson(reader.ReadToEnd());
+    }
 
     private static readonly JsonObject SchemaInstance = new()
     {
@@ -55,49 +90,31 @@ public sealed class DeterministicContractProjector : IDocumentProjector
                         ["heading"] = new JsonObject { ["type"] = "string" },
                         ["heading_path"] = new JsonObject { ["type"] = "string" },
                         ["category"] = new JsonObject { ["type"] = "string" },
+                        ["primary_topic"] = new JsonObject { ["type"] = "string" },
+                        ["topics"] = new JsonObject { ["type"] = "array" },
+                        ["topic_scores"] = new JsonObject { ["type"] = "object" },
+                        ["inherited_from"] = new JsonObject { ["type"] = "string" },
                         ["text"] = new JsonObject { ["type"] = "string" },
                     },
                 },
             },
             ["categories"] = new JsonObject { ["type"] = "object" },
+            ["unknown_sections"] = new JsonObject { ["type"] = "array" },
         },
     };
-
-    // NOTE: Order matters — earlier entries win on ambiguous headings. Specific
-    // categories (e.g. "termination", "data protection") must precede looser ones
-    // (e.g. "term"). Tightened from initial set after observing real Air Canada /
-    // Microsoft contract templates classifying common clauses as "other".
-    private static readonly (string[] Keywords, string Category)[] CategoryRules =
-    [
-        (new[] { "payment", "fees", "compensation", "invoice" }, "payment_terms"),
-        (new[] { "termination", "cancel" }, "termination"),
-        (new[] { "governing law", "jurisdiction", "venue", "applicable law" }, "governing_law"),
-        (new[] { "warranty", "warranties", "disclaimer" }, "warranty"),
-        (new[] { "confidential", "non-disclosure", "nda" }, "confidentiality"),
-        (new[] { "indemn", "infringement", "misappropriation", "third party claim", "third-party claim" }, "indemnification"),
-        (new[] { "liabil" }, "liability"),
-        (new[] { "data protection", "privacy", "gdpr", "personal data", "data processing" }, "privacy"),
-        (new[] { "security", "infosec", "information security" }, "security"),
-        (new[] { "service level", "sla" }, "service_levels"),
-        (new[] { "intellectual property", "ownership", "rights and restrictions", "license to", "work product" }, "ip_ownership"),
-        (new[] { "audit", "verifying compliance", "right to verify", "inspection", "books and records" }, "audit"),
-        (new[] { "insurance", "coverage" }, "insurance"),
-        (new[] { "supportability", "support and maintenance", "technical support" }, "support"),
-        (new[] { "force majeure" }, "force_majeure"),
-        (new[] { "assignment", "assignability" }, "assignment"),
-        (new[] { "notice", "notices" }, "notices"),
-        (new[] { "duration", "effective date", "term of agreement", "term of this agreement" }, "term"),
-        (new[] { "parties", "party", "between" }, "parties"),
-    ];
 
     public Task<ProjectedDocument> ProjectAsync(ParsedDocument parsed, CancellationToken ct = default)
     {
         var sections = new JsonArray();
         var spanMap = new Dictionary<string, SourceSpan>(StringComparer.Ordinal);
         var categories = new Dictionary<string, JsonArray>(StringComparer.Ordinal);
+        var unknown = new JsonArray();
 
-        var groups = GroupByHeading(parsed.Blocks);
+        // Pre-pass: collect (sectionId, primaryTopic, headingLower) so amendment
+        // resolver can look up by heading text mentioned in cross-references.
+        var processed = new List<(string Id, string Heading, string PrimaryTopic)>();
 
+        var groups = GroupByHeading(parsed.Blocks).ToList();
         var index = 0;
         foreach (var group in groups)
         {
@@ -105,26 +122,48 @@ public sealed class DeterministicContractProjector : IDocumentProjector
             var headingPath = group.HeadingPath;
             var bodyText = string.Join("\n", group.Body.Select(b => b.Text));
             var firstSpan = (group.Heading ?? group.Body.FirstOrDefault())?.Span ?? SourceSpan.Unknown;
-            var category = ClassifyHeading(heading);
-
             var sectionId = $"s_{index:D8}";
+
+            var classification = Classify(heading, bodyText, processed);
+
+            var topicsArr = new JsonArray();
+            var scoresObj = new JsonObject();
+            foreach (var (topic, score) in classification.Topics
+                         .OrderByDescending(t => t.Score)
+                         .ThenBy(t => t.Topic, StringComparer.Ordinal))
+            {
+                topicsArr.Add(topic);
+                scoresObj[topic] = score;
+            }
+
             var sectionNode = new JsonObject
             {
                 ["id"] = sectionId,
                 ["heading"] = heading,
                 ["heading_path"] = headingPath,
-                ["category"] = category,
+                ["category"] = classification.PrimaryTopic ?? "unknown",
+                ["primary_topic"] = classification.PrimaryTopic ?? "unknown",
+                ["topics"] = topicsArr,
+                ["topic_scores"] = scoresObj,
                 ["text"] = bodyText,
             };
+            if (classification.InheritedFrom is not null)
+                sectionNode["inherited_from"] = classification.InheritedFrom;
+
             sections.Add(sectionNode);
 
             spanMap[$"$.sections[{index}]"] = firstSpan;
             spanMap[$"$.sections[?(@.id == '{sectionId}')]"] = firstSpan;
 
-            if (!categories.TryGetValue(category, out var ids))
-                categories[category] = ids = new JsonArray();
+            var primary = classification.PrimaryTopic ?? "unknown";
+            if (!categories.TryGetValue(primary, out var ids))
+                categories[primary] = ids = new JsonArray();
             ids.Add(sectionId);
 
+            if (classification.PrimaryTopic is null)
+                unknown.Add(sectionId);
+
+            processed.Add((sectionId, heading, primary));
             index++;
         }
 
@@ -135,8 +174,10 @@ public sealed class DeterministicContractProjector : IDocumentProjector
         var graph = new JsonObject
         {
             ["doc_kind"] = "contract",
+            ["topic_map"] = $"{_topicMap.Domain}@{_topicMap.Version}",
             ["sections"] = sections,
             ["categories"] = categoriesObj,
+            ["unknown_sections"] = unknown,
         };
 
         var projected = new ProjectedDocument(
@@ -149,16 +190,105 @@ public sealed class DeterministicContractProjector : IDocumentProjector
         return Task.FromResult(projected);
     }
 
-    private static string ClassifyHeading(string heading)
+    private record TopicScore(string Topic, double Score);
+    private record Classification(string? PrimaryTopic, IReadOnlyList<TopicScore> Topics, string? InheritedFrom);
+
+    private Classification Classify(
+        string heading,
+        string body,
+        IReadOnlyList<(string Id, string Heading, string PrimaryTopic)> processed)
     {
-        var lowered = heading.ToLowerInvariant();
-        foreach (var (keywords, category) in CategoryRules)
+        var topics = new Dictionary<string, double>(StringComparer.Ordinal);
+        string? primary = null;
+        string? inheritedFrom = null;
+
+        var headingLower = heading.ToLowerInvariant();
+        var bodyLower = body.ToLowerInvariant();
+        var combinedLower = headingLower + "\n" + bodyLower;
+
+        // 1. Primary topic from heading (first match wins, declared order).
+        foreach (var t in _topicMap.Topics.Where(t => t.Axis is null))
         {
-            foreach (var kw in keywords)
-                if (lowered.Contains(kw, StringComparison.Ordinal))
-                    return category;
+            foreach (var kw in t.Keywords)
+            {
+                if (headingLower.Contains(kw, StringComparison.Ordinal))
+                {
+                    primary ??= t.Id;
+                    topics[t.Id] = Math.Max(topics.GetValueOrDefault(t.Id), 0.9);
+                    break;
+                }
+            }
         }
-        return "other";
+
+        // 2. Body-level signal for primary topics: lower confidence than heading.
+        foreach (var t in _topicMap.Topics.Where(t => t.Axis is null))
+        {
+            foreach (var kw in t.Keywords)
+            {
+                if (bodyLower.Contains(kw, StringComparison.Ordinal))
+                {
+                    if (!topics.ContainsKey(t.Id))
+                        topics[t.Id] = 0.4;
+                    break;
+                }
+            }
+        }
+
+        // 3. Axis topics (e.g. jurisdiction:<country>) — pure tags, never primary.
+        foreach (var (axisName, axisDef) in _topicMap.Axes)
+        {
+            foreach (var pat in axisDef.HeadingPatterns)
+            {
+                if (headingLower.Contains(pat, StringComparison.Ordinal))
+                {
+                    var slug = pat.Replace(' ', '_');
+                    topics[$"{axisName}:{slug}"] = 1.0;
+                }
+            }
+        }
+
+        // 4. Amendment cross-reference resolver — if the body cites another
+        //    section's title, inherit that section's primary topic.
+        if (primary is null)
+        {
+            foreach (var rx in _topicMap.CompiledAmendmentPatterns)
+            {
+                var m = rx.Match(body);
+                if (m.Success && m.Groups.Count > 1)
+                {
+                    var referencedTitle = m.Groups[1].Value.Trim().ToLowerInvariant();
+                    var parent = processed.FirstOrDefault(p =>
+                        p.Heading.Equals(m.Groups[1].Value.Trim(), StringComparison.OrdinalIgnoreCase)
+                        || p.Heading.ToLowerInvariant().Contains(referencedTitle, StringComparison.Ordinal));
+                    if (parent.PrimaryTopic is not null && parent.PrimaryTopic != "unknown")
+                    {
+                        primary = parent.PrimaryTopic;
+                        inheritedFrom = parent.Id;
+                        topics[primary] = Math.Max(topics.GetValueOrDefault(primary), 0.95);
+                        break;
+                    }
+                    // Even without parent in `processed`, classify the referenced
+                    // title against the topic map directly.
+                    foreach (var t in _topicMap.Topics.Where(t => t.Axis is null))
+                    {
+                        if (t.Keywords.Any(kw => referencedTitle.Contains(kw, StringComparison.Ordinal)))
+                        {
+                            primary = t.Id;
+                            inheritedFrom = "<by-title>";
+                            topics[primary] = Math.Max(topics.GetValueOrDefault(primary), 0.85);
+                            break;
+                        }
+                    }
+                    if (primary is not null) break;
+                }
+            }
+        }
+
+        var scoreList = topics
+            .Select(kvp => new TopicScore(kvp.Key, Math.Round(kvp.Value, 3)))
+            .ToList();
+
+        return new Classification(primary, scoreList, inheritedFrom);
     }
 
     private static IEnumerable<HeadingGroup> GroupByHeading(IReadOnlyList<ContentBlock> blocks)
@@ -189,12 +319,5 @@ public sealed class DeterministicContractProjector : IDocumentProjector
             yield return new HeadingGroup(heading, body.ToList(), headingPath);
     }
 
-    private sealed record HeadingGroup(ContentBlock? Heading, IReadOnlyList<ContentBlock> Body, string HeadingPath);
-
-    public ContentHash CacheKeyFor(ParsedDocument parsed) => ProjectedDocument.CacheKey(
-        parsed.Source.Id,
-        Id,
-        Version,
-        modelId: "deterministic",
-        promptHash: ContentHash.OfString("deterministic-contract-projector"));
+    private record HeadingGroup(ContentBlock? Heading, List<ContentBlock> Body, string HeadingPath);
 }
