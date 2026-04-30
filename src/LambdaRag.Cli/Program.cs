@@ -36,6 +36,7 @@ static class CliEntry
                 "author"   => await AuthorAsync(args.Skip(1).ToArray()),
                 "index"    => await IndexAsync(args.Skip(1).ToArray()),
                 "topic-map" => await TopicMapAsync(args.Skip(1).ToArray()),
+                "extract-rules" => await ExtractRulesAsync(args.Skip(1).ToArray()),
                 _ => UnknownCommand(args[0]),
             };
         }
@@ -68,6 +69,8 @@ static class CliEntry
               lambda-rag topic-map list
               lambda-rag topic-map show <id-or-path>
               lambda-rag topic-map coverage --ruleset <path> [--topic-map <id-or-path>]
+              lambda-rag extract-rules --policy-dir <dir> --domain <name> --id <ruleset-id> --out <path>
+                                       [--min-chars 200] [--prefix <id-prefix>]
 
             Common flags:
               --topic-map <id-or-path>   Override default contract.v1 topic map.
@@ -298,6 +301,114 @@ static class CliEntry
             Console.WriteLine($"Wrote:        {outPath}");
         }
         return Task.FromResult(0);
+    }
+
+    static async Task<int> ExtractRulesAsync(string[] args)
+    {
+        var f = ParseFlags(args);
+        var policyDir = f.GetValueOrDefault("policy-dir") ?? throw new ArgumentException("--policy-dir required");
+        var domain = f.GetValueOrDefault("domain") ?? "contract";
+        var id = f.GetValueOrDefault("id") ?? "rs_extracted";
+        var outPath = f.GetValueOrDefault("out") ?? "extracted-ruleset.json";
+        var prefix = f.GetValueOrDefault("prefix") ?? "X";
+        var minChars = int.TryParse(f.GetValueOrDefault("min-chars"), out var mc) ? mc : 200;
+
+        await using var sp = (ServiceProvider)BuildServices();
+        var parsers = sp.GetRequiredService<ParserRegistry>();
+        var agent = sp.GetRequiredService<IRuleAuthoringAgent>();
+
+        var policyFiles = Directory.EnumerateFiles(policyDir)
+            .Where(p => p.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase)
+                     || p.EndsWith(".docx", StringComparison.OrdinalIgnoreCase))
+            .OrderBy(p => p, StringComparer.Ordinal)
+            .ToList();
+
+        Console.WriteLine($"Policy dir:   {policyDir}");
+        Console.WriteLine($"Files:        {policyFiles.Count}");
+
+        var allRules = new List<Rule>();
+        var skipped = 0; var examined = 0; var emitted = 0;
+
+        foreach (var path in policyFiles)
+        {
+            var file = Path.GetFileName(path);
+            ParsedDocument parsed;
+            try { parsed = await parsers.ParseAsync(path); }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"  ! parse failed for {file}: {ex.Message}");
+                continue;
+            }
+
+            var docPrefix = $"{prefix}-{Math.Abs(file.GetHashCode()) % 10000:D4}";
+            var idx = 0;
+            foreach (var block in parsed.Blocks)
+            {
+                if (string.IsNullOrWhiteSpace(block.Text) || block.Text.Length < minChars) { skipped++; continue; }
+                examined++;
+
+                var span = new SourceSpan(
+                    DocumentId: parsed.Source.Id.Value,
+                    CharStart: block.Span.CharStart,
+                    CharLength: block.Span.CharLength,
+                    PageNumber: block.Span.PageNumber,
+                    HeadingPath: block.HeadingPath);
+
+                IReadOnlyList<RuleAuthoringSuggestion> suggestions;
+                try
+                {
+                    suggestions = await agent.AuthorAsync(new RuleAuthoringRequest(
+                        SourceContent: block.Text,
+                        Domain: domain,
+                        RuleIdPrefix: $"{docPrefix}-{idx:D3}",
+                        SourceSpan: span));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"  ! author failed for {file}#{idx}: {ex.Message}");
+                    idx++; continue;
+                }
+
+                foreach (var s in suggestions)
+                {
+                    allRules.Add(s.Rule);
+                    emitted++;
+                }
+                idx++;
+            }
+            Console.WriteLine($"  - {file}: blocks={parsed.Blocks.Count} authored=so-far={emitted}");
+        }
+
+        // Deduplicate by lambda+predicate fingerprint, keep deterministic order
+        var deduped = allRules
+            .GroupBy(r => $"{r.PredicateHash().Value}::{r.LambdaHash().Value}")
+            .Select(g => g.OrderBy(r => r.Id, StringComparer.Ordinal).First())
+            .OrderBy(r => r.Id, StringComparer.Ordinal)
+            .ToList();
+
+        var ruleset = new RuleSet(
+            Id: id,
+            Version: "1.0.0",
+            Domain: domain,
+            PublishedAt: DateTimeOffset.UnixEpoch,
+            Rules: deduped,
+            Metadata: new Dictionary<string, string>
+            {
+                ["source_dir"] = policyDir,
+                ["files_processed"] = policyFiles.Count.ToString(),
+                ["blocks_examined"] = examined.ToString(),
+                ["blocks_skipped_short"] = skipped.ToString(),
+                ["raw_suggestions"] = emitted.ToString(),
+                ["dedup_count"] = (emitted - deduped.Count).ToString(),
+            });
+
+        RuleSetIO.Save(ruleset, outPath);
+        Console.WriteLine($"Examined:     {examined} blocks across {policyFiles.Count} files");
+        Console.WriteLine($"Skipped:      {skipped} short blocks (<{minChars} chars)");
+        Console.WriteLine($"Authored:     {emitted} raw suggestions");
+        Console.WriteLine($"Final ruleset: {deduped.Count} unique rules");
+        Console.WriteLine($"Wrote:        {outPath}");
+        return 0;
     }
 
     static Task<int> TopicMapAsync(string[] args)
