@@ -31,6 +31,12 @@ changes between runs. Lambda-RAG enforces a strict separation:
 review against the same ruleset produces byte-identical OOXML parts
 inside `reviewed.docx` and a byte-identical `report.json`.
 
+> 📌 **Before evaluating lambda-rag, please read
+> [`docs/what-lambda-rag-is-not.md`](docs/what-lambda-rag-is-not.md).**
+> It is the explicit non-claims sheet — what we deliberately do *not*
+> guarantee — and is the most useful single page for anyone deciding
+> whether this tool fits a regulator-facing use case.
+
 ## Built-in industry topic maps
 
 Out of the box, Lambda-RAG ships with topic ontologies for several
