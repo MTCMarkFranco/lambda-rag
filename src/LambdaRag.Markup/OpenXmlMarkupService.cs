@@ -60,7 +60,7 @@ public sealed class OpenXmlMarkupService
             ?? throw new InvalidOperationException("DOCX has no Body");
 
         var commentsPart = main.WordprocessingCommentsPart
-            ?? main.AddNewPart<WordprocessingCommentsPart>();
+            ?? main.AddNewPart<WordprocessingCommentsPart>("rIdLambdaRagComments");
         commentsPart.Comments ??= new Comments();
 
         // Build an index of paragraphs with running char offsets.
