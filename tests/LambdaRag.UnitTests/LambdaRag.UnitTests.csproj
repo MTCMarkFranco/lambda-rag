@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\LambdaRag.Core\LambdaRag.Core.csproj" />
+    <ProjectReference Include="..\..\src\LambdaRag.Parsing\LambdaRag.Parsing.csproj" />
+    <ProjectReference Include="..\..\src\LambdaRag.Projection\LambdaRag.Projection.csproj" />
+    <ProjectReference Include="..\..\src\LambdaRag.Selectors\LambdaRag.Selectors.csproj" />
+    <ProjectReference Include="..\..\src\LambdaRag.Evaluation\LambdaRag.Evaluation.csproj" />
+    <ProjectReference Include="..\..\src\LambdaRag.Markup\LambdaRag.Markup.csproj" />
+    <ProjectReference Include="..\..\src\LambdaRag.Persistence\LambdaRag.Persistence.csproj" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="coverlet.collector" />
+  </ItemGroup>
+</Project>

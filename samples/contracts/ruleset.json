@@ -1,0 +1,57 @@
+{
+  "id": "rs_sample_contracts",
+  "version": "1.0.0",
+  "domain": "contract",
+  "publishedAt": "2024-01-01T00:00:00Z",
+  "rules": [
+    {
+      "id": "PAY-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Payment terms must be 30 days or fewer.",
+      "severity": "Violation",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" } },
+        "required": ["text"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[?(@.category == 'payment_terms')]" },
+      "lambda": "input1.text.Contains(\"30 days\") || input1.text.Contains(\"15 days\") || input1.text.Contains(\"net 30\") || input1.text.Contains(\"Net 30\")",
+      "evidenceQuote": "Customer shall pay all undisputed invoices within 45 days",
+      "sourceSpan": { "documentId": "policy", "page": 1, "charStart": 0, "charEnd": 0 },
+      "metadata": {}
+    },
+    {
+      "id": "GOV-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Governing law must be a U.S. jurisdiction.",
+      "severity": "Deviation",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" } },
+        "required": ["text"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[?(@.category == 'governing_law')]" },
+      "lambda": "input1.text.Contains(\"United States\") || input1.text.Contains(\"Delaware\") || input1.text.Contains(\"New York\") || input1.text.Contains(\"California\")",
+      "evidenceQuote": "governed by the laws of the State of Delaware",
+      "sourceSpan": { "documentId": "policy", "page": 1, "charStart": 0, "charEnd": 0 },
+      "metadata": {}
+    },
+    {
+      "id": "DPA-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Data protection clause must reference an industry security standard.",
+      "severity": "Violation",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" } },
+        "required": ["text"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[?(@.category == 'privacy')]" },
+      "lambda": "input1.text.Contains(\"ISO 27001\") || input1.text.Contains(\"SOC 2\") || input1.text.Contains(\"NIST\")",
+      "evidenceQuote": "security measures consistent with ISO 27001",
+      "sourceSpan": { "documentId": "policy", "page": 1, "charStart": 0, "charEnd": 0 },
+      "metadata": {}
+    }
+  ],
+  "metadata": {}
+}

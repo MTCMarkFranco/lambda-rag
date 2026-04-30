@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\LambdaRag.Core\LambdaRag.Core.csproj" />
+    <ProjectReference Include="..\LambdaRag.Selectors\LambdaRag.Selectors.csproj" />
+    <ProjectReference Include="..\LambdaRag.Persistence\LambdaRag.Persistence.csproj" />
+    <PackageReference Include="RulesEngine" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+</Project>
