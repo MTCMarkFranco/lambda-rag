@@ -1,0 +1,82 @@
+{
+  "id": "rs_air_canada_demo",
+  "version": "1.0.0",
+  "domain": "contract",
+  "publishedAt": "2026-04-30T00:00:00Z",
+  "metadata": {
+    "source": "Hand-authored demo ruleset based on common Air Canada procurement / legal policies",
+    "note": "This ruleset is for end-to-end testing only. A production deployment would author rules from the actual AC policy PDFs via an LLM-backed authoring agent."
+  },
+  "rules": [
+    {
+      "id": "AC-CONF-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Confidentiality clause must define a survival period (years) for the NDA obligations.",
+      "predicate": "input1.category == \"confidentiality\"",
+      "lambda": "input1.text.Contains(\"year\") || input1.text.Contains(\"years\") || input1.text.Contains(\"perpetual\")",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Violation",
+      "sourceSpan": { "documentId": "ac-policy", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Confidentiality survival",
+      "remediation": "Add an explicit survival period (e.g., \"obligations survive for five (5) years from termination\") to the {section.heading} clause.",
+      "metadata": { "reviewer": "ac-procurement" }
+    },
+    {
+      "id": "AC-LIAB-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Limitation of liability must reference an explicit dollar cap or fee multiplier.",
+      "predicate": "input1.category == \"liability\"",
+      "lambda": "input1.text.Contains(\"$\") || input1.text.Contains(\"fees paid\") || input1.text.Contains(\"amount paid\") || input1.text.Contains(\"twelve months\") || input1.text.Contains(\"12 months\")",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Critical",
+      "sourceSpan": { "documentId": "ac-policy", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Limitation of liability",
+      "remediation": "Add an explicit cap to the {section.heading} clause: \"In no event shall total liability exceed the fees paid in the twelve (12) months preceding the claim.\"",
+      "metadata": { "reviewer": "ac-legal" }
+    },
+    {
+      "id": "AC-WAR-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Warranties must include a defined remedy / cure period.",
+      "predicate": "input1.category == \"warranty\"",
+      "lambda": "input1.text.Contains(\"days\") || input1.text.Contains(\"remedy\") || input1.text.Contains(\"replace\") || input1.text.Contains(\"refund\")",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Deviation",
+      "sourceSpan": { "documentId": "ac-policy", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Warranty remedy",
+      "remediation": "Specify a cure window in the {section.heading} clause (e.g., \"Provider shall correct non-conforming Services within thirty (30) days\").",
+      "metadata": { "reviewer": "ac-legal" }
+    },
+    {
+      "id": "AC-TERM-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Termination clause must specify a written-notice period of at least 30 days.",
+      "predicate": "input1.category == \"termination\"",
+      "lambda": "input1.text.Contains(\"30 days\") || input1.text.Contains(\"60 days\") || input1.text.Contains(\"90 days\") || input1.text.Contains(\"30 calendar days\") || input1.text.Contains(\"60 calendar days\") || input1.text.Contains(\"90 calendar days\")",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Violation",
+      "sourceSpan": { "documentId": "ac-policy", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Termination notice",
+      "remediation": "Update the {section.heading} clause to require at least sixty (60) calendar days prior written notice to terminate for convenience.",
+      "metadata": { "reviewer": "ac-procurement" }
+    },
+    {
+      "id": "AC-INDM-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Indemnification clause must address third-party IP infringement.",
+      "predicate": "input1.text.Contains(\"infringement\") || input1.text.Contains(\"infringe\") || input1.text.Contains(\"indemn\")",
+      "lambda": "input1.text.Contains(\"defend\") || input1.text.Contains(\"defense\") || input1.text.Contains(\"indemnify\")",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Violation",
+      "sourceSpan": { "documentId": "ac-policy", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "IP indemnity",
+      "remediation": "Ensure the {section.heading} clause requires the supplier to defend Air Canada against third-party IP infringement claims.",
+      "metadata": { "reviewer": "ac-legal" }
+    }
+  ]
+}
