@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>LambdaRag.Cli</RootNamespace>
+    <AssemblyName>lambda-rag</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LambdaRag.Core\LambdaRag.Core.csproj" />
+    <ProjectReference Include="..\LambdaRag.Parsing\LambdaRag.Parsing.csproj" />
+    <ProjectReference Include="..\LambdaRag.Projection\LambdaRag.Projection.csproj" />
+    <ProjectReference Include="..\LambdaRag.Selectors\LambdaRag.Selectors.csproj" />
+    <ProjectReference Include="..\LambdaRag.Evaluation\LambdaRag.Evaluation.csproj" />
+    <ProjectReference Include="..\LambdaRag.Markup\LambdaRag.Markup.csproj" />
+    <ProjectReference Include="..\LambdaRag.Authoring\LambdaRag.Authoring.csproj" />
+    <ProjectReference Include="..\LambdaRag.Persistence\LambdaRag.Persistence.csproj" />
+    <PackageReference Include="System.CommandLine" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+  </ItemGroup>
+</Project>

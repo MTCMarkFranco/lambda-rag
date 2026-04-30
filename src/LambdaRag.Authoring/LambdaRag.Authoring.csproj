@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\LambdaRag.Core\LambdaRag.Core.csproj" />
+    <ProjectReference Include="..\LambdaRag.Parsing\LambdaRag.Parsing.csproj" />
+    <ProjectReference Include="..\LambdaRag.Projection\LambdaRag.Projection.csproj" />
+    <ProjectReference Include="..\LambdaRag.Selectors\LambdaRag.Selectors.csproj" />
+    <ProjectReference Include="..\LambdaRag.Evaluation\LambdaRag.Evaluation.csproj" />
+    <ProjectReference Include="..\LambdaRag.Persistence\LambdaRag.Persistence.csproj" />
+    <PackageReference Include="Microsoft.Extensions.AI" />
+    <PackageReference Include="Microsoft.Agents.AI" />
+    <PackageReference Include="Microsoft.Agents.AI.OpenAI" />
+    <PackageReference Include="Azure.AI.OpenAI" />
+    <PackageReference Include="Azure.Identity" />
+    <PackageReference Include="JsonSchema.Net" />
+  </ItemGroup>
+</Project>
