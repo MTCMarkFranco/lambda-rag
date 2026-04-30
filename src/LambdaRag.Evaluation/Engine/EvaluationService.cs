@@ -33,15 +33,18 @@ public sealed class EvaluationService
     private readonly ISelectorMatcher _matcher;
     private readonly ILogger<EvaluationService> _logger;
     private readonly TimeProvider _time;
+    private readonly ICandidateRuleFilter? _candidateFilter;
 
     public EvaluationService(
         ISelectorMatcher matcher,
         ILogger<EvaluationService> logger,
-        TimeProvider? time = null)
+        TimeProvider? time = null,
+        ICandidateRuleFilter? candidateFilter = null)
     {
         _matcher = matcher;
         _logger = logger;
         _time = time ?? TimeProvider.System;
+        _candidateFilter = candidateFilter;
     }
 
     public async Task<ComplianceReport> EvaluateAsync(
@@ -71,6 +74,17 @@ public sealed class EvaluationService
             var emittedForRule = 0;
             foreach (var section in matches)
             {
+                // Strict-superset pre-filter: if a candidate filter is wired up
+                // and explicitly excludes this rule for this section, skip the
+                // predicate compile. The compiled predicate is still the
+                // decision-maker for any rule the filter admits — determinism
+                // is preserved.
+                if (_candidateFilter is { IsReady: true } filter
+                    && !filter.LookupCandidates(section.Node).Contains(rule.Id))
+                {
+                    continue;
+                }
+
                 var (predicateApplies, predicateError) = await EvaluatePredicateAsync(rule, section).ConfigureAwait(false);
                 if (predicateError is not null)
                 {

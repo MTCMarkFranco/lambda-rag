@@ -87,5 +87,35 @@ public sealed class LambdaRagPersistenceInitializer
             report_json  TEXT NOT NULL
         );
         CREATE INDEX IF NOT EXISTS ix_eval_doc ON evaluations(document_id);
+
+        -- Predicate signatures extracted by the indexing layer. Used to
+        -- audit which structural shape the runtime uses to short-list
+        -- candidate rules. The runtime hot-path rebuilds the signature
+        -- index in memory at startup; this table is a queryable projection.
+        CREATE TABLE IF NOT EXISTS rule_signatures (
+            rule_set_id       TEXT NOT NULL,
+            rule_set_version  TEXT NOT NULL,
+            rule_id           TEXT NOT NULL,
+            universal         INTEGER NOT NULL,
+            equality_json     TEXT NOT NULL,
+            contains_json     TEXT NOT NULL,
+            field_paths_json  TEXT NOT NULL,
+            PRIMARY KEY (rule_set_id, rule_set_version, rule_id)
+        );
+        CREATE INDEX IF NOT EXISTS ix_rule_sig_universal ON rule_signatures(universal);
+
+        -- Authoring-time semantic chunks. The embedding column is JSON
+        -- because SQLite has no native vector type; for production-scale
+        -- semantic search swap to Azure AI Search via
+        -- AzureSearchRuleSemanticIndex.
+        CREATE TABLE IF NOT EXISTS rule_semantic_chunks (
+            rule_set_id       TEXT NOT NULL,
+            rule_set_version  TEXT NOT NULL,
+            rule_id           TEXT NOT NULL,
+            embedder_id       TEXT NOT NULL,
+            source_content    TEXT NOT NULL,
+            embedding_json    TEXT NOT NULL,
+            PRIMARY KEY (rule_set_id, rule_set_version, rule_id, embedder_id)
+        );
         """;
 }
