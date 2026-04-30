@@ -29,7 +29,7 @@ namespace LambdaRag.Projection.Projectors;
 public sealed class DeterministicContractProjector : IDocumentProjector
 {
     public string Id => "contract";
-    public string Version => "1.0.0";
+    public string Version => "1.1.0";
     public string Domain => "contract";
     public JsonObject Schema => SchemaInstance;
 
@@ -63,20 +63,31 @@ public sealed class DeterministicContractProjector : IDocumentProjector
         },
     };
 
+    // NOTE: Order matters — earlier entries win on ambiguous headings. Specific
+    // categories (e.g. "termination", "data protection") must precede looser ones
+    // (e.g. "term"). Tightened from initial set after observing real Contoso /
+    // Microsoft contract templates classifying common clauses as "other".
     private static readonly (string[] Keywords, string Category)[] CategoryRules =
     [
         (new[] { "payment", "fees", "compensation", "invoice" }, "payment_terms"),
         (new[] { "termination", "cancel" }, "termination"),
-        (new[] { "governing law", "jurisdiction", "venue" }, "governing_law"),
+        (new[] { "governing law", "jurisdiction", "venue", "applicable law" }, "governing_law"),
         (new[] { "warranty", "warranties", "disclaimer" }, "warranty"),
         (new[] { "confidential", "non-disclosure", "nda" }, "confidentiality"),
-        (new[] { "indemn" }, "indemnification"),
+        (new[] { "indemn", "infringement", "misappropriation", "third party claim", "third-party claim" }, "indemnification"),
         (new[] { "liabil" }, "liability"),
-        (new[] { "term", "duration", "effective date" }, "term"),
-        (new[] { "parties", "party", "between" }, "parties"),
-        (new[] { "data protection", "privacy", "gdpr", "personal data" }, "privacy"),
-        (new[] { "security", "infosec" }, "security"),
+        (new[] { "data protection", "privacy", "gdpr", "personal data", "data processing" }, "privacy"),
+        (new[] { "security", "infosec", "information security" }, "security"),
         (new[] { "service level", "sla" }, "service_levels"),
+        (new[] { "intellectual property", "ownership", "rights and restrictions", "license to", "work product" }, "ip_ownership"),
+        (new[] { "audit", "verifying compliance", "right to verify", "inspection", "books and records" }, "audit"),
+        (new[] { "insurance", "coverage" }, "insurance"),
+        (new[] { "supportability", "support and maintenance", "technical support" }, "support"),
+        (new[] { "force majeure" }, "force_majeure"),
+        (new[] { "assignment", "assignability" }, "assignment"),
+        (new[] { "notice", "notices" }, "notices"),
+        (new[] { "duration", "effective date", "term of agreement", "term of this agreement" }, "term"),
+        (new[] { "parties", "party", "between" }, "parties"),
     ];
 
     public Task<ProjectedDocument> ProjectAsync(ParsedDocument parsed, CancellationToken ct = default)

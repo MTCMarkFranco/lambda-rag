@@ -60,6 +60,77 @@ public class DeterministicMockAuthoringAgentTests
     }
 
     [Fact]
+    public async Task ConfidentialityChunk_EmitsConfRule()
+    {
+        var agent = new DeterministicMockAuthoringAgent();
+        var result = await agent.AuthorAsync(new RuleAuthoringRequest(
+            SourceContent: "All Confidential Information shall be protected. Obligations survive termination.",
+            Domain: "contract",
+            RuleIdPrefix: "CTSO-",
+            SourceSpan: AnySpan()));
+
+        result.Should().ContainSingle(s => s.Rule.Id == "CTSO-CONF-001");
+        result.Single(s => s.Rule.Id == "CTSO-CONF-001").Rule.Predicate
+            .Should().Be("input1.category == \"confidentiality\"");
+    }
+
+    [Fact]
+    public async Task LiabilityCapChunk_EmitsLiabRule_Critical()
+    {
+        var agent = new DeterministicMockAuthoringAgent();
+        var result = await agent.AuthorAsync(new RuleAuthoringRequest(
+            SourceContent: "Limitation of liability: total amount paid in twelve months preceding the claim.",
+            Domain: "contract",
+            RuleIdPrefix: "",
+            SourceSpan: AnySpan()));
+
+        var liab = result.Single(s => s.Rule.Id == "LIAB-001");
+        liab.Rule.Severity.Should().Be(RuleSeverity.Critical);
+        liab.Rule.Predicate.Should().Be("input1.category == \"liability\"");
+    }
+
+    [Fact]
+    public async Task WarrantyChunk_EmitsWarRule()
+    {
+        var agent = new DeterministicMockAuthoringAgent();
+        var result = await agent.AuthorAsync(new RuleAuthoringRequest(
+            SourceContent: "Provider warrants that Services will conform; remedy is to replace within 30 days.",
+            Domain: "contract",
+            RuleIdPrefix: "",
+            SourceSpan: AnySpan()));
+
+        result.Should().ContainSingle(s => s.Rule.Id == "WAR-001");
+    }
+
+    [Fact]
+    public async Task TerminationChunk_EmitsTrmRule()
+    {
+        var agent = new DeterministicMockAuthoringAgent();
+        var result = await agent.AuthorAsync(new RuleAuthoringRequest(
+            SourceContent: "Either party may terminate by giving 60 calendar days prior written notice.",
+            Domain: "contract",
+            RuleIdPrefix: "",
+            SourceSpan: AnySpan()));
+
+        result.Should().ContainSingle(s => s.Rule.Id == "TRM-001");
+        result.Single(s => s.Rule.Id == "TRM-001").Rule.Predicate
+            .Should().Be("input1.category == \"termination\"");
+    }
+
+    [Fact]
+    public async Task IpOwnershipChunk_EmitsIpRule()
+    {
+        var agent = new DeterministicMockAuthoringAgent();
+        var result = await agent.AuthorAsync(new RuleAuthoringRequest(
+            SourceContent: "All work product is intellectual property assigned to Customer as work for hire.",
+            Domain: "contract",
+            RuleIdPrefix: "",
+            SourceSpan: AnySpan()));
+
+        result.Should().ContainSingle(s => s.Rule.Id == "IP-001");
+    }
+
+    [Fact]
     public async Task SameChunk_TwiceProducesEqualRules_IncludingEmbeddings()
     {
         var agent = new DeterministicMockAuthoringAgent();

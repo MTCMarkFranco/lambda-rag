@@ -43,6 +43,26 @@ public sealed class DeterministicMockAuthoringAgent : IRuleAuthoringAgent
         {
             suggestions.Add(await BuildDataProtectionRule(request).ConfigureAwait(false));
         }
+        if (ContainsAny(lowered, "confidential", "non-disclosure", "nda"))
+        {
+            suggestions.Add(await BuildConfidentialityRule(request).ConfigureAwait(false));
+        }
+        if (ContainsAny(lowered, "limitation of liability", "liability cap", "limit of liability"))
+        {
+            suggestions.Add(await BuildLiabilityCapRule(request).ConfigureAwait(false));
+        }
+        if (ContainsAny(lowered, "warrant", "warranty"))
+        {
+            suggestions.Add(await BuildWarrantyRule(request).ConfigureAwait(false));
+        }
+        if (ContainsAny(lowered, "termination", "terminate"))
+        {
+            suggestions.Add(await BuildTerminationRule(request).ConfigureAwait(false));
+        }
+        if (ContainsAny(lowered, "intellectual property", "work product", "ownership of"))
+        {
+            suggestions.Add(await BuildIpOwnershipRule(request).ConfigureAwait(false));
+        }
 
         // Stable order — sort by Id so consumers can rely on deterministic output.
         return suggestions
@@ -132,6 +152,116 @@ public sealed class DeterministicMockAuthoringAgent : IRuleAuthoringAgent
             rule,
             Confidence: 0.85,
             Rationale: "Chunk mentions data protection / privacy; emitting industry-standard rule.");
+    }
+
+    private async Task<RuleAuthoringSuggestion> BuildConfidentialityRule(RuleAuthoringRequest req)
+    {
+        var rule = new Rule(
+            Id: $"{req.RuleIdPrefix}CONF-001",
+            Version: "1.0.0",
+            NaturalLanguage: "Confidentiality clause must define a survival period or be perpetual.",
+            Lambda: "input1.text.Contains(\"year\") || input1.text.Contains(\"years\") || input1.text.Contains(\"perpetual\") || input1.text.Contains(\"survive\")",
+            AppliesToSchema: SectionTextSchema(),
+            Selector: new PathSelector("$.sections[*]"),
+            Severity: RuleSeverity.Violation,
+            SourceSpan: req.SourceSpan,
+            EvidenceQuote: "Confidentiality survival",
+            Metadata: new Dictionary<string, string> { ["minYears"] = "5" })
+        {
+            Predicate = "input1.category == \"confidentiality\"",
+            Remediation = "Add an explicit survival period to the {section.heading} clause: \"obligations survive for {meta.minYears} years from termination.\"",
+            SourceContent = req.SourceContent,
+            SourceEmbedding = await _embedder.EmbedAsync(req.SourceContent).ConfigureAwait(false),
+        };
+        return new RuleAuthoringSuggestion(rule, 0.86, "Chunk references confidentiality / NDA; emitting survival-period rule.");
+    }
+
+    private async Task<RuleAuthoringSuggestion> BuildLiabilityCapRule(RuleAuthoringRequest req)
+    {
+        var rule = new Rule(
+            Id: $"{req.RuleIdPrefix}LIAB-001",
+            Version: "1.0.0",
+            NaturalLanguage: "Limitation of liability must reference an explicit cap (dollar amount or fee multiplier).",
+            Lambda: "input1.text.Contains(\"$\") || input1.text.Contains(\"fees paid\") || input1.text.Contains(\"amount paid\") || input1.text.Contains(\"twelve months\") || input1.text.Contains(\"12 months\")",
+            AppliesToSchema: SectionTextSchema(),
+            Selector: new PathSelector("$.sections[*]"),
+            Severity: RuleSeverity.Critical,
+            SourceSpan: req.SourceSpan,
+            EvidenceQuote: "Limitation of liability",
+            Metadata: new Dictionary<string, string> { ["capWindow"] = "12 months" })
+        {
+            Predicate = "input1.category == \"liability\"",
+            Remediation = "Add an explicit cap to the {section.heading} clause: \"total liability shall not exceed the fees paid in the {meta.capWindow} preceding the claim.\"",
+            SourceContent = req.SourceContent,
+            SourceEmbedding = await _embedder.EmbedAsync(req.SourceContent).ConfigureAwait(false),
+        };
+        return new RuleAuthoringSuggestion(rule, 0.90, "Chunk references limitation of liability; emitting cap rule.");
+    }
+
+    private async Task<RuleAuthoringSuggestion> BuildWarrantyRule(RuleAuthoringRequest req)
+    {
+        var rule = new Rule(
+            Id: $"{req.RuleIdPrefix}WAR-001",
+            Version: "1.0.0",
+            NaturalLanguage: "Warranties must include a defined remedy or cure period.",
+            Lambda: "input1.text.Contains(\"days\") || input1.text.Contains(\"remedy\") || input1.text.Contains(\"replace\") || input1.text.Contains(\"refund\")",
+            AppliesToSchema: SectionTextSchema(),
+            Selector: new PathSelector("$.sections[*]"),
+            Severity: RuleSeverity.Deviation,
+            SourceSpan: req.SourceSpan,
+            EvidenceQuote: "Warranty remedy",
+            Metadata: new Dictionary<string, string> { ["cureDays"] = "30" })
+        {
+            Predicate = "input1.category == \"warranty\"",
+            Remediation = "Specify a cure window in the {section.heading} clause: \"Provider shall correct non-conforming Services within {meta.cureDays} days.\"",
+            SourceContent = req.SourceContent,
+            SourceEmbedding = await _embedder.EmbedAsync(req.SourceContent).ConfigureAwait(false),
+        };
+        return new RuleAuthoringSuggestion(rule, 0.84, "Chunk references warranty / warranties; emitting remedy rule.");
+    }
+
+    private async Task<RuleAuthoringSuggestion> BuildTerminationRule(RuleAuthoringRequest req)
+    {
+        var rule = new Rule(
+            Id: $"{req.RuleIdPrefix}TRM-001",
+            Version: "1.0.0",
+            NaturalLanguage: "Termination clause must specify a written-notice period.",
+            Lambda: "input1.text.Contains(\"30 days\") || input1.text.Contains(\"60 days\") || input1.text.Contains(\"90 days\") || input1.text.Contains(\"30 calendar days\") || input1.text.Contains(\"60 calendar days\") || input1.text.Contains(\"90 calendar days\")",
+            AppliesToSchema: SectionTextSchema(),
+            Selector: new PathSelector("$.sections[*]"),
+            Severity: RuleSeverity.Violation,
+            SourceSpan: req.SourceSpan,
+            EvidenceQuote: "Termination notice",
+            Metadata: new Dictionary<string, string> { ["minNoticeDays"] = "60" })
+        {
+            Predicate = "input1.category == \"termination\"",
+            Remediation = "Update the {section.heading} clause to require at least {meta.minNoticeDays} calendar days prior written notice to terminate for convenience.",
+            SourceContent = req.SourceContent,
+            SourceEmbedding = await _embedder.EmbedAsync(req.SourceContent).ConfigureAwait(false),
+        };
+        return new RuleAuthoringSuggestion(rule, 0.87, "Chunk references termination; emitting notice-period rule.");
+    }
+
+    private async Task<RuleAuthoringSuggestion> BuildIpOwnershipRule(RuleAuthoringRequest req)
+    {
+        var rule = new Rule(
+            Id: $"{req.RuleIdPrefix}IP-001",
+            Version: "1.0.0",
+            NaturalLanguage: "IP ownership clause must clearly assign work product or grant a perpetual license.",
+            Lambda: "input1.text.Contains(\"work for hire\") || input1.text.Contains(\"assign\") || input1.text.Contains(\"perpetual\") || input1.text.Contains(\"irrevocable\") || input1.text.Contains(\"license\")",
+            AppliesToSchema: SectionTextSchema(),
+            Selector: new PathSelector("$.sections[*]"),
+            Severity: RuleSeverity.Violation,
+            SourceSpan: req.SourceSpan,
+            EvidenceQuote: "IP ownership",
+            Metadata: new Dictionary<string, string> { ["preferredModel"] = "work-for-hire" })
+        {
+            Predicate = "input1.category == \"ip_ownership\"",
+            Remediation = "Clarify the {section.heading} clause: prefer a {meta.preferredModel} assignment of all deliverables, or a perpetual, irrevocable, royalty-free license.",
+            SourceContent = req.SourceContent,
+            SourceEmbedding = await _embedder.EmbedAsync(req.SourceContent).ConfigureAwait(false),
+        };
+        return new RuleAuthoringSuggestion(rule, 0.83, "Chunk references intellectual property / ownership; emitting assignment rule.");
     }
 
     private static JsonObject SectionTextSchema() => new()
