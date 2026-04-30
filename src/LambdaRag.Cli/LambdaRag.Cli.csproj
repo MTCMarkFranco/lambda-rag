@@ -13,6 +13,7 @@
     <ProjectReference Include="..\LambdaRag.Markup\LambdaRag.Markup.csproj" />
     <ProjectReference Include="..\LambdaRag.Authoring\LambdaRag.Authoring.csproj" />
     <ProjectReference Include="..\LambdaRag.Persistence\LambdaRag.Persistence.csproj" />
+    <ProjectReference Include="..\LambdaRag.Indexing\LambdaRag.Indexing.csproj" />
     <PackageReference Include="System.CommandLine" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
   </ItemGroup>

@@ -12,6 +12,7 @@
     <ProjectReference Include="..\..\src\LambdaRag.Markup\LambdaRag.Markup.csproj" />
     <ProjectReference Include="..\..\src\LambdaRag.Persistence\LambdaRag.Persistence.csproj" />
     <ProjectReference Include="..\..\src\LambdaRag.Authoring\LambdaRag.Authoring.csproj" />
+    <ProjectReference Include="..\..\src\LambdaRag.Indexing\LambdaRag.Indexing.csproj" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />

@@ -5,6 +5,8 @@ using LambdaRag.Core.Abstractions;
 using LambdaRag.Core.Domain;
 using LambdaRag.Evaluation;
 using LambdaRag.Evaluation.Engine;
+using LambdaRag.Indexing;
+using LambdaRag.Indexing.Abstractions;
 using LambdaRag.Parsing;
 using LambdaRag.Projection;
 using LambdaRag.Selectors;
@@ -32,6 +34,7 @@ static class CliEntry
                 "parse"    => await ParseAsync(args.Skip(1).ToArray()),
                 "coverage" => await CoverageAsync(args.Skip(1).ToArray()),
                 "author"   => await AuthorAsync(args.Skip(1).ToArray()),
+                "index"    => await IndexAsync(args.Skip(1).ToArray()),
                 _ => UnknownCommand(args[0]),
             };
         }
@@ -60,6 +63,7 @@ static class CliEntry
               lambda-rag parse    --document <path> --out <path>
               lambda-rag coverage --document <path> --ruleset <path> --out <path>
               lambda-rag author   --chunk <path> --domain <name> --prefix <id-prefix> --out <path>
+              lambda-rag index    --ruleset <path> [--out <path>]
             """);
     }
 
@@ -74,7 +78,8 @@ static class CliEntry
             .AddLambdaRagProjection()
             .AddLambdaRagSelectors()
             .AddLambdaRagEvaluation()
-            .AddLambdaRagAuthoring();
+            .AddLambdaRagAuthoring()
+            .AddLambdaRagIndexing();
         services.AddSingleton<CoverageService>();
         return services.BuildServiceProvider();
     }
@@ -106,8 +111,10 @@ static class CliEntry
         var parsers = sp.GetRequiredService<ParserRegistry>();
         var projector = sp.GetRequiredService<IDocumentProjector>();
         var evaluator = sp.GetRequiredService<EvaluationService>();
+        var sigIndex = sp.GetRequiredService<IRuleSignatureIndex>();
 
         var ruleset = RuleSetIO.Load(rulesetPath);
+        sigIndex.Build(ruleset);
         var parsed = await parsers.ParseAsync(documentPath);
         var projected = await projector.ProjectAsync(parsed);
         var report = await evaluator.EvaluateAsync(ruleset, projected);
@@ -240,5 +247,40 @@ static class CliEntry
         }
         Console.WriteLine($"Wrote:     {outPath}");
         return 0;
+    }
+
+    static Task<int> IndexAsync(string[] args)
+    {
+        var f = ParseFlags(args);
+        var rulesetPath = f.GetValueOrDefault("ruleset") ?? throw new ArgumentException("--ruleset required");
+        var outPath = f.GetValueOrDefault("out");
+
+        using var sp = (ServiceProvider)BuildServices();
+        var sigIndex = sp.GetRequiredService<IRuleSignatureIndex>();
+
+        var ruleset = RuleSetIO.Load(rulesetPath);
+        sigIndex.Build(ruleset);
+
+        Console.WriteLine($"Index:        {sigIndex.IndexId}");
+        Console.WriteLine($"Rules:        {sigIndex.RuleCount}");
+        Console.WriteLine($"Universal:    {sigIndex.UniversalCount}");
+        Console.WriteLine($"Narrowed:     {sigIndex.RuleCount - sigIndex.UniversalCount}");
+
+        if (!string.IsNullOrEmpty(outPath))
+        {
+            var dump = new
+            {
+                index_id = sigIndex.IndexId,
+                rule_count = sigIndex.RuleCount,
+                universal_count = sigIndex.UniversalCount,
+                signatures = ruleset.Rules
+                    .OrderBy(r => r.Id, StringComparer.Ordinal)
+                    .Select(r => sigIndex.GetSignature(r.Id))
+                    .ToList(),
+            };
+            File.WriteAllText(outPath, JsonSerializer.Serialize(dump, LambdaRag.Core.CanonicalJson.Options));
+            Console.WriteLine($"Wrote:        {outPath}");
+        }
+        return Task.FromResult(0);
     }
 }

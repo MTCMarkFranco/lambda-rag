@@ -10,6 +10,7 @@
     <PackageVersion Include="Microsoft.Agents.AI.OpenAI" Version="1.3.0" />
     <PackageVersion Include="Azure.AI.OpenAI" Version="2.1.0" />
     <PackageVersion Include="Azure.Identity" Version="1.13.1" />
+    <PackageVersion Include="Azure.Search.Documents" Version="11.6.0" />
 
     <!-- Document parsing -->
     <PackageVersion Include="UglyToad.PdfPig" Version="1.7.0-custom-5" />
