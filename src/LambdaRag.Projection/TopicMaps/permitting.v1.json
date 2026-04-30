@@ -1,0 +1,63 @@
+{
+  "domain": "permitting",
+  "version": "1.0.0",
+  "description": "Government permitting — building, zoning, and environmental review. Use cases: building permit application gap-analysis, zoning compliance check, environmental impact statement review, accessibility (ADA/AODA/EN 301 549) review.",
+  "topics": [
+    { "id": "zoning_district",      "keywords": ["zoning district", "zone classification", "by-law", "use category", "permitted use", "conditional use", "variance"] },
+    { "id": "land_use",             "keywords": ["land use", "official plan", "secondary plan", "comprehensive plan"] },
+    { "id": "setbacks",             "keywords": ["setback", "front yard", "rear yard", "side yard", "minimum setback"] },
+    { "id": "height_limit",         "keywords": ["building height", "maximum height", "storey limit", "skyplane"] },
+    { "id": "floor_area_ratio",     "keywords": ["floor area ratio", "far", "fsi", "gross floor area", "gfa"] },
+    { "id": "lot_coverage",         "keywords": ["lot coverage", "site coverage", "impervious surface ratio"] },
+    { "id": "density",              "keywords": ["density", "units per acre", "units per hectare", "density bonus"] },
+    { "id": "parking_requirements", "keywords": ["parking minimum", "parking ratio", "bicycle parking", "ev charging", "loading space"] },
+    { "id": "accessibility_ada",    "keywords": ["ada compliance", "ansi a117.1", "barrier-free", "accessible route", "tactile paving"] },
+    { "id": "accessibility_aoda",   "keywords": ["aoda", "accessibility for ontarians", "accessibility regulation"] },
+    { "id": "wcag_digital",         "keywords": ["wcag 2.1", "wcag 2.2", "en 301 549", "section 508", "digital accessibility"] },
+    { "id": "fire_egress",          "keywords": ["egress", "exit access", "exit discharge", "travel distance", "dead-end corridor"] },
+    { "id": "fire_separation",      "keywords": ["fire separation", "fire-resistance rating", "fire wall", "fire barrier", "smoke barrier"] },
+    { "id": "fire_suppression",     "keywords": ["sprinkler system", "nfpa 13", "standpipe", "fire alarm", "smoke detection"] },
+    { "id": "occupancy_class",      "keywords": ["occupancy classification", "occupancy group", "assembly", "business", "residential", "mercantile"] },
+    { "id": "structural_loads",     "keywords": ["dead load", "live load", "snow load", "seismic load", "wind load", "ibc structural"] },
+    { "id": "energy_code",          "keywords": ["ashrae 90.1", "iecc", "energy code", "energy efficiency", "passive house"] },
+    { "id": "stormwater_management","keywords": ["stormwater management", "swm", "low impact development", "lid", "detention pond", "bioswale"] },
+    { "id": "sediment_erosion",     "keywords": ["sediment and erosion control", "esc plan", "silt fence", "construction stormwater"] },
+    { "id": "tree_preservation",    "keywords": ["tree preservation", "tree protection zone", "tpz", "tree by-law", "heritage tree"] },
+    { "id": "heritage_preservation","keywords": ["heritage designation", "historic register", "cultural heritage", "section 27 (oh)", "designated property"] },
+    { "id": "environmental_review", "keywords": ["environmental impact assessment", "eia", "nepa", "environmental impact statement", "eis", "categorical exclusion"] },
+    { "id": "species_at_risk",      "keywords": ["endangered species act", "species at risk act", "sara", "critical habitat"] },
+    { "id": "wetlands",             "keywords": ["provincially significant wetland", "psw", "wetland buffer", "section 404"] },
+    { "id": "archaeology",          "keywords": ["archaeological assessment", "stage 1", "stage 2", "indigenous heritage"] },
+    { "id": "traffic_impact",       "keywords": ["traffic impact study", "tis", "traffic generation", "level of service", "los"] },
+    { "id": "public_notice",        "keywords": ["public notice", "public hearing", "notice of application", "circulation"] },
+    { "id": "easement_row",         "keywords": ["easement", "right of way", "row", "encroachment", "encumbrance"] },
+    { "id": "utility_capacity",     "keywords": ["water capacity", "sewer capacity", "hydro capacity", "servicing report", "water allocation"] },
+    { "id": "noise_compliance",     "keywords": ["noise study", "mecp ne-100", "decibel limit", "noise abatement"] },
+    { "id": "shadow_impact",        "keywords": ["shadow study", "sun-shadow analysis", "solar access"] },
+    { "id": "wind_microclimate",    "keywords": ["pedestrian wind comfort", "pedestrian-level wind", "plw", "wind tunnel study"] },
+    { "id": "indigenous_consultation","keywords": ["duty to consult", "consultation and accommodation", "indigenous consultation", "treaty rights"] },
+    { "id": "site_plan_control",    "keywords": ["site plan control", "site plan agreement", "spa", "section 41 (oh)"] },
+    { "id": "subdivision_approval", "keywords": ["plan of subdivision", "draft plan", "subdivision conditions"] }
+  ],
+  "axes": {
+    "jurisdiction": {
+      "headingPatterns": [
+        "ontario","quebec","british columbia","alberta","new york","new jersey","massachusetts","texas","california","florida","washington","district of columbia","united kingdom","scotland","wales","ireland","new south wales","victoria","queensland","new zealand"
+      ]
+    },
+    "code_reference": {
+      "headingPatterns": [
+        "ibc","ifc","obc","national building code","nbc","nfpa","ashrae","iecc","ada","ansi a117","wcag","mecp","cer"
+      ]
+    },
+    "permit_type": {
+      "headingPatterns": [
+        "building permit","zoning certificate","minor variance","site plan","plan of subdivision","environmental permit","heritage permit","demolition permit"
+      ]
+    }
+  },
+  "amendmentPatterns": [
+    "(?i)(?:replace|supplement|amend)\\s+(?:section|article|clause|by-law)\\s+[\\d.]+\\w*\\s+titled\\s+[\"'\u201C]([^\"'\u201D]+)[\"'\u201D]",
+    "(?i)(?:in\\s+accordance\\s+with|pursuant\\s+to)\\s+(?:section|by-law)\\s+[\\d.]+\\w*\\s+\\(([^)]+)\\)"
+  ]
+}

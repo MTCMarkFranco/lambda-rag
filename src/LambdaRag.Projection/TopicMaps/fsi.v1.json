@@ -1,0 +1,64 @@
+{
+  "domain": "fsi",
+  "version": "1.0.0",
+  "description": "Financial Services Industry — banking, insurance, capital markets. Topics span prudential, conduct, consumer protection, AML, and counterparty agreements (ISDA/CSA, GMRA). Use cases: credit/loan agreement review, ISDA negotiation, KYC/AML policy review, third-party risk assessments, insurance underwriting & policy review, fair-lending compliance review, model governance documentation.",
+  "topics": [
+    { "id": "kyc",                  "keywords": ["kyc", "know your customer", "customer identification", "customer due diligence", "cdd", "edd"] },
+    { "id": "aml",                  "keywords": ["anti-money laundering", "money laundering", "aml", "suspicious activity", "sar", "fincen"] },
+    { "id": "sanctions",            "keywords": ["sanctions", "ofac", "sdn list", "specially designated", "embargo", "restricted party"] },
+    { "id": "anti_bribery",         "keywords": ["fcpa", "ukba", "bribery", "anti-corruption", "facilitation payment"] },
+    { "id": "fair_lending",         "keywords": ["fair lending", "ecoa", "regulation b", "redlining", "disparate impact", "fair housing"] },
+    { "id": "consumer_protection",  "keywords": ["truth in lending", "tila", "regulation z", "udaap", "udap", "fair credit reporting", "fcra", "respa"] },
+    { "id": "credit_risk",          "keywords": ["credit risk", "probability of default", "pd", "loss given default", "lgd", "exposure at default", "ead", "credit rating"] },
+    { "id": "market_risk",          "keywords": ["market risk", "var", "value at risk", "stressed var", "expected shortfall", "frtb"] },
+    { "id": "liquidity_risk",       "keywords": ["liquidity coverage ratio", "lcr", "net stable funding ratio", "nsfr", "liquidity buffer", "high quality liquid assets", "hqla"] },
+    { "id": "operational_risk",     "keywords": ["operational risk", "basel op risk", "smab", "loss data collection"] },
+    { "id": "model_governance",     "keywords": ["model risk", "model validation", "sr 11-7", "model inventory", "champion challenger"] },
+    { "id": "capital_adequacy",     "keywords": ["capital adequacy", "cet1", "tier 1 capital", "rwa", "risk-weighted assets", "leverage ratio", "basel iii", "basel iv"] },
+    { "id": "stress_testing",       "keywords": ["ccar", "dfast", "stress test", "icaap", "iliaap"] },
+    { "id": "third_party_risk",     "keywords": ["third-party risk", "vendor risk", "outsourcing", "sr 23-4", "occ third party", "ffiec outsourcing", "dora ict"] },
+    { "id": "business_continuity",  "keywords": ["business continuity", "disaster recovery", "bcp", "rto", "rpo", "operational resilience"] },
+    { "id": "cybersecurity",        "keywords": ["nydfs part 500", "ffiec cat", "cybersecurity", "ransomware", "incident response", "ssp"] },
+    { "id": "data_privacy_glba",    "keywords": ["glba", "gramm-leach-bliley", "non-public personal information", "npi", "safeguards rule"] },
+    { "id": "fiduciary_duty",       "keywords": ["fiduciary", "best interest", "regulation bi", "suitability", "iar", "investment adviser"] },
+    { "id": "complaints_handling",  "keywords": ["complaint", "consumer complaint", "cfpb complaint", "redress", "remediation"] },
+    { "id": "isda_master",          "keywords": ["isda master agreement", "isda 2002", "schedule to the isda", "events of default", "termination event"] },
+    { "id": "csa_collateral",       "keywords": ["credit support annex", "csa", "credit support deed", "eligible collateral", "threshold", "minimum transfer amount", "haircut"] },
+    { "id": "netting",              "keywords": ["close-out netting", "set-off", "netting opinion", "single agreement"] },
+    { "id": "cross_default",        "keywords": ["cross default", "cross acceleration", "specified entity"] },
+    { "id": "credit_event",         "keywords": ["credit event", "bankruptcy", "failure to pay", "obligation acceleration", "restructuring"] },
+    { "id": "margin_initial",       "keywords": ["initial margin", "im threshold", "uncleared margin rules", "umr", "phase 6"] },
+    { "id": "margin_variation",     "keywords": ["variation margin", "vm", "daily mark-to-market"] },
+    { "id": "loan_covenants",       "keywords": ["financial covenant", "negative covenant", "affirmative covenant", "leverage ratio covenant", "interest coverage", "dscr"] },
+    { "id": "loan_events_default",  "keywords": ["event of default", "acceleration", "grace period"] },
+    { "id": "underwriting",         "keywords": ["underwriting", "policy issuance", "risk class", "rate class"] },
+    { "id": "insurance_reserves",   "keywords": ["loss reserves", "ibnr", "case reserves", "reserve adequacy"] },
+    { "id": "claims_handling",      "keywords": ["claims handling", "claim adjudication", "claim denial", "good faith"] },
+    { "id": "reinsurance",          "keywords": ["reinsurance", "treaty", "cession", "retrocession", "facultative"] },
+    { "id": "solvency_ii",          "keywords": ["solvency ii", "scr", "mcr", "own risk and solvency assessment", "orsa"] },
+    { "id": "naic_rbc",             "keywords": ["naic rbc", "risk-based capital", "company action level", "regulatory action level"] },
+    { "id": "mortgage_servicing",   "keywords": ["mortgage servicing", "escrow analysis", "loss mitigation", "foreclosure", "regulation x"] },
+    { "id": "esg_disclosure",       "keywords": ["esg", "tcfd", "sfdr", "issb", "climate-related disclosure"] }
+  ],
+  "axes": {
+    "jurisdiction": {
+      "headingPatterns": [
+        "united states","us","u.s.","united kingdom","uk","european union","eu","canada","australia","singapore","hong kong","japan","switzerland","germany","france","italy","spain","netherlands","ireland","luxembourg","brazil","mexico","india","china","south africa","uae","saudi arabia"
+      ]
+    },
+    "regulator": {
+      "headingPatterns": [
+        "occ","federal reserve","frb","fdic","cfpb","sec","finra","cftc","nydfs","fincen","ofac","pra","fca","eba","ecb","esma","apra","mas","hkma","fsa","osfi","bafin","autorit","cssf","sebi","csrc","sama"
+      ]
+    },
+    "regime": {
+      "headingPatterns": [
+        "basel iii","basel iv","dodd-frank","mifid","mifir","emir","dora","glba","sox","sarbanes-oxley","ffiec","sr 11-7","sr 23-4","reg b","reg z","reg w","reg x","reg bi"
+      ]
+    }
+  },
+  "amendmentPatterns": [
+    "(?i)(?:replace|supplement|amend)\\s+(?:section|article|clause|part)\\s+\\d+\\w*\\s+titled\\s+[\"'\u201C]([^\"'\u201D]+)[\"'\u201D]",
+    "(?i)(?:as\\s+used\\s+in|in\\s+accordance\\s+with)\\s+(?:section|article)\\s+\\d+\\w*\\s+\\(([^)]+)\\)"
+  ]
+}

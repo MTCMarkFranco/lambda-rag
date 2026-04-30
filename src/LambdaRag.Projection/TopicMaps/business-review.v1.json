@@ -1,0 +1,54 @@
+{
+  "domain": "business-review",
+  "version": "1.0.0",
+  "description": "Generic business document review — MOUs, LOIs, SOWs, RFP responses, partnership agreements, joint ventures, project charters, ADRs. Used when no industry-specific topic map applies. Use cases: scope/SLA gap analysis, RFP compliance review, MOU red-flag detection, ADR completeness check.",
+  "topics": [
+    { "id": "scope_of_work",        "keywords": ["scope of work", "sow", "statement of work", "deliverables list", "in scope", "out of scope"] },
+    { "id": "deliverables",         "keywords": ["deliverable", "artifact", "work product", "acceptance criteria"] },
+    { "id": "milestones",           "keywords": ["milestone", "schedule", "timeline", "phase gate", "go-live"] },
+    { "id": "acceptance",           "keywords": ["acceptance criteria", "acceptance test", "uat", "deemed accepted", "rejection"] },
+    { "id": "stakeholders",         "keywords": ["stakeholder", "raci", "responsible", "accountable", "consulted", "informed"] },
+    { "id": "dependencies",         "keywords": ["dependency", "depends on", "predecessor", "blocking", "external dependency"] },
+    { "id": "assumptions",          "keywords": ["assumption", "assumes that", "presumes", "predicated on"] },
+    { "id": "risks",                "keywords": ["risk register", "risk mitigation", "risk owner", "residual risk"] },
+    { "id": "change_management",   "keywords": ["change request", "change order", "change control board", "ccb"] },
+    { "id": "governance",           "keywords": ["steering committee", "governance committee", "executive sponsor", "operating committee"] },
+    { "id": "decision_authority",   "keywords": ["decision authority", "delegation of authority", "approval matrix", "raci"] },
+    { "id": "ip_ownership",         "keywords": ["intellectual property", "ip ownership", "work for hire", "background ip", "foreground ip"] },
+    { "id": "license_grants",       "keywords": ["license grant", "perpetual license", "irrevocable license", "non-exclusive license"] },
+    { "id": "confidentiality",      "keywords": ["confidential information", "non-disclosure", "nda", "trade secret"] },
+    { "id": "data_handling",        "keywords": ["data ownership", "data sharing", "data processing", "data return", "data destruction"] },
+    { "id": "exclusivity",          "keywords": ["exclusivity", "exclusive arrangement", "right of first refusal", "rofr"] },
+    { "id": "non_solicit",          "keywords": ["non-solicitation", "non-solicit", "no-poach"] },
+    { "id": "pricing",              "keywords": ["pricing", "fee schedule", "rate card", "hourly rate", "fixed fee", "time and materials"] },
+    { "id": "payment_terms",        "keywords": ["payment terms", "invoice", "net 30", "net 45", "net 60"] },
+    { "id": "performance_metrics",  "keywords": ["kpi", "key performance indicator", "performance metric", "service credit"] },
+    { "id": "service_levels",       "keywords": ["service level agreement", "sla", "uptime", "availability", "response time", "resolution time"] },
+    { "id": "escalation",           "keywords": ["escalation path", "escalation matrix", "escalation procedure"] },
+    { "id": "dispute_resolution",   "keywords": ["dispute resolution", "mediation", "arbitration", "binding arbitration", "icc rules", "aaa rules"] },
+    { "id": "termination",          "keywords": ["termination for convenience", "termination for cause", "termination for breach"] },
+    { "id": "exit_criteria",        "keywords": ["exit criteria", "transition assistance", "wind-down", "knowledge transfer"] },
+    { "id": "transition_plan",      "keywords": ["transition plan", "transition services", "reverse transition"] },
+    { "id": "warranties",           "keywords": ["warranty", "warranties", "as-is", "fitness for purpose"] },
+    { "id": "indemnification",      "keywords": ["indemn", "hold harmless", "defend"] },
+    { "id": "limitation_liability", "keywords": ["limitation of liability", "liability cap", "consequential damages waiver"] },
+    { "id": "insurance",            "keywords": ["insurance", "general liability", "professional liability", "cyber insurance"] },
+    { "id": "force_majeure",        "keywords": ["force majeure"] },
+    { "id": "compliance_legal",     "keywords": ["compliance with laws", "applicable law", "anti-corruption", "export control", "trade compliance"] },
+    { "id": "audit_rights",         "keywords": ["audit rights", "right to audit", "books and records", "verification"] },
+    { "id": "subcontracting",       "keywords": ["subcontractor", "subcontracting", "flow-down"] },
+    { "id": "personnel",            "keywords": ["key personnel", "named resource", "replacement of personnel"] },
+    { "id": "background_check",     "keywords": ["background check", "screening", "drug test", "right to work"] }
+  ],
+  "axes": {
+    "doc_type": {
+      "headingPatterns": [
+        "memorandum of understanding","mou","letter of intent","loi","statement of work","sow","master services agreement","msa","master agreement","request for proposal","rfp","request for information","rfi","architecture decision record","adr","project charter","term sheet","heads of terms","data processing agreement","dpa"
+      ]
+    }
+  },
+  "amendmentPatterns": [
+    "(?i)(?:replace|supplement|amend)\\s+(?:section|article|clause|exhibit|appendix|schedule)\\s+\\d+\\w*\\s+titled\\s+[\"'\u201C]([^\"'\u201D]+)[\"'\u201D]",
+    "(?i)(?:exhibit|appendix|schedule)\\s+[A-Z]\\s*[-:]?\\s*([A-Za-z][A-Za-z\\s]+)"
+  ]
+}

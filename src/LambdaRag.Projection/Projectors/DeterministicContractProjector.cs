@@ -56,16 +56,7 @@ public sealed class DeterministicContractProjector : IDocumentProjector
 
     private static TopicMap LoadDefaultTopicMap()
     {
-        var asm = typeof(DeterministicContractProjector).Assembly;
-        var resourceName = asm.GetManifestResourceNames()
-            .FirstOrDefault(n => n.EndsWith("TopicMaps.contract.v1.json", StringComparison.Ordinal))
-            ?? throw new InvalidOperationException(
-                "Embedded resource 'TopicMaps/contract.v1.json' not found. "
-                + "Available: " + string.Join(", ", asm.GetManifestResourceNames()));
-        using var stream = asm.GetManifestResourceStream(resourceName)
-            ?? throw new InvalidOperationException($"Could not open resource {resourceName}");
-        using var reader = new StreamReader(stream);
-        return TopicMap.LoadFromJson(reader.ReadToEnd());
+        return TopicMapRegistry.Load("contract.v1");
     }
 
     private static readonly JsonObject SchemaInstance = new()
