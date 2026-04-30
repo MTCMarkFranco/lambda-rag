@@ -1,50 +1,182 @@
 # Lambda-RAG
 
-> A deterministic, auditable, plug-in **rules-over-documents accelerator**.
-> Combine the "compiler not RAG" thesis from rules-iq with the
-> idempotent multi-agent review of contoso and the
-> rules-from-PDFs ingestion of architecture-review-board into a single
-> reusable engine for contract review, architecture review, or any
-> domain that needs structured rules applied to free-form documents.
+> **A deterministic, auditable, plug-in platform for *all things rules-based document review.***
+> One engine. Many domains. Same input → same verdict, every time.
+> Built to withstand legal, regulatory and audit scrutiny.
 
-## Why
+Lambda-RAG turns *any* policy / regulation / contract template into an
+executable rule set, then projects those rules over a target document
+(contract, architecture design, MOU, permit application, ITSM runbook,
+etc.) and produces:
 
-Generative LLMs are non-deterministic. For contract review, audit, or
-compliance you cannot defend a verdict that changes between runs. The
-remedy in this accelerator is a strict separation:
+1. 📊 **A structured verdict report** — score, per-rule pass / fail / **gap** / N/A, remediation text, full audit trail
+2. 📝 **A redlined Word document** — tracked-changes + comments anchored to the offending clause, with a top-of-document **GAP ANALYSIS** summary
+3. 🔀 **Or both** — emitted from the same deterministic pipeline
 
-| Phase | Mode | Allowed to use AI? | Determinism guarantee |
-|------|------|--------------------|------------------------|
-| **Authoring** (offline) | One-time per rule | Yes (temp=0, JSON-schema-validated, human-reviewed) | Output is signed and version-locked |
-| **Projection** (runtime) | Per document | Cached pure-code first; AI only when no pure-code projector exists, with full caching | Same bytes ⇒ same projection |
-| **Selection** (runtime) | Per rule × document | **Never** | Pure-code JSONPath/regex match |
-| **Evaluation** (runtime) | Per rule × matched section | **Never** | Microsoft RulesEngine lambda |
-| **Markup** (runtime) | Per verdict | **Never** | OpenXml tracked changes with stable ids |
+## Why this exists
 
-At runtime no LLM is in the decision loop. Re-running the same review
-produces byte-identical artifacts.
+Generative LLMs are non-deterministic. For contract review, regulatory
+compliance, audit, or permitting you cannot defend a verdict that
+changes between runs. Lambda-RAG enforces a strict separation:
 
-## Quickstart
+| Phase | When | LLM allowed? | Determinism guarantee |
+|------|------|--------------|------------------------|
+| **Authoring** | Offline, once per rule | ✅ Yes (temp=0, JSON-schema-validated, human-reviewed) | Output is signed, fingerprinted, version-locked |
+| **Projection** | Runtime, per document | ⚠️ Pure-code first; AI fallback only when no projector exists, with full caching | Same bytes → same projection |
+| **Selection** | Runtime, per rule × section | ❌ Never | Pure-code JSONPath / regex / topic-map match |
+| **Evaluation** | Runtime, per matched section | ❌ Never | Microsoft RulesEngine lambda |
+| **Markup** | Runtime, per verdict | ❌ Never | OpenXml tracked changes, fixed timestamp, pinned IDs |
+
+**At runtime no LLM is in the decision loop.** Re-running the same
+review against the same ruleset produces byte-identical OOXML parts
+inside `reviewed.docx` and a byte-identical `report.json`.
+
+## Built-in industry topic maps
+
+Out of the box, Lambda-RAG ships with topic ontologies for several
+high-review-burden industries. Each maps free-form section headings
+and keywords onto canonical topic IDs that rules can be authored
+against:
+
+| Topic map | Use cases |
+|-----------|-----------|
+| `contract.v1` | Commercial contract review (payment terms, governing law, warranty, IP, liability, …) |
+| `architecture-review.v1` | Cloud architecture / ASD review (security, network, compliance, performance, …) |
+| `fsi.v1` | Financial services (basel, AML, KYC, capital adequacy, model risk, …) |
+| `oil-gas.v1` | Upstream / downstream policies (HSE, well integrity, asset integrity, environmental, …) |
+| `business-review.v1` | MOUs, SOWs, business cases, vendor reviews |
+| `gov-architecture.v1` | Government cloud architecture review |
+| `permitting.v1` | Government permit / planning application review |
+
+List them at any time:
+
+```pwsh
+dotnet run --project src/LambdaRag.Cli -- topic-map list
+```
+
+## 🚀 Try it on the bundled sample
 
 ```pwsh
 dotnet build
-dotnet test
+dotnet test    # 100 unit + 2 idempotency proofs
 
-# Review the bundled sample contract against the bundled ruleset
+# Review the bundled sample contract → JSON report
 dotnet run --project src/LambdaRag.Cli -- review `
   --document samples/contracts/contract.md `
-  --ruleset samples/contracts/ruleset.json `
-  --out out/
+  --ruleset  samples/contracts/ruleset.json `
+  --out      out/sample `
+  --mode     report
 
-# Re-run; outputs are byte-identical
+# Same review → redlined Word document with tracked changes
 dotnet run --project src/LambdaRag.Cli -- review `
-  --document samples/contracts/contract.md `
-  --ruleset samples/contracts/ruleset.json `
-  --out out2/
+  --document out/contoso-test/contract.docx `
+  --ruleset  out/contoso-full/contoso-policies-ruleset.json `
+  --out      out/sample `
+  --mode     markup
 
-# Compare
-fc /b out/report.json out2/report.json   # zero differences
+# Both at once
+dotnet run --project src/LambdaRag.Cli -- review `
+  --document out/contoso-test/contract.docx `
+  --ruleset  out/contoso-full/contoso-policies-ruleset.json `
+  --out      out/sample `
+  --mode     both
 ```
+
+Outputs land in `out/sample/`:
+- `report.json` — verdict, score, per-rule outcome, remediation, full provenance
+- `reviewed.docx` — original document with tracked changes + comments + gap-analysis summary
+
+## 📥 How do I plug in a new ruleset?
+
+The platform is designed so you can drop in *any* set of policy
+documents (PDF, Word, Markdown, JSON) for *any* industry / customer
+and have an executable ruleset out the other end.
+
+### Option A — Extract rules from a folder of policy documents
+
+Best when you have customer / regulator policy PDFs or Word docs.
+
+```pwsh
+# 1. Drop your policy files into a folder
+mkdir policies\acme-corp
+# copy ACME-Procurement-Policy.pdf, ACME-DataProtection.docx, etc. into it
+
+# 2. Run the deterministic extractor
+dotnet run --project src/LambdaRag.Cli -- extract-rules `
+  --policy-dir policies/acme-corp `
+  --domain     contract `
+  --id         rs_acme_procurement `
+  --out        rulesets/acme-procurement.json `
+  --prefix     ACME `
+  --min-chars  200
+```
+
+Output: `rulesets/acme-procurement.json` — every rule includes:
+- A natural-language statement
+- A typed predicate (lambda) the engine evaluates
+- A pointer to the source span in the originating policy document
+- An applicability tag (Mandatory / Conditional / Optional, inferred at authoring time)
+- A content-addressed fingerprint
+
+Review it, edit it, commit it, version it — it's plain JSON.
+
+### Option B — Author rules directly (chunk-by-chunk)
+
+When you have one policy clause and want a single rule:
+
+```pwsh
+dotnet run --project src/LambdaRag.Cli -- author `
+  --chunk  policies/acme-corp/clause-7.txt `
+  --domain contract `
+  --prefix ACME `
+  --out    rulesets/clause-7-rule.json
+```
+
+### Option C — Hand-write a ruleset
+
+Look at `samples/contracts/ruleset.json`. The schema is small and
+documented in `docs/`. Anything you can express as a typed predicate
+over a projected document graph can be a rule.
+
+### Then test it
+
+```pwsh
+# Sanity-check coverage of your ruleset against a target document
+dotnet run --project src/LambdaRag.Cli -- coverage `
+  --document my-customer-doc.docx `
+  --ruleset  rulesets/acme-procurement.json `
+  --out      out/acme/coverage.json
+
+# Run the full review
+dotnet run --project src/LambdaRag.Cli -- review `
+  --document my-customer-doc.docx `
+  --ruleset  rulesets/acme-procurement.json `
+  --out      out/acme `
+  --mode     both
+```
+
+### Adding a brand-new industry topic map
+
+If the ontology you need isn't in the table above, copy
+`src/LambdaRag.Projection/TopicMaps/contract.v1.json` to
+`my-industry.v1.json`, add your headings/aliases per topic, rebuild,
+and pass `--topic-map my-industry.v1` to the extractor.
+
+## CLI cheat sheet
+
+```
+lambda-rag review        --document <path> --ruleset <path> --out <dir> [--mode report|markup|both]
+lambda-rag extract-rules --policy-dir <dir> --domain <name> --id <ruleset-id> --out <path>
+lambda-rag author        --chunk <path> --domain <name> --prefix <id-prefix> --out <path>
+lambda-rag coverage      --document <path> --ruleset <path> --out <path>
+lambda-rag project       --document <path> --out <path>
+lambda-rag parse         --document <path> --out <path>
+lambda-rag index         --ruleset <path> [--out <path>]
+lambda-rag topic-map     <list|show|coverage> [args]
+```
+
+> A web UI is on the roadmap. For now everything runs from the CLI
+> and produces files you can diff, hash, sign, and ship.
 
 ## Solution layout
 
@@ -52,28 +184,29 @@ fc /b out/report.json out2/report.json   # zero differences
 src/
   LambdaRag.Core/         Domain, hashing, selectors, abstractions
   LambdaRag.Parsing/      PDF/DOCX/MD parsers → ParsedDocument
-  LambdaRag.Projection/   ParsedDocument → ProjectedDocument (typed graph)
+  LambdaRag.Projection/   ParsedDocument → ProjectedDocument + topic maps
   LambdaRag.Selectors/    JSONPath-subset matcher
   LambdaRag.Evaluation/   Microsoft RulesEngine wrapper, verdict aggregator
-  LambdaRag.Markup/       OpenXml tracked-changes annotator
+  LambdaRag.Markup/       OpenXml tracked-changes annotator (deterministic)
   LambdaRag.Authoring/    MAF agents: extract rules from policy docs
   LambdaRag.Persistence/  SQLite stores: rules, projections, evaluations
-  LambdaRag.Api/          ASP.NET Core minimal API
+  LambdaRag.Api/          ASP.NET Core minimal API (future-facing)
   LambdaRag.Cli/          `lambda-rag` command-line tool
 tests/
-  LambdaRag.UnitTests/
-  LambdaRag.IdempotencyTests/  Run-twice byte-equality proofs
-samples/contracts/        contract.md + ruleset.json
-docs/                     ARCHITECTURE.md, DETERMINISM.md, SELECTORS.md
+  LambdaRag.UnitTests/             100 unit tests
+  LambdaRag.IdempotencyTests/      Run-twice byte-equality proofs
+samples/contracts/                 contract.md + ruleset.json
+docs/                              ARCHITECTURE.md, DETERMINISM.md, SELECTORS.md
 ```
 
-## Contributing a new domain
+## Roadmap
 
-1. Implement `IDocumentProjector` for your domain (or reuse an existing one).
-2. Provide an authoring policy document and let `lambda-rag extract` build a `RuleSet.json`.
-3. Review the generated rules — every rule cites its source span and natural-language statement.
-4. Run `lambda-rag review` against target documents.
+- 🖥️ Lightweight web UI (drag-drop document + ruleset → verdict + redlined .docx download)
+- 🔌 Live Word task-pane add-in for in-place review (currently offline `.docx` markup only)
+- 🌐 REST API surface in `LambdaRag.Api` exposing the same pipeline
+- ✅ Positive-confirmation comments in markup mode (currently only Fail / Gap / Error are surfaced)
 
 ## License
 
 MIT.
+
