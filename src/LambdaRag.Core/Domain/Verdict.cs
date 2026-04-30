@@ -3,7 +3,16 @@ using LambdaRag.Core.Hashing;
 
 namespace LambdaRag.Core.Domain;
 
-public enum VerdictOutcome { Pass, Fail, NotApplicable, Error }
+/// <summary>
+/// Per-rule outcome of a single document review.
+/// • <c>Pass</c> / <c>Fail</c>: a section matched and the lambda evaluated.
+/// • <c>NotApplicable</c>: the rule did not apply (Optional or Conditional
+///   rule whose scope wasn't met).
+/// • <c>Gap</c>: the rule is Mandatory but the document is silent on it
+///   — a compliance finding ("you should have addressed this and didn't").
+/// • <c>Error</c>: predicate or lambda threw at evaluation time.
+/// </summary>
+public enum VerdictOutcome { Pass, Fail, NotApplicable, Gap, Error }
 
 /// <summary>
 /// One rule applied to one matched section. Carries the full audit trail
@@ -62,4 +71,12 @@ public sealed record ComplianceReport(
     int NotApplicable,
     int Errored,
     IReadOnlyList<Verdict> Verdicts,
-    DateTimeOffset GeneratedAt);
+    DateTimeOffset GeneratedAt)
+{
+    /// <summary>
+    /// Count of <see cref="VerdictOutcome.Gap"/> verdicts — Mandatory rules
+    /// the document did not address. These count against the compliance
+    /// score: <c>Score = pass / (pass + fail + gap)</c>.
+    /// </summary>
+    public int Gaps { get; init; }
+}

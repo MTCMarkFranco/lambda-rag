@@ -140,7 +140,7 @@ static class CliEntry
         Console.WriteLine($"Document:  {parsed.Source.Id}");
         Console.WriteLine($"RuleSet:   {ruleset.Id}@{ruleset.Version}");
         Console.WriteLine($"Score:     {report.Score:F4}");
-        Console.WriteLine($"Verdicts:  pass={report.Passed} fail={report.Failed} n/a={report.NotApplicable} err={report.Errored}");
+        Console.WriteLine($"Verdicts:  pass={report.Passed} fail={report.Failed} gap={report.Gaps} n/a={report.NotApplicable} err={report.Errored}");
         var withRemediation = report.Verdicts.Count(v => !string.IsNullOrEmpty(v.RemediationText));
         if (withRemediation > 0)
             Console.WriteLine($"Rewrites:  {withRemediation} verdict(s) include a suggested remediation");
