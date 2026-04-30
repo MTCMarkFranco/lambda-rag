@@ -4,6 +4,7 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="DocumentFormat.OpenXml" />
     <ProjectReference Include="..\..\src\LambdaRag.Core\LambdaRag.Core.csproj" />
     <ProjectReference Include="..\..\src\LambdaRag.Parsing\LambdaRag.Parsing.csproj" />
     <ProjectReference Include="..\..\src\LambdaRag.Projection\LambdaRag.Projection.csproj" />
