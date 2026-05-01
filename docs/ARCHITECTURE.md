@@ -1,6 +1,15 @@
 # Architecture
 
+> 📌 **The canonical diagram lives at
+> [`docs/diagrams/authoring-vs-runtime.md`](diagrams/authoring-vs-runtime.md)**
+> (Mermaid + module map + anti-patterns). This page expands on the
+> module-level details below.
+
 ## High level
+
+See [`docs/diagrams/authoring-vs-runtime.md`](diagrams/authoring-vs-runtime.md)
+for the canonical Mermaid diagram. The ASCII summary is preserved here
+for terminal-only consumers:
 
 ```
                         ┌──────── AUTHORING (offline) ────────┐
