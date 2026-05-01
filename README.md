@@ -74,7 +74,7 @@ dotnet run --project src/LambdaRag.Cli -- topic-map list
 
 ```pwsh
 dotnet build
-dotnet test    # 100 unit + 2 idempotency proofs
+dotnet test    # 115 unit + 15 idempotency proofs
 
 # Review the bundled sample contract → JSON report
 dotnet run --project src/LambdaRag.Cli -- review `
@@ -89,6 +89,14 @@ dotnet run --project src/LambdaRag.Cli -- review `
   --ruleset  out/ac-full/ac-policies-ruleset.json `
   --out      out/sample `
   --mode     markup
+
+# Add positive-confirmation ✓ comments for Pass verdicts (full coverage proof)
+dotnet run --project src/LambdaRag.Cli -- review `
+  --document out/ac-test/contract.docx `
+  --ruleset  out/ac-full/ac-policies-ruleset.json `
+  --out      out/sample `
+  --mode     markup `
+  --annotate-pass
 
 # Both at once
 dotnet run --project src/LambdaRag.Cli -- review `

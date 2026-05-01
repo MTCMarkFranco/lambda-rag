@@ -67,6 +67,39 @@ public static class AnnotationFactory
     }
 
     /// <summary>
+    /// Opt-in mapping: every Pass verdict becomes a positive-confirmation
+    /// Comment anchored to the matched section. Used by markup mode's
+    /// <c>--annotate-pass</c> flag to produce full coverage proof — i.e.
+    /// the reviewed document shows not only what failed, but what was
+    /// checked and passed.
+    ///
+    /// Off by default. The volume can be high (one comment per matched
+    /// section per applicable rule), so reviewers must opt in.
+    ///
+    /// Annotation Ids derive from <c>(verdict.Id, "pass")</c> so they are
+    /// distinct from the Fail/Error ids in <see cref="FromReport"/> and
+    /// the run is idempotent across two invocations of the same inputs.
+    /// </summary>
+    public static IEnumerable<Annotation> BuildPassAnnotations(ComplianceReport report, IReadOnlyDictionary<string, Rule> rules)
+    {
+        foreach (var v in report.Verdicts)
+        {
+            if (v.Outcome is not VerdictOutcome.Pass) continue;
+            var rule = rules.GetValueOrDefault(v.RuleId);
+            var statement = rule?.NaturalLanguage ?? v.RuleId;
+            var text = $"\u2713 Passed: {statement}";
+
+            yield return new Annotation(
+                Id: ContentHash.Compose("annot", v.Id, "pass").Value,
+                Kind: AnnotationKind.Comment,
+                Span: v.SourceSpan,
+                Author: Author,
+                Text: text,
+                Replacement: null);
+        }
+    }
+
+    /// <summary>
     /// Build a single summary Annotation that lists every Gap verdict —
     /// mandatory rules the reviewed document is silent on. Anchored to
     /// the top of the document (charStart=0). Returns <c>null</c> when

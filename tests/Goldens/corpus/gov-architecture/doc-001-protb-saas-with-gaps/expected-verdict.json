@@ -8,7 +8,7 @@
     "value": "lr1:872966856e9547154ac93229b9112bd638c19b59fea0aa704a3909e2700eb8b5"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.2.0",
+  "projectorVersion": "1.3.0",
   "score": 0,
   "totalRules": 5,
   "passed": 0,
@@ -38,6 +38,8 @@
           "phishing_resistant_mfa": 0.9,
           "ato_status": 0.4
         },
+        "topic_density": 0,
+        "is_operative_for_topic": true,
         "text": "All administrative access to the portal control plane is gated bymulti-factor authentication. The MFA solution has been designated\"phishing-resistant\" by the vendor in marketing literature. Time-basedone-time passwords (TOTP) delivered via the vendor's mobile authenticatorapp are the standard second factor for all administrators. SMS-based MFAremains available as a backup for administrators travelling withouttheir primary device.\nThe vendor confirms that all MFA methods are \"modern and secure\" but thespecific cryptographic protocol bound to the authenticator has not beendocumented in this revision of the architecture."
       },
       "sourceSpan": {
@@ -100,6 +102,8 @@
           "encryption_at_rest": 0.9,
           "identity_assurance": 0.4
         },
+        "topic_density": 0,
+        "is_operative_for_topic": true,
         "text": "Customer data is encrypted at rest using the cloud provider'splatform-default storage encryption. The provider documentationindicates that \"industry-standard encryption\" is applied to all blobs,queues, and managed disks. The exact algorithm and key length aremanaged entirely by the platform and are not customer-configurable inthis tier.\nA future revision of this architecture will evaluate customer-managedkeys; for the initial launch we accept the platform-default posture."
       },
       "sourceSpan": {
@@ -162,6 +166,8 @@
           "audit_logging": 0.9,
           "log_retention": 0.9
         },
+        "topic_density": 3.2258,
+        "is_operative_for_topic": true,
         "text": "Platform audit log streams are enabled by default. Operations staff havevisibility into administrative activity through the cloud provider'sconsole. Logs are retained \"for the lifetime of the workload\" per theprovider's standard offering."
       },
       "sourceSpan": {
