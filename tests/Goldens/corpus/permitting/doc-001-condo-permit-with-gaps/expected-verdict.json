@@ -1,0 +1,158 @@
+{
+  "documentId": {
+    "value": "lr1:55464f01a84c728f805e408adb57006ed4e6de0ebde7b9f0061e620381b5cde7"
+  },
+  "ruleSetId": "rs_can_permitting_v1",
+  "ruleSetVersion": "1.0.0",
+  "ruleSetFingerprint": {
+    "value": "lr1:ab1d7b31f10f5c91568dfec7e149544187da8d87faa59162090fdc19d6038c45"
+  },
+  "projectorId": "contract",
+  "projectorVersion": "1.2.0",
+  "score": 0.2,
+  "totalRules": 5,
+  "passed": 1,
+  "failed": 1,
+  "notApplicable": 0,
+  "errored": 0,
+  "verdicts": [
+    {
+      "id": "lr1:888787ac2b52a929b4c1e8567160a0eaae7823b04f72545f3e094394589327e7",
+      "ruleId": "PERMIT-AODA-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Gap",
+      "lambdaText": "input1.text.Contains(\"IASR\") || input1.text.Contains(\"O. Reg. 191/11\") || (input1.text.Contains(\"AODA\") && input1.text.Contains(\"accessible path\"))",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "IASR-O-Reg-191-11",
+        "charStart": 0,
+        "charLength": 0,
+        "pageNumber": 1,
+        "headingPath": "/Part IV.1/s.80.10",
+        "charEnd": 0
+      },
+      "evidenceQuotes": [
+        "Newly constructed or redeveloped exterior paths of travel shall meet the requirements set out in section 80.10."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: Newly constructed or redeveloped exterior paths of travel must conform to the IASR (O. Reg. 191/11) Part IV.1 Design of Public Spaces standards. The application must explicitly state IASR / AODA conformance.",
+      "predicateText": "input1.category == \"accessibility_aoda\""
+    },
+    {
+      "id": "lr1:9a7df6a72aa056dc467203dc5c6bb27de7065b71e3a1e56c7fabf90737975e16",
+      "ruleId": "PERMIT-EIA-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Gap",
+      "lambdaText": "input1.text.Contains(\"Impact Assessment Act\") || input1.text.Contains(\"IAAC\") || input1.text.Contains(\"Physical Activities Regulations\") || (input1.text.Contains(\"designated project\") && input1.text.Contains(\"federal\"))",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "IAA-2019",
+        "charStart": 0,
+        "charLength": 0,
+        "pageNumber": 1,
+        "headingPath": "/s.9",
+        "charEnd": 0
+      },
+      "evidenceQuotes": [
+        "9 No proponent of a designated project shall do any act or thing in connection with the carrying out of the designated project ... until ..."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: The federal Impact Assessment Act, S.C. 2019, c. 28 prohibits any proponent from carrying out a designated project until an impact assessment is complete (s. 9). The application must address whether the project is designated and, if so, attest to IAA compliance.",
+      "predicateText": "input1.category == \"environmental_review\""
+    },
+    {
+      "id": "lr1:b79e5731d2337d3973f69fa9ee1d1311639f30e56fc4432e22b87abf6d031f40",
+      "ruleId": "PERMIT-FIRE-EGRESS-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"3.4.2\") || input1.text.Contains(\"OBC 3.4\") || input1.text.Contains(\"travel distance\")) && input1.text.Contains(\"exit\")",
+      "evaluatedInput": {
+        "id": "s_00000005",
+        "heading": "Fire Egress",
+        "heading_path": "/Building Permit Application — 245 Bay Tower, Toronto, ON/Fire Egress",
+        "category": "fire_egress",
+        "primary_topic": "fire_egress",
+        "topics": [
+          "fire_egress"
+        ],
+        "topic_scores": {
+          "fire_egress": 0.9
+        },
+        "text": "Two scissor stairs provide independent means of egress from each floor.The travel distance from the most remote point on each floor to thenearest exit door is 24.0 m. The building is fully sprinklered."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:55464f01a84c728f805e408adb57006ed4e6de0ebde7b9f0061e620381b5cde7",
+        "charStart": 1180,
+        "charLength": 14,
+        "headingPath": "/Building Permit Application — 245 Bay Tower, Toronto, ON/Fire Egress",
+        "charEnd": 1194
+      },
+      "evidenceQuotes": [
+        "Except as permitted by Sentences (2) to (8), the travel distance to the nearest exit shall be not more than ..."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000005",
+      "predicateText": "input1.category == \"fire_egress\""
+    },
+    {
+      "id": "lr1:1080caa5b2ebc8cc34d29c6ae16ea6b820880d4dd16d3253e2f8edbee340b0eb",
+      "ruleId": "PERMIT-FIRE-SPRINK-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"NFPA 13\") || (input1.text.Contains(\"sprinkler\") && (input1.text.Contains(\"OBC 3.2.2\") || input1.text.Contains(\"3.2.2\")))",
+      "evaluatedInput": {
+        "id": "s_00000006",
+        "heading": "Fire Suppression — Sprinkler System",
+        "heading_path": "/Building Permit Application — 245 Bay Tower, Toronto, ON/Fire Suppression — Sprinkler System",
+        "category": "fire_suppression",
+        "primary_topic": "fire_suppression",
+        "topics": [
+          "fire_suppression"
+        ],
+        "topic_scores": {
+          "fire_suppression": 0.9
+        },
+        "text": "A wet-pipe sprinkler system is provided throughout the building.Standpipes are provided in each exit stair. The fire alarm system istwo-stage, supervised by a ULC-listed monitoring service."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:55464f01a84c728f805e408adb57006ed4e6de0ebde7b9f0061e620381b5cde7",
+        "charStart": 1401,
+        "charLength": 38,
+        "headingPath": "/Building Permit Application — 245 Bay Tower, Toronto, ON/Fire Suppression — Sprinkler System",
+        "charEnd": 1439
+      },
+      "errorMessage": "Rule 'PERMIT-FIRE-SPRINK-001' failed: Buildings of the major occupancies and sizes triggered by OBC 3.2.2 must be sprinklered to NFPA 13.",
+      "evidenceQuotes": [
+        "Sprinklered throughout in conformance with NFPA 13 ..."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000006",
+      "remediationText": "Add to Fire Suppression — Sprinkler System: confirm fully-sprinklered design per OBC 3.2.2 and reference NFPA 13.",
+      "predicateText": "input1.category == \"fire_suppression\""
+    },
+    {
+      "id": "lr1:4fe5aeaff029d7df3eee5e26687a814c35b2f54234fb46e50198374dfa78c0e0",
+      "ruleId": "PERMIT-INDIG-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Gap",
+      "lambdaText": "input1.text.Contains(\"duty to consult\") || input1.text.Contains(\"consultation and accommodation\") || (input1.text.Contains(\"section 35\") && input1.text.Contains(\"Constitution\"))",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "Haida-2004-SCC-73",
+        "charStart": 0,
+        "charLength": 0,
+        "pageNumber": 1,
+        "headingPath": "/duty-to-consult",
+        "charEnd": 0
+      },
+      "evidenceQuotes": [
+        "The duty arises when the Crown has knowledge, real or constructive, of the potential existence of the Aboriginal right or title and contemplates conduct that might adversely affect it."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: Where Crown conduct may adversely affect asserted or established Aboriginal or treaty rights, the Crown owes a duty to consult under s. 35 of the Constitution Act, 1982 (Haida Nation v. British Columbia, 2004 SCC 73). Permit applications that could trigger Crown action affecting such rights must address consultation.",
+      "predicateText": "input1.category == \"indigenous_consultation\""
+    }
+  ],
+  "generatedAt": "2000-01-01T00:00:00+00:00",
+  "gaps": 3
+}

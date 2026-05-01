@@ -1,0 +1,210 @@
+{
+  "documentId": {
+    "value": "lr1:f584ae11ff882c5312ec5d34678f8b94bb04dbd6bae948041079dcd012954679"
+  },
+  "ruleSetId": "rs_can_oil_gas_v1",
+  "ruleSetVersion": "1.0.0",
+  "ruleSetFingerprint": {
+    "value": "lr1:a263483c4755f06935102facd023ebd599700e2c70032ab855f5c5b1ad73d1ad"
+  },
+  "projectorId": "contract",
+  "projectorVersion": "1.2.0",
+  "score": 1,
+  "totalRules": 5,
+  "passed": 5,
+  "failed": 0,
+  "notApplicable": 0,
+  "errored": 0,
+  "verdicts": [
+    {
+      "id": "lr1:eab20891791adf6fccfca3a26d32128d52e47292935591d72541141cff3c2f7d",
+      "ruleId": "OG-DECOM-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"decommissioning\") || input1.text.Contains(\"abandonment\")) && (input1.text.Contains(\"financial assurance\") || input1.text.Contains(\"abandonment funding\") || input1.text.Contains(\"Liability Management Rating\") || input1.text.Contains(\"LMR\"))",
+      "evaluatedInput": {
+        "id": "s_00000004",
+        "heading": "Decommissioning / Abandonment",
+        "heading_path": "/Operations & Compliance Program — Northstar NPS 12 Sweet Gas Gathering System/Decommissioning - Abandonment",
+        "category": "decommissioning",
+        "primary_topic": "decommissioning",
+        "topics": [
+          "lifecycle_phase:abandonment",
+          "lifecycle_phase:decommissioning",
+          "decommissioning",
+          "pipeline_integrity"
+        ],
+        "topic_scores": {
+          "lifecycle_phase:abandonment": 1,
+          "lifecycle_phase:decommissioning": 1,
+          "decommissioning": 0.9,
+          "pipeline_integrity": 0.4
+        },
+        "text": "The decommissioning and abandonment plan is filed and updated annually.Financial assurance is provided through the CER abandonment-fundingmechanism for federally-regulated segments, and through LiabilityManagement Rating (LMR) compliance with the relevant provincialregulator for provincial segments. The current funded amount exceedsthe estimated abandonment liability per the most recent third-partyengineering estimate."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:f584ae11ff882c5312ec5d34678f8b94bb04dbd6bae948041079dcd012954679",
+        "charStart": 1955,
+        "charLength": 32,
+        "headingPath": "/Operations & Compliance Program — Northstar NPS 12 Sweet Gas Gathering System/Decommissioning - Abandonment",
+        "charEnd": 1987
+      },
+      "evidenceQuotes": [
+        "A company shall provide ... mechanisms to ensure that funds are available to pay for abandonment."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000004",
+      "predicateText": "input1.category == \"decommissioning\""
+    },
+    {
+      "id": "lr1:48400bc2137532dfd4dea11bd9532deed0e5c6ab8e5e83b2283978e2fb3331a4",
+      "ruleId": "OG-EMERGENCY-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"emergency management program\") || input1.text.Contains(\"emergency response plan\") || input1.text.Contains(\"ERP\") || input1.text.Contains(\"Directive 071\") || input1.text.Contains(\"D-071\") || input1.text.Contains(\"OPR s. 32\")",
+      "evaluatedInput": {
+        "id": "s_00000002",
+        "heading": "Emergency Response Plan — Emergency Management Program",
+        "heading_path": "/Operations & Compliance Program — Northstar NPS 12 Sweet Gas Gathering System/Emergency Response Plan — Emergency Management Program",
+        "category": "emergency_response",
+        "primary_topic": "emergency_response",
+        "topics": [
+          "emergency_response",
+          "indigenous_consultation",
+          "pipeline_integrity"
+        ],
+        "topic_scores": {
+          "emergency_response": 0.9,
+          "indigenous_consultation": 0.4,
+          "pipeline_integrity": 0.4
+        },
+        "text": "A documented emergency management program (EMP / ERP) is maintained perCER OPR s. 32. The Northstar EMP includes:\nICS-based command structure\na 24/7 notification matrix to the CER, BCER, AER (where applicable),the local Indigenous nations, and municipal first responders\ntier-1/2/3 spill response with mutual-aid agreements\ntwo full-scale exercises annually plus four desktop exercises.\nFor Alberta-side facilities the program is harmonised with AERDirective 071."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:f584ae11ff882c5312ec5d34678f8b94bb04dbd6bae948041079dcd012954679",
+        "charStart": 738,
+        "charLength": 57,
+        "headingPath": "/Operations & Compliance Program — Northstar NPS 12 Sweet Gas Gathering System/Emergency Response Plan — Emergency Management Program",
+        "charEnd": 795
+      },
+      "evidenceQuotes": [
+        "A company shall develop, implement and maintain an emergency management program that anticipates, prevents, manages and mitigates conditions during an emergency ..."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000002",
+      "predicateText": "input1.category == \"emergency_response\""
+    },
+    {
+      "id": "lr1:765f81ea5c1b904b85cc27afbf6320605dac5f5f83ac1208cec37c2b264a8956",
+      "ruleId": "OG-INDIG-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"duty to consult\") || input1.text.Contains(\"consultation and accommodation\") || (input1.text.Contains(\"Indigenous\") && (input1.text.Contains(\"section 35\") || input1.text.Contains(\"s. 35\") || input1.text.Contains(\"First Nation\")))",
+      "evaluatedInput": {
+        "id": "s_00000005",
+        "heading": "Indigenous Consultation and Accommodation",
+        "heading_path": "/Operations & Compliance Program — Northstar NPS 12 Sweet Gas Gathering System/Indigenous Consultation and Accommodation",
+        "category": "indigenous_consultation",
+        "primary_topic": "indigenous_consultation",
+        "topics": [
+          "indigenous_consultation",
+          "regulatory_reporting"
+        ],
+        "topic_scores": {
+          "indigenous_consultation": 0.9,
+          "regulatory_reporting": 0.4
+        },
+        "text": "Northstar acknowledges the Crown's duty to consult under section 35of the Constitution Act, 1982 (Haida Nation v. British Columbia(Minister of Forests), 2004 SCC 73; Tsleil-Waututh Nation v. Canada,2018 FCA 153). The Indigenous consultation log records bilateralengagement with Treaty 8 First Nations whose territory the gatheringsystem traverses, including:\npre-construction archaeological assessments under each nation's owncultural-heritage protocol\na community benefits agreement with revenue-sharing terms\nongoing quarterly engagement meetings.\nThe consultation file is maintained by the Indigenous Affairs lead andreviewed by Crown counsel for adequacy."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:f584ae11ff882c5312ec5d34678f8b94bb04dbd6bae948041079dcd012954679",
+        "charStart": 2419,
+        "charLength": 44,
+        "headingPath": "/Operations & Compliance Program — Northstar NPS 12 Sweet Gas Gathering System/Indigenous Consultation and Accommodation",
+        "charEnd": 2463
+      },
+      "evidenceQuotes": [
+        "The duty to consult ... arises when the Crown has knowledge of the potential existence of an Aboriginal right or title and contemplates conduct that might adversely affect it."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000005",
+      "predicateText": "input1.category == \"indigenous_consultation\""
+    },
+    {
+      "id": "lr1:8a8131517eecf98efb08ae999e913f269809a9d271356f4739ededa4fb151f33",
+      "ruleId": "OG-METHANE-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"SOR/2018-66\") || (input1.text.Contains(\"methane\") && input1.text.Contains(\"LDAR\")) || input1.text.Contains(\"leak detection and repair\") || (input1.text.Contains(\"fugitive emissions\") && input1.text.Contains(\"methane\"))",
+      "evaluatedInput": {
+        "id": "s_00000003",
+        "heading": "Methane Management",
+        "heading_path": "/Operations & Compliance Program — Northstar NPS 12 Sweet Gas Gathering System/Methane Management",
+        "category": "methane_management",
+        "primary_topic": "methane_management",
+        "topics": [
+          "methane_management",
+          "air_emissions",
+          "regulatory_reporting"
+        ],
+        "topic_scores": {
+          "methane_management": 0.9,
+          "air_emissions": 0.4,
+          "regulatory_reporting": 0.4
+        },
+        "text": "The Northstar methane management program implements the federalRegulations Respecting Reduction in the Release of Methane andCertain Volatile Organic Compounds (Upstream Oil and Gas Sector),SOR/2018-66. The program covers:\na leak-detection-and-repair (LDAR) program with quarterly screeningusing OGI cameras at all compressor stations\nrepair timelines that meet or exceed the 30-day requirement underSOR/2018-66\nventing limits at all controlled devices (pneumatic instruments,glycol dehydrators, compressor seals)\nmethane intensity reporting per OGMP 2.0 reporting framework.\nAnnual fugitive emissions inventory is filed with ECCC."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:f584ae11ff882c5312ec5d34678f8b94bb04dbd6bae948041079dcd012954679",
+        "charStart": 1277,
+        "charLength": 21,
+        "headingPath": "/Operations & Compliance Program — Northstar NPS 12 Sweet Gas Gathering System/Methane Management",
+        "charEnd": 1298
+      },
+      "evidenceQuotes": [
+        "An operator of upstream oil and gas facilities must implement a program ... to detect and repair leaks of hydrocarbon gas ..."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000003",
+      "predicateText": "input1.category == \"methane_management\""
+    },
+    {
+      "id": "lr1:c6e9f7419d48ac96c2fe490992e2be137e7688e6f033f95314ee69002a7f2e52",
+      "ruleId": "OG-PIM-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"pipeline integrity management program\") || input1.text.Contains(\"integrity management program\") || (input1.text.Contains(\"PIM\") && input1.text.Contains(\"CER\")) || input1.text.Contains(\"OPR section 40\") || input1.text.Contains(\"OPR s. 40\")",
+      "evaluatedInput": {
+        "id": "s_00000001",
+        "heading": "Pipeline Integrity Management Program",
+        "heading_path": "/Operations & Compliance Program — Northstar NPS 12 Sweet Gas Gathering System/Pipeline Integrity Management Program",
+        "category": "pipeline_integrity",
+        "primary_topic": "pipeline_integrity",
+        "topics": [
+          "pipeline_integrity",
+          "emergency_response"
+        ],
+        "topic_scores": {
+          "pipeline_integrity": 0.9,
+          "emergency_response": 0.4
+        },
+        "text": "The pipeline integrity management program (PIM) implements CER OPRs. 40 in full. The program documents:\nthreat-identification (CSA Z662 Annex H threat list)\nannual ILI for high-consequence segments (cleanliness + MFL + caliperper API 1163)\nmonitoring via 12-month close-interval cathodic protection surveys\ncorrective-action triggers with documented engineering criticalassessment under API 579 / CSA Z662 Clause 10."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:f584ae11ff882c5312ec5d34678f8b94bb04dbd6bae948041079dcd012954679",
+        "charStart": 262,
+        "charLength": 40,
+        "headingPath": "/Operations & Compliance Program — Northstar NPS 12 Sweet Gas Gathering System/Pipeline Integrity Management Program",
+        "charEnd": 302
+      },
+      "evidenceQuotes": [
+        "A company shall develop, implement and maintain ... a pipeline integrity management program ..."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000001",
+      "predicateText": "input1.category == \"pipeline_integrity\""
+    }
+  ],
+  "generatedAt": "2000-01-01T00:00:00+00:00",
+  "gaps": 0
+}

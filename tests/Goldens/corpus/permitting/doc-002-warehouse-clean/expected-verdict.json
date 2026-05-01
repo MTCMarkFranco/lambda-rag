@@ -1,0 +1,200 @@
+{
+  "documentId": {
+    "value": "lr1:dba8808c16cfbda50a1af2c1d8b9a07c224baedb8a30209bb9aeabd86c99b186"
+  },
+  "ruleSetId": "rs_can_permitting_v1",
+  "ruleSetVersion": "1.0.0",
+  "ruleSetFingerprint": {
+    "value": "lr1:ab1d7b31f10f5c91568dfec7e149544187da8d87faa59162090fdc19d6038c45"
+  },
+  "projectorId": "contract",
+  "projectorVersion": "1.2.0",
+  "score": 1,
+  "totalRules": 5,
+  "passed": 5,
+  "failed": 0,
+  "notApplicable": 0,
+  "errored": 0,
+  "verdicts": [
+    {
+      "id": "lr1:87ec5e0f73a383cc84f7103586f06a17cb396fc0164f47d37d07a40928f08f14",
+      "ruleId": "PERMIT-AODA-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"IASR\") || input1.text.Contains(\"O. Reg. 191/11\") || (input1.text.Contains(\"AODA\") && input1.text.Contains(\"accessible path\"))",
+      "evaluatedInput": {
+        "id": "s_00000002",
+        "heading": "Accessibility — AODA / IASR Compliance",
+        "heading_path": "/Building Permit Application — Distribution Warehouse, Mississauga, ON/Accessibility — AODA - IASR Compliance",
+        "category": "accessibility_aoda",
+        "primary_topic": "accessibility_aoda",
+        "topics": [
+          "accessibility_aoda",
+          "site_plan_control"
+        ],
+        "topic_scores": {
+          "accessibility_aoda": 0.9,
+          "site_plan_control": 0.4
+        },
+        "text": "All exterior paths of travel are designed in accordance with IASRO. Reg. 191/11, Part IV.1 (Design of Public Spaces Standards). Theaccessible path of travel from the public sidewalk to the principalentrance is a minimum 1.65 m clear width with a maximum running slope of1:20 and a stable, slip-resistant surface. The visitor parking areaincludes two Type A and two Type B accessible spaces, with signageconforming to IASR s. 80.36. The principal entrance is power-operatedper IASR s. 80.13. The application explicitly attests to AODA / IASRconformance for all elements within the regulation's scope."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:dba8808c16cfbda50a1af2c1d8b9a07c224baedb8a30209bb9aeabd86c99b186",
+        "charStart": 577,
+        "charLength": 41,
+        "headingPath": "/Building Permit Application — Distribution Warehouse, Mississauga, ON/Accessibility — AODA - IASR Compliance",
+        "charEnd": 618
+      },
+      "evidenceQuotes": [
+        "Newly constructed or redeveloped exterior paths of travel shall meet the requirements set out in section 80.10."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000002",
+      "predicateText": "input1.category == \"accessibility_aoda\""
+    },
+    {
+      "id": "lr1:1bb5a948489e6e92742be94fe9d3b22dd7998c5c6f7ac7cdff3edd6b277d5f50",
+      "ruleId": "PERMIT-EIA-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"Impact Assessment Act\") || input1.text.Contains(\"IAAC\") || input1.text.Contains(\"Physical Activities Regulations\") || (input1.text.Contains(\"designated project\") && input1.text.Contains(\"federal\"))",
+      "evaluatedInput": {
+        "id": "s_00000006",
+        "heading": "Environmental Impact Assessment — Federal Screening",
+        "heading_path": "/Building Permit Application — Distribution Warehouse, Mississauga, ON/Environmental Impact Assessment — Federal Screening",
+        "category": "environmental_review",
+        "primary_topic": "environmental_review",
+        "topics": [
+          "environmental_review",
+          "traffic_impact"
+        ],
+        "topic_scores": {
+          "environmental_review": 0.9,
+          "traffic_impact": 0.4
+        },
+        "text": "A federal designated-project screening has been completed under theImpact Assessment Act, S.C. 2019, c. 28. The proposed warehouse isnot a \"designated project\" listed in the Physical ActivitiesRegulations (SOR/2019-285), and accordingly no federal impact assessmentis triggered. The proponent has filed a screening memo with IAAC for therecord. This determination is documented in the Federal IAA ScreeningMemo (Appendix C)."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:dba8808c16cfbda50a1af2c1d8b9a07c224baedb8a30209bb9aeabd86c99b186",
+        "charStart": 2263,
+        "charLength": 54,
+        "headingPath": "/Building Permit Application — Distribution Warehouse, Mississauga, ON/Environmental Impact Assessment — Federal Screening",
+        "charEnd": 2317
+      },
+      "evidenceQuotes": [
+        "9 No proponent of a designated project shall do any act or thing in connection with the carrying out of the designated project ... until ..."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000006",
+      "predicateText": "input1.category == \"environmental_review\""
+    },
+    {
+      "id": "lr1:8094b7a9a1afb035877f69281df7257037fe09d4e7665064c739ae371be5468a",
+      "ruleId": "PERMIT-FIRE-EGRESS-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"3.4.2\") || input1.text.Contains(\"OBC 3.4\") || input1.text.Contains(\"travel distance\")) && input1.text.Contains(\"exit\")",
+      "evaluatedInput": {
+        "id": "s_00000003",
+        "heading": "Fire Egress",
+        "heading_path": "/Building Permit Application — Distribution Warehouse, Mississauga, ON/Fire Egress",
+        "category": "fire_egress",
+        "primary_topic": "fire_egress",
+        "topics": [
+          "fire_egress"
+        ],
+        "topic_scores": {
+          "fire_egress": 0.9
+        },
+        "text": "Per OBC 3.4.2, the maximum travel distance from any point in thewarehouse floor area to the nearest exit is 31.0 m, within the 45 mallowable for sprinklered Group F-2 occupancies. Two-hour fire-ratedexit stairs serve the office mezzanine. Travel distance to an exit dooron the office level is 18.0 m. The application confirms fullconformance with OBC 3.4.2."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:dba8808c16cfbda50a1af2c1d8b9a07c224baedb8a30209bb9aeabd86c99b186",
+        "charStart": 1229,
+        "charLength": 14,
+        "headingPath": "/Building Permit Application — Distribution Warehouse, Mississauga, ON/Fire Egress",
+        "charEnd": 1243
+      },
+      "evidenceQuotes": [
+        "Except as permitted by Sentences (2) to (8), the travel distance to the nearest exit shall be not more than ..."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000003",
+      "predicateText": "input1.category == \"fire_egress\""
+    },
+    {
+      "id": "lr1:77b120af56e66a6c5ae65390a9d958c24b8abc7211afe15729c5a0b554aae8a2",
+      "ruleId": "PERMIT-FIRE-SPRINK-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"NFPA 13\") || (input1.text.Contains(\"sprinkler\") && (input1.text.Contains(\"OBC 3.2.2\") || input1.text.Contains(\"3.2.2\")))",
+      "evaluatedInput": {
+        "id": "s_00000004",
+        "heading": "Fire Suppression — Sprinkler System",
+        "heading_path": "/Building Permit Application — Distribution Warehouse, Mississauga, ON/Fire Suppression — Sprinkler System",
+        "category": "fire_suppression",
+        "primary_topic": "fire_suppression",
+        "topics": [
+          "fire_suppression"
+        ],
+        "topic_scores": {
+          "fire_suppression": 0.9
+        },
+        "text": "A fully-supervised wet-pipe sprinkler system designed and installed inaccordance with NFPA 13 is provided throughout the warehouse andoffice. Hazard classification is Extra Hazard Group 2 (rack storage).Sprinkler protection complies with OBC 3.2.2. A two-stage firealarm system per CAN/ULC-S524 is provided."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:dba8808c16cfbda50a1af2c1d8b9a07c224baedb8a30209bb9aeabd86c99b186",
+        "charStart": 1609,
+        "charLength": 38,
+        "headingPath": "/Building Permit Application — Distribution Warehouse, Mississauga, ON/Fire Suppression — Sprinkler System",
+        "charEnd": 1647
+      },
+      "evidenceQuotes": [
+        "Sprinklered throughout in conformance with NFPA 13 ..."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000004",
+      "predicateText": "input1.category == \"fire_suppression\""
+    },
+    {
+      "id": "lr1:f10fa7d10a8b2db02c9afbdff4f23554cd353c4c5bf52b543b25aa8acbbd6bf6",
+      "ruleId": "PERMIT-INDIG-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"duty to consult\") || input1.text.Contains(\"consultation and accommodation\") || (input1.text.Contains(\"section 35\") && input1.text.Contains(\"Constitution\"))",
+      "evaluatedInput": {
+        "id": "s_00000007",
+        "heading": "Indigenous Consultation and Accommodation",
+        "heading_path": "/Building Permit Application — Distribution Warehouse, Mississauga, ON/Indigenous Consultation and Accommodation",
+        "category": "indigenous_consultation",
+        "primary_topic": "indigenous_consultation",
+        "topics": [
+          "indigenous_consultation",
+          "easement_row",
+          "traffic_impact"
+        ],
+        "topic_scores": {
+          "indigenous_consultation": 0.9,
+          "easement_row": 0.4,
+          "traffic_impact": 0.4
+        },
+        "text": "The proponent acknowledges the Crown's duty to consult under section35 of the Constitution Act, 1982 and Haida Nation v. British Columbia(Minister of Forests), 2004 SCC 73. A consultation log recordsengagement with the Mississaugas of the Credit First Nation, whosetreaty territory includes the project lands. The First Nation has beenprovided with the application package and a 30-day comment window.Accommodations agreed to include a pre-construction archaeologicalassessment under the Ontario Heritage Act and a community-benefitscontribution. Engagement is logged in the Consultation andAccommodation Log (Appendix D)."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:dba8808c16cfbda50a1af2c1d8b9a07c224baedb8a30209bb9aeabd86c99b186",
+        "charStart": 2753,
+        "charLength": 44,
+        "headingPath": "/Building Permit Application — Distribution Warehouse, Mississauga, ON/Indigenous Consultation and Accommodation",
+        "charEnd": 2797
+      },
+      "evidenceQuotes": [
+        "The duty arises when the Crown has knowledge, real or constructive, of the potential existence of the Aboriginal right or title and contemplates conduct that might adversely affect it."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000007",
+      "predicateText": "input1.category == \"indigenous_consultation\""
+    }
+  ],
+  "generatedAt": "2000-01-01T00:00:00+00:00",
+  "gaps": 0
+}

@@ -1,0 +1,130 @@
+{
+  "id": "rs_osfi_b10_tprm",
+  "version": "1.0.0",
+  "domain": "fsi",
+  "publishedAt": "2024-01-01T00:00:00Z",
+  "metadata": {
+    "source": "OSFI Guideline B-10 — Third-Party Risk Management",
+    "sourceUrl": "https://www.osfi-bsif.gc.ca/en/guidance/guidance-library/third-party-risk-management-guideline",
+    "sourceLicense": "Crown copyright. OSFI guidelines are public regulatory documents and reproducible under non-commercial reproduction rights for compliance review.",
+    "topicMap": "fsi.v1",
+    "intendedFor": "Review of third-party / outsourcing arrangements (vendor MSAs, cloud agreements, broker contracts) entered into by federally regulated financial institutions (FRFIs)."
+  },
+  "rules": [
+    {
+      "id": "OSFI-B10-TPRMF",
+      "version": "1.0.0",
+      "naturalLanguage": "The arrangement must be governed by an enterprise-wide Third-Party Risk Management Framework (TPRMF) that sets out clear accountabilities, risk-tiering methodology, and lifecycle policies.",
+      "severity": "Critical",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "category": { "type": "string" }
+        },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"third_party_risk\"",
+      "lambda": "(input1.text.Contains(\"TPRMF\") || input1.text.Contains(\"Third-Party Risk Management Framework\") || input1.text.Contains(\"third-party risk management framework\")) && (input1.text.Contains(\"risk-tier\") || input1.text.Contains(\"risk tier\") || input1.text.Contains(\"criticality\"))",
+      "remediation": "Add to {section.heading}: \"This arrangement is governed by the FRFI's enterprise-wide Third-Party Risk Management Framework (TPRMF), under which the arrangement has been risk-tiered and assessed for criticality, per OSFI Guideline B-10 Principle 2.\"",
+      "evidenceQuote": "The FRFI should establish a TPRMF that sets out clear accountabilities, responsibilities, policies, and processes for identifying, managing, mitigating, monitoring and reporting on risks relating to the use of third parties.",
+      "sourceContent": "Principle 2: The FRFI should establish a TPRMF that sets out clear accountabilities, responsibilities, policies, and processes for identifying, managing, mitigating, monitoring and reporting on risks relating to the use of third parties. The TPRMF should be developed to span the lifecycle of a third-party arrangement, from sourcing and due diligence of a third-party provider to potential exit from the third-party arrangement.",
+      "sourceSpan": { "documentId": "OSFI-B10", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/1.2 Third-Party Risk Management Framework" },
+      "metadata": { "principle": "2", "section": "1.2" }
+    },
+    {
+      "id": "OSFI-B10-Subcontracting",
+      "version": "1.0.0",
+      "naturalLanguage": "Subcontracting by the third party must be subject to FRFI prior notice or consent and the contract must extend FRFI rights through the subcontracting chain.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "category": { "type": "string" }
+        },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"third_party_risk\"",
+      "lambda": "(input1.text.Contains(\"subcontract\") || input1.text.Contains(\"sub-contract\")) && (input1.text.Contains(\"consent\") || input1.text.Contains(\"prior notice\") || input1.text.Contains(\"approval\"))",
+      "remediation": "Update {section.heading} to require the third party to obtain the FRFI's prior written consent (or, at a minimum, prior notice) before engaging or replacing any subcontractor that provides services material to the arrangement, per OSFI Guideline B-10.",
+      "evidenceQuote": "The FRFI should understand the third party's subcontracting arrangements, including the controls a third party has in place to manage its own subcontracting risk.",
+      "sourceContent": "Principle on subcontracting risk: The FRFI should understand the third party's subcontracting arrangements, including the controls a third party has in place to manage its own subcontracting risk. Where appropriate, the contract should require the third party to obtain prior consent or notice before subcontracting material services.",
+      "sourceSpan": { "documentId": "OSFI-B10", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/3.2 Subcontracting" },
+      "metadata": { "section": "3.2" }
+    },
+    {
+      "id": "OSFI-B10-AuditAccess",
+      "version": "1.0.0",
+      "naturalLanguage": "The arrangement must preserve the FRFI's and OSFI's rights of audit, examination and access to information, irrespective of the third party's location.",
+      "severity": "Critical",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "category": { "type": "string" }
+        },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"third_party_risk\"",
+      "lambda": "(input1.text.Contains(\"audit\") || input1.text.Contains(\"examination\")) && input1.text.Contains(\"OSFI\")",
+      "remediation": "Add to {section.heading}: \"The third party shall provide the FRFI, the FRFI's internal and external auditors, and OSFI with rights of audit, examination, and access to records and personnel relevant to this arrangement.\"",
+      "evidenceQuote": "OSFI's supervisory powers should not be constrained, irrespective of whether an activity is conducted in-house, outsourced, or otherwise obtained from a third party.",
+      "sourceContent": "OSFI's supervisory powers should not be constrained, irrespective of whether an activity is conducted in-house, outsourced, or otherwise obtained from a third party. FRFIs are required to provide OSFI, upon request, information related to their business and strategic arrangements with third parties, risk management, and control environments.",
+      "sourceSpan": { "documentId": "OSFI-B10", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/A. Overview" },
+      "metadata": { "section": "A" }
+    },
+    {
+      "id": "OSFI-B10-BCP",
+      "version": "1.0.0",
+      "naturalLanguage": "The arrangement must include business-continuity and disaster-recovery provisions with stated recovery objectives (RTO / RPO) appropriate to the criticality of the activity.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "category": { "type": "string" }
+        },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"business_continuity\"",
+      "lambda": "(input1.text.Contains(\"BCP\") || input1.text.Contains(\"business continuity\")) && (input1.text.Contains(\"RTO\") || input1.text.Contains(\"RPO\") || input1.text.Contains(\"recovery time\") || input1.text.Contains(\"recovery point\"))",
+      "remediation": "Update {section.heading} to require a documented business continuity and disaster recovery plan with explicit Recovery Time Objective (RTO) and Recovery Point Objective (RPO) commitments aligned to the criticality of the outsourced activity, per OSFI Guideline B-10 and E-21.",
+      "evidenceQuote": "Critical third-party arrangements provide goods, business activities, functions and services to FRFIs which, if disrupted, could put at risk the continued operation of the FRFI.",
+      "sourceContent": "Critical third-party arrangements provide goods, business activities, functions and services to FRFIs which, if disrupted, could put at risk the continued operation of the FRFI, its safety and soundness or its role in the financial system, and thereby jeopardize its operational resilience.",
+      "sourceSpan": { "documentId": "OSFI-B10", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/A3. Definitions / Criticality" },
+      "metadata": { "section": "A3" }
+    },
+    {
+      "id": "OSFI-B10-ExitPlan",
+      "version": "1.0.0",
+      "naturalLanguage": "Critical arrangements must include an exit plan with defined invocation triggers covering both planned and stressed exits, including transition assistance and data return / destruction.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "category": { "type": "string" }
+        },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"business_continuity\"",
+      "lambda": "input1.text.Contains(\"exit plan\") && (input1.text.Contains(\"trigger\") || input1.text.Contains(\"invocation\") || input1.text.Contains(\"transition\"))",
+      "remediation": "Add to {section.heading}: \"The parties shall maintain a documented exit plan, including invocation triggers for both planned (non-stressed) and unplanned (stressed) exit, transition assistance obligations, and the return or certified destruction of FRFI data on termination.\"",
+      "evidenceQuote": "An exit plan is a series of actions for the FRFI to take in the event of a planned (i.e. non-stressed) or unplanned (i.e. stressed) exit from a third-party arrangement, along with triggers for invoking the plan in either event.",
+      "sourceContent": "An exit plan is a series of actions for the FRFI to take in the event of a planned (i.e. non-stressed) or unplanned (i.e. stressed) exit from a third-party arrangement, along with triggers for invoking the plan in either event.",
+      "sourceSpan": { "documentId": "OSFI-B10", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/A3. Definitions / Exit plan" },
+      "metadata": { "section": "A3" }
+    }
+  ]
+}
