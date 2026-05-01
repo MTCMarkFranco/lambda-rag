@@ -37,6 +37,11 @@ inside `reviewed.docx` and a byte-identical `report.json`.
 > guarantee — and is the most useful single page for anyone deciding
 > whether this tool fits a regulator-facing use case.
 
+> 🖼️ **One picture:**
+> [`docs/diagrams/authoring-vs-runtime.md`](docs/diagrams/authoring-vs-runtime.md)
+> is the canonical authoring-vs-runtime architecture diagram. Use it
+> in slides, papers, and onboarding.
+
 ## Built-in industry topic maps
 
 Out of the box, Lambda-RAG ships with topic ontologies for several
