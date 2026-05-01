@@ -1,0 +1,130 @@
+{
+  "id": "rs_can_oil_gas_v1",
+  "version": "1.0.0",
+  "domain": "oil-gas",
+  "publishedAt": "2024-01-01T00:00:00Z",
+  "metadata": {
+    "source": "Canadian Energy Regulator Onshore Pipeline Regulations (SOR/99-294) + Federal Methane Regulations (SOR/2018-66) + AER Directive 071 + Constitution Act, 1982 s.35 (Haida 2004 SCC 73; Tsleil-Waututh 2018 FCA 153)",
+    "sourceUrl": "https://laws-lois.justice.gc.ca/eng/regulations/SOR-99-294/",
+    "sourceLicense": "Crown copyright. Federal regulations and AER directives are public regulatory documents reproducible for compliance review under OGL-Canada / OGL-Alberta.",
+    "topicMap": "oil-gas.v1",
+    "intendedFor": "Review of Canadian onshore pipeline operations manuals, integrity programs, emergency-response programs, and decommissioning plans."
+  },
+  "rules": [
+    {
+      "id": "OG-PIM-001",
+      "version": "1.0.0",
+      "naturalLanguage": "A company must develop, implement and maintain a pipeline integrity management program (PIM/IMP) covering threat identification, monitoring, in-line inspection, and corrective action.",
+      "severity": "Critical",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "category": { "type": "string" }
+        },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"pipeline_integrity\"",
+      "lambda": "input1.text.Contains(\"pipeline integrity management program\") || input1.text.Contains(\"integrity management program\") || (input1.text.Contains(\"PIM\") && input1.text.Contains(\"CER\")) || input1.text.Contains(\"OPR section 40\") || input1.text.Contains(\"OPR s. 40\")",
+      "remediation": "Add to {section.heading}: describe threat identification, ILI cadence, monitoring, and corrective-action triggers, citing CER OPR s. 40.",
+      "evidenceQuote": "A company shall develop, implement and maintain ... a pipeline integrity management program ...",
+      "sourceContent": "Canadian Energy Regulator Onshore Pipeline Regulations, SOR/99-294, s. 40. Requires a pipeline integrity management program.",
+      "sourceSpan": { "documentId": "CER-OPR", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/s.40" },
+      "metadata": { "regulation": "SOR/99-294", "section": "40" }
+    },
+    {
+      "id": "OG-EMERGENCY-001",
+      "version": "1.0.0",
+      "naturalLanguage": "A company must develop, implement and maintain an emergency management program that anticipates, prevents, manages and mitigates emergencies. AER Directive 071 imposes equivalent requirements on Alberta operators.",
+      "severity": "Critical",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "category": { "type": "string" }
+        },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"emergency_response\"",
+      "lambda": "input1.text.Contains(\"emergency management program\") || input1.text.Contains(\"emergency response plan\") || input1.text.Contains(\"ERP\") || input1.text.Contains(\"Directive 071\") || input1.text.Contains(\"D-071\") || input1.text.Contains(\"OPR s. 32\")",
+      "remediation": "Add to {section.heading}: include ICS command structure, 24/7 notification matrix, and reference to CER OPR s. 32 (and AER Directive 071 in Alberta).",
+      "evidenceQuote": "A company shall develop, implement and maintain an emergency management program that anticipates, prevents, manages and mitigates conditions during an emergency ...",
+      "sourceContent": "CER OPR, SOR/99-294, s. 32(1); AER Directive 071 — Emergency Preparedness and Response Requirements.",
+      "sourceSpan": { "documentId": "CER-OPR", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/s.32" },
+      "metadata": { "regulation": "SOR/99-294", "section": "32" }
+    },
+    {
+      "id": "OG-METHANE-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Federal upstream methane regulations (SOR/2018-66) impose limits on venting and require leak-detection-and-repair (LDAR) programs at upstream oil and gas facilities.",
+      "severity": "Critical",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "category": { "type": "string" }
+        },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"methane_management\"",
+      "lambda": "input1.text.Contains(\"SOR/2018-66\") || (input1.text.Contains(\"methane\") && input1.text.Contains(\"LDAR\")) || input1.text.Contains(\"leak detection and repair\") || (input1.text.Contains(\"fugitive emissions\") && input1.text.Contains(\"methane\"))",
+      "remediation": "Add to {section.heading}: describe the LDAR program (component count, screening cadence, repair timeline) and cite SOR/2018-66.",
+      "evidenceQuote": "An operator of upstream oil and gas facilities must implement a program ... to detect and repair leaks of hydrocarbon gas ...",
+      "sourceContent": "Regulations Respecting Reduction in the Release of Methane and Certain Volatile Organic Compounds (Upstream Oil and Gas Sector), SOR/2018-66, made under the Canadian Environmental Protection Act, 1999.",
+      "sourceSpan": { "documentId": "SOR-2018-66", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/Methane-LDAR" },
+      "metadata": { "regulation": "SOR/2018-66" }
+    },
+    {
+      "id": "OG-DECOM-001",
+      "version": "1.0.0",
+      "naturalLanguage": "A documented decommissioning / abandonment plan with demonstrated financial assurance is required before a pipeline or well reaches end of life.",
+      "severity": "Critical",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "category": { "type": "string" }
+        },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"decommissioning\"",
+      "lambda": "(input1.text.Contains(\"decommissioning\") || input1.text.Contains(\"abandonment\")) && (input1.text.Contains(\"financial assurance\") || input1.text.Contains(\"abandonment funding\") || input1.text.Contains(\"Liability Management Rating\") || input1.text.Contains(\"LMR\"))",
+      "remediation": "Add to {section.heading}: an explicit financial-assurance description (CER abandonment-funding mechanism, AER LMR, or BCER equivalent) tied to the decommissioning / abandonment plan.",
+      "evidenceQuote": "A company shall provide ... mechanisms to ensure that funds are available to pay for abandonment.",
+      "sourceContent": "CER abandonment-funding mechanism (CER Pipeline Abandonment Cost Estimates regime); AER Directive 011; BCER liability management.",
+      "sourceSpan": { "documentId": "CER-Abandonment", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/abandonment-funding" },
+      "metadata": { "regulation": "SOR/99-294 + AER D-011" }
+    },
+    {
+      "id": "OG-INDIG-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Linear energy infrastructure routinely triggers the Crown's duty to consult under s. 35 of the Constitution Act, 1982, as confirmed for energy projects in Tsleil-Waututh Nation v. Canada, 2018 FCA 153.",
+      "severity": "Critical",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "category": { "type": "string" }
+        },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"indigenous_consultation\"",
+      "lambda": "input1.text.Contains(\"duty to consult\") || input1.text.Contains(\"consultation and accommodation\") || (input1.text.Contains(\"Indigenous\") && (input1.text.Contains(\"section 35\") || input1.text.Contains(\"s. 35\") || input1.text.Contains(\"First Nation\")))",
+      "remediation": "Add to {section.heading}: identify affected nations, summarise consultation activity, and reference the duty to consult under s. 35.",
+      "evidenceQuote": "The duty to consult ... arises when the Crown has knowledge of the potential existence of an Aboriginal right or title and contemplates conduct that might adversely affect it.",
+      "sourceContent": "Constitution Act, 1982, s. 35; Haida Nation v. British Columbia, 2004 SCC 73; Tsleil-Waututh Nation v. Canada (Attorney General), 2018 FCA 153.",
+      "sourceSpan": { "documentId": "Tsleil-Waututh-2018-FCA-153", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/duty-to-consult" },
+      "metadata": { "case": "2018 FCA 153", "constitution": "s.35" }
+    }
+  ]
+}

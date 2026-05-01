@@ -1,0 +1,230 @@
+{
+  "documentId": {
+    "value": "lr1:cc4b686cc4d65b30c353c56b0bae9f6b86c5b7de3a77ebb13d5dcc09a8631d3b"
+  },
+  "ruleSetId": "rs_gc_cloud_guardrails_v2",
+  "ruleSetVersion": "1.0.0",
+  "ruleSetFingerprint": {
+    "value": "lr1:872966856e9547154ac93229b9112bd638c19b59fea0aa704a3909e2700eb8b5"
+  },
+  "projectorId": "contract",
+  "projectorVersion": "1.2.0",
+  "score": 0.6,
+  "totalRules": 5,
+  "passed": 3,
+  "failed": 2,
+  "notApplicable": 0,
+  "errored": 0,
+  "verdicts": [
+    {
+      "id": "lr1:b382a56dca9d4edd6f53261e1210373c2ef65cf030414a285933ddd1f80d94e2",
+      "ruleId": "GC-CG-01-MFA",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"FIDO2\") || input1.text.Contains(\"PIV\") || input1.text.Contains(\"smart card\")) && input1.text.Contains(\"phishing-resistant\")",
+      "evaluatedInput": {
+        "id": "s_00000002",
+        "heading": "2. Phishing-Resistant MFA",
+        "heading_path": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/2. Phishing-Resistant MFA",
+        "category": "phishing_resistant_mfa",
+        "primary_topic": "phishing_resistant_mfa",
+        "topics": [
+          "control_family:si",
+          "phishing_resistant_mfa",
+          "ato_status",
+          "identity_assurance",
+          "interconnections",
+          "physical_security"
+        ],
+        "topic_scores": {
+          "control_family:si": 1,
+          "phishing_resistant_mfa": 0.9,
+          "ato_status": 0.4,
+          "identity_assurance": 0.4,
+          "interconnections": 0.4,
+          "physical_security": 0.4
+        },
+        "text": "All administrative access — including the two registered globaladministrators — is gated by phishing-resistant MFA. The supportedauthenticators are FIDO2 security keys and PIV-derived smart cardcredentials issued under the departmental PKI. Password-based andSMS-based authentication are disabled in conditional access policy."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:cc4b686cc4d65b30c353c56b0bae9f6b86c5b7de3a77ebb13d5dcc09a8631d3b",
+        "charStart": 551,
+        "charLength": 28,
+        "headingPath": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/2. Phishing-Resistant MFA",
+        "charEnd": 579
+      },
+      "evidenceQuotes": [
+        "Implement strong multi-factor authentication (MFA) for all user accounts. Use phishing resistant MFA where and when available."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000002",
+      "predicateText": "input1.category == \"phishing_resistant_mfa\""
+    },
+    {
+      "id": "lr1:b1f2b827898745ff82b4fc8e3d361c19370e7c2554100f6f64fb19d4a77d68fd",
+      "ruleId": "GC-CG-05-DataResidency",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"Canada Central\") || input1.text.Contains(\"Canada East\") || input1.text.Contains(\"hosted in Canada\") || input1.text.Contains(\"Toronto\") || input1.text.Contains(\"Montreal\") || input1.text.Contains(\"Quebec\")) && !input1.text.Contains(\"US East\") && !input1.text.Contains(\"US West\")",
+      "evaluatedInput": {
+        "id": "s_00000003",
+        "heading": "3. Canadian Data Centre Selection",
+        "heading_path": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/3. Canadian Data Centre Selection",
+        "category": "data_residency_canada",
+        "primary_topic": "data_residency_canada",
+        "topics": [
+          "control_family:at",
+          "control_family:ia",
+          "data_residency_canada"
+        ],
+        "topic_scores": {
+          "control_family:at": 1,
+          "control_family:ia": 1,
+          "data_residency_canada": 0.9
+        },
+        "text": "Every data-plane resource — compute, managed databases, blob storage,key vaults, and log analytics workspaces — is pinned to the provider'sCanada Central region (Toronto), with a designated paired failoverregion of Canada East (Quebec). Provisioning outside Canadian datacentre regions is blocked by tenant-level policy."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:cc4b686cc4d65b30c353c56b0bae9f6b86c5b7de3a77ebb13d5dcc09a8631d3b",
+        "charStart": 913,
+        "charLength": 36,
+        "headingPath": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/3. Canadian Data Centre Selection",
+        "charEnd": 949
+      },
+      "evidenceQuotes": [
+        "Demonstrate that the service location is within Canada for all Protected B cloud services where configurable."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000003",
+      "predicateText": "input1.category == \"data_residency_canada\""
+    },
+    {
+      "id": "lr1:cbc995a36b81346a87944be9ed094098b21a56aca6e9fafa06b1d70456e1d4ad",
+      "ruleId": "GC-CG-06-EncryptionAtRest",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"AES-256\") && (input1.text.Contains(\"FIPS 140\") || input1.text.Contains(\"FIPS-validated\"))",
+      "evaluatedInput": {
+        "id": "s_00000004",
+        "heading": "4. Encryption at Rest",
+        "heading_path": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/4. Encryption at Rest",
+        "category": "encryption_at_rest",
+        "primary_topic": "encryption_at_rest",
+        "topics": [
+          "control_family:at",
+          "encryption_at_rest",
+          "fips_140",
+          "kms_hsm"
+        ],
+        "topic_scores": {
+          "control_family:at": 1,
+          "encryption_at_rest": 0.9,
+          "fips_140": 0.4,
+          "kms_hsm": 0.4
+        },
+        "text": "All persistent storage is encrypted at rest with AES-256 using a FIPS140-2 validated cryptographic module. Customer-managed keys are storedin an HSM-backed key vault in Canada Central with annual key rotationand dual-control administrative access."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:cc4b686cc4d65b30c353c56b0bae9f6b86c5b7de3a77ebb13d5dcc09a8631d3b",
+        "charStart": 1277,
+        "charLength": 24,
+        "headingPath": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/4. Encryption at Rest",
+        "charEnd": 1301
+      },
+      "errorMessage": "Rule 'GC-CG-06-EncryptionAtRest' failed: Data at rest must be encrypted using CSE-approved cryptographic algorithms (per ITSP.40.111). The architecture must reference an approved algorithm (AES-256) and FIPS 140 validation status.",
+      "evidenceQuotes": [
+        "Use cryptographic algorithms and protocols approved by Communications Security Establishment Canada (CSE) in accordance with ITSP.40.111 and ITSP.40.062."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000004",
+      "remediationText": "Update 4. Encryption at Rest to commit to AES-256 encryption with a FIPS 140-2 (or 140-3) validated cryptographic module, aligned with CSE ITSP.40.111 and GC Cloud Guardrail 06.",
+      "predicateText": "input1.category == \"encryption_at_rest\""
+    },
+    {
+      "id": "lr1:d7369a66706c22b2bd50f4ef94f9cb33e1ae7427d11ffe45da6931af5f920092",
+      "ruleId": "GC-CG-07-TLS",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"TLS 1.2\") || input1.text.Contains(\"TLS 1.3\")) && !input1.text.Contains(\"TLS 1.0\") && !input1.text.Contains(\"TLS 1.1\")",
+      "evaluatedInput": {
+        "id": "s_00000005",
+        "heading": "5. TLS 1.2 Configuration",
+        "heading_path": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/5. TLS 1.2 Configuration",
+        "category": "encryption_in_transit",
+        "primary_topic": "encryption_in_transit",
+        "topics": [
+          "control_family:at",
+          "control_family:ra",
+          "encryption_in_transit",
+          "interconnections"
+        ],
+        "topic_scores": {
+          "control_family:at": 1,
+          "control_family:ra": 1,
+          "encryption_in_transit": 0.9,
+          "interconnections": 0.4
+        },
+        "text": "All ingress traffic terminates with a minimum negotiated TLS version ofTLS 1.2; TLS 1.3 is preferred and offered first. TLS 1.0 and TLS 1.1 areexplicitly disabled. Cipher suites are restricted to the CSE-approvedsubset."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:cc4b686cc4d65b30c353c56b0bae9f6b86c5b7de3a77ebb13d5dcc09a8631d3b",
+        "charStart": 1555,
+        "charLength": 27,
+        "headingPath": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/5. TLS 1.2 Configuration",
+        "charEnd": 1582
+      },
+      "errorMessage": "Rule 'GC-CG-07-TLS' failed: Data in transit must be encrypted by default using TLS 1.2 or higher. The architecture must explicitly commit to TLS 1.2+ for all cloud services and external communications.",
+      "evidenceQuotes": [
+        "Encrypt data in transit by default (for example, Transport Layer Security (TLS) 1.2) to protect the confidentiality and integrity of data, including for all publicly accessible sites and external communications."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000005",
+      "remediationText": "Update 5. TLS 1.2 Configuration to require TLS 1.2 or TLS 1.3 for all in-transit traffic and explicitly disable TLS 1.0 / 1.1, per GC Cloud Guardrail 07 and the GC Web Sites and Services Management Configuration Requirements.",
+      "predicateText": "input1.category == \"encryption_in_transit\""
+    },
+    {
+      "id": "lr1:81aeefc8b4a1bc684049227864d4a3c985ec971143d457d5cd725dfc2385473d",
+      "ruleId": "GC-CG-11-AuditLogging",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"audit log\") && (input1.text.Contains(\"365 days\") || input1.text.Contains(\"12 months\") || input1.text.Contains(\"3 years\") || input1.text.Contains(\"7 years\") || input1.text.Contains(\"year\")) && (input1.text.Contains(\"sign-in\") || input1.text.Contains(\"configuration change\") || input1.text.Contains(\"resource provisioning\"))",
+      "evaluatedInput": {
+        "id": "s_00000006",
+        "heading": "6. Audit Log Strategy",
+        "heading_path": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/6. Audit Log Strategy",
+        "category": "audit_logging",
+        "primary_topic": "audit_logging",
+        "topics": [
+          "control_family:at",
+          "control_family:au",
+          "control_family:ra",
+          "audit_logging",
+          "log_retention"
+        ],
+        "topic_scores": {
+          "control_family:at": 1,
+          "control_family:au": 1,
+          "control_family:ra": 1,
+          "audit_logging": 0.9,
+          "log_retention": 0.4
+        },
+        "text": "Platform audit logs are streamed to a centralised log analyticsworkspace and retained for 365 days online with a further 7 years intiered immutable storage. The log pipeline captures sign-in events(interactive and non-interactive), configuration changes, and resourceprovisioning activities. Two named information-security personnel areregistered as the platform security contacts."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:cc4b686cc4d65b30c353c56b0bae9f6b86c5b7de3a77ebb13d5dcc09a8631d3b",
+        "charStart": 1808,
+        "charLength": 24,
+        "headingPath": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/6. Audit Log Strategy",
+        "charEnd": 1832
+      },
+      "evidenceQuotes": [
+        "Confirm that the following logs are included: Sign-in logs (interactive and non-interactive sign-ins, API sign-ins); Access privilege and group changes; Changes in configuration of the cloud platform; Cloud resource provisioning activities."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000006",
+      "predicateText": "input1.category == \"audit_logging\""
+    }
+  ],
+  "generatedAt": "2000-01-01T00:00:00+00:00",
+  "gaps": 0
+}
