@@ -1,0 +1,465 @@
+{
+  "id": "rs_quebec_loi_25",
+  "version": "1.0.0",
+  "domain": "contract",
+  "publishedAt": "2026-05-01T17:00:00Z",
+  "metadata": {
+    "source": "Hand-authored from public sources only: LégisQuébec (P-39.1, A-2.1 as amended by Loi 25, 2021 c.25), Commission d'accès à l'information (CAI) guidance and bulletins, and the consolidated Researcher pack at docs/regulatory/_research/law-25-researcher-report.md (capture date 2026-05-01).",
+    "regulator": "Commission d'accès à l'information du Québec (CAI)",
+    "statutes": "Loi sur la protection des renseignements personnels dans le secteur privé (P-39.1) ; Loi sur l'accès aux documents des organismes publics et sur la protection des renseignements personnels (A-2.1) — both as amended by Loi 25 (2021, c.25).",
+    "note": "Genericity contract: all predicates / lambdas use only generic JSON paths exposed by the engine (input1.topics, input1.text, input1.text_features.*, input1.category). No engine code references Loi 25. Quebec-specific knowledge lives entirely in this JSON + docs/regulatory/quebec-law-25-mapping.md.",
+    "changelog": "v1.0.0 — initial Loi 25 / Law 25 ruleset (24 QC-LOI25-* rules) covering DPO designation (3.1), governance framework (3.2), PIA/ÉFVP (3.3), incident response and register (3.5/3.6/3.7/3.8), profiling notice (8.1), privacy policy publication (8.2), privacy-by-default (9.1), automated-decision disclosure + human review (12.1), retention/destruction/anonymization (23), cross-border transfer assessment (17), portability (27), de-indexing / cessation of dissemination (28.1), HR-decision retention (11), §18 disclosures-without-consent log, vendor DPA Loi 25 alignment, and public-sector A-2.1 §63.7/§67.3 analogues."
+  },
+  "rules": [
+    {
+      "id": "QC-LOI25-DPO-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Designate a Person in charge of the protection of personal information (Privacy Officer / RPRP) and publish their title and contact information.",
+      "predicate": "input1.topics.Contains(\"privacy\") || input1.category == \"privacy\"",
+      "lambda": "(input1.text.Contains(\"Privacy Officer\") || input1.text.Contains(\"Data Protection Officer\") || input1.text.Contains(\"DPO\") || input1.text.Contains(\"responsable de la protection des renseignements personnels\") || input1.text.Contains(\"RPRP\")) && (input1.text.Contains(\"@\") || input1.text.Contains(\"contact\") || input1.text.Contains(\"coordonnées\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Critical",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Toute personne qui exploite une entreprise […] désigne […] une personne ayant la fonction de responsable de la protection des renseignements personnels et publie le titre et les coordonnées de cette personne.",
+      "remediation": "Identify a named Privacy Officer (RPRP) in the {section.heading} section and publish their title and contact information (typically email + role) on the public-facing privacy notice. The CEO is the default RPRP if no written delegation is in place (P-39.1 art. 3.1).",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 3.1",
+        "naturalLanguageFr": "Désigner un responsable de la protection des renseignements personnels (RPRP) et publier son titre et ses coordonnées."
+      }
+    },
+    {
+      "id": "QC-LOI25-DPO-002",
+      "version": "1.0.0",
+      "naturalLanguage": "If the RPRP is not the highest-ranking person of the enterprise, the delegation must be made in writing.",
+      "predicate": "input1.topics.Contains(\"privacy\") && input1.text.Contains(\"delegat\")",
+      "lambda": "input1.text.Contains(\"in writing\") || input1.text.Contains(\"par écrit\") || input1.text.Contains(\"written delegation\") || input1.text.Contains(\"resolution\") || input1.text.Contains(\"délégation écrite\")",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Deviation",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Cette fonction peut être déléguée, par écrit, en tout ou en partie, à un membre du personnel ou à toute autre personne.",
+      "remediation": "Capture the RPRP delegation in writing (board resolution, formal letter, or job-description amendment) and reference it from the {section.heading} section.",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 3.1 ¶2",
+        "naturalLanguageFr": "Si le responsable n'est pas le plus haut dirigeant de l'entreprise, la délégation doit être faite par écrit."
+      }
+    },
+    {
+      "id": "QC-LOI25-GOV-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Establish and publish a personal-information governance framework covering roles, retention/destruction, complaints handling, and staff training.",
+      "predicate": "input1.topics.Contains(\"privacy\")",
+      "lambda": "(input1.text.Contains(\"governance\") || input1.text.Contains(\"gouvernance\") || input1.text.Contains(\"policies and practices\") || input1.text.Contains(\"politiques et pratiques\")) && (input1.text.Contains(\"retention\") || input1.text.Contains(\"conservation\") || input1.text.Contains(\"destruction\")) && (input1.text.Contains(\"role\") || input1.text.Contains(\"rôle\") || input1.text.Contains(\"responsibilit\") || input1.text.Contains(\"complaint\") || input1.text.Contains(\"plainte\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Violation",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Toute personne qui exploite une entreprise doit établir et mettre en œuvre des politiques et des pratiques encadrant la gouvernance à l'égard des renseignements personnels.",
+      "remediation": "Publish a Loi 25 governance framework in the {section.heading} section covering: roles and responsibilities (incl. RPRP), retention and destruction schedule, complaints-handling process, incident-response process, and staff training. CAI guidance recommends a plain-language summary published online.",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 3.2",
+        "naturalLanguageFr": "Établir et publier un cadre de gouvernance des renseignements personnels couvrant les rôles, la conservation/destruction, le traitement des plaintes et la formation du personnel."
+      }
+    },
+    {
+      "id": "QC-LOI25-PIA-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Conduct a Privacy Impact Assessment (ÉFVP / PIA) for any new IT project or system that involves personal information.",
+      "predicate": "input1.topics.Contains(\"privacy\")",
+      "lambda": "input1.text.Contains(\"Privacy Impact Assessment\") || input1.text.Contains(\"PIA\") || input1.text.Contains(\"évaluation des facteurs relatifs à la vie privée\") || input1.text.Contains(\"ÉFVP\") || input1.text.Contains(\"EFVP\") || input1.text.Contains(\"DPIA\")",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Violation",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Toute personne qui exploite une entreprise doit procéder à une évaluation des facteurs relatifs à la vie privée de tout projet d'acquisition, de développement et de refonte de système d'information ou de prestation électronique de services.",
+      "remediation": "State in the {section.heading} section that an ÉFVP / PIA is performed for new and significantly modified IT projects involving personal information, with the RPRP consulted at project inception (P-39.1 art. 3.3; A-2.1 art. 63.5).",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 3.3 ; A-2.1 art. 63.5",
+        "naturalLanguageFr": "Réaliser une évaluation des facteurs relatifs à la vie privée (ÉFVP) pour tout nouveau projet informatique impliquant des renseignements personnels."
+      }
+    },
+    {
+      "id": "QC-LOI25-INC-PROC-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Maintain a written confidentiality-incident management procedure covering risk assessment, mitigation, and notification of CAI and affected individuals.",
+      "predicate": "input1.topics.Contains(\"privacy\") || input1.topics.Contains(\"security\")",
+      "lambda": "(input1.text.Contains(\"incident\") || input1.text.Contains(\"breach\") || input1.text.Contains(\"violation\")) && (input1.text.Contains(\"CAI\") || input1.text.Contains(\"Commission d'accès\") || input1.text.Contains(\"notify\") || input1.text.Contains(\"aviser\") || input1.text.Contains(\"notifier\")) && (input1.text.Contains(\"risk\") || input1.text.Contains(\"risque\") || input1.text.Contains(\"injury\") || input1.text.Contains(\"préjudice\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Critical",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Une personne qui exploite une entreprise et qui a des motifs de croire qu'un incident de confidentialité […] s'est produit doit prendre les mesures raisonnables pour diminuer les risques qu'un préjudice soit causé […] et aviser la Commission et la personne concernée si l'incident présente un risque qu'un préjudice sérieux soit causé.",
+      "remediation": "Add a documented incident-response procedure in the {section.heading} section that (a) defines confidentiality incident per art. 3.6, (b) assesses risk of serious injury (sensitivity, consequences, likelihood per art. 3.7), (c) notifies CAI and affected individuals when serious-injury risk exists, and (d) consults the RPRP.",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 arts. 3.5–3.7 ; A-2.1 arts. 63.8–63.10",
+        "naturalLanguageFr": "Tenir une procédure écrite de gestion des incidents de confidentialité incluant l'évaluation du risque, les mesures d'atténuation et la notification à la CAI et aux personnes concernées."
+      }
+    },
+    {
+      "id": "QC-LOI25-INC-REG-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Maintain a confidentiality-incident register and make a copy available to the CAI on request.",
+      "predicate": "input1.topics.Contains(\"privacy\") || input1.topics.Contains(\"security\")",
+      "lambda": "(input1.text.Contains(\"register\") || input1.text.Contains(\"registre\") || input1.text.Contains(\"log\") || input1.text.Contains(\"journal\")) && (input1.text.Contains(\"incident\") || input1.text.Contains(\"breach\") || input1.text.Contains(\"violation\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Violation",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "La personne qui exploite une entreprise doit tenir un registre des incidents de confidentialité. […] Une copie de ce registre est transmise à la Commission sur demande.",
+      "remediation": "Reference the confidentiality-incident register (registre des incidents) in the {section.heading} section. Every incident — including those that did not warrant notification — must be logged with date, nature, data involved, mitigation, and notification status.",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 3.8 ; A-2.1 art. 63.11",
+        "naturalLanguageFr": "Tenir un registre des incidents de confidentialité et en transmettre copie à la CAI sur demande."
+      }
+    },
+    {
+      "id": "QC-LOI25-PROFILE-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Inform the data subject when personal information is collected using technology that allows identification, location, or profiling, and explain how to deactivate such functions.",
+      "predicate": "input1.topics.Contains(\"privacy\") && (input1.text.Contains(\"profil\") || input1.text.Contains(\"locat\") || input1.text.Contains(\"identif\") || input1.text.Contains(\"cookie\") || input1.text.Contains(\"track\"))",
+      "lambda": "(input1.text.Contains(\"profiling\") || input1.text.Contains(\"profilage\") || input1.text.Contains(\"localization\") || input1.text.Contains(\"localisation\") || input1.text.Contains(\"identification\")) && (input1.text.Contains(\"deactivate\") || input1.text.Contains(\"désactiver\") || input1.text.Contains(\"opt out\") || input1.text.Contains(\"opt-out\") || input1.text.Contains(\"turn off\") || input1.text.Contains(\"disable\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Critical",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Toute personne qui recueille des renseignements personnels […] en ayant recours à une technologie comprenant des fonctions permettant d'identifier, de localiser ou d'effectuer un profilage de la personne concernée doit, au préalable, l'informer de l'utilisation d'une telle technologie ainsi que des moyens offerts pour activer les fonctions permettant d'identifier, de localiser ou d'effectuer un profilage.",
+      "remediation": "Disclose in the {section.heading} section any identification / location / profiling technology in use (incl. cookies and analytics that the CAI's 2023 guidance treats as art. 8.1 in scope) and provide a documented deactivation mechanism.",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 8.1",
+        "naturalLanguageFr": "Informer la personne concernée de l'utilisation de toute technologie d'identification, de localisation ou de profilage et lui offrir un moyen de désactivation."
+      }
+    },
+    {
+      "id": "QC-LOI25-POLICY-PUB-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Publish a clear and plain-language privacy policy on the enterprise's public website.",
+      "predicate": "input1.topics.Contains(\"privacy\")",
+      "lambda": "(input1.text.Contains(\"privacy policy\") || input1.text.Contains(\"politique de confidentialité\") || input1.text.Contains(\"politique de protection des renseignements\")) && (input1.text.Contains(\"website\") || input1.text.Contains(\"site web\") || input1.text.Contains(\"site Web\") || input1.text.Contains(\"online\") || input1.text.Contains(\"en ligne\")) && (input1.text.Contains(\"plain language\") || input1.text.Contains(\"langage clair\") || input1.text.Contains(\"clear and simple\") || input1.text.Contains(\"clair et simple\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Violation",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Toute personne qui recueille des renseignements personnels par un moyen technologique doit publier sur le site Internet de l'entreprise, le cas échéant, une politique de confidentialité rédigée en termes simples et clairs.",
+      "remediation": "Publish (or link to) a plain-language privacy policy on the public website and reference it from the {section.heading} section. Amendments must also be disseminated.",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 8.2",
+        "naturalLanguageFr": "Publier une politique de confidentialité en termes simples et clairs sur le site Web de l'entreprise."
+      }
+    },
+    {
+      "id": "QC-LOI25-DEFAULT-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Privacy-by-default: technological products/services offered to the public must default to the highest privacy settings without action by the data subject (cookies excepted).",
+      "predicate": "input1.topics.Contains(\"privacy\") && (input1.text.Contains(\"setting\") || input1.text.Contains(\"paramètre\") || input1.text.Contains(\"default\") || input1.text.Contains(\"défaut\"))",
+      "lambda": "(input1.text.Contains(\"privacy by default\") || input1.text.Contains(\"confidentialité par défaut\") || input1.text.Contains(\"highest\") || input1.text.Contains(\"plus élevé\") || input1.text.Contains(\"most protective\") || input1.text.Contains(\"plus protec\")) && (input1.text.Contains(\"default\") || input1.text.Contains(\"défaut\") || input1.text.Contains(\"par défaut\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Violation",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Une personne qui exploite une entreprise et qui recueille des renseignements personnels en offrant au public un produit ou un service technologique disposant de paramètres de confidentialité doit s'assurer que, par défaut, ces paramètres assurent le plus haut niveau de confidentialité, sans aucune intervention de la personne concernée.",
+      "remediation": "Document in the {section.heading} section that the product/service ships with the most-protective privacy settings active by default; user must opt-in to broaden sharing. Cookies are excluded from this requirement but remain subject to art. 8.1 notice.",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 9.1 ; A-2.1 art. 63.7",
+        "naturalLanguageFr": "Confidentialité par défaut : les paramètres de confidentialité d'un produit ou service technologique offert au public doivent assurer le plus haut niveau de confidentialité par défaut, sans intervention de la personne concernée."
+      }
+    },
+    {
+      "id": "QC-LOI25-CONSENT-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Consent must be free, informed, specific to each purpose, and presented separately from any other information.",
+      "predicate": "input1.topics.Contains(\"privacy\") || input1.text.Contains(\"consent\") || input1.text.Contains(\"consentement\")",
+      "lambda": "(input1.text.Contains(\"manifest\") || input1.text.Contains(\"free\") || input1.text.Contains(\"libre\") || input1.text.Contains(\"informed\") || input1.text.Contains(\"éclairé\") || input1.text.Contains(\"specific\") || input1.text.Contains(\"spécifique\")) && (input1.text.Contains(\"separate\") || input1.text.Contains(\"séparé\") || input1.text.Contains(\"distinct\")) && (input1.text.Contains(\"each purpose\") || input1.text.Contains(\"chaque finalité\") || input1.text.Contains(\"specific purpose\") || input1.text.Contains(\"finalité spécifique\") || input1.text.Contains(\"finalité distincte\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Critical",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Le consentement à la communication ou à l'utilisation d'un renseignement personnel doit être manifeste, libre, éclairé et être donné à des fins spécifiques. Il doit être demandé pour chacune de ces fins, en termes simples et clairs. […] Il est demandé distinctement de toute autre information communiquée à la personne concernée.",
+      "remediation": "Restructure the {section.heading} consent mechanism so each purpose has its own consent control, in plain language, presented separately from other terms (no bundling, no buried Terms-of-Service consent).",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 14",
+        "naturalLanguageFr": "Le consentement doit être manifeste, libre, éclairé, demandé pour chacune des finalités spécifiques et présenté distinctement de toute autre information."
+      }
+    },
+    {
+      "id": "QC-LOI25-CONSENT-MINOR-001",
+      "version": "1.0.0",
+      "naturalLanguage": "For minors under 14, consent must be given by the holder of parental authority or by the tutor.",
+      "predicate": "input1.topics.Contains(\"privacy\") && (input1.text.Contains(\"minor\") || input1.text.Contains(\"mineur\") || input1.text.Contains(\"child\") || input1.text.Contains(\"enfant\") || input1.text.Contains(\"under 14\") || input1.text.Contains(\"moins de 14\"))",
+      "lambda": "(input1.text.Contains(\"under 14\") || input1.text.Contains(\"moins de 14\") || input1.text.Contains(\"14 years\") || input1.text.Contains(\"14 ans\")) && (input1.text.Contains(\"parental\") || input1.text.Contains(\"parent\") || input1.text.Contains(\"tutor\") || input1.text.Contains(\"tuteur\") || input1.text.Contains(\"autorité parentale\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Critical",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Le consentement à la collecte, à la communication ou à l'utilisation d'un renseignement personnel concernant un mineur de moins de 14 ans doit être donné par le titulaire de l'autorité parentale ou par le tuteur.",
+      "remediation": "Add a clause to the {section.heading} consent flow that, for minors under 14, consent is collected from the parent or tutor (Loi 25 sets a hard cap at age 14 — distinct from PIPEDA's age-neutral approach).",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 14 ¶3",
+        "naturalLanguageFr": "Pour les mineurs de moins de 14 ans, le consentement doit être donné par le titulaire de l'autorité parentale ou par le tuteur."
+      }
+    },
+    {
+      "id": "QC-LOI25-AUTODEC-001",
+      "version": "1.0.0",
+      "naturalLanguage": "When a decision is based exclusively on automated processing of personal information, inform the data subject of the automated nature of the decision no later than at the time the decision is communicated.",
+      "predicate": "input1.topics.Contains(\"ai\") || input1.topics.Contains(\"privacy\") || input1.text.Contains(\"automat\") || input1.text.Contains(\"algorithm\") || input1.text.Contains(\"algorithme\")",
+      "lambda": "(input1.text.Contains(\"automated decision\") || input1.text.Contains(\"décision automatisée\") || input1.text.Contains(\"exclusively\") || input1.text.Contains(\"exclusivement\") || input1.text.Contains(\"automated processing\") || input1.text.Contains(\"traitement automatisé\")) && (input1.text.Contains(\"inform\") || input1.text.Contains(\"informer\") || input1.text.Contains(\"notify\") || input1.text.Contains(\"aviser\") || input1.text.Contains(\"disclos\") || input1.text.Contains(\"divulg\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Critical",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Toute personne qui exploite une entreprise et qui utilise des renseignements personnels pour prendre une décision fondée exclusivement sur un traitement automatisé de ceux-ci doit en informer la personne concernée au plus tard au moment où elle l'informe de la décision.",
+      "remediation": "Add an art. 12.1 disclosure to the {section.heading} flow: when a decision is fully automated, the notification to the data subject must state that fact, ideally in the same channel as the decision itself (letter, email, app message).",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 12.1 ¶1",
+        "naturalLanguageFr": "Lorsqu'une décision est fondée exclusivement sur un traitement automatisé, en informer la personne concernée au plus tard au moment où elle l'informe de la décision."
+      }
+    },
+    {
+      "id": "QC-LOI25-AUTODEC-002",
+      "version": "1.0.0",
+      "naturalLanguage": "On request, disclose the personal information used, the principal factors and parameters that led to the decision, and the data subject's right to have inaccurate input data corrected.",
+      "predicate": "(input1.topics.Contains(\"ai\") || input1.topics.Contains(\"privacy\")) && (input1.text.Contains(\"automat\") || input1.text.Contains(\"algorithm\") || input1.text.Contains(\"algorithme\"))",
+      "lambda": "(input1.text.Contains(\"factors\") || input1.text.Contains(\"facteurs\") || input1.text.Contains(\"parameters\") || input1.text.Contains(\"paramètres\") || input1.text.Contains(\"principal\") || input1.text.Contains(\"principaux\")) && (input1.text.Contains(\"correct\") || input1.text.Contains(\"rectif\") || input1.text.Contains(\"update\") || input1.text.Contains(\"mettre à jour\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Critical",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Elle doit aussi, à la demande de la personne concernée, l'informer : 1° des renseignements personnels utilisés pour rendre la décision ; 2° des raisons et des principaux facteurs et paramètres ayant mené à la décision ; 3° du droit de la personne concernée de faire rectifier les renseignements personnels utilisés pour rendre la décision.",
+      "remediation": "Document the on-request disclosure in the {section.heading} section: list of personal data used, principal factors and parameters of the algorithm (CAI's 2023 guidance accepts a sufficiently clear summary; full source code is not required), and a pointer to the rectification right.",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 12.1 ¶2",
+        "naturalLanguageFr": "À la demande, divulguer les renseignements personnels utilisés, les principaux facteurs et paramètres de la décision et le droit de rectification."
+      }
+    },
+    {
+      "id": "QC-LOI25-AUTODEC-003",
+      "version": "1.0.0",
+      "naturalLanguage": "Provide the data subject the opportunity to submit observations to a member of the personnel able to review the automated decision.",
+      "predicate": "(input1.topics.Contains(\"ai\") || input1.topics.Contains(\"privacy\")) && (input1.text.Contains(\"automat\") || input1.text.Contains(\"algorithm\") || input1.text.Contains(\"algorithme\"))",
+      "lambda": "(input1.text.Contains(\"human review\") || input1.text.Contains(\"révision\") || input1.text.Contains(\"reviewed by\") || input1.text.Contains(\"observations\") || input1.text.Contains(\"member of the personnel\") || input1.text.Contains(\"membre du personnel\")) && (input1.text.Contains(\"submit\") || input1.text.Contains(\"présenter\") || input1.text.Contains(\"request\") || input1.text.Contains(\"demande\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Critical",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Il doit être donné à la personne concernée l'occasion de présenter ses observations à un membre du personnel de l'entreprise en mesure de réviser la décision.",
+      "remediation": "Add a human-review channel to the {section.heading} workflow so the data subject can submit observations to a designated employee with authority to revise the automated decision. CAI guidance expects logs of every review request, who handled it, and the outcome.",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 12.1 ¶3",
+        "naturalLanguageFr": "Donner à la personne concernée l'occasion de présenter ses observations à un membre du personnel pouvant réviser la décision automatisée."
+      }
+    },
+    {
+      "id": "QC-LOI25-RETENTION-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Once the purpose of collection is achieved, personal information must be destroyed or anonymized (subject to statutory retention).",
+      "predicate": "input1.topics.Contains(\"privacy\") || input1.text.Contains(\"retention\") || input1.text.Contains(\"conservation\")",
+      "lambda": "(input1.text.Contains(\"destroy\") || input1.text.Contains(\"détruire\") || input1.text.Contains(\"destruction\") || input1.text.Contains(\"anonymiz\") || input1.text.Contains(\"anonymis\")) && (input1.text.Contains(\"purpose\") || input1.text.Contains(\"fin\") || input1.text.Contains(\"finalité\") || input1.text.Contains(\"no longer\") || input1.text.Contains(\"plus nécessaire\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Violation",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Lorsque les fins auxquelles des renseignements personnels ont été recueillis ou utilisés sont accomplies, la personne qui exploite une entreprise doit détruire ces renseignements ou les anonymiser afin de les utiliser à des fins sérieuses et légitimes, sous réserve de tout délai de conservation prévu par une loi.",
+      "remediation": "State retention/destruction commitments in the {section.heading} section: data is destroyed (or irreversibly anonymized per generally-recognized practices and the regulation criteria) once collection purposes are achieved, subject to statutory retention obligations.",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 23",
+        "naturalLanguageFr": "Détruire ou anonymiser les renseignements personnels une fois la fin atteinte, sous réserve d'un délai de conservation prévu par la loi."
+      }
+    },
+    {
+      "id": "QC-LOI25-XBORDER-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Before transferring personal information outside Quebec, conduct a Privacy Impact Assessment evaluating the destination's legal regime and contractual safeguards.",
+      "predicate": "input1.topics.Contains(\"privacy\") || input1.topics.Contains(\"service_locations\") || input1.text.Contains(\"transfer\") || input1.text.Contains(\"offshore\")",
+      "lambda": "(input1.text.Contains(\"outside Quebec\") || input1.text.Contains(\"outside Québec\") || input1.text.Contains(\"hors du Québec\") || input1.text.Contains(\"cross-border\") || input1.text.Contains(\"transfrontalier\") || input1.text.Contains(\"international\")) && (input1.text.Contains(\"impact assessment\") || input1.text.Contains(\"évaluation\") || input1.text.Contains(\"adequate\") || input1.text.Contains(\"adéquat\") || input1.text.Contains(\"safeguards\") || input1.text.Contains(\"garanties\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Critical",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Avant de communiquer hors du Québec un renseignement personnel […] la personne qui exploite une entreprise doit procéder à une évaluation des facteurs relatifs à la vie privée. La communication doit faire l'objet d'une entente écrite qui tient compte, notamment, du résultat de l'évaluation.",
+      "remediation": "Document a Transfer Impact Assessment (TIA) for each out-of-Quebec destination in the {section.heading} section, covering data sensitivity, purpose, contractual safeguards, and the foreign legal regime. CAI guidance expects a written agreement that incorporates the TIA conclusions.",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 17 ; A-2.1 art. 70.1",
+        "naturalLanguageFr": "Avant tout transfert de renseignements personnels hors du Québec, réaliser une évaluation des facteurs relatifs à la vie privée portant sur le régime juridique étranger et les garanties contractuelles."
+      }
+    },
+    {
+      "id": "QC-LOI25-XBORDER-NOTICE-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Inform the data subject if their personal information may be communicated outside Quebec.",
+      "predicate": "input1.topics.Contains(\"privacy\")",
+      "lambda": "input1.text.Contains(\"outside Quebec\") || input1.text.Contains(\"outside Québec\") || input1.text.Contains(\"hors du Québec\") || input1.text.Contains(\"outside Canada\") || input1.text.Contains(\"hors du Canada\") || input1.text.Contains(\"international transfer\") || input1.text.Contains(\"transfert international\") || input1.text.Contains(\"foreign country\") || input1.text.Contains(\"pays étranger\")",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Violation",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Au moment de la collecte et par la suite, sur demande, [la personne] doit informer la personne concernée […] de la possibilité que les renseignements soient communiqués à l'extérieur du Québec.",
+      "remediation": "Add a clear statement in the {section.heading} privacy notice that personal information may be processed or stored outside Quebec, naming destinations or jurisdictions where feasible, and confirming the safeguards in place.",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 8 ¶2",
+        "naturalLanguageFr": "Informer la personne concernée de la possibilité que ses renseignements personnels soient communiqués à l'extérieur du Québec."
+      }
+    },
+    {
+      "id": "QC-LOI25-PORTABILITY-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Provide computerized personal information that the data subject originally supplied in a structured, commonly used technological format on request.",
+      "predicate": "input1.topics.Contains(\"privacy\")",
+      "lambda": "(input1.text.Contains(\"portability\") || input1.text.Contains(\"portabilité\") || input1.text.Contains(\"transfer\") || input1.text.Contains(\"transmettre\")) && (input1.text.Contains(\"structured\") || input1.text.Contains(\"structuré\") || input1.text.Contains(\"commonly used\") || input1.text.Contains(\"couramment utilisé\") || input1.text.Contains(\"machine-readable\") || input1.text.Contains(\"lisible par machine\") || input1.text.Contains(\"CSV\") || input1.text.Contains(\"JSON\") || input1.text.Contains(\"XML\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Violation",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Sur demande de la personne concernée, les renseignements personnels informatisés recueillis auprès d'elle […] doivent lui être communiqués dans un format technologique structuré et couramment utilisé. Ces renseignements doivent aussi être communiqués, à sa demande, à toute personne ou à tout organisme autorisé par la loi à recueillir un tel renseignement.",
+      "remediation": "Document the data-portability mechanism in the {section.heading} section: on request, computerized personal information that the user provided is exported in a structured, commonly used format (e.g., CSV / JSON / XML) within the standard 30-day response window — or transmitted to a third party at the user's direction.",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 27",
+        "naturalLanguageFr": "Sur demande, communiquer les renseignements personnels informatisés recueillis auprès de la personne concernée dans un format technologique structuré et couramment utilisé."
+      }
+    },
+    {
+      "id": "QC-LOI25-DEINDEX-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Provide a procedure for individuals to request cessation of dissemination, de-indexing, or re-indexing of personal information meeting the statutory criteria.",
+      "predicate": "input1.topics.Contains(\"privacy\")",
+      "lambda": "(input1.text.Contains(\"de-index\") || input1.text.Contains(\"désindex\") || input1.text.Contains(\"cessation of dissemination\") || input1.text.Contains(\"cesser la diffusion\") || input1.text.Contains(\"removal\") || input1.text.Contains(\"retrait\")) && (input1.text.Contains(\"request\") || input1.text.Contains(\"demande\") || input1.text.Contains(\"procedure\") || input1.text.Contains(\"procédure\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Violation",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "La personne concernée peut exiger […] que la personne qui exploite une entreprise cesse la diffusion de ce renseignement ou qu'elle désindexe tout hyperlien rattaché à son nom permettant d'accéder à ce renseignement par un moyen technologique, ou qu'elle réindexe.",
+      "remediation": "Add a documented intake/triage process for cessation-of-dissemination and de-indexing requests in the {section.heading} section, evaluated against the law's criteria (inaccuracy, outdated, serious harm, public-interest balance) within the standard 30-day response window.",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 28.1",
+        "naturalLanguageFr": "Mettre en place une procédure de cessation de diffusion, de désindexation ou de réindexation des renseignements personnels selon les critères de la loi."
+      }
+    },
+    {
+      "id": "QC-LOI25-HR-RETENTION-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Information used to make a decision concerning an employee must be retained for at least one year after the decision.",
+      "predicate": "(input1.topics.Contains(\"privacy\") || input1.text.Contains(\"employee\") || input1.text.Contains(\"employé\") || input1.text.Contains(\"HR\") || input1.text.Contains(\"ressources humaines\")) && (input1.text.Contains(\"decision\") || input1.text.Contains(\"décision\") || input1.text.Contains(\"evaluation\") || input1.text.Contains(\"évaluation\"))",
+      "lambda": "(input1.text.Contains(\"one year\") || input1.text.Contains(\"un an\") || input1.text.Contains(\"1 year\") || input1.text.Contains(\"twelve months\") || input1.text.Contains(\"douze mois\") || input1.text.Contains(\"12 months\")) && (input1.text.Contains(\"retain\") || input1.text.Contains(\"conserv\") || input1.text.Contains(\"keep\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Deviation",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Tout renseignement personnel utilisé par la personne qui exploite une entreprise pour prendre une décision concernant la personne concernée doit être conservé pendant au moins un an après la date de la décision.",
+      "remediation": "Update the HR-records retention schedule referenced in the {section.heading} section to retain decision-supporting information (performance evaluations, disciplinary files, etc.) for ≥ 1 year after the decision, preserving recourse rights.",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 11",
+        "naturalLanguageFr": "Conserver pendant au moins un an après la décision tout renseignement personnel utilisé pour prendre une décision concernant un employé."
+      }
+    },
+    {
+      "id": "QC-LOI25-DISCLOSE-LOG-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Maintain a log of personal-information disclosures made without consent under statutory exceptions (law enforcement, debt collection, etc.).",
+      "predicate": "input1.topics.Contains(\"privacy\") || input1.topics.Contains(\"audit\")",
+      "lambda": "(input1.text.Contains(\"disclosure log\") || input1.text.Contains(\"registre des communications\") || input1.text.Contains(\"register of disclosures\") || input1.text.Contains(\"journal de divulgation\") || (input1.text.Contains(\"log\") && input1.text.Contains(\"without consent\")) || (input1.text.Contains(\"registre\") && input1.text.Contains(\"sans consentement\")))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Deviation",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "La personne qui exploite une entreprise doit inscrire toute communication de renseignements personnels effectuée […] sans le consentement de la personne concernée […] dans un registre.",
+      "remediation": "Reference a disclosure log in the {section.heading} section recording (date, recipient, purpose, statutory authority) for every PI disclosure made without consent under P-39.1 art. 18, A-2.1 art. 67.3, or analogous exception.",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 art. 18 ¶ derogations ; A-2.1 art. 67.3",
+        "naturalLanguageFr": "Tenir un registre des communications de renseignements personnels effectuées sans consentement en vertu d'exceptions légales."
+      }
+    },
+    {
+      "id": "QC-LOI25-VENDOR-DPA-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Vendor / processor agreements must impose Loi 25–equivalent personal-information protection obligations and require prompt incident notification.",
+      "predicate": "input1.topics.Contains(\"subcontracting\") || input1.topics.Contains(\"vendor\") || input1.topics.Contains(\"privacy\") || input1.topics.Contains(\"confidentiality\")",
+      "lambda": "(input1.text.Contains(\"Loi 25\") || input1.text.Contains(\"Law 25\") || input1.text.Contains(\"P-39.1\") || input1.text.Contains(\"Quebec privacy\") || input1.text.Contains(\"renseignements personnels\")) && (input1.text.Contains(\"breach notification\") || input1.text.Contains(\"notification d'incident\") || input1.text.Contains(\"incident notification\") || input1.text.Contains(\"notify\") || input1.text.Contains(\"aviser\")) && (input1.text.Contains(\"safeguards\") || input1.text.Contains(\"mesures de sécurité\") || input1.text.Contains(\"security measures\") || input1.text.Contains(\"protective measures\") || input1.text.Contains(\"mesures de protection\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Violation",
+      "sourceSpan": { "documentId": "P-39.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "La communication s'effectue au moyen d'un mandat ou d'un contrat écrit qui indique notamment les mesures que le mandataire ou l'exécutant du contrat doit prendre pour assurer la protection du renseignement personnel.",
+      "remediation": "Update the vendor/DPA in the {section.heading} section to reference Loi 25 / P-39.1 compliance, list specific protective measures, and require prompt incident notification (CAI-aligned timing) so the principal can meet art. 3.5 obligations.",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "P-39.1 arts. 3.5, 3.6, 17 ; A-2.1 art. 67.2",
+        "naturalLanguageFr": "Les ententes avec sous-traitants doivent imposer des obligations équivalentes à la Loi 25 et exiger une notification rapide des incidents."
+      }
+    },
+    {
+      "id": "QC-LOI25-BIOMETRIC-CAI-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Disclosure to the CAI is required at least 60 days before bringing a biometric database into service.",
+      "predicate": "input1.topics.Contains(\"privacy\") && (input1.text.Contains(\"biometric\") || input1.text.Contains(\"biométri\") || input1.text.Contains(\"facial recognition\") || input1.text.Contains(\"reconnaissance faciale\") || input1.text.Contains(\"fingerprint\") || input1.text.Contains(\"empreinte\"))",
+      "lambda": "(input1.text.Contains(\"CAI\") || input1.text.Contains(\"Commission d'accès\")) && (input1.text.Contains(\"60 days\") || input1.text.Contains(\"60 jours\") || input1.text.Contains(\"sixty days\") || input1.text.Contains(\"soixante jours\") || input1.text.Contains(\"prior notice\") || input1.text.Contains(\"avis préalable\") || input1.text.Contains(\"declar\") || input1.text.Contains(\"déclar\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Critical",
+      "sourceSpan": { "documentId": "Loi concernant le cadre juridique des technologies de l'information (LCCJTI)", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "La création d'une banque de caractéristiques ou de mesures biométriques doit être préalablement divulguée à la Commission d'accès à l'information. De même, doit être divulguée l'existence d'une telle banque, qu'elle soit ou ne soit pas en service.",
+      "remediation": "If the {section.heading} section deals with biometric processing, document the CAI prior-disclosure step (LCCJTI art. 45 ¶3) — at least 60 days before deployment — and pair it with an art. 3.3 ÉFVP.",
+      "metadata": {
+        "reviewer": "qc-privacy",
+        "lawReference": "LCCJTI (chapter C-1.1) art. 45 ; CAI guidance",
+        "naturalLanguageFr": "Toute banque de caractéristiques biométriques doit être divulguée à la CAI au moins 60 jours avant sa mise en service."
+      }
+    },
+    {
+      "id": "QC-LOI25-PUB-COMMITTEE-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Public-sector bodies must form an access and privacy committee responsible for advising on PIAs and personal-information practices.",
+      "predicate": "input1.topics.Contains(\"privacy\") && (input1.text.Contains(\"public body\") || input1.text.Contains(\"organisme public\") || input1.text.Contains(\"ministry\") || input1.text.Contains(\"ministère\") || input1.text.Contains(\"municipal\"))",
+      "lambda": "(input1.text.Contains(\"committee\") || input1.text.Contains(\"comité\")) && (input1.text.Contains(\"access\") || input1.text.Contains(\"accès\") || input1.text.Contains(\"privacy\") || input1.text.Contains(\"protection des renseignements\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Violation",
+      "sourceSpan": { "documentId": "A-2.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Tout organisme public doit constituer un comité sur l'accès à l'information et sur la protection des renseignements personnels, sauf si […] le gouvernement […] l'en exempte.",
+      "remediation": "If the entity is a public body, document the access and privacy committee in the {section.heading} section: composition (incl. the RPRP), mandate (advising on ÉFVP, policies, incident response), and reporting cadence.",
+      "metadata": {
+        "reviewer": "qc-public-sector",
+        "lawReference": "A-2.1 art. 8.1",
+        "naturalLanguageFr": "Les organismes publics doivent constituer un comité sur l'accès à l'information et la protection des renseignements personnels."
+      }
+    },
+    {
+      "id": "QC-LOI25-PUB-COMMS-REG-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Public bodies must keep a register of personal-information communications made under statutory exceptions and make it available on request.",
+      "predicate": "input1.topics.Contains(\"privacy\") && (input1.text.Contains(\"public body\") || input1.text.Contains(\"organisme public\"))",
+      "lambda": "(input1.text.Contains(\"register\") || input1.text.Contains(\"registre\")) && (input1.text.Contains(\"communication\") || input1.text.Contains(\"release\") || input1.text.Contains(\"disclosure\") || input1.text.Contains(\"divulgation\")) && (input1.text.Contains(\"67.1\") || input1.text.Contains(\"67.2\") || input1.text.Contains(\"67.3\") || input1.text.Contains(\"without consent\") || input1.text.Contains(\"sans consentement\"))",
+      "appliesToSchema": { "type": "object" },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "severity": "Violation",
+      "sourceSpan": { "documentId": "A-2.1", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
+      "evidenceQuote": "Un organisme public qui communique des renseignements personnels conformément aux articles 67.1 ou 67.2.1 doit inscrire la communication dans un registre. Toute personne a le droit d'accéder, sur demande, au registre tenu en vertu de l'article 67.3, sauf pour les inscriptions qui révéleraient un renseignement qui peut être refusé.",
+      "remediation": "Reference the A-2.1 art. 67.3 communications register from the {section.heading} section: log every communication made under arts. 67.1 / 67.2.1 (without consent), and define the public-access process (with proper redactions per art. 67.4).",
+      "metadata": {
+        "reviewer": "qc-public-sector",
+        "lawReference": "A-2.1 arts. 67.3–67.4",
+        "naturalLanguageFr": "Les organismes publics doivent tenir un registre des communications de renseignements personnels effectuées en vertu des articles 67.1/67.2.1 et y donner accès sur demande."
+      }
+    }
+  ]
+}
