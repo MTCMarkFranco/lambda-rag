@@ -8,7 +8,7 @@
     "value": "lr1:a263483c4755f06935102facd023ebd599700e2c70032ab855f5c5b1ad73d1ad"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.2.0",
+  "projectorVersion": "1.3.0",
   "score": 1,
   "totalRules": 5,
   "passed": 5,
@@ -40,6 +40,8 @@
           "decommissioning": 0.9,
           "pipeline_integrity": 0.4
         },
+        "topic_density": 8.5106,
+        "is_operative_for_topic": true,
         "text": "The decommissioning and abandonment plan is filed and updated annually.Financial assurance is provided through the CER abandonment-fundingmechanism for federally-regulated segments, and through LiabilityManagement Rating (LMR) compliance with the relevant provincialregulator for provincial segments. The current funded amount exceedsthe estimated abandonment liability per the most recent third-partyengineering estimate."
       },
       "sourceSpan": {
@@ -78,6 +80,8 @@
           "indigenous_consultation": 0.4,
           "pipeline_integrity": 0.4
         },
+        "topic_density": 3.1746,
+        "is_operative_for_topic": true,
         "text": "A documented emergency management program (EMP / ERP) is maintained perCER OPR s. 32. The Northstar EMP includes:\nICS-based command structure\na 24/7 notification matrix to the CER, BCER, AER (where applicable),the local Indigenous nations, and municipal first responders\ntier-1/2/3 spill response with mutual-aid agreements\ntwo full-scale exercises annually plus four desktop exercises.\nFor Alberta-side facilities the program is harmonised with AERDirective 071."
       },
       "sourceSpan": {
@@ -114,6 +118,8 @@
           "indigenous_consultation": 0.9,
           "regulatory_reporting": 0.4
         },
+        "topic_density": 3.6585,
+        "is_operative_for_topic": true,
         "text": "Northstar acknowledges the Crown's duty to consult under section 35of the Constitution Act, 1982 (Haida Nation v. British Columbia(Minister of Forests), 2004 SCC 73; Tsleil-Waututh Nation v. Canada,2018 FCA 153). The Indigenous consultation log records bilateralengagement with Treaty 8 First Nations whose territory the gatheringsystem traverses, including:\npre-construction archaeological assessments under each nation's owncultural-heritage protocol\na community benefits agreement with revenue-sharing terms\nongoing quarterly engagement meetings.\nThe consultation file is maintained by the Indigenous Affairs lead andreviewed by Crown counsel for adequacy."
       },
       "sourceSpan": {
@@ -152,6 +158,8 @@
           "air_emissions": 0.4,
           "regulatory_reporting": 0.4
         },
+        "topic_density": 7.7922,
+        "is_operative_for_topic": true,
         "text": "The Northstar methane management program implements the federalRegulations Respecting Reduction in the Release of Methane andCertain Volatile Organic Compounds (Upstream Oil and Gas Sector),SOR/2018-66. The program covers:\na leak-detection-and-repair (LDAR) program with quarterly screeningusing OGI cameras at all compressor stations\nrepair timelines that meet or exceed the 30-day requirement underSOR/2018-66\nventing limits at all controlled devices (pneumatic instruments,glycol dehydrators, compressor seals)\nmethane intensity reporting per OGMP 2.0 reporting framework.\nAnnual fugitive emissions inventory is filed with ECCC."
       },
       "sourceSpan": {
@@ -188,6 +196,8 @@
           "pipeline_integrity": 0.9,
           "emergency_response": 0.4
         },
+        "topic_density": 7.2727,
+        "is_operative_for_topic": true,
         "text": "The pipeline integrity management program (PIM) implements CER OPRs. 40 in full. The program documents:\nthreat-identification (CSA Z662 Annex H threat list)\nannual ILI for high-consequence segments (cleanliness + MFL + caliperper API 1163)\nmonitoring via 12-month close-interval cathodic protection surveys\ncorrective-action triggers with documented engineering criticalassessment under API 579 / CSA Z662 Clause 10."
       },
       "sourceSpan": {

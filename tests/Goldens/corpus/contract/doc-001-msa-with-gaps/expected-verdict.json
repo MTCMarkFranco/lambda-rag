@@ -8,7 +8,7 @@
     "value": "lr1:c728248c50b9144221d8f511a14ec63e4ae65c9d5d4976f338fac669b9edd8fb"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.2.0",
+  "projectorVersion": "1.3.0",
   "score": 0,
   "totalRules": 5,
   "passed": 0,
@@ -34,6 +34,8 @@
         "topic_scores": {
           "governing_law": 0.9
         },
+        "topic_density": 3.4483,
+        "is_operative_for_topic": true,
         "text": "This Agreement is governed by the laws of the State of Delaware,without regard to its conflicts-of-law rules. The exclusive venue isthe state and federal courts located in Wilmington, Delaware."
       },
       "sourceSpan": {
@@ -74,6 +76,8 @@
           "governing_law": 0.4,
           "parties": 0.4
         },
+        "topic_density": 4.1667,
+        "is_operative_for_topic": true,
         "text": "Each party shall be responsible for damages caused by its own grossnegligence or wilful misconduct. The parties' respective liabilitiesshall be determined under applicable law."
       },
       "sourceSpan": {
@@ -110,6 +114,8 @@
         "topic_scores": {
           "payment_terms": 0.9
         },
+        "topic_density": 12.5,
+        "is_operative_for_topic": true,
         "text": "Customer shall pay all undisputed invoices within forty-five (45) daysof receipt. Late payments accrue interest at 1.5% per month. All feesare stated in USD."
       },
       "sourceSpan": {
@@ -148,6 +154,8 @@
           "privacy": 0.9,
           "confidentiality": 0.4
         },
+        "topic_density": 13.0435,
+        "is_operative_for_topic": true,
         "text": "Provider shall process Personal Data in accordance with the GeneralData Protection Regulation (GDPR) and shall implement appropriatetechnical and organisational measures consistent with industrystandards."
       },
       "sourceSpan": {
@@ -190,6 +198,8 @@
           "parties": 0.4,
           "payment_terms": 0.4
         },
+        "topic_density": 0,
+        "is_operative_for_topic": true,
         "text": "Either party may terminate this Agreement for material uncured breachupon thirty (30) days' written notice. The Provider may, at its solediscretion, terminate this Agreement immediately upon non-payment byCustomer of any invoice."
       },
       "sourceSpan": {

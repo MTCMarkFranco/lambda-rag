@@ -8,7 +8,7 @@
     "value": "lr1:5dbc61f757c2cb25ad73b0fde2cd9988e266b9a0c9426b1a6f9e99f6eacfd94d"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.2.0",
+  "projectorVersion": "1.3.0",
   "score": 0,
   "totalRules": 11,
   "passed": 0,
@@ -34,6 +34,8 @@
         "topic_scores": {
           "third_party_risk": 0.9
         },
+        "topic_density": 0,
+        "is_operative_for_topic": true,
         "text": "The Bank acknowledges that this Agreement constitutes a third-partyarrangement under applicable Canadian regulatory expectations. The Bankmaintains policies for managing its third-party relationships at anenterprise level."
       },
       "sourceSpan": {
@@ -70,6 +72,8 @@
         "topic_scores": {
           "third_party_risk": 0.9
         },
+        "topic_density": 0,
+        "is_operative_for_topic": false,
         "text": "The Provider may subcontract any portion of the Services to anyaffiliate or qualified third party. The Provider remains responsiblefor the performance of its subcontractors. A current list of materialsubcontractors is available on request."
       },
       "sourceSpan": {
@@ -106,6 +110,8 @@
         "topic_scores": {
           "third_party_risk": 0.9
         },
+        "topic_density": 0,
+        "is_operative_for_topic": false,
         "text": "Once per calendar year, on at least sixty (60) days' written notice andduring normal business hours, the Bank's internal audit team may inspectthe Provider's records and systems strictly relevant to the Services.Such inspections shall not unreasonably disrupt the Provider'soperations."
       },
       "sourceSpan": {
@@ -144,6 +150,8 @@
           "jurisdiction:us": 1,
           "business_continuity": 0.9
         },
+        "topic_density": 9.375,
+        "is_operative_for_topic": true,
         "text": "The Provider shall maintain a written business continuity plan (\"BCP\")covering the Services. The Provider shall test the BCP annually andshall provide the Bank with a summary of the test results on request."
       },
       "sourceSpan": {
@@ -182,6 +190,8 @@
           "jurisdiction:us": 1,
           "business_continuity": 0.9
         },
+        "topic_density": 9.375,
+        "is_operative_for_topic": true,
         "text": "The Provider shall maintain a written business continuity plan (\"BCP\")covering the Services. The Provider shall test the BCP annually andshall provide the Bank with a summary of the test results on request."
       },
       "sourceSpan": {
@@ -218,6 +228,8 @@
         "topic_scores": {
           "third_party_risk": 0.9
         },
+        "topic_density": 0,
+        "is_operative_for_topic": true,
         "text": "The Bank acknowledges that this Agreement constitutes a third-partyarrangement under applicable Canadian regulatory expectations. The Bankmaintains policies for managing its third-party relationships at anenterprise level."
       },
       "sourceSpan": {
@@ -254,6 +266,8 @@
         "topic_scores": {
           "third_party_risk": 0.9
         },
+        "topic_density": 0,
+        "is_operative_for_topic": false,
         "text": "The Provider may subcontract any portion of the Services to anyaffiliate or qualified third party. The Provider remains responsiblefor the performance of its subcontractors. A current list of materialsubcontractors is available on request."
       },
       "sourceSpan": {
@@ -290,6 +304,8 @@
         "topic_scores": {
           "third_party_risk": 0.9
         },
+        "topic_density": 0,
+        "is_operative_for_topic": false,
         "text": "Once per calendar year, on at least sixty (60) days' written notice andduring normal business hours, the Bank's internal audit team may inspectthe Provider's records and systems strictly relevant to the Services.Such inspections shall not unreasonably disrupt the Provider'soperations."
       },
       "sourceSpan": {
@@ -326,6 +342,8 @@
         "topic_scores": {
           "third_party_risk": 0.9
         },
+        "topic_density": 0,
+        "is_operative_for_topic": true,
         "text": "The Bank acknowledges that this Agreement constitutes a third-partyarrangement under applicable Canadian regulatory expectations. The Bankmaintains policies for managing its third-party relationships at anenterprise level."
       },
       "sourceSpan": {
@@ -362,6 +380,8 @@
         "topic_scores": {
           "third_party_risk": 0.9
         },
+        "topic_density": 0,
+        "is_operative_for_topic": false,
         "text": "The Provider may subcontract any portion of the Services to anyaffiliate or qualified third party. The Provider remains responsiblefor the performance of its subcontractors. A current list of materialsubcontractors is available on request."
       },
       "sourceSpan": {
@@ -398,6 +418,8 @@
         "topic_scores": {
           "third_party_risk": 0.9
         },
+        "topic_density": 0,
+        "is_operative_for_topic": false,
         "text": "Once per calendar year, on at least sixty (60) days' written notice andduring normal business hours, the Bank's internal audit team may inspectthe Provider's records and systems strictly relevant to the Services.Such inspections shall not unreasonably disrupt the Provider'soperations."
       },
       "sourceSpan": {

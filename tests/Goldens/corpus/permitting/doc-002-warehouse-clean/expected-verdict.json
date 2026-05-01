@@ -8,7 +8,7 @@
     "value": "lr1:ab1d7b31f10f5c91568dfec7e149544187da8d87faa59162090fdc19d6038c45"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.2.0",
+  "projectorVersion": "1.3.0",
   "score": 1,
   "totalRules": 5,
   "passed": 5,
@@ -36,6 +36,8 @@
           "accessibility_aoda": 0.9,
           "site_plan_control": 0.4
         },
+        "topic_density": 1.0989,
+        "is_operative_for_topic": true,
         "text": "All exterior paths of travel are designed in accordance with IASRO. Reg. 191/11, Part IV.1 (Design of Public Spaces Standards). Theaccessible path of travel from the public sidewalk to the principalentrance is a minimum 1.65 m clear width with a maximum running slope of1:20 and a stable, slip-resistant surface. The visitor parking areaincludes two Type A and two Type B accessible spaces, with signageconforming to IASR s. 80.36. The principal entrance is power-operatedper IASR s. 80.13. The application explicitly attests to AODA / IASRconformance for all elements within the regulation's scope."
       },
       "sourceSpan": {
@@ -72,6 +74,8 @@
           "environmental_review": 0.9,
           "traffic_impact": 0.4
         },
+        "topic_density": 0,
+        "is_operative_for_topic": true,
         "text": "A federal designated-project screening has been completed under theImpact Assessment Act, S.C. 2019, c. 28. The proposed warehouse isnot a \"designated project\" listed in the Physical ActivitiesRegulations (SOR/2019-285), and accordingly no federal impact assessmentis triggered. The proponent has filed a screening memo with IAAC for therecord. This determination is documented in the Federal IAA ScreeningMemo (Appendix C)."
       },
       "sourceSpan": {
@@ -106,6 +110,8 @@
         "topic_scores": {
           "fire_egress": 0.9
         },
+        "topic_density": 3.5714,
+        "is_operative_for_topic": true,
         "text": "Per OBC 3.4.2, the maximum travel distance from any point in thewarehouse floor area to the nearest exit is 31.0 m, within the 45 mallowable for sprinklered Group F-2 occupancies. Two-hour fire-ratedexit stairs serve the office mezzanine. Travel distance to an exit dooron the office level is 18.0 m. The application confirms fullconformance with OBC 3.4.2."
       },
       "sourceSpan": {
@@ -140,6 +146,8 @@
         "topic_scores": {
           "fire_suppression": 0.9
         },
+        "topic_density": 5,
+        "is_operative_for_topic": true,
         "text": "A fully-supervised wet-pipe sprinkler system designed and installed inaccordance with NFPA 13 is provided throughout the warehouse andoffice. Hazard classification is Extra Hazard Group 2 (rack storage).Sprinkler protection complies with OBC 3.2.2. A two-stage firealarm system per CAN/ULC-S524 is provided."
       },
       "sourceSpan": {
@@ -178,6 +186,8 @@
           "easement_row": 0.4,
           "traffic_impact": 0.4
         },
+        "topic_density": 1.2195,
+        "is_operative_for_topic": true,
         "text": "The proponent acknowledges the Crown's duty to consult under section35 of the Constitution Act, 1982 and Haida Nation v. British Columbia(Minister of Forests), 2004 SCC 73. A consultation log recordsengagement with the Mississaugas of the Credit First Nation, whosetreaty territory includes the project lands. The First Nation has beenprovided with the application package and a 30-day comment window.Accommodations agreed to include a pre-construction archaeologicalassessment under the Ontario Heritage Act and a community-benefitscontribution. Engagement is logged in the Consultation andAccommodation Log (Appendix D)."
       },
       "sourceSpan": {
