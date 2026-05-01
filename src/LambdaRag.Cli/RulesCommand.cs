@@ -26,17 +26,19 @@ public static class RulesCommand
             "disable"  => Task.FromResult(Disable(args.Skip(1).ToArray(), time)),
             "enable"   => Task.FromResult(Enable(args.Skip(1).ToArray(), time)),
             "annotate" => Task.FromResult(Annotate(args.Skip(1).ToArray(), time)),
+            "synopsize" => SynopsizeCommand.RunAsync(args.Skip(1).ToArray()),
             _ => Unknown(args[0]),
         };
     }
 
     static void PrintHelp() => Console.WriteLine("""
         Usage:
-          lambda-rag rules diff     <old.json> <new.json> [--out diff.json]
-          lambda-rag rules show     --ruleset <path> --rule <id>
-          lambda-rag rules disable  --ruleset <path> --overlay <path> --rule <id> --reason "..." [--by <name>]
-          lambda-rag rules enable   --ruleset <path> --overlay <path> --rule <id>
-          lambda-rag rules annotate --ruleset <path> --overlay <path> --rule <id> --note "..." [--by <name>]
+          lambda-rag rules diff      <old.json> <new.json> [--out diff.json]
+          lambda-rag rules show      --ruleset <path> --rule <id>
+          lambda-rag rules disable   --ruleset <path> --overlay <path> --rule <id> --reason "..." [--by <name>]
+          lambda-rag rules enable    --ruleset <path> --overlay <path> --rule <id>
+          lambda-rag rules annotate  --ruleset <path> --overlay <path> --rule <id> --note "..." [--by <name>]
+          lambda-rag rules synopsize --ruleset <path> [--out <path>] [--cache-dir <path>] [--force]
         """);
 
     static Task<int> Unknown(string sub)

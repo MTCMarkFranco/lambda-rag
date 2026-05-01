@@ -75,12 +75,16 @@ public class AnnotationFactoryPassTests
         annotations.Should().AllSatisfy(a =>
         {
             a.Kind.Should().Be(AnnotationKind.Comment);
-            a.Text.Should().StartWith("\u2713 Passed: ");
+            a.Text.Should().StartWith("\u2713 Passed");
             a.Replacement.Should().BeNull();
-            a.Author.Should().Be(AnnotationFactory.Author);
+            // Test rules have no category metadata → resolves to generic
+            // "Compliance" label, prefixed with the 🕵 emoji.
+            a.Author.Should().Be("\U0001F575 - Compliance guidance");
         });
         annotations[0].Text.Should().Contain("Statement A.");
+        annotations[0].Text.Should().Contain("[Policy Reference: A v1.0.0]");
         annotations[1].Text.Should().Contain("Statement B.");
+        annotations[1].Text.Should().Contain("[Policy Reference: B v1.0.0]");
     }
 
     [Fact]
@@ -149,5 +153,8 @@ public class AnnotationFactoryPassTests
         var annot = AnnotationFactory.BuildPassAnnotations(report, emptyRules).Single();
 
         annot.Text.Should().Contain("ORPHAN");
+        // No rule available → must fall back to the generic compliance author
+        // so the side-pane still shows the 🕵 prefix and a sensible label.
+        annot.Author.Should().Be(AnnotationFactory.Author);
     }
 }
