@@ -139,4 +139,72 @@ public class TopicMapAndProjectorTests
         var b = await p.ProjectAsync(doc);
         a.Graph.ToJsonString().Should().Be(b.Graph.ToJsonString());
     }
+
+    // -----------------------------------------------------------------
+    // #44 — Vocabulary-density tie-break for same-topic sections.
+    //
+    // When a contract mentions a topic twice — once near the top with only
+    // a heading reference, and again later with the operative obligation —
+    // the projector must flag the *richer* section as operative so rule
+    // authors can target it via
+    //   predicate: input1.primary_topic == "X" && input1.is_operative_for_topic
+    // This pair of tests pins that behaviour.
+    // -----------------------------------------------------------------
+
+    [Fact]
+    public async Task IsOperativeForTopic_FlagsDensestSection_WhenTopicAppearsTwice()
+    {
+        var p = new DeterministicContractProjector();
+        var doc = BuildDoc(
+            // Sparse early heading mention — classifies as payment_terms via
+            // heading keyword "payment", but body has no real obligation.
+            ("Payment terms",
+             "See Schedule A for fee details. Cross-reference clause 12."),
+            // Operative section much later — heading still matches, but the
+            // body is dense with payment-vocabulary keywords.
+            ("Services payment terms",
+             "Customer agrees to pay all fees within 30 calendar days of invoice. " +
+             "Late payment of fees accrues interest. All fees and compensation " +
+             "shall be invoiced monthly. Payment shall be made by wire."));
+        var proj = await p.ProjectAsync(doc);
+        var sections = proj.Graph["sections"]!.AsArray();
+
+        var sparse = sections[0]!.AsObject();
+        var dense = sections[1]!.AsObject();
+        sparse["primary_topic"]!.GetValue<string>().Should().Be("payment_terms");
+        dense["primary_topic"]!.GetValue<string>().Should().Be("payment_terms");
+
+        sparse["is_operative_for_topic"]!.GetValue<bool>().Should().BeFalse(
+            "the early heading-only mention has no operative obligation language");
+        dense["is_operative_for_topic"]!.GetValue<bool>().Should().BeTrue(
+            "the later section with rich payment-vocabulary density carries the obligation");
+
+        dense["topic_density"]!.GetValue<double>().Should()
+            .BeGreaterThan(sparse["topic_density"]!.GetValue<double>());
+    }
+
+    [Fact]
+    public async Task IsOperativeForTopic_IsTrue_OnSoleSectionForTopic()
+    {
+        var p = new DeterministicContractProjector();
+        var doc = BuildDoc(("Limitation of Liability",
+            "Liability shall be capped at fees paid in twelve months."));
+        var proj = await p.ProjectAsync(doc);
+        var section = proj.Graph["sections"]!.AsArray()[0]!.AsObject();
+        section["is_operative_for_topic"]!.GetValue<bool>().Should().BeTrue(
+            "a topic with exactly one section is by definition operative there");
+    }
+
+    [Fact]
+    public async Task IsOperativeForTopic_NeverFlagsUnknownSections()
+    {
+        var p = new DeterministicContractProjector();
+        var doc = BuildDoc(("Random Heading", "Body with no recognized topic vocabulary."));
+        var proj = await p.ProjectAsync(doc);
+        var section = proj.Graph["sections"]!.AsArray()[0]!.AsObject();
+        section["primary_topic"]!.GetValue<string>().Should().Be("unknown");
+        section["is_operative_for_topic"]!.GetValue<bool>().Should().BeFalse(
+            "the synthetic 'unknown' bucket is not a real topic and must never " +
+            "carry an operative section");
+    }
 }

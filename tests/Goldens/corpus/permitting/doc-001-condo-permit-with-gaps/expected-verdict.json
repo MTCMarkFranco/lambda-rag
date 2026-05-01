@@ -8,7 +8,7 @@
     "value": "lr1:ab1d7b31f10f5c91568dfec7e149544187da8d87faa59162090fdc19d6038c45"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.2.0",
+  "projectorVersion": "1.3.0",
   "score": 0.2,
   "totalRules": 5,
   "passed": 1,
@@ -78,6 +78,8 @@
         "topic_scores": {
           "fire_egress": 0.9
         },
+        "topic_density": 6.0606,
+        "is_operative_for_topic": true,
         "text": "Two scissor stairs provide independent means of egress from each floor.The travel distance from the most remote point on each floor to thenearest exit door is 24.0 m. The building is fully sprinklered."
       },
       "sourceSpan": {
@@ -112,6 +114,8 @@
         "topic_scores": {
           "fire_suppression": 0.9
         },
+        "topic_density": 11.5385,
+        "is_operative_for_topic": true,
         "text": "A wet-pipe sprinkler system is provided throughout the building.Standpipes are provided in each exit stair. The fire alarm system istwo-stage, supervised by a ULC-listed monitoring service."
       },
       "sourceSpan": {

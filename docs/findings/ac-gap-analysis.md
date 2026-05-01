@@ -90,6 +90,47 @@ within 30 days. The rule machinery missed it.
 > Follow-up tracked in **#44 — Fix `AC-2011-000PAY-001` (projector span +
 > lambda phrasing)**.
 
+### 2026-05 update — projector-side fix shipped
+
+**Projector heuristic** (`contract@1.3.0`, [#44](https://github.com/MTCMarkFranco/lambda-rag/issues/44)):
+the contract projector now emits two new per-section fields —
+`topic_density` (per-topic keyword hits per 100 words of body) and
+`is_operative_for_topic` (boolean). When a topic appears in multiple
+sections — a sparse early heading mention plus a richer later
+"Services payment terms" section — the densest section is flagged as
+operative. Rule authors can now bind to the operative span via:
+
+```text
+predicate: input1.primary_topic == "payment_terms"
+        && input1.is_operative_for_topic
+```
+
+This is purely additive: existing predicates are unchanged, the 11-doc
+golden corpus has byte-identical *outcomes* (only the `evaluatedInput`
+shape gained the two new fields, by design).
+
+**Lambda fix is per-rule authoring**, not a platform change. Update the
+rule file directly to use a phrase-tolerant predicate:
+
+```text
+input1.text.Contains("30 days") || input1.text.Contains("30 calendar days")
+  || input1.text.Contains("15 days") || input1.text.Contains("15 calendar days")
+  || input1.text.Contains("net 30") || input1.text.Contains("Net 30")
+```
+
+(or, more robustly, a small custom matcher for
+`\b(?:[1-9]|[12]\d|30)\s+(calendar\s+)?days?\b` returning the smallest
+match.)
+
+**End-to-end verification on the AC test contract is deferred to
+[P1.8 #17](https://github.com/MTCMarkFranco/lambda-rag/issues/17)** —
+the AC contract is not yet in the golden corpus, so the
+"PAY-001 outcome flips Gap → Pass" acceptance criterion is asserted
+via a synthetic two-section unit test
+(`IsOperativeForTopic_FlagsDensestSection_WhenTopicAppearsTwice`) and
+will regress on real AC inputs once they land in
+`tests/Goldens/corpus/contract/`.
+
 ---
 
 ## Rule 2 — `AC-2011-003DPA-001`  *Data-protection clause must reference an industry security standard*

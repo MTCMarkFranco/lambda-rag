@@ -8,7 +8,7 @@
     "value": "lr1:c728248c50b9144221d8f511a14ec63e4ae65c9d5d4976f338fac669b9edd8fb"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.2.0",
+  "projectorVersion": "1.3.0",
   "score": 0.8,
   "totalRules": 5,
   "passed": 4,
@@ -34,6 +34,8 @@
         "topic_scores": {
           "governing_law": 0.9
         },
+        "topic_density": 3.4483,
+        "is_operative_for_topic": true,
         "text": "This Agreement is governed by the laws of the Province of Ontario andthe federal laws of Canada applicable therein. The exclusive venue forany dispute is the courts of Ontario."
       },
       "sourceSpan": {
@@ -72,6 +74,8 @@
           "parties": 0.4,
           "payment_terms": 0.4
         },
+        "topic_density": 2.7027,
+        "is_operative_for_topic": true,
         "text": "Each party's aggregate liability under this Agreement shall not exceedthe fees paid by Customer to Provider in the twelve (12) monthspreceding the event giving rise to the claim. Neither party is liablefor indirect, incidental, or consequential damages."
       },
       "sourceSpan": {
@@ -106,6 +110,8 @@
         "topic_scores": {
           "payment_terms": 0.9
         },
+        "topic_density": 9.0909,
+        "is_operative_for_topic": true,
         "text": "Customer shall pay all undisputed invoices within thirty (30) days(net 30) of receipt of a valid invoice. Late payments accrue interestat the rate published by the Bank of Canada plus 1% per annum."
       },
       "sourceSpan": {
@@ -142,6 +148,8 @@
           "privacy": 0.9,
           "service_levels": 0.4
         },
+        "topic_density": 2.5641,
+        "is_operative_for_topic": true,
         "text": "Provider shall process Personal Information only as required to deliverthe Services and in compliance with the Personal InformationProtection and Electronic Documents Act (PIPEDA) and any substantiallysimilar provincial privacy legislation applicable to the data subjects,including Quebec's Law 25 where applicable."
       },
       "sourceSpan": {
@@ -180,6 +188,8 @@
           "notices": 0.4,
           "parties": 0.4
         },
+        "topic_density": 0,
+        "is_operative_for_topic": true,
         "text": "Either party may terminate this Agreement for material uncured breachon thirty (30) days' written notice. Customer may terminate thisAgreement for convenience on ninety (90) days' written notice."
       },
       "sourceSpan": {

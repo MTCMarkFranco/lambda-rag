@@ -39,7 +39,7 @@ namespace LambdaRag.Projection.Projectors;
 public sealed class DeterministicContractProjector : IDocumentProjector
 {
     public string Id => "contract";
-    public string Version => "1.2.0";
+    public string Version => "1.3.0";
     public string Domain => "contract";
     public JsonObject Schema => SchemaInstance;
 
@@ -84,6 +84,8 @@ public sealed class DeterministicContractProjector : IDocumentProjector
                         ["primary_topic"] = new JsonObject { ["type"] = "string" },
                         ["topics"] = new JsonObject { ["type"] = "array" },
                         ["topic_scores"] = new JsonObject { ["type"] = "object" },
+                        ["topic_density"] = new JsonObject { ["type"] = "number" },
+                        ["is_operative_for_topic"] = new JsonObject { ["type"] = "boolean" },
                         ["inherited_from"] = new JsonObject { ["type"] = "string" },
                         ["text"] = new JsonObject { ["type"] = "string" },
                     },
@@ -104,6 +106,13 @@ public sealed class DeterministicContractProjector : IDocumentProjector
         // Pre-pass: collect (sectionId, primaryTopic, headingLower) so amendment
         // resolver can look up by heading text mentioned in cross-references.
         var processed = new List<(string Id, string Heading, string PrimaryTopic)>();
+
+        // For #44 — vocabulary-density tie-break across same-topic sections.
+        // Build per-section per-section JsonObject refs as we go so we can
+        // post-mark the operative section per primary topic without rewriting
+        // the whole graph.
+        var sectionNodesById = new Dictionary<string, JsonObject>(StringComparer.Ordinal);
+        var densityByTopicByScn = new Dictionary<string, double>(StringComparer.Ordinal);
 
         var groups = GroupByHeading(parsed.Blocks).ToList();
         var index = 0;
@@ -127,6 +136,9 @@ public sealed class DeterministicContractProjector : IDocumentProjector
                 scoresObj[topic] = score;
             }
 
+            var primary = classification.PrimaryTopic ?? "unknown";
+            var density = ComputeDensity(primary, bodyText);
+
             var sectionNode = new JsonObject
             {
                 ["id"] = sectionId,
@@ -136,17 +148,20 @@ public sealed class DeterministicContractProjector : IDocumentProjector
                 ["primary_topic"] = classification.PrimaryTopic ?? "unknown",
                 ["topics"] = topicsArr,
                 ["topic_scores"] = scoresObj,
+                ["topic_density"] = density,
+                ["is_operative_for_topic"] = false,
                 ["text"] = bodyText,
             };
             if (classification.InheritedFrom is not null)
                 sectionNode["inherited_from"] = classification.InheritedFrom;
 
             sections.Add(sectionNode);
+            sectionNodesById[sectionId] = sectionNode;
+            densityByTopicByScn[sectionId] = density;
 
             spanMap[$"$.sections[{index}]"] = firstSpan;
             spanMap[$"$.sections[?(@.id == '{sectionId}')]"] = firstSpan;
 
-            var primary = classification.PrimaryTopic ?? "unknown";
             if (!categories.TryGetValue(primary, out var ids))
                 categories[primary] = ids = new JsonArray();
             ids.Add(sectionId);
@@ -156,6 +171,35 @@ public sealed class DeterministicContractProjector : IDocumentProjector
 
             processed.Add((sectionId, heading, primary));
             index++;
+        }
+
+        // Post-pass: for each non-"unknown" primary topic that has more than
+        // one matched section, flag the section with the highest body
+        // vocabulary density as operative. This is the projector-side fix for
+        // #44 — when a contract mentions a topic at the top (heading-only)
+        // and again later with the operative obligation, downstream rule
+        // authors can target the operative span via
+        //   predicate: input1.primary_topic == "X" && input1.is_operative_for_topic
+        // instead of binding to whichever section happens to match first.
+        // Tie-breaker: lowest section id (earliest occurrence) wins, so the
+        // selection is fully deterministic.
+        foreach (var (topic, idArr) in categories)
+        {
+            if (topic == "unknown") continue;
+            string? bestId = null;
+            var bestDensity = -1.0;
+            foreach (var node in idArr)
+            {
+                var id = node!.GetValue<string>();
+                var d = densityByTopicByScn.GetValueOrDefault(id, 0.0);
+                if (d > bestDensity || (d == bestDensity && bestId is not null && string.CompareOrdinal(id, bestId) < 0))
+                {
+                    bestDensity = d;
+                    bestId = id;
+                }
+            }
+            if (bestId is not null && sectionNodesById.TryGetValue(bestId, out var operativeNode))
+                operativeNode["is_operative_for_topic"] = true;
         }
 
         var categoriesObj = new JsonObject();
@@ -179,6 +223,35 @@ public sealed class DeterministicContractProjector : IDocumentProjector
             SpanMap: spanMap);
 
         return Task.FromResult(projected);
+    }
+
+    /// <summary>
+    /// Vocabulary-density score for a primary topic in a section's body —
+    /// (count of distinct topic-keyword occurrences) divided by (max(1, body
+    /// word count) / 100). Larger = more operative content. Returns 0 for
+    /// the synthetic "unknown" topic or when the topic is not in the map.
+    /// Result is rounded to 4 decimals so projection output is stable across
+    /// platforms (no doubles drift in golden hashes).
+    /// </summary>
+    private double ComputeDensity(string topicId, string body)
+    {
+        if (string.IsNullOrEmpty(topicId) || topicId == "unknown" || string.IsNullOrEmpty(body))
+            return 0.0;
+        var topic = _topicMap.Topics.FirstOrDefault(t => t.Id == topicId && t.Axis is null);
+        if (topic is null) return 0.0;
+        var bodyLower = body.ToLowerInvariant();
+        var hits = 0;
+        foreach (var kw in topic.Keywords)
+        {
+            var idx = 0;
+            while ((idx = bodyLower.IndexOf(kw, idx, StringComparison.Ordinal)) >= 0)
+            {
+                hits++;
+                idx += kw.Length;
+            }
+        }
+        var words = Math.Max(1, body.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length);
+        return Math.Round(hits / (words / 100.0), 4);
     }
 
     private record TopicScore(string Topic, double Score);
