@@ -42,6 +42,11 @@ inside `reviewed.docx` and a byte-identical `report.json`.
 > is the canonical authoring-vs-runtime architecture diagram. Use it
 > in slides, papers, and onboarding.
 
+> 📜 **One page of prose:**
+> [`docs/manifesto.md`](docs/manifesto.md) — *Rule Projection: Deterministic
+> Reasoning over Documents.* The pattern, the bet, and the honest limits.
+> Read this before deciding whether lambda-rag fits your problem.
+
 ## Built-in industry topic maps
 
 Out of the box, Lambda-RAG ships with topic ontologies for several
@@ -317,6 +322,16 @@ docs/                              ARCHITECTURE.md, DETERMINISM.md, SELECTORS.md
 > frozen `expected-verdict.json` snapshots, and a
 > [`corpus-regression`](.github/workflows/corpus-regression.yml)
 > GitHub Actions job that fails the build on any drift.
+
+> **P1 pattern-definition batch — ✅ shipped (5 docs).** The canonical
+> documentation set for the rule-projection pattern is now in repo:
+> the [manifesto](docs/manifesto.md) ([P1.1 #11](https://github.com/MTCMarkFranco/lambda-rag/issues/11)),
+> the [authoring-vs-runtime diagram](docs/diagrams/authoring-vs-runtime.md) ([P1.6 #16](https://github.com/MTCMarkFranco/lambda-rag/issues/16)),
+> and three regulatory clause-by-clause mappings:
+> [OSFI E-23](docs/regulatory/osfi-e23-mapping.md) ([P1.2 #12](https://github.com/MTCMarkFranco/lambda-rag/issues/12)),
+> [TBS Directive on ADM](docs/regulatory/tbs-adm-mapping.md) ([P1.5 #15](https://github.com/MTCMarkFranco/lambda-rag/issues/15)), and
+> [Bill C-27 / AIDA](docs/regulatory/bill-c27-aida-mapping.md) ([P1.3 #13](https://github.com/MTCMarkFranco/lambda-rag/issues/13))
+> with ~80 candidate rules sketched and worked JSON examples for each.
 
 Phases 1–5 (canonical pattern, Canadian regulatory wedges, distribution,
 governance + tooling, ecosystem) live as labelled GitHub issues. Near-term:
