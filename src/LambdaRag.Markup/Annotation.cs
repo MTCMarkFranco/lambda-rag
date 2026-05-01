@@ -30,12 +30,22 @@ public enum AnnotationKind
 
 public static class AnnotationFactory
 {
-    public const string Author = "lambda-rag";
+    /// <summary>
+    /// Generic fallback author label, used when a verdict has no
+    /// matching rule definition (the rule was disabled / removed
+    /// between report and markup) and category resolution can't run.
+    /// Format mirrors <see cref="CommentFormatting.BuildAuthor"/> so the
+    /// reviewer always sees the 🕵 prefix in the Word review pane.
+    /// </summary>
+    public const string Author =
+        CommentFormatting.AuthorEmojiPrefix + CommentFormatting.GenericLabel + " guidance";
 
     /// <summary>
     /// Default mapping: every Failed / Error verdict becomes a Comment
-    /// anchored to the matched section, with the rule's natural-language
-    /// statement and (when present) the rendered remediation text.
+    /// anchored to the matched section, with a category-derived author
+    /// (e.g. <c>"🕵 - Legal guidance"</c>), an AC-style severity banner,
+    /// the rule's optional plain-English synopsis, the natural-language
+    /// statement, and (when present) the rendered remediation text.
     ///
     /// Gap verdicts are deliberately excluded here — they are not tied to
     /// a specific paragraph in the reviewed document. Use
@@ -48,19 +58,26 @@ public static class AnnotationFactory
         {
             if (v.Outcome is not VerdictOutcome.Fail and not VerdictOutcome.Error) continue;
             var rule = rules.GetValueOrDefault(v.RuleId);
-            var text = rule is null
-                ? $"Rule {v.RuleId} reported {v.Outcome}."
-                : $"[{rule.Severity}] {rule.NaturalLanguage}";
-            if (!string.IsNullOrWhiteSpace(v.RemediationText))
-                text += $"\n\nSuggested remediation: {v.RemediationText}";
-            if (v.ErrorMessage is { Length: > 0 })
-                text += $"\n\nDetail: {v.ErrorMessage}";
+            string author;
+            string text;
+            if (rule is null)
+            {
+                author = Author;
+                text = $"{CommentFormatting.ErrorBanner}\n\nRule {v.RuleId} reported {v.Outcome}.";
+                if (v.ErrorMessage is { Length: > 0 })
+                    text += $"\n\nDetail: {v.ErrorMessage}";
+            }
+            else
+            {
+                author = CommentFormatting.BuildAuthor(rule);
+                text = CommentFormatting.BuildBody(rule, v);
+            }
 
             yield return new Annotation(
                 Id: ContentHash.Compose("annot", v.Id, "comment").Value,
                 Kind: AnnotationKind.Comment,
                 Span: v.SourceSpan,
-                Author: Author,
+                Author: author,
                 Text: text,
                 Replacement: null);
         }
@@ -87,13 +104,14 @@ public static class AnnotationFactory
             if (v.Outcome is not VerdictOutcome.Pass) continue;
             var rule = rules.GetValueOrDefault(v.RuleId);
             var statement = rule?.NaturalLanguage ?? v.RuleId;
-            var text = $"\u2713 Passed: {statement}";
+            var author = rule is null ? Author : CommentFormatting.BuildAuthor(rule);
+            var text = CommentFormatting.BuildPassBody(rule, v, statement);
 
             yield return new Annotation(
                 Id: ContentHash.Compose("annot", v.Id, "pass").Value,
                 Kind: AnnotationKind.Comment,
                 Span: v.SourceSpan,
-                Author: Author,
+                Author: author,
                 Text: text,
                 Replacement: null);
         }
@@ -114,12 +132,17 @@ public static class AnnotationFactory
         if (gaps.Count == 0) return null;
 
         var sb = new System.Text.StringBuilder();
-        sb.Append("LAMBDA-RAG GAP ANALYSIS — ").Append(gaps.Count).AppendLine(" mandatory topic(s) not addressed:");
+        sb.Append("\U0001F4CB LAMBDA-RAG GAP ANALYSIS — ")
+          .Append(gaps.Count)
+          .AppendLine(" mandatory topic(s) not addressed:");
         foreach (var v in gaps)
         {
             var rule = rules.GetValueOrDefault(v.RuleId);
             var nl = rule?.NaturalLanguage ?? v.RuleId;
-            sb.Append("\n• [").Append(v.RuleId).Append("] ").Append(nl);
+            var label = rule is null ? CommentFormatting.GenericLabel
+                                     : CommentFormatting.ResolveCategoryLabel(rule);
+            sb.Append("\n• [").Append(label).Append(" / ")
+              .Append(v.RuleId).Append("] ").Append(nl);
         }
         var anchorSpan = new SourceSpan(report.DocumentId.Value, 0, 0, null, null);
         return new Annotation(

@@ -40,6 +40,37 @@ public sealed class OpenXmlMarkupService
     }
 
     /// <summary>
+    /// Derive the two-character author initials shown in Word's review
+    /// pane from the comment author string. Falls back to <c>"LR"</c>
+    /// (lambda-rag) when the author has no usable letters. Pure-code so
+    /// the output stays deterministic.
+    /// </summary>
+    public static string ResolveInitials(string author)
+    {
+        if (string.IsNullOrWhiteSpace(author)) return "LR";
+        // Strip the "🕵 - " prefix and any leading non-letter characters,
+        // then take the first letter of the first two whitespace-separated
+        // tokens (e.g. "Legal guidance" → "LG"). Single-token labels
+        // double up the first letter (e.g. "Compliance" → "CC").
+        var stripped = author;
+        var dashIdx = stripped.IndexOf("- ", StringComparison.Ordinal);
+        if (dashIdx >= 0 && dashIdx < 6) stripped = stripped[(dashIdx + 2)..];
+        var tokens = stripped
+            .Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(t => new string(t.Where(char.IsLetter).ToArray()))
+            .Where(t => t.Length > 0)
+            .ToArray();
+        if (tokens.Length == 0) return "LR";
+        if (tokens.Length == 1)
+        {
+            var t = tokens[0];
+            var c = char.ToUpperInvariant(t[0]);
+            return new string(c, 2);
+        }
+        return $"{char.ToUpperInvariant(tokens[0][0])}{char.ToUpperInvariant(tokens[1][0])}";
+    }
+
+    /// <summary>
     /// Apply annotations to <paramref name="sourcePath"/> and write the
     /// reviewed document to <paramref name="targetPath"/>.
     /// </summary>
@@ -121,7 +152,7 @@ public sealed class OpenXmlMarkupService
             Id = commentId,
             Author = a.Author,
             Date = DeterministicTimestamp,
-            Initials = "LR",
+            Initials = ResolveInitials(a.Author),
         });
 
         // Anchor to the start of the paragraph for now. A more precise
