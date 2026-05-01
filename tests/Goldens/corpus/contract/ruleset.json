@@ -1,0 +1,130 @@
+{
+  "id": "rs_canadian_commercial_contract",
+  "version": "1.0.0",
+  "domain": "contract",
+  "publishedAt": "2024-01-01T00:00:00Z",
+  "metadata": {
+    "source": "Public Canadian commercial-contract baseline — TBS Standard Acquisition Clauses and Conditions (SACC) Manual, the Treasury Board Directive on Payments, the federal Personal Information Protection and Electronic Documents Act (PIPEDA), and standard Canadian-law commercial-contract checklists.",
+    "sourceUrl": "https://buyandsell.gc.ca/policy-and-guidelines/standard-acquisition-clauses-and-conditions-manual; https://www.tbs-sct.canada.ca/pol/doc-eng.aspx?id=32504; https://laws-lois.justice.gc.ca/eng/acts/p-8.6/",
+    "sourceLicense": "Crown copyright; reproduction permitted under non-commercial reproduction rights for compliance review.",
+    "topicMap": "contract.v1",
+    "intendedFor": "Review of commercial contracts (MSAs, SOWs, vendor agreements) governed by Canadian law."
+  },
+  "rules": [
+    {
+      "id": "CAN-CONTRACT-PAY-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Payment terms must be net 30 days or fewer from receipt of an undisputed invoice, aligned with the Treasury Board Directive on Payments and prompt-payment baselines.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "category": { "type": "string" }
+        },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"payment_terms\"",
+      "lambda": "input1.text.Contains(\"30 days\") || input1.text.Contains(\"15 days\") || input1.text.Contains(\"net 30\") || input1.text.Contains(\"Net 30\")",
+      "remediation": "Replace the {section.heading} clause with: \"Customer shall pay all undisputed invoices within thirty (30) days of receipt of a valid invoice.\"",
+      "evidenceQuote": "GC commercial baseline: undisputed invoices payable within 30 days of receipt.",
+      "sourceContent": "Treasury Board Directive on Payments and SACC payment-terms baselines for Canadian commercial contracts establish a net-30 (or shorter) payment window for undisputed invoices.",
+      "sourceSpan": { "documentId": "TBS-SACC-PAY", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": null },
+      "metadata": { "maxDays": "30" }
+    },
+    {
+      "id": "CAN-CONTRACT-GOV-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Governing law must be a Canadian jurisdiction (a province or territory, or the federal laws of Canada), with venue in Canada.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "category": { "type": "string" }
+        },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"governing_law\"",
+      "lambda": "input1.text.Contains(\"Ontario\") || input1.text.Contains(\"Quebec\") || input1.text.Contains(\"British Columbia\") || input1.text.Contains(\"Alberta\") || input1.text.Contains(\"Canada\") || input1.text.Contains(\"federal laws of Canada\")",
+      "remediation": "Replace the {section.heading} clause with: \"This Agreement is governed by the laws of the Province of {meta.requiredJurisdiction} and the federal laws of Canada applicable therein. The exclusive venue for any dispute is the courts of {meta.requiredJurisdiction}.\"",
+      "evidenceQuote": "Canadian commercial-contract baseline: governing law is a Canadian province or the federal laws of Canada.",
+      "sourceContent": "SACC and standard Canadian commercial-contract templates require governing law to be a Canadian province or the federal laws of Canada with venue in Canada.",
+      "sourceSpan": { "documentId": "TBS-SACC-GOV", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": null },
+      "metadata": { "requiredJurisdiction": "Ontario" }
+    },
+    {
+      "id": "CAN-CONTRACT-PRIVACY-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Where personal information is processed, the contract must reference PIPEDA (or substantially similar provincial privacy legislation such as Quebec's Law 25, BC PIPA, or Alberta PIPA).",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "category": { "type": "string" }
+        },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"privacy\"",
+      "lambda": "input1.text.Contains(\"PIPEDA\") || input1.text.Contains(\"Personal Information Protection and Electronic Documents Act\") || input1.text.Contains(\"Law 25\") || input1.text.Contains(\"BC PIPA\") || input1.text.Contains(\"Alberta PIPA\")",
+      "remediation": "Add to the {section.heading} clause: \"Provider shall process Personal Information only as required to deliver the Services and in compliance with the Personal Information Protection and Electronic Documents Act (PIPEDA) and any substantially similar provincial privacy legislation applicable to the data subjects.\"",
+      "evidenceQuote": "Canadian commercial-contract privacy baseline: explicit reference to PIPEDA or a substantially similar provincial regime.",
+      "sourceContent": "The Personal Information Protection and Electronic Documents Act (PIPEDA, S.C. 2000, c. 5) is the federal statute governing the collection, use, and disclosure of personal information in the course of commercial activities. Contracts that engage personal information processing are expected to reference PIPEDA or a substantially similar provincial regime.",
+      "sourceSpan": { "documentId": "PIPEDA", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": null },
+      "metadata": { "requiredStatute": "PIPEDA or substantially similar provincial legislation" }
+    },
+    {
+      "id": "CAN-CONTRACT-LIAB-001",
+      "version": "1.0.0",
+      "naturalLanguage": "The contract must contain a quantified limitation of liability — typically a cap on aggregate liability tied to fees paid in a defined preceding period.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "category": { "type": "string" }
+        },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"liability\"",
+      "lambda": "(input1.text.Contains(\"capped\") || input1.text.Contains(\"cap\") || input1.text.Contains(\"limited to\") || input1.text.Contains(\"shall not exceed\") || input1.text.Contains(\"aggregate liability\")) && (input1.text.Contains(\"fees\") || input1.text.Contains(\"amounts paid\") || input1.text.Contains(\"twelve months\") || input1.text.Contains(\"12 months\"))",
+      "remediation": "Replace the {section.heading} clause with: \"Each party's aggregate liability under this Agreement shall not exceed the fees paid by Customer to Provider in the twelve (12) months preceding the event giving rise to the claim.\"",
+      "evidenceQuote": "Canadian commercial-contract baseline: quantified limitation of liability with a fees-based cap.",
+      "sourceContent": "Standard Canadian commercial-contract drafting practice and SACC general-conditions templates include a limitation of liability that is quantified — typically as a cap on aggregate liability tied to fees paid in a defined preceding period (commonly the prior 12 months).",
+      "sourceSpan": { "documentId": "TBS-SACC-LIAB", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": null },
+      "metadata": { "preferredCap": "fees paid in the prior 12 months" }
+    },
+    {
+      "id": "CAN-CONTRACT-TERM-001",
+      "version": "1.0.0",
+      "naturalLanguage": "The contract must include both a termination-for-cause clause and a termination-for-convenience clause with a defined notice period.",
+      "severity": "Deviation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "category": { "type": "string" }
+        },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"termination\"",
+      "lambda": "(input1.text.Contains(\"material breach\") || input1.text.Contains(\"for cause\")) && (input1.text.Contains(\"convenience\") || input1.text.Contains(\"without cause\")) && (input1.text.Contains(\"days\") || input1.text.Contains(\"notice\"))",
+      "remediation": "Update {section.heading} to include both: (a) termination for material uncured breach on stated notice; and (b) termination for convenience by Customer on a defined notice period (typically 30–90 days), per SACC general-conditions baselines.",
+      "evidenceQuote": "SACC general conditions: contracts include both termination-for-cause and termination-for-convenience clauses.",
+      "sourceContent": "SACC general conditions and standard Canadian commercial-contract drafting include both termination for material uncured breach and termination for convenience by the customer on a defined notice period.",
+      "sourceSpan": { "documentId": "TBS-SACC-TERM", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": null },
+      "metadata": { "noticeDays": "30-90" }
+    }
+  ]
+}
