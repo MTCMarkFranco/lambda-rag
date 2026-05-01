@@ -8,7 +8,7 @@
     "value": "lr1:a263483c4755f06935102facd023ebd599700e2c70032ab855f5c5b1ad73d1ad"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.2.0",
+  "projectorVersion": "1.3.0",
   "score": 0.6,
   "totalRules": 5,
   "passed": 3,
@@ -36,6 +36,8 @@
           "lifecycle_phase:decommissioning": 1,
           "decommissioning": 0.9
         },
+        "topic_density": 8,
+        "is_operative_for_topic": true,
         "text": "End-of-life decommissioning will be addressed at retirement under afuture abandonment plan to be filed with the regulator. The currentoperations manual does not address financial assurance."
       },
       "sourceSpan": {
@@ -70,6 +72,8 @@
         "topic_scores": {
           "emergency_response": 0.9
         },
+        "topic_density": 12.5,
+        "is_operative_for_topic": true,
         "text": "The emergency response plan (ERP) is maintained in accordance with CEROPR s. 32 and reviewed annually. ICS structure, notification matrix,and tier-1/2/3 spill response are documented in the ERP and exercisedtwice per year."
       },
       "sourceSpan": {
@@ -148,6 +152,8 @@
         "topic_scores": {
           "pipeline_integrity": 0.9
         },
+        "topic_density": 9.6154,
+        "is_operative_for_topic": true,
         "text": "Acme operates a pipeline integrity management program (PIM) consistentwith CSA Z662 and CER OPR. The program covers:\nthreat identification (external corrosion, internal corrosion,geohazards, third-party damage, manufacturing defects)\nILI scheduling on a five-year cadence\nmonitoring via cathodic protection surveys, close-interval surveys,and pressure cycling analysis\ncorrective-action triggers tied to API 1163 ILI tool tolerance."
       },
       "sourceSpan": {

@@ -9,6 +9,34 @@ it reaches `1.0.0`.
 
 ### Added
 
+- `--annotate-pass` flag on `lambda-rag review` — Phase 1 / [#4](https://github.com/MTCMarkFranco/lambda-rag/issues/4):
+  opt-in positive-confirmation comments in markup mode. When set, each
+  Pass verdict produces an additional Comment anchored to the matched
+  section, prefixed `✓ Passed: <rule statement>`. Default OFF (high
+  volume on large rulesets); idempotency preserved via verdict-id-derived
+  annotation ids; tracked changes are NOT introduced for Pass — comments
+  only.
+- Vocabulary-density tie-break in the contract projector — Phase 1 / [#44](https://github.com/MTCMarkFranco/lambda-rag/issues/44):
+  every section now carries `topic_density` (per-topic keyword hits per
+  100 words of body) and `is_operative_for_topic` (boolean). When a
+  contract mentions the same topic in multiple sections — e.g. a sparse
+  early heading mention plus a richer later "Services payment terms"
+  block — the densest section is flagged operative. Rule authors can
+  bind to it via predicate `input1.primary_topic == "X" &&
+  input1.is_operative_for_topic` instead of taking whichever section
+  matches first. Bumps projector version `contract@1.2.0` → `contract@1.3.0`.
+
+### Fixed
+
+- Contoso test contract `CTSO-2011-000PAY-001` projector-side defect documented
+  in `docs/findings/contoso-gap-analysis.md` is now addressable on the
+  projector side via `is_operative_for_topic`. Rule lambda fix
+  (`30 calendar days` phrasing) is a per-rule authoring task — see the
+  updated findings doc. End-to-end verification on the Contoso contract
+  defers to P1.8 (golden corpus addition).
+
+### Added
+
 - `docs/manifesto.md` — Phase 1 / [P1.1 #11](https://github.com/MTCMarkFranco/lambda-rag/issues/11):
   *Rule Projection: Deterministic Reasoning over Documents.* The canonical
   anchor doc for the lambda-rag pattern. Defines the five tenets

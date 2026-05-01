@@ -63,7 +63,7 @@ static class CliEntry
             lambda-rag — deterministic rules-over-documents
 
             Usage:
-              lambda-rag review   --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>]
+              lambda-rag review   --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>] [--annotate-pass]
               lambda-rag project  --document <path> --out <path>
               lambda-rag parse    --document <path> --out <path>
               lambda-rag coverage --document <path> --ruleset <path> --out <path>
@@ -109,13 +109,26 @@ static class CliEntry
         var map = new Dictionary<string, string>(StringComparer.Ordinal);
         for (var i = 0; i < args.Length; i++)
         {
-            if (args[i].StartsWith("--", StringComparison.Ordinal) && i + 1 < args.Length)
+            if (args[i].StartsWith("--", StringComparison.Ordinal) && i + 1 < args.Length
+                && !args[i + 1].StartsWith("--", StringComparison.Ordinal))
             {
                 map[args[i][2..]] = args[i + 1];
                 i++;
             }
         }
         return map;
+    }
+
+    /// <summary>
+    /// Boolean flag detection — returns true when <c>--name</c> appears anywhere
+    /// in <paramref name="args"/>. Used for switches that take no value (e.g.
+    /// <c>--annotate-pass</c>); value-bearing flags continue to use
+    /// <see cref="ParseFlags"/>.
+    /// </summary>
+    static bool HasFlag(string[] args, string name)
+    {
+        var token = "--" + name;
+        return args.Any(a => string.Equals(a, token, StringComparison.Ordinal));
     }
 
     static async Task<int> ReviewAsync(string[] args)
@@ -127,6 +140,7 @@ static class CliEntry
         var mode = (f.GetValueOrDefault("mode") ?? "report").ToLowerInvariant();
         if (mode is not ("report" or "markup" or "both"))
             throw new ArgumentException("--mode must be one of: report, markup, both");
+        var annotatePass = HasFlag(args, "annotate-pass");
         Directory.CreateDirectory(outDir);
 
         await using var sp = (ServiceProvider)BuildServices();
@@ -186,6 +200,8 @@ static class CliEntry
                 markupPath = Path.Combine(outDir, "reviewed.docx");
                 var ruleLookup = ruleset.Rules.ToDictionary(r => r.Id, r => r, StringComparer.Ordinal);
                 var annotations = AnnotationFactory.FromReport(report, ruleLookup).ToList();
+                if (annotatePass)
+                    annotations.AddRange(AnnotationFactory.BuildPassAnnotations(report, ruleLookup));
                 var gapsSummary = AnnotationFactory.BuildGapsSummary(report, ruleLookup);
                 if (gapsSummary is not null) annotations.Insert(0, gapsSummary);
                 markup.Apply(documentPath, markupPath, annotations);
