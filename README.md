@@ -300,6 +300,16 @@ docs/                              ARCHITECTURE.md, DETERMINISM.md, SELECTORS.md
 > [`CHANGELOG.md`](CHANGELOG.md) and the
 > [phase-0 backlog filter](https://github.com/MTCMarkFranco/lambda-rag/issues?q=is%3Aissue+label%3Aphase-0-credibility).
 
+> **P1.8 (golden test corpus) — ✅ shipped (3 verticals).** A
+> public-source-grounded regression corpus lives under
+> [`tests/Goldens/corpus/`](tests/Goldens/corpus/) with three verticals:
+> *gov-architecture* (Government of Canada Cloud Guardrails v2.0),
+> *fsi* (OSFI Guideline B-10), and *contract* (TBS SACC + PIPEDA).
+> 7 candidate documents, 15 rules, frozen `expected-verdict.json`
+> snapshots, and a [`corpus-regression`](.github/workflows/corpus-regression.yml)
+> GitHub Actions job that fails the build on any drift. *Insurance* and
+> *permitting* verticals are tracked as follow-ups — quality over quantity.
+
 Phases 1–5 (canonical pattern, Canadian regulatory wedges, distribution,
 governance + tooling, ecosystem) live as labelled GitHub issues. Near-term:
 

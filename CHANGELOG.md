@@ -9,6 +9,24 @@ it reaches `1.0.0`.
 
 ### Added
 
+- `tests/Goldens/corpus/` — Phase 1 golden test corpus (issue #18). Three
+  public-source-grounded verticals: **gov-architecture** (Government of
+  Canada Cloud Guardrails v2.0, OGL-Canada-licensed), **fsi** (OSFI
+  Guideline B-10 *Third-Party Risk Management*), and **contract** (TBS
+  SACC + PIPEDA). 15 rules, 7 synthetic candidate documents covering
+  pass / fail / gap mixes, with frozen `expected-verdict.json` snapshots
+  per document. Insurance and permitting verticals deferred — *quality
+  over quantity* per direction.
+- `tests/LambdaRag.IdempotencyTests/CorpusRegression.cs` — discovers
+  every `corpus/{topic-map}/{doc-id}/` triple, runs the full
+  parse → project → evaluate pipeline against the matching topic map
+  with a frozen `TimeProvider`, and asserts the produced
+  `ComplianceReport` matches the checked-in golden byte-for-byte.
+  Bootstraps missing goldens with `Assert.Fail` on first run.
+- `.github/workflows/corpus-regression.yml` — GitHub Actions job named
+  `corpus-regression` that runs the corpus + the full idempotency suite
+  on every push and PR touching the corpus, projector, evaluator, or
+  workflow. Drift fails the build before merge.
 - `docs/findings/ac-gap-analysis.md` — Air Canada PAY-001 / DPA-001 gap
   investigation closing Phase 0 issue #6. Documents PAY-001 as an
   authoring-side defect (lambda phrasing + projector heading binding) vs.

@@ -1,0 +1,186 @@
+{
+  "documentId": {
+    "value": "lr1:fa5dd1b669e27b605a83c307913324e4bfc35f4b166219cf66dec5e933be13a8"
+  },
+  "ruleSetId": "rs_gc_cloud_guardrails_v2",
+  "ruleSetVersion": "1.0.0",
+  "ruleSetFingerprint": {
+    "value": "lr1:872966856e9547154ac93229b9112bd638c19b59fea0aa704a3909e2700eb8b5"
+  },
+  "projectorId": "contract",
+  "projectorVersion": "1.2.0",
+  "score": 0,
+  "totalRules": 5,
+  "passed": 0,
+  "failed": 3,
+  "notApplicable": 0,
+  "errored": 0,
+  "verdicts": [
+    {
+      "id": "lr1:64fe3118efc315be035c2ca7b2fdd6672b2276e2f97c67bd534a5a8a12eeb676",
+      "ruleId": "GC-CG-01-MFA",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"FIDO2\") || input1.text.Contains(\"PIV\") || input1.text.Contains(\"smart card\")) && input1.text.Contains(\"phishing-resistant\")",
+      "evaluatedInput": {
+        "id": "s_00000002",
+        "heading": "2. Phishing-Resistant MFA",
+        "heading_path": "/Solution Architecture — ACME-Canada Citizen Engagement Portal (Protected B SaaS)/2. Phishing-Resistant MFA",
+        "category": "phishing_resistant_mfa",
+        "primary_topic": "phishing_resistant_mfa",
+        "topics": [
+          "control_family:si",
+          "phishing_resistant_mfa",
+          "ato_status"
+        ],
+        "topic_scores": {
+          "control_family:si": 1,
+          "phishing_resistant_mfa": 0.9,
+          "ato_status": 0.4
+        },
+        "text": "All administrative access to the portal control plane is gated bymulti-factor authentication. The MFA solution has been designated\"phishing-resistant\" by the vendor in marketing literature. Time-basedone-time passwords (TOTP) delivered via the vendor's mobile authenticatorapp are the standard second factor for all administrators. SMS-based MFAremains available as a backup for administrators travelling withouttheir primary device.\nThe vendor confirms that all MFA methods are \"modern and secure\" but thespecific cryptographic protocol bound to the authenticator has not beendocumented in this revision of the architecture."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:fa5dd1b669e27b605a83c307913324e4bfc35f4b166219cf66dec5e933be13a8",
+        "charStart": 800,
+        "charLength": 28,
+        "headingPath": "/Solution Architecture — ACME-Canada Citizen Engagement Portal (Protected B SaaS)/2. Phishing-Resistant MFA",
+        "charEnd": 828
+      },
+      "errorMessage": "Rule 'GC-CG-01-MFA' failed: Strong, phishing-resistant multi-factor authentication must be implemented for all administrative user accounts. The mechanism must be explicitly identified (FIDO2, PIV-derived, or smart card MFA).",
+      "evidenceQuotes": [
+        "Implement strong multi-factor authentication (MFA) for all user accounts. Use phishing resistant MFA where and when available."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000002",
+      "remediationText": "Update 2. Phishing-Resistant MFA to explicitly identify a phishing-resistant MFA mechanism (e.g., FIDO2 security keys, PIV-derived credentials, or smart-card MFA) for all administrative accounts, per GC Cloud Guardrail 01.",
+      "predicateText": "input1.category == \"phishing_resistant_mfa\""
+    },
+    {
+      "id": "lr1:7a196554cab2a1332985484d71e7032f367f0f06861377d53b972d5be5ba374f",
+      "ruleId": "GC-CG-05-DataResidency",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Gap",
+      "lambdaText": "(input1.text.Contains(\"Canada Central\") || input1.text.Contains(\"Canada East\") || input1.text.Contains(\"hosted in Canada\") || input1.text.Contains(\"Toronto\") || input1.text.Contains(\"Montreal\") || input1.text.Contains(\"Quebec\")) && !input1.text.Contains(\"US East\") && !input1.text.Contains(\"US West\")",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "GC-CG-v2-05",
+        "charStart": 0,
+        "charLength": 0,
+        "pageNumber": 1,
+        "headingPath": "/05_Data-Location",
+        "charEnd": 0
+      },
+      "evidenceQuotes": [
+        "Demonstrate that the service location is within Canada for all Protected B cloud services where configurable."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: Sensitive electronic information categorised Protected B, Protected C or Classified must be hosted within the geographic boundaries of Canada (or a GC mission abroad). The architecture must commit to a Canadian data-centre region.",
+      "predicateText": "input1.category == \"data_residency_canada\""
+    },
+    {
+      "id": "lr1:f098e685674c7c777daf01bf4d1868fccd03abe97f2a75832a5a3b512a97a8be",
+      "ruleId": "GC-CG-06-EncryptionAtRest",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"AES-256\") && (input1.text.Contains(\"FIPS 140\") || input1.text.Contains(\"FIPS-validated\"))",
+      "evaluatedInput": {
+        "id": "s_00000003",
+        "heading": "3. Encryption at Rest",
+        "heading_path": "/Solution Architecture — ACME-Canada Citizen Engagement Portal (Protected B SaaS)/3. Encryption at Rest",
+        "category": "encryption_at_rest",
+        "primary_topic": "encryption_at_rest",
+        "topics": [
+          "control_family:at",
+          "encryption_at_rest",
+          "identity_assurance"
+        ],
+        "topic_scores": {
+          "control_family:at": 1,
+          "encryption_at_rest": 0.9,
+          "identity_assurance": 0.4
+        },
+        "text": "Customer data is encrypted at rest using the cloud provider'splatform-default storage encryption. The provider documentationindicates that \"industry-standard encryption\" is applied to all blobs,queues, and managed disks. The exact algorithm and key length aremanaged entirely by the platform and are not customer-configurable inthis tier.\nA future revision of this architecture will evaluate customer-managedkeys; for the initial launch we accept the platform-default posture."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:fa5dd1b669e27b605a83c307913324e4bfc35f4b166219cf66dec5e933be13a8",
+        "charStart": 1466,
+        "charLength": 24,
+        "headingPath": "/Solution Architecture — ACME-Canada Citizen Engagement Portal (Protected B SaaS)/3. Encryption at Rest",
+        "charEnd": 1490
+      },
+      "errorMessage": "Rule 'GC-CG-06-EncryptionAtRest' failed: Data at rest must be encrypted using CSE-approved cryptographic algorithms (per ITSP.40.111). The architecture must reference an approved algorithm (AES-256) and FIPS 140 validation status.",
+      "evidenceQuotes": [
+        "Use cryptographic algorithms and protocols approved by Communications Security Establishment Canada (CSE) in accordance with ITSP.40.111 and ITSP.40.062."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000003",
+      "remediationText": "Update 3. Encryption at Rest to commit to AES-256 encryption with a FIPS 140-2 (or 140-3) validated cryptographic module, aligned with CSE ITSP.40.111 and GC Cloud Guardrail 06.",
+      "predicateText": "input1.category == \"encryption_at_rest\""
+    },
+    {
+      "id": "lr1:c658dc326c0e601e36d77e194bec1c6cf5103ebdb107b491ab80df2df3bd3e62",
+      "ruleId": "GC-CG-07-TLS",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Gap",
+      "lambdaText": "(input1.text.Contains(\"TLS 1.2\") || input1.text.Contains(\"TLS 1.3\")) && !input1.text.Contains(\"TLS 1.0\") && !input1.text.Contains(\"TLS 1.1\")",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "GC-CG-v2-07",
+        "charStart": 0,
+        "charLength": 0,
+        "pageNumber": 1,
+        "headingPath": "/07_Protect-Data-in-Transit",
+        "charEnd": 0
+      },
+      "evidenceQuotes": [
+        "Encrypt data in transit by default (for example, Transport Layer Security (TLS) 1.2) to protect the confidentiality and integrity of data, including for all publicly accessible sites and external communications."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: Data in transit must be encrypted by default using TLS 1.2 or higher. The architecture must explicitly commit to TLS 1.2+ for all cloud services and external communications.",
+      "predicateText": "input1.category == \"encryption_in_transit\""
+    },
+    {
+      "id": "lr1:f96a8670a099709b6f0b5a5d47d59e970e7d62aa7b05e35d5c2d5980ba5f7d2b",
+      "ruleId": "GC-CG-11-AuditLogging",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"audit log\") && (input1.text.Contains(\"365 days\") || input1.text.Contains(\"12 months\") || input1.text.Contains(\"3 years\") || input1.text.Contains(\"7 years\") || input1.text.Contains(\"year\")) && (input1.text.Contains(\"sign-in\") || input1.text.Contains(\"configuration change\") || input1.text.Contains(\"resource provisioning\"))",
+      "evaluatedInput": {
+        "id": "s_00000005",
+        "heading": "5. Audit Log Retention",
+        "heading_path": "/Solution Architecture — ACME-Canada Citizen Engagement Portal (Protected B SaaS)/5. Audit Log Retention",
+        "category": "audit_logging",
+        "primary_topic": "audit_logging",
+        "topics": [
+          "control_family:au",
+          "audit_logging",
+          "log_retention"
+        ],
+        "topic_scores": {
+          "control_family:au": 1,
+          "audit_logging": 0.9,
+          "log_retention": 0.9
+        },
+        "text": "Platform audit log streams are enabled by default. Operations staff havevisibility into administrative activity through the cloud provider'sconsole. Logs are retained \"for the lifetime of the workload\" per theprovider's standard offering."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:fa5dd1b669e27b605a83c307913324e4bfc35f4b166219cf66dec5e933be13a8",
+        "charStart": 2493,
+        "charLength": 25,
+        "headingPath": "/Solution Architecture — ACME-Canada Citizen Engagement Portal (Protected B SaaS)/5. Audit Log Retention",
+        "charEnd": 2518
+      },
+      "errorMessage": "Rule 'GC-CG-11-AuditLogging' failed: Audit logging must be enabled for the cloud environment and workloads, with sign-in, configuration-change, and resource-provisioning events captured, and a defined retention period.",
+      "evidenceQuotes": [
+        "Confirm that the following logs are included: Sign-in logs (interactive and non-interactive sign-ins, API sign-ins); Access privilege and group changes; Changes in configuration of the cloud platform; Cloud resource provisioning activities."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000005",
+      "remediationText": "Update 5. Audit Log Retention to commit to a defined retention period (e.g., 365 days minimum) and to capture sign-in, configuration-change, and resource-provisioning events, per GC Cloud Guardrail 11 and the GC Event Logging Guidance.",
+      "predicateText": "input1.category == \"audit_logging\""
+    }
+  ],
+  "generatedAt": "2000-01-01T00:00:00+00:00",
+  "gaps": 2
+}

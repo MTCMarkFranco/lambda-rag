@@ -1,0 +1,48 @@
+name: corpus-regression
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/Goldens/corpus/**'
+      - 'tests/LambdaRag.IdempotencyTests/CorpusRegression.cs'
+      - 'src/**'
+      - '.github/workflows/corpus-regression.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tests/Goldens/corpus/**'
+      - 'tests/LambdaRag.IdempotencyTests/CorpusRegression.cs'
+      - 'src/**'
+
+jobs:
+  corpus:
+    runs-on: ubuntu-latest
+    name: Run golden test corpus regression
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run corpus regression
+        run: >
+          dotnet test tests/LambdaRag.IdempotencyTests
+          --no-build
+          --configuration Release
+          --filter "FullyQualifiedName~CorpusRegression"
+          --logger "console;verbosity=normal"
+
+      - name: Run full idempotency suite
+        run: >
+          dotnet test tests/LambdaRag.IdempotencyTests
+          --no-build
+          --configuration Release
+          --logger "console;verbosity=normal"

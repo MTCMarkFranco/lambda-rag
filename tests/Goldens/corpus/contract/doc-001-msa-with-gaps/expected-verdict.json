@@ -1,0 +1,214 @@
+{
+  "documentId": {
+    "value": "lr1:e0c17a2ba04ae8b895c7382a5e319822b11303100f5aa48e8dc0af8ec2840f2f"
+  },
+  "ruleSetId": "rs_canadian_commercial_contract",
+  "ruleSetVersion": "1.0.0",
+  "ruleSetFingerprint": {
+    "value": "lr1:c728248c50b9144221d8f511a14ec63e4ae65c9d5d4976f338fac669b9edd8fb"
+  },
+  "projectorId": "contract",
+  "projectorVersion": "1.2.0",
+  "score": 0,
+  "totalRules": 5,
+  "passed": 0,
+  "failed": 5,
+  "notApplicable": 0,
+  "errored": 0,
+  "verdicts": [
+    {
+      "id": "lr1:3d08574e04618217049548f602d1b3caa205a641898f6e5b2ba9c177a6b0a98a",
+      "ruleId": "CAN-CONTRACT-GOV-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"Ontario\") || input1.text.Contains(\"Quebec\") || input1.text.Contains(\"British Columbia\") || input1.text.Contains(\"Alberta\") || input1.text.Contains(\"Canada\") || input1.text.Contains(\"federal laws of Canada\")",
+      "evaluatedInput": {
+        "id": "s_00000007",
+        "heading": "7. Governing Law",
+        "heading_path": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/7. Governing Law",
+        "category": "governing_law",
+        "primary_topic": "governing_law",
+        "topics": [
+          "governing_law"
+        ],
+        "topic_scores": {
+          "governing_law": 0.9
+        },
+        "text": "This Agreement is governed by the laws of the State of Delaware,without regard to its conflicts-of-law rules. The exclusive venue isthe state and federal courts located in Wilmington, Delaware."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e0c17a2ba04ae8b895c7382a5e319822b11303100f5aa48e8dc0af8ec2840f2f",
+        "charStart": 1413,
+        "charLength": 19,
+        "headingPath": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/7. Governing Law",
+        "charEnd": 1432
+      },
+      "errorMessage": "Rule 'CAN-CONTRACT-GOV-001' failed: Governing law must be a Canadian jurisdiction (a province or territory, or the federal laws of Canada), with venue in Canada.",
+      "evidenceQuotes": [
+        "Canadian commercial-contract baseline: governing law is a Canadian province or the federal laws of Canada."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000007",
+      "remediationText": "Replace the 7. Governing Law clause with: \"This Agreement is governed by the laws of the Province of Ontario and the federal laws of Canada applicable therein. The exclusive venue for any dispute is the courts of Ontario.\"",
+      "predicateText": "input1.category == \"governing_law\""
+    },
+    {
+      "id": "lr1:8694f05bf4f7340a417b2f4dd9f682b0b763a6c1d4315d502936f8919080bbd4",
+      "ruleId": "CAN-CONTRACT-LIAB-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"capped\") || input1.text.Contains(\"cap\") || input1.text.Contains(\"limited to\") || input1.text.Contains(\"shall not exceed\") || input1.text.Contains(\"aggregate liability\")) && (input1.text.Contains(\"fees\") || input1.text.Contains(\"amounts paid\") || input1.text.Contains(\"twelve months\") || input1.text.Contains(\"12 months\"))",
+      "evaluatedInput": {
+        "id": "s_00000005",
+        "heading": "5. Liability",
+        "heading_path": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/5. Liability",
+        "category": "liability",
+        "primary_topic": "liability",
+        "topics": [
+          "liability",
+          "governing_law",
+          "parties"
+        ],
+        "topic_scores": {
+          "liability": 0.9,
+          "governing_law": 0.4,
+          "parties": 0.4
+        },
+        "text": "Each party shall be responsible for damages caused by its own grossnegligence or wilful misconduct. The parties' respective liabilitiesshall be determined under applicable law."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e0c17a2ba04ae8b895c7382a5e319822b11303100f5aa48e8dc0af8ec2840f2f",
+        "charStart": 963,
+        "charLength": 15,
+        "headingPath": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/5. Liability",
+        "charEnd": 978
+      },
+      "errorMessage": "Rule 'CAN-CONTRACT-LIAB-001' failed: The contract must contain a quantified limitation of liability — typically a cap on aggregate liability tied to fees paid in a defined preceding period.",
+      "evidenceQuotes": [
+        "Canadian commercial-contract baseline: quantified limitation of liability with a fees-based cap."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000005",
+      "remediationText": "Replace the 5. Liability clause with: \"Each party's aggregate liability under this Agreement shall not exceed the fees paid by Customer to Provider in the twelve (12) months preceding the event giving rise to the claim.\"",
+      "predicateText": "input1.category == \"liability\""
+    },
+    {
+      "id": "lr1:3dd38284997085f118f324aadb6e2cbd2319833721d2524960d2c5d0aac513db",
+      "ruleId": "CAN-CONTRACT-PAY-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"30 days\") || input1.text.Contains(\"15 days\") || input1.text.Contains(\"net 30\") || input1.text.Contains(\"Net 30\")",
+      "evaluatedInput": {
+        "id": "s_00000003",
+        "heading": "3. Payment and Compensation",
+        "heading_path": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/3. Payment and Compensation",
+        "category": "payment_terms",
+        "primary_topic": "payment_terms",
+        "topics": [
+          "payment_terms"
+        ],
+        "topic_scores": {
+          "payment_terms": 0.9
+        },
+        "text": "Customer shall pay all undisputed invoices within forty-five (45) daysof receipt. Late payments accrue interest at 1.5% per month. All feesare stated in USD."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e0c17a2ba04ae8b895c7382a5e319822b11303100f5aa48e8dc0af8ec2840f2f",
+        "charStart": 526,
+        "charLength": 30,
+        "headingPath": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/3. Payment and Compensation",
+        "charEnd": 556
+      },
+      "errorMessage": "Rule 'CAN-CONTRACT-PAY-001' failed: Payment terms must be net 30 days or fewer from receipt of an undisputed invoice, aligned with the Treasury Board Directive on Payments and prompt-payment baselines.",
+      "evidenceQuotes": [
+        "GC commercial baseline: undisputed invoices payable within 30 days of receipt."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000003",
+      "remediationText": "Replace the 3. Payment and Compensation clause with: \"Customer shall pay all undisputed invoices within thirty (30) days of receipt of a valid invoice.\"",
+      "predicateText": "input1.category == \"payment_terms\""
+    },
+    {
+      "id": "lr1:4b31fc5d98929fdb6f21c804150736dd07b43abe57e46d2452d8a80311c7f126",
+      "ruleId": "CAN-CONTRACT-PRIVACY-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"PIPEDA\") || input1.text.Contains(\"Personal Information Protection and Electronic Documents Act\") || input1.text.Contains(\"Law 25\") || input1.text.Contains(\"BC PIPA\") || input1.text.Contains(\"Alberta PIPA\")",
+      "evaluatedInput": {
+        "id": "s_00000004",
+        "heading": "4. Privacy and Data Processing",
+        "heading_path": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/4. Privacy and Data Processing",
+        "category": "privacy",
+        "primary_topic": "privacy",
+        "topics": [
+          "privacy",
+          "confidentiality"
+        ],
+        "topic_scores": {
+          "privacy": 0.9,
+          "confidentiality": 0.4
+        },
+        "text": "Provider shall process Personal Data in accordance with the GeneralData Protection Regulation (GDPR) and shall implement appropriatetechnical and organisational measures consistent with industrystandards."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e0c17a2ba04ae8b895c7382a5e319822b11303100f5aa48e8dc0af8ec2840f2f",
+        "charStart": 719,
+        "charLength": 33,
+        "headingPath": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/4. Privacy and Data Processing",
+        "charEnd": 752
+      },
+      "errorMessage": "Rule 'CAN-CONTRACT-PRIVACY-001' failed: Where personal information is processed, the contract must reference PIPEDA (or substantially similar provincial privacy legislation such as Quebec's Law 25, BC PIPA, or Alberta PIPA).",
+      "evidenceQuotes": [
+        "Canadian commercial-contract privacy baseline: explicit reference to PIPEDA or a substantially similar provincial regime."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000004",
+      "remediationText": "Add to the 4. Privacy and Data Processing clause: \"Provider shall process Personal Information only as required to deliver the Services and in compliance with the Personal Information Protection and Electronic Documents Act (PIPEDA) and any substantially similar provincial privacy legislation applicable to the data subjects.\"",
+      "predicateText": "input1.category == \"privacy\""
+    },
+    {
+      "id": "lr1:d6f32c65882661ae179b122c29dfa1be08c904f2b6794d443f90daf5cdc7c061",
+      "ruleId": "CAN-CONTRACT-TERM-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"material breach\") || input1.text.Contains(\"for cause\")) && (input1.text.Contains(\"convenience\") || input1.text.Contains(\"without cause\")) && (input1.text.Contains(\"days\") || input1.text.Contains(\"notice\"))",
+      "evaluatedInput": {
+        "id": "s_00000006",
+        "heading": "6. Termination",
+        "heading_path": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/6. Termination",
+        "category": "termination",
+        "primary_topic": "termination",
+        "topics": [
+          "termination",
+          "notices",
+          "parties",
+          "payment_terms"
+        ],
+        "topic_scores": {
+          "termination": 0.9,
+          "notices": 0.4,
+          "parties": 0.4,
+          "payment_terms": 0.4
+        },
+        "text": "Either party may terminate this Agreement for material uncured breachupon thirty (30) days' written notice. The Provider may, at its solediscretion, terminate this Agreement immediately upon non-payment byCustomer of any invoice."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e0c17a2ba04ae8b895c7382a5e319822b11303100f5aa48e8dc0af8ec2840f2f",
+        "charStart": 1160,
+        "charLength": 17,
+        "headingPath": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/6. Termination",
+        "charEnd": 1177
+      },
+      "errorMessage": "Rule 'CAN-CONTRACT-TERM-001' failed: The contract must include both a termination-for-cause clause and a termination-for-convenience clause with a defined notice period.",
+      "evidenceQuotes": [
+        "SACC general conditions: contracts include both termination-for-cause and termination-for-convenience clauses."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000006",
+      "remediationText": "Update 6. Termination to include both: (a) termination for material uncured breach on stated notice; and (b) termination for convenience by Customer on a defined notice period (typically 30–90 days), per SACC general-conditions baselines.",
+      "predicateText": "input1.category == \"termination\""
+    }
+  ],
+  "generatedAt": "2000-01-01T00:00:00+00:00",
+  "gaps": 0
+}
