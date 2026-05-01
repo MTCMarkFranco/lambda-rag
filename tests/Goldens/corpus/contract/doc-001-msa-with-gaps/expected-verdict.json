@@ -8,7 +8,7 @@
     "value": "lr1:c728248c50b9144221d8f511a14ec63e4ae65c9d5d4976f338fac669b9edd8fb"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.3.0",
+  "projectorVersion": "1.4.0",
   "score": 0,
   "totalRules": 5,
   "passed": 0,
@@ -36,6 +36,13 @@
         },
         "topic_density": 3.4483,
         "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
         "text": "This Agreement is governed by the laws of the State of Delaware,without regard to its conflicts-of-law rules. The exclusive venue isthe state and federal courts located in Wilmington, Delaware."
       },
       "sourceSpan": {
@@ -78,6 +85,13 @@
         },
         "topic_density": 4.1667,
         "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
         "text": "Each party shall be responsible for damages caused by its own grossnegligence or wilful misconduct. The parties' respective liabilitiesshall be determined under applicable law."
       },
       "sourceSpan": {
@@ -116,6 +130,17 @@
         },
         "topic_density": 12.5,
         "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [
+            1.5
+          ],
+          "dollar_amounts": [],
+          "percent_min": 1.5,
+          "percent_max": 1.5
+        },
         "text": "Customer shall pay all undisputed invoices within forty-five (45) daysof receipt. Late payments accrue interest at 1.5% per month. All feesare stated in USD."
       },
       "sourceSpan": {
@@ -156,6 +181,13 @@
         },
         "topic_density": 13.0435,
         "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
         "text": "Provider shall process Personal Data in accordance with the GeneralData Protection Regulation (GDPR) and shall implement appropriatetechnical and organisational measures consistent with industrystandards."
       },
       "sourceSpan": {
@@ -200,6 +232,13 @@
         },
         "topic_density": 0,
         "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
         "text": "Either party may terminate this Agreement for material uncured breachupon thirty (30) days' written notice. The Provider may, at its solediscretion, terminate this Agreement immediately upon non-payment byCustomer of any invoice."
       },
       "sourceSpan": {

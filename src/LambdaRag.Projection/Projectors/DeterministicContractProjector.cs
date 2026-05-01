@@ -39,7 +39,7 @@ namespace LambdaRag.Projection.Projectors;
 public sealed class DeterministicContractProjector : IDocumentProjector
 {
     public string Id => "contract";
-    public string Version => "1.3.0";
+    public string Version => "1.4.0";
     public string Domain => "contract";
     public JsonObject Schema => SchemaInstance;
 
@@ -86,6 +86,7 @@ public sealed class DeterministicContractProjector : IDocumentProjector
                         ["topic_scores"] = new JsonObject { ["type"] = "object" },
                         ["topic_density"] = new JsonObject { ["type"] = "number" },
                         ["is_operative_for_topic"] = new JsonObject { ["type"] = "boolean" },
+                        ["text_features"] = new JsonObject { ["type"] = "object" },
                         ["inherited_from"] = new JsonObject { ["type"] = "string" },
                         ["text"] = new JsonObject { ["type"] = "string" },
                     },
@@ -150,6 +151,7 @@ public sealed class DeterministicContractProjector : IDocumentProjector
                 ["topic_scores"] = scoresObj,
                 ["topic_density"] = density,
                 ["is_operative_for_topic"] = false,
+                ["text_features"] = TextFeatureExtractor.Extract(bodyText),
                 ["text"] = bodyText,
             };
             if (classification.InheritedFrom is not null)

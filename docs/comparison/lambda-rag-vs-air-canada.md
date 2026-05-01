@@ -257,3 +257,94 @@ Both engine-level defects flagged in §4 were fixed in this same PR (no separate
 Re-run vs the same AC sample contract: `pass=4 fail=1 gap=1` (was `pass=3 fail=0 gap=2`). §9 now correctly **Fails** on IP indemnity, §9 + §11 both **Pass** on the explicit liability cap, the spurious §9 liability Gap is gone, and the legitimate `AC-WAR-001` Gap (no warranty section — AC missed it) remains.
 
 The 22 `N`-class coverage gaps require authoring the AC-policy ruleset from the six PDFs (`out/ac-full/ac-policies-ruleset.json`) and are tracked separately. Section 5 of this document lists the 19 priority rules to author.
+
+
+## Phase F — 19 priority rules + `text_features` extractor (post-audit, this PR)
+
+Closes the §5 backlog identified above. Three changes, all merged together
+in this PR:
+
+1. **19 new rules** authored as data only in
+   `samples/contracts/ac-demo-ruleset.json` (now **v2.0.0**, 24 rules
+   total). New rule IDs: `AC-LIAB-CARVEOUTS`, `AC-TERM-CONV`,
+   `AC-PAY-NET45`, `AC-PAY-INT-MAX`, `AC-TAX-EXCL`,
+   `AC-IP-WORKFORHIRE`, `AC-INS-GCL-5M`, `AC-INS-CYBER-10M`,
+   `AC-CYBER-CRYPTO`, `AC-PRIV-RESIDENCY`, `AC-PRIV-72H-AC`,
+   `AC-PRIV-CONSENT`, `AC-PRIV-RETENTION`,
+   `AC-PRIV-EXPLICIT-LAWS`, `AC-AI-ADDENDUM`,
+   `AC-AI-PRIVACY-SUPP`, `AC-SUBK-APPROVAL`, `AC-SVC-LOCATION`,
+   `AC-LAW-QUEBEC`.
+
+2. **`TextFeatureExtractor`** (new in `LambdaRag.Projection`,
+   projector v1.4.0). A pure-regex, *domain-agnostic* numeric extractor
+   that runs over each section's prose and emits
+   `text_features.{day_counts, month_counts, year_counts,
+   percent_values, dollar_amounts}` arrays plus `_min`/`_max`
+   scalars. Rule authors target numeric thresholds via lambdas like
+   `input1.text_features.day_count_max <= 45` — usable by **any**
+   ruleset, not just AC. The keystone of the genericness story: the
+   engine never looks at AC-specific content; it just exposes
+   structured numeric facts that *any* downstream policy can compare
+   against.
+
+3. **Topic-map `contract.v1.json` → v1.1.0**: adds four generic
+   topics (`tax`, `subcontracting`, `ai`, `service_locations`)
+   so the new rules' `input1.topics.Contains(...)` predicates can
+   target the right sections without hard-coding string regexes in
+   lambdas.
+
+### Genericness guardrail
+
+The user's hard constraint was *"every time we tighten what we're doing
+we need to make sure it's generic enough to reuse with completely
+different rules, documents, and domains."* To prove the engine stays
+domain-agnostic this PR adds **11 new tests**:
+
+- `TextFeatureExtractorTests` (7) — regex behaviour proven on
+  oil-and-gas pipeline prose, ESG recycled-content, generic
+  payment terms, etc.
+- `GenericTextFeaturesEvaluationTests` (4) — full evaluator runs
+  with **synthetic non-AC rulesets** (`rs-vendor-x`,
+  `rs-municipal`, `rs-esg`) over synthetic non-AC sections,
+  proving the engine evaluates `text_features`-based predicates
+  generically.
+
+All four existing corpus verticals (`contract`, `oil-gas`,
+`permitting`, `gov-architecture`, `fsi`) continue to match
+their golden verdicts byte-for-byte after the projector v1.4.0 bump
+(only mechanical drift in the new `text_features` field; **zero
+verdict changes**).
+
+### End-to-end vs the AC sample contract
+
+| Run | Pass | Fail | Gap | Err |
+|-----|------|------|-----|-----|
+| Before this PR (5 rules) | 4 | 1 | 1 | 0 |
+| After this PR (24 rules) | **5** | **21** | **1** | **0** |
+
+Spot-checked Fails (all genuinely correct findings):
+
+- `AC-PAY-NET45` Fails on §4 — contract's `Net 60` violates
+  `day_count_max <= 45`.
+- `AC-PAY-INT-MAX` Fails on §4 — `2% per month` exceeds
+  `percent_max <= 1.5`.
+- `AC-LAW-QUEBEC` Fails on §12 — Governing law is Ontario, not
+  Quebec.
+- `AC-INS-GCL-5M` / `AC-INS-CYBER-10M` Fail on insurance limits
+  below `` / ``.
+
+### Two extractor bugs found and fixed
+
+While building the genericness tests, two regex defects in
+`TextFeatureExtractor` surfaced and were fixed in this same PR:
+
+- **`DollarRx` shorthand-suffix bug**: `(million|billion|m|b|k)?`
+  matched the leading `b` of an unrelated trailing word, so
+  `,000,000 bond` was parsed as `,000,000 b` → 10¹⁵. Fixed by
+  requiring a word boundary via `(?![A-Za-z])` lookahead.
+- **`DayCountRx` hyphen support**: `120-day cure window` (very
+  common in legal English) wasn't matching. Fixed by allowing
+  `[\s-]*` between the digit and the unit word.
+
+Both fixes leave AC end-to-end outcomes identical (pass=5 fail=21
+gap=1 unchanged).
