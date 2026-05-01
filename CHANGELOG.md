@@ -9,6 +9,51 @@ it reaches `1.0.0`.
 
 ### Added
 
+- **P1.4 — Quebec Law 25 / Loi 25 regulatory mapping (EN + FR)** ([#14], [#51]):
+  Bilingual clause-by-clause mapping of Quebec's _Loi modernisant des
+  dispositions législatives en matière de protection des renseignements
+  personnels_ (Loi 25, 2021 c.25), covering both private-sector P-39.1
+  and public-sector A-2.1 amendments.
+  - **`samples/contracts/loi-25-ruleset.json`** (new, v1.0.0): 25
+    `QC-LOI25-*` rules covering DPO designation (art. 3.1), governance
+    framework (3.2), PIA / ÉFVP (3.3), incident response and register
+    (3.5/3.6/3.7/3.8), profiling notice (8.1), privacy policy publication
+    (8.2), privacy-by-default (9.1), automated-decision disclosure +
+    human review (12.1), retention / destruction / anonymization (23),
+    cross-border transfer assessment (17), portability (27), de-indexing
+    (28.1), HR-decision retention (11), §18 disclosures-without-consent
+    log, vendor DPA Loi 25 alignment, biometric CAI declaration, and
+    public-sector A-2.1 §63.7/§67.3 analogues. Every rule carries a
+    French translation in `metadata.naturalLanguageFr`, a statute
+    citation in `metadata.lawReference`, and a quoted evidence span.
+    Engine code is **unchanged** — all Quebec-specific knowledge lives
+    in this JSON plus the two mapping docs.
+  - **`docs/regulatory/quebec-law-25-mapping.md`** (new): EN canonical
+    mapping. Mirrors the structure of `bill-c27-aida-mapping.md`:
+    status banner, definitions table, effective-dates timeline, clause
+    → rule traceability tables (private + public + LCCJTI + vendor),
+    worked example (`QC-LOI25-AUTODEC-002`), comparison vs PIPEDA /
+    CPPA-AIDA / GDPR / A-2.1, severity → AMP mapping, ambiguities, and
+    SME hand-off.
+  - **`docs/regulatory/loi-25-mapping.fr.md`** (new): full French mirror
+    with FR text primary throughout (real translation, not a stub).
+  - **`README.fr.md`** (new): full French README; references both
+    mapping docs from the regulatory section.
+  - **`docs/regulatory/_research/law-25-researcher-report.md`** (new):
+    consolidated Researcher pack used as source material for the
+    mapping. Closes the P1.4-prep tracking issue.
+  - **Tests** (new, in `tests/LambdaRag.UnitTests/Regulatory/`):
+    `QuebecLaw25RulesetParserTests` asserts every rule carries
+    `naturalLanguageFr`, a `lawReference` matching the P-39.1 / A-2.1 /
+    LCCJTI pattern, a `reviewer` label, and an evidence quote.
+    `GenericQuebecRuleEvaluationTests` is a genericity guard: loads the
+    ruleset and runs it through `EvaluationService` against synthetic
+    non-Quebec and Quebec-relevant documents, asserting `Errored == 0`
+    and that the DPO rule passes when required language is present.
+  - SME engagement (qc-privacy / qc-public-sector) is **pending** — both
+    mapping docs flag that explicitly. Test count: **174 → 179** unit
+    tests; idempotency tests unchanged at 15.
+
 - **19 new AC-aligned rules + domain-agnostic `text_features` extractor** ([#TBD]):
   Closes the AC discrepancy backlog identified in
   `docs/comparison/lambda-rag-vs-air-canada.md`. Adds 19 new rules to
