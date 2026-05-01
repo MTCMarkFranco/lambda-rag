@@ -8,7 +8,7 @@
     "value": "lr1:872966856e9547154ac93229b9112bd638c19b59fea0aa704a3909e2700eb8b5"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.3.0",
+  "projectorVersion": "1.4.0",
   "score": 0.6,
   "totalRules": 5,
   "passed": 3,
@@ -46,6 +46,13 @@
         },
         "topic_density": 3.7037,
         "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
         "text": "All administrative entry to the workbench requires phishing-resistantMFA enforced at the cloud tenant identity provider. The approvedauthenticators are FIDO2 hardware security keys (YubiKey 5 series) forhuman administrators, and PIV-derived credentials for federated PSPCcontractors. Username/password and SMS-based factors are explicitlydisabled in tenant policy. Two named global administrators areregistered, with break-glass credentials sealed in the departmentalvault."
       },
       "sourceSpan": {
@@ -86,6 +93,13 @@
         },
         "topic_density": 0,
         "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
         "text": "All workbench compute, storage, and database services are pinned to theprovider's Canada Central region (Toronto), with paired-region failoverto Canada East (Quebec). No data plane component is permitted to provisionoutside Canada; this is enforced through Azure Policy / AWS SCP / GCPOrganization Policy depending on the underlying CSP. Cross-regionreplication targets are restricted to the Canada Central / Canada Eastpair."
       },
       "sourceSpan": {
@@ -128,6 +142,13 @@
         },
         "topic_density": 2.2222,
         "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
         "text": "All persistent storage volumes, blob containers, and managed-disk typesare encrypted at rest with AES-256 using FIPS 140-2 validatedcryptographic modules provisioned by the platform key vault. Customer-managed keys are rotated annually. The key vault is bound to the sameCanadian region as the data and is HSM-backed."
       },
       "sourceSpan": {
@@ -170,6 +191,13 @@
         },
         "topic_density": 4.5455,
         "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
         "text": "All public-facing endpoints terminate TLS at the platform-managed loadbalancer with a minimum TLS version of TLS 1.2. TLS 1.3 is preferredwhere supported by the client. TLS 1.0 and TLS 1.1 are disabled inlistener policy. Cipher suites are restricted to the CSE-approved subsetdocumented in ITSP.40.062."
       },
       "sourceSpan": {
@@ -214,6 +242,13 @@
         },
         "topic_density": 2.439,
         "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
         "text": "Platform-level audit logs are streamed to a central log analyticsworkspace. The pipeline ingests sign-in records, role-assignment changes,and resource-provisioning activities. Detailed retention requirementsare still under review by the departmental records-management office;the workbench team has reserved capacity for whatever retention periodis ultimately mandated."
       },
       "sourceSpan": {

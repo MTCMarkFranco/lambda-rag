@@ -9,6 +9,46 @@ it reaches `1.0.0`.
 
 ### Added
 
+- **19 new CTSO-aligned rules + domain-agnostic `text_features` extractor** ([#TBD]):
+  Closes the Contoso discrepancy backlog identified in
+  `docs/comparison/lambda-rag-vs-contoso.md`. Adds 19 new rules to
+  `samples/contracts/contoso-demo-ruleset.json` (now v2.0.0, 24 rules total)
+  covering payment terms, IP/work-for-hire, liability carve-outs,
+  insurance limits, security/cryptography, privacy obligations
+  (residency, breach window, consent, retention, explicit-laws), AI
+  addenda, subcontracting approval, service locations, and Quebec
+  governance.
+  - **`TextFeatureExtractor`** (new in `LambdaRag.Projection`): pure-regex,
+    domain-agnostic numeric extraction over English prose. Adds
+    `text_features.{day_counts, month_counts, year_counts, percent_values,
+    dollar_amounts}` arrays plus `_min`/`_max` scalars on every projected
+    section. Rule authors target numeric thresholds via lambdas like
+    `input1.text_features.day_count_max <= 45` — usable by **any** ruleset,
+    not just Contoso.
+  - Engine remains domain-agnostic: 11 new tests
+    (`TextFeatureExtractorTests` + `GenericTextFeaturesEvaluationTests`)
+    prove the extractor and evaluator work on synthetic non-Contoso corpora
+    (vendor bond, permit response, ESG recycled-content, oil-and-gas).
+  - Projector bumped to **v1.4.0**; topic-map (`contract.v1.json`) bumped
+    to **v1.1.0** (adds `tax`, `subcontracting`, `ai`, `service_locations`
+    topics).
+  - End-to-end vs the Contoso contract: **`pass=5 fail=21 gap=1`** — every Fail
+    is a genuine deterministic finding (NET 60 > 45, 2% > 1.5%, no Quebec
+    governance, etc.).
+
+### Fixed
+
+- `TextFeatureExtractor.DollarRx`: shorthand suffixes (`m|b|k`) no longer
+  match the leading letter of an unrelated trailing word (e.g. `$1,000,000
+  bond` was previously parsed as `$1,000,000 b` → 10¹⁵). Suffix now
+  requires a word boundary via negative lookahead `(?![A-Za-z])`.
+- `TextFeatureExtractor.DayCountRx`: now also matches hyphenated forms
+  (`120-day`, `30-day`) in addition to spaced forms (`120 days`).
+
+## [Unreleased — earlier]
+
+### Added
+
 - **CTSO-style comment format in markup output** ([#TBD]):
   Word comments now match the Contoso contract-review UX so reviewers
   see the same visual feedback as in the agentic flow:

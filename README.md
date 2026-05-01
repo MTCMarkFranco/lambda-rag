@@ -186,6 +186,34 @@ If the ontology you need isn't in the table above, copy
 `my-industry.v1.json`, add your headings/aliases per topic, rebuild,
 and pass `--topic-map my-industry.v1` to the extractor.
 
+### Numeric thresholds with `text_features` (projector v1.4.0+)
+
+Every projected section now carries a `text_features` block with
+generic numeric facts extracted from the section's prose:
+
+| Field | What it captures | Example match |
+|-------|------------------|---------------|
+| `day_counts` / `day_count_min` / `day_count_max` | day quantities | `45 days`, `120-day cure`, `90 calendar days` |
+| `month_counts` / `_min` / `_max` | month quantities | `12 months`, `36-month term` |
+| `year_counts` / `_min` / `_max` | year quantities | `5 years`, `2-year warranty` |
+| `percent_values` / `percent_min` / `percent_max` | percentages | `1.5%`, `30 percent` |
+| `dollar_amounts` / `dollar_min` / `dollar_max` | dollar values | `$5,000,000`, `$1.5M`, `USD 10,000,000`, `CAD$ 2.5 million` |
+
+Rule lambdas reference these fields directly — no per-domain code:
+
+```json
+{
+  "predicate": "input1.topics.Contains(\"insurance\") && input1.text_features.dollar_amounts.Count > 0",
+  "lambda":    "input1.text_features.dollar_max >= 5000000"
+}
+```
+
+This is a *generic* extractor: it works on **any** domain (vendor
+bonds, ESG recycled-content thresholds, permit response windows,
+pipeline pressure-test durations…). The same rule shape is used for
+contracts, public-sector permitting, oil-and-gas, FSI policies, and
+governance frameworks.
+
 ## CLI cheat sheet
 
 ```

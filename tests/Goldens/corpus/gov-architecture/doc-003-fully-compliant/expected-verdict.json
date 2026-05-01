@@ -8,7 +8,7 @@
     "value": "lr1:872966856e9547154ac93229b9112bd638c19b59fea0aa704a3909e2700eb8b5"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.3.0",
+  "projectorVersion": "1.4.0",
   "score": 0.6,
   "totalRules": 5,
   "passed": 3,
@@ -46,6 +46,13 @@
         },
         "topic_density": 7.6923,
         "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
         "text": "All administrative access — including the two registered globaladministrators — is gated by phishing-resistant MFA. The supportedauthenticators are FIDO2 security keys and PIV-derived smart cardcredentials issued under the departmental PKI. Password-based andSMS-based authentication are disabled in conditional access policy."
       },
       "sourceSpan": {
@@ -86,6 +93,13 @@
         },
         "topic_density": 0,
         "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
         "text": "Every data-plane resource — compute, managed databases, blob storage,key vaults, and log analytics workspaces — is pinned to the provider'sCanada Central region (Toronto), with a designated paired failoverregion of Canada East (Quebec). Provisioning outside Canadian datacentre regions is blocked by tenant-level policy."
       },
       "sourceSpan": {
@@ -128,6 +142,13 @@
         },
         "topic_density": 3.0303,
         "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
         "text": "All persistent storage is encrypted at rest with AES-256 using a FIPS140-2 validated cryptographic module. Customer-managed keys are storedin an HSM-backed key vault in Canada Central with annual key rotationand dual-control administrative access."
       },
       "sourceSpan": {
@@ -172,6 +193,13 @@
         },
         "topic_density": 6.0606,
         "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
         "text": "All ingress traffic terminates with a minimum negotiated TLS version ofTLS 1.2; TLS 1.3 is preferred and offered first. TLS 1.0 and TLS 1.1 areexplicitly disabled. Cipher suites are restricted to the CSE-approvedsubset."
       },
       "sourceSpan": {
@@ -218,6 +246,21 @@
         },
         "topic_density": 2.1277,
         "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [
+            365
+          ],
+          "month_counts": [],
+          "year_counts": [
+            7
+          ],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 365,
+          "day_count_max": 365,
+          "year_count_min": 7,
+          "year_count_max": 7
+        },
         "text": "Platform audit logs are streamed to a centralised log analyticsworkspace and retained for 365 days online with a further 7 years intiered immutable storage. The log pipeline captures sign-in events(interactive and non-interactive), configuration changes, and resourceprovisioning activities. Two named information-security personnel areregistered as the platform security contacts."
       },
       "sourceSpan": {
