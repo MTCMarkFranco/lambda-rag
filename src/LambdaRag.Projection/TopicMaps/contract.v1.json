@@ -1,6 +1,6 @@
 {
   "domain": "contract",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "topics": [
     { "id": "payment_terms",   "keywords": ["payment", "fees", "compensation", "invoice"] },
     { "id": "termination",     "keywords": ["termination", "cancel"] },
@@ -17,6 +17,10 @@
     { "id": "insurance",       "keywords": ["insurance", "coverage"] },
     { "id": "support",         "keywords": ["supportability", "support and maintenance", "technical support"] },
     { "id": "force_majeure",   "keywords": ["force majeure"] },
+    { "id": "tax",             "keywords": ["tax", "taxes", "gst", "hst", "qst", "withholding", "permanent establishment"] },
+    { "id": "subcontracting",  "keywords": ["subcontract", "delegate", "assign performance"] },
+    { "id": "ai",              "keywords": ["artificial intelligence", "ai technology", "ai system", "machine learning", "automated decision-making", "algorithm"] },
+    { "id": "service_locations", "keywords": ["provide services from", "offshore", "delivery location", "service location"] },
     { "id": "assignment",      "keywords": ["assignment", "assignability"] },
     { "id": "notices",         "keywords": ["notice", "notices"] },
     { "id": "definitions",     "keywords": ["definitions", "defined terms"] },
