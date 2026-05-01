@@ -300,15 +300,18 @@ docs/                              ARCHITECTURE.md, DETERMINISM.md, SELECTORS.md
 > [`CHANGELOG.md`](CHANGELOG.md) and the
 > [phase-0 backlog filter](https://github.com/MTCMarkFranco/lambda-rag/issues?q=is%3Aissue+label%3Aphase-0-credibility).
 
-> **P1.8 (golden test corpus) — ✅ shipped (3 verticals).** A
+> **P1.8 (golden test corpus) — ✅ shipped (5 verticals).** A
 > public-source-grounded regression corpus lives under
-> [`tests/Goldens/corpus/`](tests/Goldens/corpus/) with three verticals:
+> [`tests/Goldens/corpus/`](tests/Goldens/corpus/) with five verticals:
 > *gov-architecture* (Government of Canada Cloud Guardrails v2.0),
-> *fsi* (OSFI Guideline B-10), and *contract* (TBS SACC + PIPEDA).
-> 7 candidate documents, 15 rules, frozen `expected-verdict.json`
-> snapshots, and a [`corpus-regression`](.github/workflows/corpus-regression.yml)
-> GitHub Actions job that fails the build on any drift. *Insurance* and
-> *permitting* verticals are tracked as follow-ups — quality over quantity.
+> *fsi* (OSFI Guideline B-10), *contract* (TBS SACC + PIPEDA),
+> *permitting* (Ontario Building Code O.Reg.332/12 + IASR/AODA O.Reg.191/11
+> + Impact Assessment Act S.C.2019 c.28 + Constitution Act 1982 s.35), and
+> *oil-gas* (CER Onshore Pipeline Regulations SOR/99-294 + Methane Regulations
+> SOR/2018-66 + AER Directive 071 + s.35). 11 candidate documents, 25 rules,
+> frozen `expected-verdict.json` snapshots, and a
+> [`corpus-regression`](.github/workflows/corpus-regression.yml)
+> GitHub Actions job that fails the build on any drift.
 
 Phases 1–5 (canonical pattern, Canadian regulatory wedges, distribution,
 governance + tooling, ecosystem) live as labelled GitHub issues. Near-term:

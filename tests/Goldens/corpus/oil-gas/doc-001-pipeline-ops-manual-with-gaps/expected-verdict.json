@@ -1,0 +1,170 @@
+{
+  "documentId": {
+    "value": "lr1:f339cdf4db518f2aae3fb978e2bfb6589bf45b3199c566f569df940eda7120d2"
+  },
+  "ruleSetId": "rs_can_oil_gas_v1",
+  "ruleSetVersion": "1.0.0",
+  "ruleSetFingerprint": {
+    "value": "lr1:a263483c4755f06935102facd023ebd599700e2c70032ab855f5c5b1ad73d1ad"
+  },
+  "projectorId": "contract",
+  "projectorVersion": "1.2.0",
+  "score": 0.6,
+  "totalRules": 5,
+  "passed": 3,
+  "failed": 0,
+  "notApplicable": 0,
+  "errored": 0,
+  "verdicts": [
+    {
+      "id": "lr1:7743a403a9b2332961db7a64f2402b723da2a44f0b1e318c7d74236c58cafaf3",
+      "ruleId": "OG-DECOM-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"decommissioning\") || input1.text.Contains(\"abandonment\")) && (input1.text.Contains(\"financial assurance\") || input1.text.Contains(\"abandonment funding\") || input1.text.Contains(\"Liability Management Rating\") || input1.text.Contains(\"LMR\"))",
+      "evaluatedInput": {
+        "id": "s_00000004",
+        "heading": "Decommissioning",
+        "heading_path": "/Operations Manual — Acme Pipeline Co. NPS 24 Crude Oil System/Decommissioning",
+        "category": "decommissioning",
+        "primary_topic": "decommissioning",
+        "topics": [
+          "lifecycle_phase:decommissioning",
+          "decommissioning"
+        ],
+        "topic_scores": {
+          "lifecycle_phase:decommissioning": 1,
+          "decommissioning": 0.9
+        },
+        "text": "End-of-life decommissioning will be addressed at retirement under afuture abandonment plan to be filed with the regulator. The currentoperations manual does not address financial assurance."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:f339cdf4db518f2aae3fb978e2bfb6589bf45b3199c566f569df940eda7120d2",
+        "charStart": 1190,
+        "charLength": 18,
+        "headingPath": "/Operations Manual — Acme Pipeline Co. NPS 24 Crude Oil System/Decommissioning",
+        "charEnd": 1208
+      },
+      "evidenceQuotes": [
+        "A company shall provide ... mechanisms to ensure that funds are available to pay for abandonment."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000004",
+      "predicateText": "input1.category == \"decommissioning\""
+    },
+    {
+      "id": "lr1:1da92e63b93ad6f6fa23bebcb09340d29168c857160d72b7f908bf8c943f2d95",
+      "ruleId": "OG-EMERGENCY-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"emergency management program\") || input1.text.Contains(\"emergency response plan\") || input1.text.Contains(\"ERP\") || input1.text.Contains(\"Directive 071\") || input1.text.Contains(\"D-071\") || input1.text.Contains(\"OPR s. 32\")",
+      "evaluatedInput": {
+        "id": "s_00000002",
+        "heading": "Emergency Response Plan",
+        "heading_path": "/Operations Manual — Acme Pipeline Co. NPS 24 Crude Oil System/Emergency Response Plan",
+        "category": "emergency_response",
+        "primary_topic": "emergency_response",
+        "topics": [
+          "emergency_response"
+        ],
+        "topic_scores": {
+          "emergency_response": 0.9
+        },
+        "text": "The emergency response plan (ERP) is maintained in accordance with CEROPR s. 32 and reviewed annually. ICS structure, notification matrix,and tier-1/2/3 spill response are documented in the ERP and exercisedtwice per year."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:f339cdf4db518f2aae3fb978e2bfb6589bf45b3199c566f569df940eda7120d2",
+        "charStart": 755,
+        "charLength": 26,
+        "headingPath": "/Operations Manual — Acme Pipeline Co. NPS 24 Crude Oil System/Emergency Response Plan",
+        "charEnd": 781
+      },
+      "evidenceQuotes": [
+        "A company shall develop, implement and maintain an emergency management program that anticipates, prevents, manages and mitigates conditions during an emergency ..."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000002",
+      "predicateText": "input1.category == \"emergency_response\""
+    },
+    {
+      "id": "lr1:e1aae25d12b3ae025bd4c33330c24e4a1928a7710dcbadbb8384fcb61e24a214",
+      "ruleId": "OG-INDIG-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Gap",
+      "lambdaText": "input1.text.Contains(\"duty to consult\") || input1.text.Contains(\"consultation and accommodation\") || (input1.text.Contains(\"Indigenous\") && (input1.text.Contains(\"section 35\") || input1.text.Contains(\"s. 35\") || input1.text.Contains(\"First Nation\")))",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "Tsleil-Waututh-2018-FCA-153",
+        "charStart": 0,
+        "charLength": 0,
+        "pageNumber": 1,
+        "headingPath": "/duty-to-consult",
+        "charEnd": 0
+      },
+      "evidenceQuotes": [
+        "The duty to consult ... arises when the Crown has knowledge of the potential existence of an Aboriginal right or title and contemplates conduct that might adversely affect it."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: Linear energy infrastructure routinely triggers the Crown's duty to consult under s. 35 of the Constitution Act, 1982, as confirmed for energy projects in Tsleil-Waututh Nation v. Canada, 2018 FCA 153.",
+      "predicateText": "input1.category == \"indigenous_consultation\""
+    },
+    {
+      "id": "lr1:c25395dc796850236a344185d5242ca9e2c7b09bc3f2dd8c1a2cdf2c2a385dbd",
+      "ruleId": "OG-METHANE-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Gap",
+      "lambdaText": "input1.text.Contains(\"SOR/2018-66\") || (input1.text.Contains(\"methane\") && input1.text.Contains(\"LDAR\")) || input1.text.Contains(\"leak detection and repair\") || (input1.text.Contains(\"fugitive emissions\") && input1.text.Contains(\"methane\"))",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "SOR-2018-66",
+        "charStart": 0,
+        "charLength": 0,
+        "pageNumber": 1,
+        "headingPath": "/Methane-LDAR",
+        "charEnd": 0
+      },
+      "evidenceQuotes": [
+        "An operator of upstream oil and gas facilities must implement a program ... to detect and repair leaks of hydrocarbon gas ..."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: Federal upstream methane regulations (SOR/2018-66) impose limits on venting and require leak-detection-and-repair (LDAR) programs at upstream oil and gas facilities.",
+      "predicateText": "input1.category == \"methane_management\""
+    },
+    {
+      "id": "lr1:fe24754c6ab7f4291441e379b99b41d0b627e396f32d8190512733da101f6deb",
+      "ruleId": "OG-PIM-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"pipeline integrity management program\") || input1.text.Contains(\"integrity management program\") || (input1.text.Contains(\"PIM\") && input1.text.Contains(\"CER\")) || input1.text.Contains(\"OPR section 40\") || input1.text.Contains(\"OPR s. 40\")",
+      "evaluatedInput": {
+        "id": "s_00000001",
+        "heading": "Pipeline Integrity Management Program",
+        "heading_path": "/Operations Manual — Acme Pipeline Co. NPS 24 Crude Oil System/Pipeline Integrity Management Program",
+        "category": "pipeline_integrity",
+        "primary_topic": "pipeline_integrity",
+        "topics": [
+          "pipeline_integrity"
+        ],
+        "topic_scores": {
+          "pipeline_integrity": 0.9
+        },
+        "text": "Acme operates a pipeline integrity management program (PIM) consistentwith CSA Z662 and CER OPR. The program covers:\nthreat identification (external corrosion, internal corrosion,geohazards, third-party damage, manufacturing defects)\nILI scheduling on a five-year cadence\nmonitoring via cathodic protection surveys, close-interval surveys,and pressure cycling analysis\ncorrective-action triggers tied to API 1163 ILI tool tolerance."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:f339cdf4db518f2aae3fb978e2bfb6589bf45b3199c566f569df940eda7120d2",
+        "charStart": 263,
+        "charLength": 40,
+        "headingPath": "/Operations Manual — Acme Pipeline Co. NPS 24 Crude Oil System/Pipeline Integrity Management Program",
+        "charEnd": 303
+      },
+      "evidenceQuotes": [
+        "A company shall develop, implement and maintain ... a pipeline integrity management program ..."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000001",
+      "predicateText": "input1.category == \"pipeline_integrity\""
+    }
+  ],
+  "generatedAt": "2000-01-01T00:00:00+00:00",
+  "gaps": 2
+}

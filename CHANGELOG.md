@@ -9,14 +9,17 @@ it reaches `1.0.0`.
 
 ### Added
 
-- `tests/Goldens/corpus/` — Phase 1 golden test corpus (issue #18). Three
+- `tests/Goldens/corpus/` — Phase 1 golden test corpus (issue #18). Five
   public-source-grounded verticals: **gov-architecture** (Government of
   Canada Cloud Guardrails v2.0, OGL-Canada-licensed), **fsi** (OSFI
-  Guideline B-10 *Third-Party Risk Management*), and **contract** (TBS
-  SACC + PIPEDA). 15 rules, 7 synthetic candidate documents covering
-  pass / fail / gap mixes, with frozen `expected-verdict.json` snapshots
-  per document. Insurance and permitting verticals deferred — *quality
-  over quantity* per direction.
+  Guideline B-10 *Third-Party Risk Management*), **contract** (TBS
+  SACC + PIPEDA), **permitting** (Ontario Building Code O.Reg.332/12 +
+  IASR/AODA O.Reg.191/11 + Impact Assessment Act S.C.2019 c.28 +
+  Constitution Act 1982 s.35), and **oil-gas** (CER Onshore Pipeline
+  Regulations SOR/99-294 + Methane Regulations SOR/2018-66 + AER
+  Directive 071 + s.35). 25 rules, 11 synthetic candidate documents
+  covering pass / fail / gap mixes, with frozen `expected-verdict.json`
+  snapshots per document — full 5/5 vertical close-out.
 - `tests/LambdaRag.IdempotencyTests/CorpusRegression.cs` — discovers
   every `corpus/{topic-map}/{doc-id}/` triple, runs the full
   parse → project → evaluate pipeline against the matching topic map
