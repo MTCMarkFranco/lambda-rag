@@ -12,10 +12,10 @@
 
 | Artifact | Path |
 |---|---|
-| Source contract (parsed) | `out/contoso-test/parsed.json` |
-| Topic-map projection | `out/contoso-test/projected.json` |
-| End-to-end review report | `out/contoso-test/report.json` |
-| Contoso ruleset | `out/contoso-full/contoso-policies-ruleset.json` |
+| Source contract (parsed) | `out/dev-test/parsed.json` |
+| Topic-map projection | `out/dev-test/projected.json` |
+| End-to-end review report | `out/dev-test/report.json` |
+| Contoso ruleset | `out/dev-full/policies-ruleset.json` |
 
 Run summary at the time of investigation:
 
@@ -186,7 +186,7 @@ is no defect in either the projector or the lambda.
 ## Idempotency / determinism check
 
 Both gap rows reproduced byte-identically across re-runs in
-`out/contoso-full/report.run1.json` vs `report.run2.json` (modulo the CTSO-test
+`out/dev-full/report.run1.json` vs `report.run2.json` (modulo the CTSO-test
 vs CTSO-full input differential — which is a *different* contract / ruleset
 combo, also stable run-to-run). The idempotency claim is unaffected by
 this investigation.

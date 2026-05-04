@@ -27,7 +27,7 @@
 | **S — Selector miss** | 0 (against Contoso findings) but **1 latent selector miss observed** in CTSO-LIAB-001 — see §4. |
 | **C — Actually caught** | 0 | None of Contoso's findings are caught by the demo ruleset under different surface wording. |
 
-> The dominant cause of the 27-comment gap is therefore **N** (ruleset coverage), not engine quality. **The engines are not on a level playing field**: Contoso ships 7 LLM domain agents driven by ~6 Contoso policy PDFs (~140 enriched chunks), while lambda-rag is being run with a **5-rule hand-authored demo ruleset** (`samples/contracts/contoso-demo-ruleset.json`). The promised `out/contoso-full/contoso-policies-ruleset.json` (LLM-extracted from the same PDFs) **does not exist in the repo** as of commit `4d53ce2`. Until that ruleset is produced, every "miss" is structurally inevitable.
+> The dominant cause of the 27-comment gap is therefore **N** (ruleset coverage), not engine quality. **The engines are not on a level playing field**: Contoso ships 7 LLM domain agents driven by ~6 Contoso policy PDFs (~140 enriched chunks), while lambda-rag is being run with a **5-rule hand-authored demo ruleset** (`samples/contracts/contoso-demo-ruleset.json`). The promised `out/dev-full/policies-ruleset.json` (LLM-extracted from the same PDFs) **does not exist in the repo** as of commit `4d53ce2`. Until that ruleset is produced, every "miss" is structurally inevitable.
 
 ### One-sentence verdict
 
@@ -86,8 +86,8 @@ Outputs:
 
 ### What was *not* available
 
-- `out/contoso-full/contoso-policies-ruleset.json` (LLM-authored ruleset extracted from Contoso PDFs) — **not present in repo**.
-- `out/contoso-test/contract.docx` — **not present**.
+- `out/dev-full/policies-ruleset.json` (LLM-authored ruleset extracted from Contoso PDFs) — **not present in repo**.
+- `out/dev-test/contract.docx` — **not present**.
 
 If/when those land, every row classified `N` below should become a hit (or convert to `H`/`P`/`S` after re-running this analysis). That is the single biggest lever for improving lambda-rag's recall against Contoso.
 
@@ -156,7 +156,7 @@ Section refs are to `contract_original.docx` (the un-reviewed source).
 
 ## 4. Findings & root causes
 
-1. **The 27-finding gap is overwhelmingly a coverage problem, not a quality problem.** 22 of 27 CTSO-only comments are real issues for which lambda-rag simply has no rule (`N`). The customer's own brief acknowledges this — `out/contoso-full/contoso-policies-ruleset.json` was the planned mitigation and is not yet produced.
+1. **The 27-finding gap is overwhelmingly a coverage problem, not a quality problem.** 22 of 27 CTSO-only comments are real issues for which lambda-rag simply has no rule (`N`). The customer's own brief acknowledges this — `out/dev-full/policies-ruleset.json` was the planned mitigation and is not yet produced.
 2. **Contoso's LLM agents over-flag style and mis-cite legal authority.** 5/29 findings (#0, #11, #14, #15, #28) are hallucinations or mis-citations: PIPEDA mis-attributed for residency (#14) and 72-hour breach window (#15); MCSA §5.1 confused between *services taxes* and *income taxes* (#11); pure stylistic nits (#0, #28). A determined supplier could rebut these on first read.
 3. **Contoso duplicates its own findings.** #26 and #27 are the same comment on the same governing-law clause — a known LLM-orchestration artifact (multiple agents/passes voting independently).
 4. **The Selectors v1.3.0 `primary_topic` tie-break is biased against `liability`.** Of 14 contract sections:
@@ -256,7 +256,7 @@ Both engine-level defects flagged in §4 were fixed in this same PR (no separate
 
 Re-run vs the same Contoso sample contract: `pass=4 fail=1 gap=1` (was `pass=3 fail=0 gap=2`). §9 now correctly **Fails** on IP indemnity, §9 + §11 both **Pass** on the explicit liability cap, the spurious §9 liability Gap is gone, and the legitimate `CTSO-WAR-001` Gap (no warranty section — Contoso missed it) remains.
 
-The 22 `N`-class coverage gaps require authoring the CTSO-policy ruleset from the six PDFs (`out/contoso-full/contoso-policies-ruleset.json`) and are tracked separately. Section 5 of this document lists the 19 priority rules to author.
+The 22 `N`-class coverage gaps require authoring the CTSO-policy ruleset from the six PDFs (`out/dev-full/policies-ruleset.json`) and are tracked separately. Section 5 of this document lists the 19 priority rules to author.
 
 
 ## Phase F — 19 priority rules + `text_features` extractor (post-audit, this PR)
