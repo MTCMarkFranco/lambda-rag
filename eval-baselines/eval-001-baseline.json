@@ -1,0 +1,1335 @@
+{
+  "documentId": {
+    "value": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48"
+  },
+  "ruleSetId": "rs_contoso_demo",
+  "ruleSetVersion": "2.0.0",
+  "ruleSetFingerprint": {
+    "value": "lr1:6eec09addcc243fc0c613b1cfde0429df895c1b1d91df4f367a3c5b282892ee3"
+  },
+  "projectorId": "contract",
+  "projectorVersion": "1.4.0",
+  "score": 0.18518518518518517,
+  "totalRules": 27,
+  "passed": 5,
+  "failed": 21,
+  "notApplicable": 0,
+  "errored": 0,
+  "verdicts": [
+    {
+      "id": "lr1:7c06c51090702f5f70308cc13c30cea6e9248070941401f0a54f709a21d34267",
+      "ruleId": "CTSO-AI-ADDENDUM",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"AI Addendum\") || input1.text.Contains(\"Artificial Intelligence Addendum\")",
+      "evaluatedInput": {
+        "id": "s_00000003",
+        "heading": "3. AI TECHNOLOGY SERVICES",
+        "heading_path": "/IT SERVICES AGREEMENT/3. AI TECHNOLOGY SERVICES",
+        "category": "ai",
+        "primary_topic": "ai",
+        "topics": [
+          "ai",
+          "notices"
+        ],
+        "topic_scores": {
+          "ai": 0.9,
+          "notices": 0.4
+        },
+        "topic_density": 2.6316,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "3.1 The Vendor shall deploy an AI-powered analytics platform to process customer transaction patterns and operational data.\n3.2 The AI models used shall be at the Vendor's sole discretion, and the Vendor may update, retrain, or replace models as it deems appropriate without prior notice to the Company.\n3.3 The platform shall employ automated decision-making with no human oversight for operational optimization.\n3.4 The Vendor may use Company data to improve its AI models and algorithms."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 1007,
+        "charLength": 25,
+        "headingPath": "/IT SERVICES AGREEMENT/3. AI TECHNOLOGY SERVICES",
+        "charEnd": 1032
+      },
+      "errorMessage": "Rule 'CTSO-AI-ADDENDUM' failed: Contracts that process Contoso data via AI must reference an AI Addendum.",
+      "evidenceQuotes": [
+        "AI Addendum reference"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000003",
+      "remediationText": "Reference the Contoso AI Addendum in the 3. AI TECHNOLOGY SERVICES clause whenever AI/ML processes Contoso data.",
+      "predicateText": "input1.topics.Contains(\"ai\")"
+    },
+    {
+      "id": "lr1:083f0e59bdb5993df35e5c081cb715a83a93233a5731145913e73e45bbc9b63b",
+      "ruleId": "CTSO-AI-PRIVACY-SUPP",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"personal data\") || input1.text.Contains(\"personal information\")) ? (input1.text.Contains(\"Privacy T&C\") || input1.text.Contains(\"Privacy Terms\") || input1.text.Contains(\"Privacy Supplement\")) : true",
+      "evaluatedInput": {
+        "id": "s_00000003",
+        "heading": "3. AI TECHNOLOGY SERVICES",
+        "heading_path": "/IT SERVICES AGREEMENT/3. AI TECHNOLOGY SERVICES",
+        "category": "ai",
+        "primary_topic": "ai",
+        "topics": [
+          "ai",
+          "notices"
+        ],
+        "topic_scores": {
+          "ai": 0.9,
+          "notices": 0.4
+        },
+        "topic_density": 2.6316,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "3.1 The Vendor shall deploy an AI-powered analytics platform to process customer transaction patterns and operational data.\n3.2 The AI models used shall be at the Vendor's sole discretion, and the Vendor may update, retrain, or replace models as it deems appropriate without prior notice to the Company.\n3.3 The platform shall employ automated decision-making with no human oversight for operational optimization.\n3.4 The Vendor may use Company data to improve its AI models and algorithms."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 1007,
+        "charLength": 25,
+        "headingPath": "/IT SERVICES AGREEMENT/3. AI TECHNOLOGY SERVICES",
+        "charEnd": 1032
+      },
+      "evidenceQuotes": [
+        "Privacy T&Cs supplement"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000003",
+      "predicateText": "input1.topics.Contains(\"ai\")"
+    },
+    {
+      "id": "lr1:2a363716f5d418d19e29211f7ee398a9d5140a67e019446aae04495995aaaaae",
+      "ruleId": "CTSO-CONF-001",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"year\") || input1.text.Contains(\"years\") || input1.text.Contains(\"perpetual\")",
+      "evaluatedInput": {
+        "id": "s_00000006",
+        "heading": "6. CONFIDENTIALITY",
+        "heading_path": "/IT SERVICES AGREEMENT/6. CONFIDENTIALITY",
+        "category": "confidentiality",
+        "primary_topic": "confidentiality",
+        "topics": [
+          "confidentiality",
+          "parties",
+          "termination"
+        ],
+        "topic_scores": {
+          "confidentiality": 0.9,
+          "parties": 0.4,
+          "termination": 0.4
+        },
+        "topic_density": 4.4444,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "6.1 The Vendor agrees to keep all information received from the Company confidential and shall not disclose such information to any third party without prior written consent.\n6.2 The confidentiality obligations shall survive for a period of two (2) years following termination of this Agreement."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 2111,
+        "charLength": 18,
+        "headingPath": "/IT SERVICES AGREEMENT/6. CONFIDENTIALITY",
+        "charEnd": 2129
+      },
+      "evidenceQuotes": [
+        "Confidentiality survival"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000006",
+      "predicateText": "input1.category == \"confidentiality\""
+    },
+    {
+      "id": "lr1:d5e9e018a02d9567a0575f0f175edbd856a0001095e85bf56ec1764e2a852726",
+      "ruleId": "CTSO-CYBER-CRYPTO",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"AES-256\") || input1.text.Contains(\"AES 256\")) && (input1.text.Contains(\"TLS 1.2\") || input1.text.Contains(\"TLS 1.3\") || input1.text.Contains(\"TLS1.2\") || input1.text.Contains(\"TLS1.3\"))",
+      "evaluatedInput": {
+        "id": "s_00000010",
+        "heading": "10. CYBERSECURITY",
+        "heading_path": "/IT SERVICES AGREEMENT/10. CYBERSECURITY",
+        "category": "security",
+        "primary_topic": "security",
+        "topics": [
+          "security"
+        ],
+        "topic_scores": {
+          "security": 0.9
+        },
+        "topic_density": 1.8868,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "10.1 The Vendor shall implement reasonable security measures to protect Company data and systems accessed during the performance of services.\n10.2 The Vendor shall conduct vulnerability assessments on an annual basis and provide reports to the Company upon request.\n10.3 The Vendor represents that its personnel assigned to this engagement are qualified professionals."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 3729,
+        "charLength": 17,
+        "headingPath": "/IT SERVICES AGREEMENT/10. CYBERSECURITY",
+        "charEnd": 3746
+      },
+      "errorMessage": "Rule 'CTSO-CYBER-CRYPTO' failed: Security clause must specify AES-256 at rest and TLS 1.2+ in transit.",
+      "evidenceQuotes": [
+        "Encryption standards"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000010",
+      "remediationText": "Specify AES-256 encryption at rest and TLS 1.2 or higher in transit in the 10. CYBERSECURITY clause.",
+      "predicateText": "input1.category == \"security\""
+    },
+    {
+      "id": "lr1:d93825ce82ea5f89a0e1eddd359e98e48a98f3a40ae192c291b2a68464fa7bf4",
+      "ruleId": "CTSO-INDM-001",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"defend\") || input1.text.Contains(\"defense\")) && (input1.text.Contains(\"infringement\") || input1.text.Contains(\"infringe\") || input1.text.Contains(\"intellectual property\") || input1.text.Contains(\"IP claim\") || input1.text.Contains(\"third-party claim\") || input1.text.Contains(\"third party claim\"))",
+      "evaluatedInput": {
+        "id": "s_00000009",
+        "heading": "9. LIABILITY AND INDEMNIFICATION",
+        "heading_path": "/IT SERVICES AGREEMENT/9. LIABILITY AND INDEMNIFICATION",
+        "category": "indemnification",
+        "primary_topic": "indemnification",
+        "topics": [
+          "indemnification",
+          "liability",
+          "parties",
+          "payment_terms"
+        ],
+        "topic_scores": {
+          "indemnification": 0.9,
+          "liability": 0.9,
+          "parties": 0.4,
+          "payment_terms": 0.4
+        },
+        "topic_density": 1.9231,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "9.1 The Vendor's limitation of liability shall not exceed the total fees paid under this Agreement in the preceding 12-month period.\n9.2 Neither party shall be liable for any indirect, incidental, or consequential damages.\n9.3 The Vendor shall indemnify the Company against any claims arising from the Vendor's negligence or willful misconduct."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 3351,
+        "charLength": 32,
+        "headingPath": "/IT SERVICES AGREEMENT/9. LIABILITY AND INDEMNIFICATION",
+        "charEnd": 3383
+      },
+      "errorMessage": "Rule 'CTSO-INDM-001' failed: Indemnification clause must address third-party IP infringement (defend Contoso against IP-infringement claims).",
+      "evidenceQuotes": [
+        "IP indemnity"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000009",
+      "remediationText": "Ensure the 9. LIABILITY AND INDEMNIFICATION clause requires the supplier to defend Contoso against third-party IP infringement claims.",
+      "predicateText": "input1.text.Contains(\"infringement\") || input1.text.Contains(\"infringe\") || input1.text.Contains(\"indemn\")"
+    },
+    {
+      "id": "lr1:ec2ea666614e63ddef1fe92801ac6707c77c1047a318703cb9a6f1e0a20b8961",
+      "ruleId": "CTSO-INS-CYBER-10M",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text_features.dollar_max >= 10000000",
+      "evaluatedInput": {
+        "id": "s_00000011",
+        "heading": "11. INSURANCE",
+        "heading_path": "/IT SERVICES AGREEMENT/11. INSURANCE",
+        "category": "insurance",
+        "primary_topic": "insurance",
+        "topics": [
+          "insurance",
+          "liability",
+          "term"
+        ],
+        "topic_scores": {
+          "insurance": 0.9,
+          "liability": 0.4,
+          "term": 0.4
+        },
+        "topic_density": 10.3448,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [
+            1000000,
+            2000000
+          ],
+          "dollar_min": 1000000,
+          "dollar_max": 2000000
+        },
+        "text": "11.1 The Vendor shall maintain general commercial liability insurance with a minimum coverage of $1,000,000 per occurrence.\n11.2 The Vendor shall maintain cyber liability insurance of not less than $2,000,000 per claim.\n11.3 The Vendor shall maintain insurance coverage for the duration of this Agreement.\n11.4 The Vendor shall provide proof of insurance upon request by the Company."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 4116,
+        "charLength": 13,
+        "headingPath": "/IT SERVICES AGREEMENT/11. INSURANCE",
+        "charEnd": 4129
+      },
+      "errorMessage": "Rule 'CTSO-INS-CYBER-10M' failed: Cyber liability insurance must be at least $10,000,000 per claim.",
+      "evidenceQuotes": [
+        "Cyber-liability minimum"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000011",
+      "remediationText": "Increase the cyber-liability limit in the 11. INSURANCE clause to at least $10,000,000 per claim.",
+      "predicateText": "input1.topics.Contains(\"insurance\") && input1.text_features.dollar_amounts.Count > 0 && (input1.text.Contains(\"cyber\") || input1.text.Contains(\"network security\") || input1.text.Contains(\"privacy liability\"))"
+    },
+    {
+      "id": "lr1:95178deccd3d970690cddc0e7db3df00777c7b7a334ac69b2cfb84afdb5fca33",
+      "ruleId": "CTSO-INS-GCL-5M",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text_features.dollar_max >= 5000000",
+      "evaluatedInput": {
+        "id": "s_00000011",
+        "heading": "11. INSURANCE",
+        "heading_path": "/IT SERVICES AGREEMENT/11. INSURANCE",
+        "category": "insurance",
+        "primary_topic": "insurance",
+        "topics": [
+          "insurance",
+          "liability",
+          "term"
+        ],
+        "topic_scores": {
+          "insurance": 0.9,
+          "liability": 0.4,
+          "term": 0.4
+        },
+        "topic_density": 10.3448,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [
+            1000000,
+            2000000
+          ],
+          "dollar_min": 1000000,
+          "dollar_max": 2000000
+        },
+        "text": "11.1 The Vendor shall maintain general commercial liability insurance with a minimum coverage of $1,000,000 per occurrence.\n11.2 The Vendor shall maintain cyber liability insurance of not less than $2,000,000 per claim.\n11.3 The Vendor shall maintain insurance coverage for the duration of this Agreement.\n11.4 The Vendor shall provide proof of insurance upon request by the Company."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 4116,
+        "charLength": 13,
+        "headingPath": "/IT SERVICES AGREEMENT/11. INSURANCE",
+        "charEnd": 4129
+      },
+      "errorMessage": "Rule 'CTSO-INS-GCL-5M' failed: General Commercial Liability (GCL) insurance must be at least $5,000,000 per occurrence.",
+      "evidenceQuotes": [
+        "GCL minimum"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000011",
+      "remediationText": "Increase the General Commercial Liability limit in the 11. INSURANCE clause to at least $5,000,000 per occurrence.",
+      "predicateText": "input1.topics.Contains(\"insurance\") && input1.text_features.dollar_amounts.Count > 0 && (input1.text.Contains(\"general\") || input1.text.Contains(\"GCL\") || input1.text.Contains(\"commercial liability\"))"
+    },
+    {
+      "id": "lr1:19e3244e0e9e6e6ee67cb4e0c68abc6bc99e88625c10bb6db0b5ca152e74b9f5",
+      "ruleId": "CTSO-IP-WORKFORHIRE",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"Contoso\") && (input1.text.Contains(\"works made for hire\") || input1.text.Contains(\"work made for hire\") || input1.text.Contains(\"assigned to\") || input1.text.Contains(\"hereby assigns\"))",
+      "evaluatedInput": {
+        "id": "s_00000008",
+        "heading": "8. INTELLECTUAL PROPERTY",
+        "heading_path": "/IT SERVICES AGREEMENT/8. INTELLECTUAL PROPERTY",
+        "category": "ip_ownership",
+        "primary_topic": "ip_ownership",
+        "topics": [
+          "ip_ownership"
+        ],
+        "topic_scores": {
+          "ip_ownership": 0.9
+        },
+        "topic_density": 5,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "8.1 All intellectual property created by the Vendor in the course of performing services under this Agreement shall be the property of the Vendor.\n8.2 The Company is granted a non-exclusive license to use any deliverables produced under this Agreement."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 3073,
+        "charLength": 24,
+        "headingPath": "/IT SERVICES AGREEMENT/8. INTELLECTUAL PROPERTY",
+        "charEnd": 3097
+      },
+      "errorMessage": "Rule 'CTSO-IP-WORKFORHIRE' failed: Deliverables must vest in Contoso as works made for hire (or be irrevocably assigned).",
+      "evidenceQuotes": [
+        "Works-made-for-hire"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000008",
+      "remediationText": "Add language to the 8. INTELLECTUAL PROPERTY clause that all Deliverables are \"works made for hire\" for Contoso, or are irrevocably assigned to Contoso upon creation.",
+      "predicateText": "input1.category == \"ip_ownership\""
+    },
+    {
+      "id": "lr1:5603f0428b103da726d0c87281ba37b91af02af54e2e9c933fdceab3c1235ff0",
+      "ruleId": "CTSO-LAW-QUEBEC",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"Quebec\") && (input1.text.Contains(\"Montreal\") || input1.text.Contains(\"Montréal\"))",
+      "evaluatedInput": {
+        "id": "s_00000012",
+        "heading": "12. GOVERNING LAW",
+        "heading_path": "/IT SERVICES AGREEMENT/12. GOVERNING LAW",
+        "category": "governing_law",
+        "primary_topic": "governing_law",
+        "topics": [
+          "governing_law"
+        ],
+        "topic_scores": {
+          "governing_law": 0.9
+        },
+        "topic_density": 0,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "12.1 This Agreement shall be governed by and construed in accordance with the laws of the Province of Ontario.\n12.2 Any disputes arising under this Agreement shall be resolved through binding arbitration in the city of Toronto."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 4514,
+        "charLength": 17,
+        "headingPath": "/IT SERVICES AGREEMENT/12. GOVERNING LAW",
+        "charEnd": 4531
+      },
+      "errorMessage": "Rule 'CTSO-LAW-QUEBEC' failed: Governing law must be Quebec; venue Montreal.",
+      "evidenceQuotes": [
+        "Governing law / venue"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000012",
+      "remediationText": "Set governing law to the Province of Quebec and venue to Montreal in the 12. GOVERNING LAW clause.",
+      "predicateText": "input1.category == \"governing_law\""
+    },
+    {
+      "id": "lr1:642a2d183601a253b9c7456c7809b65be1af54005df6e7aec1eb224b9183f73f",
+      "ruleId": "CTSO-LIAB-001",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"$\") || input1.text.Contains(\"fees paid\") || input1.text.Contains(\"amount paid\") || input1.text.Contains(\"twelve months\") || input1.text.Contains(\"12 months\")",
+      "evaluatedInput": {
+        "id": "s_00000009",
+        "heading": "9. LIABILITY AND INDEMNIFICATION",
+        "heading_path": "/IT SERVICES AGREEMENT/9. LIABILITY AND INDEMNIFICATION",
+        "category": "indemnification",
+        "primary_topic": "indemnification",
+        "topics": [
+          "indemnification",
+          "liability",
+          "parties",
+          "payment_terms"
+        ],
+        "topic_scores": {
+          "indemnification": 0.9,
+          "liability": 0.9,
+          "parties": 0.4,
+          "payment_terms": 0.4
+        },
+        "topic_density": 1.9231,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "9.1 The Vendor's limitation of liability shall not exceed the total fees paid under this Agreement in the preceding 12-month period.\n9.2 Neither party shall be liable for any indirect, incidental, or consequential damages.\n9.3 The Vendor shall indemnify the Company against any claims arising from the Vendor's negligence or willful misconduct."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 3351,
+        "charLength": 32,
+        "headingPath": "/IT SERVICES AGREEMENT/9. LIABILITY AND INDEMNIFICATION",
+        "charEnd": 3383
+      },
+      "evidenceQuotes": [
+        "Limitation of liability"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000009",
+      "predicateText": "input1.topics.Contains(\"liability\")"
+    },
+    {
+      "id": "lr1:2f4314e1ea72dc969e6bf96bfd5e16bcc35df2a41c699024c655cf16a9a21189",
+      "ruleId": "CTSO-LIAB-001",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"$\") || input1.text.Contains(\"fees paid\") || input1.text.Contains(\"amount paid\") || input1.text.Contains(\"twelve months\") || input1.text.Contains(\"12 months\")",
+      "evaluatedInput": {
+        "id": "s_00000011",
+        "heading": "11. INSURANCE",
+        "heading_path": "/IT SERVICES AGREEMENT/11. INSURANCE",
+        "category": "insurance",
+        "primary_topic": "insurance",
+        "topics": [
+          "insurance",
+          "liability",
+          "term"
+        ],
+        "topic_scores": {
+          "insurance": 0.9,
+          "liability": 0.4,
+          "term": 0.4
+        },
+        "topic_density": 10.3448,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [
+            1000000,
+            2000000
+          ],
+          "dollar_min": 1000000,
+          "dollar_max": 2000000
+        },
+        "text": "11.1 The Vendor shall maintain general commercial liability insurance with a minimum coverage of $1,000,000 per occurrence.\n11.2 The Vendor shall maintain cyber liability insurance of not less than $2,000,000 per claim.\n11.3 The Vendor shall maintain insurance coverage for the duration of this Agreement.\n11.4 The Vendor shall provide proof of insurance upon request by the Company."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 4116,
+        "charLength": 13,
+        "headingPath": "/IT SERVICES AGREEMENT/11. INSURANCE",
+        "charEnd": 4129
+      },
+      "evidenceQuotes": [
+        "Limitation of liability"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000011",
+      "predicateText": "input1.topics.Contains(\"liability\")"
+    },
+    {
+      "id": "lr1:e39a8d5e0501423b7c755264ea41f04751010904f2a12d8e0fe705c3e786af1e",
+      "ruleId": "CTSO-LIAB-CARVEOUTS",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"gross negligence\") || input1.text.Contains(\"willful misconduct\") || input1.text.Contains(\"wilful misconduct\")) && input1.text.Contains(\"fraud\") && (input1.text.Contains(\"intellectual property\") || input1.text.Contains(\"IP indemnity\") || input1.text.Contains(\"infringement\")) && input1.text.Contains(\"confidential\") && (input1.text.Contains(\"data breach\") || input1.text.Contains(\"personal data\"))",
+      "evaluatedInput": {
+        "id": "s_00000009",
+        "heading": "9. LIABILITY AND INDEMNIFICATION",
+        "heading_path": "/IT SERVICES AGREEMENT/9. LIABILITY AND INDEMNIFICATION",
+        "category": "indemnification",
+        "primary_topic": "indemnification",
+        "topics": [
+          "indemnification",
+          "liability",
+          "parties",
+          "payment_terms"
+        ],
+        "topic_scores": {
+          "indemnification": 0.9,
+          "liability": 0.9,
+          "parties": 0.4,
+          "payment_terms": 0.4
+        },
+        "topic_density": 1.9231,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "9.1 The Vendor's limitation of liability shall not exceed the total fees paid under this Agreement in the preceding 12-month period.\n9.2 Neither party shall be liable for any indirect, incidental, or consequential damages.\n9.3 The Vendor shall indemnify the Company against any claims arising from the Vendor's negligence or willful misconduct."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 3351,
+        "charLength": 32,
+        "headingPath": "/IT SERVICES AGREEMENT/9. LIABILITY AND INDEMNIFICATION",
+        "charEnd": 3383
+      },
+      "errorMessage": "Rule 'CTSO-LIAB-CARVEOUTS' failed: Limitation of liability must carve out gross negligence, wilful misconduct, fraud, IP indemnity, confidentiality breach, and data breach.",
+      "evidenceQuotes": [
+        "Liability cap carve-outs"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000009",
+      "remediationText": "Carve out gross negligence, wilful misconduct, fraud, IP indemnity, confidentiality breach, and data-breach liability from the cap in the 9. LIABILITY AND INDEMNIFICATION clause.",
+      "predicateText": "input1.topics.Contains(\"liability\") && input1.is_operative_for_topic"
+    },
+    {
+      "id": "lr1:be4aa1d578f1296259021bb7ad4667071e55deeb8e8a19e0bec23c5336273f6c",
+      "ruleId": "CTSO-LIAB-CARVEOUTS",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"gross negligence\") || input1.text.Contains(\"willful misconduct\") || input1.text.Contains(\"wilful misconduct\")) && input1.text.Contains(\"fraud\") && (input1.text.Contains(\"intellectual property\") || input1.text.Contains(\"IP indemnity\") || input1.text.Contains(\"infringement\")) && input1.text.Contains(\"confidential\") && (input1.text.Contains(\"data breach\") || input1.text.Contains(\"personal data\"))",
+      "evaluatedInput": {
+        "id": "s_00000011",
+        "heading": "11. INSURANCE",
+        "heading_path": "/IT SERVICES AGREEMENT/11. INSURANCE",
+        "category": "insurance",
+        "primary_topic": "insurance",
+        "topics": [
+          "insurance",
+          "liability",
+          "term"
+        ],
+        "topic_scores": {
+          "insurance": 0.9,
+          "liability": 0.4,
+          "term": 0.4
+        },
+        "topic_density": 10.3448,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [
+            1000000,
+            2000000
+          ],
+          "dollar_min": 1000000,
+          "dollar_max": 2000000
+        },
+        "text": "11.1 The Vendor shall maintain general commercial liability insurance with a minimum coverage of $1,000,000 per occurrence.\n11.2 The Vendor shall maintain cyber liability insurance of not less than $2,000,000 per claim.\n11.3 The Vendor shall maintain insurance coverage for the duration of this Agreement.\n11.4 The Vendor shall provide proof of insurance upon request by the Company."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 4116,
+        "charLength": 13,
+        "headingPath": "/IT SERVICES AGREEMENT/11. INSURANCE",
+        "charEnd": 4129
+      },
+      "errorMessage": "Rule 'CTSO-LIAB-CARVEOUTS' failed: Limitation of liability must carve out gross negligence, wilful misconduct, fraud, IP indemnity, confidentiality breach, and data breach.",
+      "evidenceQuotes": [
+        "Liability cap carve-outs"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000011",
+      "remediationText": "Carve out gross negligence, wilful misconduct, fraud, IP indemnity, confidentiality breach, and data-breach liability from the cap in the 11. INSURANCE clause.",
+      "predicateText": "input1.topics.Contains(\"liability\") && input1.is_operative_for_topic"
+    },
+    {
+      "id": "lr1:d7015b26024b76f639ca407aa38e30154aca8c54d06cab04869ba16e0c1e45e1",
+      "ruleId": "CTSO-PAY-INT-MAX",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text_features.percent_max <= 1.5",
+      "evaluatedInput": {
+        "id": "s_00000004",
+        "heading": "4. PAYMENT TERMS",
+        "heading_path": "/IT SERVICES AGREEMENT/4. PAYMENT TERMS",
+        "category": "payment_terms",
+        "primary_topic": "payment_terms",
+        "topics": [
+          "payment_terms",
+          "tax"
+        ],
+        "topic_scores": {
+          "payment_terms": 0.9,
+          "tax": 0.4
+        },
+        "topic_density": 8.1081,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [
+            60
+          ],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [
+            2
+          ],
+          "dollar_amounts": [],
+          "day_count_min": 60,
+          "day_count_max": 60,
+          "percent_min": 2,
+          "percent_max": 2
+        },
+        "text": "4.1 The Company shall pay the Vendor within 60 days of receipt of a valid invoice.\n4.2 All fees are inclusive of applicable taxes.\n4.3 Late payments shall accrue interest at a rate of 2% per month."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 1524,
+        "charLength": 16,
+        "headingPath": "/IT SERVICES AGREEMENT/4. PAYMENT TERMS",
+        "charEnd": 1540
+      },
+      "errorMessage": "Rule 'CTSO-PAY-INT-MAX' failed: Late-payment interest must not exceed 1.5% per month.",
+      "evidenceQuotes": [
+        "Late-payment interest cap"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000004",
+      "remediationText": "Cap late-payment interest in the 4. PAYMENT TERMS clause at 1.5% per month or the maximum permitted by law, whichever is lower.",
+      "predicateText": "input1.category == \"payment_terms\" && input1.text_features.percent_values.Count > 0"
+    },
+    {
+      "id": "lr1:749cd192ad01a97ae7b771554abbd4decf80c99f86b3db9c16585283376619a0",
+      "ruleId": "CTSO-PAY-NET45",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text_features.day_count_max <= 45",
+      "evaluatedInput": {
+        "id": "s_00000004",
+        "heading": "4. PAYMENT TERMS",
+        "heading_path": "/IT SERVICES AGREEMENT/4. PAYMENT TERMS",
+        "category": "payment_terms",
+        "primary_topic": "payment_terms",
+        "topics": [
+          "payment_terms",
+          "tax"
+        ],
+        "topic_scores": {
+          "payment_terms": 0.9,
+          "tax": 0.4
+        },
+        "topic_density": 8.1081,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [
+            60
+          ],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [
+            2
+          ],
+          "dollar_amounts": [],
+          "day_count_min": 60,
+          "day_count_max": 60,
+          "percent_min": 2,
+          "percent_max": 2
+        },
+        "text": "4.1 The Company shall pay the Vendor within 60 days of receipt of a valid invoice.\n4.2 All fees are inclusive of applicable taxes.\n4.3 Late payments shall accrue interest at a rate of 2% per month."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 1524,
+        "charLength": 16,
+        "headingPath": "/IT SERVICES AGREEMENT/4. PAYMENT TERMS",
+        "charEnd": 1540
+      },
+      "errorMessage": "Rule 'CTSO-PAY-NET45' failed: Payment terms must be no more than 45 days (Net 45 or shorter).",
+      "evidenceQuotes": [
+        "Payment-term length"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000004",
+      "remediationText": "Shorten the payment term in the 4. PAYMENT TERMS clause to forty-five (45) days or fewer (e.g., Net 45).",
+      "predicateText": "input1.category == \"payment_terms\" && input1.text_features.day_counts.Count > 0"
+    },
+    {
+      "id": "lr1:52fa1228c2bee5261c906edb9f9931871ecc1dd2a6e0b67ce801f88294489ebb",
+      "ruleId": "CTSO-PRIV-72H-Contoso",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"Privacy Commissioner\") || input1.text.Contains(\"OPC\") || input1.text.Contains(\"as soon as feasible\")) && input1.text.Contains(\"Contoso\")",
+      "evaluatedInput": {
+        "id": "s_00000007",
+        "heading": "7. DATA PROTECTION AND PRIVACY",
+        "heading_path": "/IT SERVICES AGREEMENT/7. DATA PROTECTION AND PRIVACY",
+        "category": "privacy",
+        "primary_topic": "privacy",
+        "topics": [
+          "privacy"
+        ],
+        "topic_scores": {
+          "privacy": 0.9
+        },
+        "topic_density": 2.9412,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "7.1 The Vendor shall comply with all applicable data protection laws in performing its obligations under this Agreement.\n7.2 Personal data collected under this Agreement may be transferred to and processed in any country where the Vendor operates.\n7.3 In the event of a data breach, the Vendor shall notify the Company within 72 hours of becoming aware of such breach.\n7.4 The consent of the data subjects may be obtained at the Vendor's discretion.\n7.5 Personal data shall be retained for as long as the Vendor deems necessary for the purposes of this Agreement and any applicable legal or regulatory requirements."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 2426,
+        "charLength": 30,
+        "headingPath": "/IT SERVICES AGREEMENT/7. DATA PROTECTION AND PRIVACY",
+        "charEnd": 2456
+      },
+      "errorMessage": "Rule 'CTSO-PRIV-72H-Contoso' failed: Privacy breach must be notified to Contoso and the Privacy Commissioner of Canada (PIPEDA: as soon as feasible).",
+      "evidenceQuotes": [
+        "Breach notification"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000007",
+      "remediationText": "Require breach notification to Contoso and to the Office of the Privacy Commissioner of Canada (OPC) \"as soon as feasible\" in the 7. DATA PROTECTION AND PRIVACY clause.",
+      "predicateText": "input1.category == \"privacy\""
+    },
+    {
+      "id": "lr1:ad92b31e362cc403968ecdefc4a39d10d28895c738d9d122ff178cf66142f4a7",
+      "ruleId": "CTSO-PRIV-CONSENT",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "!(input1.text.Contains(\"Vendor's discretion\") || input1.text.Contains(\"Vendor discretion\") || input1.text.Contains(\"Provider's discretion\") || input1.text.Contains(\"Provider discretion\")) && (input1.text.Contains(\"explicit consent\") || input1.text.Contains(\"informed consent\") || input1.text.Contains(\"PIPEDA\"))",
+      "evaluatedInput": {
+        "id": "s_00000007",
+        "heading": "7. DATA PROTECTION AND PRIVACY",
+        "heading_path": "/IT SERVICES AGREEMENT/7. DATA PROTECTION AND PRIVACY",
+        "category": "privacy",
+        "primary_topic": "privacy",
+        "topics": [
+          "privacy"
+        ],
+        "topic_scores": {
+          "privacy": 0.9
+        },
+        "topic_density": 2.9412,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "7.1 The Vendor shall comply with all applicable data protection laws in performing its obligations under this Agreement.\n7.2 Personal data collected under this Agreement may be transferred to and processed in any country where the Vendor operates.\n7.3 In the event of a data breach, the Vendor shall notify the Company within 72 hours of becoming aware of such breach.\n7.4 The consent of the data subjects may be obtained at the Vendor's discretion.\n7.5 Personal data shall be retained for as long as the Vendor deems necessary for the purposes of this Agreement and any applicable legal or regulatory requirements."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 2426,
+        "charLength": 30,
+        "headingPath": "/IT SERVICES AGREEMENT/7. DATA PROTECTION AND PRIVACY",
+        "charEnd": 2456
+      },
+      "errorMessage": "Rule 'CTSO-PRIV-CONSENT' failed: Personal-data consent must follow PIPEDA explicit-consent standard (not Vendor's discretion).",
+      "evidenceQuotes": [
+        "Consent standard"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000007",
+      "remediationText": "Replace any \"at Vendor's discretion\" consent language in the 7. DATA PROTECTION AND PRIVACY clause with PIPEDA explicit-consent obligations.",
+      "predicateText": "input1.category == \"privacy\""
+    },
+    {
+      "id": "lr1:85ccddb695b15bd7cc8a823a33f92b193d1b44039c17c5f248788457578a70b8",
+      "ruleId": "CTSO-PRIV-EXPLICIT-LAWS",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"PIPEDA\") && (input1.text.Contains(\"Law 25\") || input1.text.Contains(\"loi 25\"))",
+      "evaluatedInput": {
+        "id": "s_00000007",
+        "heading": "7. DATA PROTECTION AND PRIVACY",
+        "heading_path": "/IT SERVICES AGREEMENT/7. DATA PROTECTION AND PRIVACY",
+        "category": "privacy",
+        "primary_topic": "privacy",
+        "topics": [
+          "privacy"
+        ],
+        "topic_scores": {
+          "privacy": 0.9
+        },
+        "topic_density": 2.9412,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "7.1 The Vendor shall comply with all applicable data protection laws in performing its obligations under this Agreement.\n7.2 Personal data collected under this Agreement may be transferred to and processed in any country where the Vendor operates.\n7.3 In the event of a data breach, the Vendor shall notify the Company within 72 hours of becoming aware of such breach.\n7.4 The consent of the data subjects may be obtained at the Vendor's discretion.\n7.5 Personal data shall be retained for as long as the Vendor deems necessary for the purposes of this Agreement and any applicable legal or regulatory requirements."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 2426,
+        "charLength": 30,
+        "headingPath": "/IT SERVICES AGREEMENT/7. DATA PROTECTION AND PRIVACY",
+        "charEnd": 2456
+      },
+      "errorMessage": "Rule 'CTSO-PRIV-EXPLICIT-LAWS' failed: Privacy clause must explicitly enumerate PIPEDA and Quebec Law 25 (and GDPR where applicable).",
+      "evidenceQuotes": [
+        "Privacy laws enumeration"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000007",
+      "remediationText": "Enumerate PIPEDA, Quebec Law 25, and (where applicable) GDPR in the 7. DATA PROTECTION AND PRIVACY clause.",
+      "predicateText": "input1.category == \"privacy\""
+    },
+    {
+      "id": "lr1:b4442b4cf9cf19464e7dd54a538e249d91490ed154af48e2ab25dc5cf7930d12",
+      "ruleId": "CTSO-PRIV-RESIDENCY",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "!(input1.text.Contains(\"any country\") || input1.text.Contains(\"transfer outside\") || input1.text.Contains(\"transferred to\") || input1.text.Contains(\"processed outside Canada\"))",
+      "evaluatedInput": {
+        "id": "s_00000007",
+        "heading": "7. DATA PROTECTION AND PRIVACY",
+        "heading_path": "/IT SERVICES AGREEMENT/7. DATA PROTECTION AND PRIVACY",
+        "category": "privacy",
+        "primary_topic": "privacy",
+        "topics": [
+          "privacy"
+        ],
+        "topic_scores": {
+          "privacy": 0.9
+        },
+        "topic_density": 2.9412,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "7.1 The Vendor shall comply with all applicable data protection laws in performing its obligations under this Agreement.\n7.2 Personal data collected under this Agreement may be transferred to and processed in any country where the Vendor operates.\n7.3 In the event of a data breach, the Vendor shall notify the Company within 72 hours of becoming aware of such breach.\n7.4 The consent of the data subjects may be obtained at the Vendor's discretion.\n7.5 Personal data shall be retained for as long as the Vendor deems necessary for the purposes of this Agreement and any applicable legal or regulatory requirements."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 2426,
+        "charLength": 30,
+        "headingPath": "/IT SERVICES AGREEMENT/7. DATA PROTECTION AND PRIVACY",
+        "charEnd": 2456
+      },
+      "errorMessage": "Rule 'CTSO-PRIV-RESIDENCY' failed: Personal data of Canadian passengers must remain in Canada (Contoso policy).",
+      "evidenceQuotes": [
+        "Data residency"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000007",
+      "remediationText": "Restrict cross-border transfer of Canadian personal data in the 7. DATA PROTECTION AND PRIVACY clause: data must be stored and processed in Canada per Contoso policy.",
+      "predicateText": "input1.category == \"privacy\""
+    },
+    {
+      "id": "lr1:b060ea7c9a14bcb1cd3f0d8e5f852eda0265d5b46dd64971603d1abec340d811",
+      "ruleId": "CTSO-PRIV-RETENTION",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text_features.year_counts.Count > 0 && input1.text_features.year_count_max <= 7",
+      "evaluatedInput": {
+        "id": "s_00000007",
+        "heading": "7. DATA PROTECTION AND PRIVACY",
+        "heading_path": "/IT SERVICES AGREEMENT/7. DATA PROTECTION AND PRIVACY",
+        "category": "privacy",
+        "primary_topic": "privacy",
+        "topics": [
+          "privacy"
+        ],
+        "topic_scores": {
+          "privacy": 0.9
+        },
+        "topic_density": 2.9412,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "7.1 The Vendor shall comply with all applicable data protection laws in performing its obligations under this Agreement.\n7.2 Personal data collected under this Agreement may be transferred to and processed in any country where the Vendor operates.\n7.3 In the event of a data breach, the Vendor shall notify the Company within 72 hours of becoming aware of such breach.\n7.4 The consent of the data subjects may be obtained at the Vendor's discretion.\n7.5 Personal data shall be retained for as long as the Vendor deems necessary for the purposes of this Agreement and any applicable legal or regulatory requirements."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 2426,
+        "charLength": 30,
+        "headingPath": "/IT SERVICES AGREEMENT/7. DATA PROTECTION AND PRIVACY",
+        "charEnd": 2456
+      },
+      "errorMessage": "Exception while parsing expression `input1.text_features.year_counts.Count > 0 && input1.text_features.year_count_max <= 7` - The binary operator LessThanOrEqual is not defined for the types 'System.Object' and 'System.Int32'.",
+      "evidenceQuotes": [
+        "Retention cap"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000007",
+      "remediationText": "Specify a maximum retention period (e.g., seven (7) years from termination) for personal data in the 7. DATA PROTECTION AND PRIVACY clause.",
+      "predicateText": "input1.category == \"privacy\""
+    },
+    {
+      "id": "lr1:76f73160053b69db5e88b5024dade468b2a9c4644ecbd505f076cdefc18a8c61",
+      "ruleId": "CTSO-SUBK-APPROVAL",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"prior written\") && (input1.text.Contains(\"approval\") || input1.text.Contains(\"consent\"))",
+      "evaluatedInput": {
+        "id": "s_00000002",
+        "heading": "2. SCOPE OF SERVICES",
+        "heading_path": "/IT SERVICES AGREEMENT/2. SCOPE OF SERVICES",
+        "category": "unknown",
+        "primary_topic": "unknown",
+        "topics": [
+          "notices",
+          "service_levels",
+          "subcontracting",
+          "support"
+        ],
+        "topic_scores": {
+          "notices": 0.4,
+          "service_levels": 0.4,
+          "subcontracting": 0.4,
+          "support": 0.4
+        },
+        "topic_density": 0,
+        "is_operative_for_topic": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "2.1 The Vendor shall provide information technology consulting services as described in Exhibit A, including but not limited to software development, system integration, and technical support.\n2.2 The Vendor shall make commercially reasonable efforts to meet the service levels described in the Service Level Agreement (SLA) attached hereto.\n2.3 The Vendor may subcontract any portion of the services without prior notice to the Company."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 548,
+        "charLength": 20,
+        "headingPath": "/IT SERVICES AGREEMENT/2. SCOPE OF SERVICES",
+        "charEnd": 568
+      },
+      "errorMessage": "Rule 'CTSO-SUBK-APPROVAL' failed: Subcontracting requires Contoso's prior written approval.",
+      "evidenceQuotes": [
+        "Subcontractor approval"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000002",
+      "remediationText": "Require Contoso's prior written approval before any subcontracting in the 2. SCOPE OF SERVICES clause.",
+      "predicateText": "input1.topics.Contains(\"subcontracting\")"
+    },
+    {
+      "id": "lr1:c8e2dc4235af54dc1a088e2a3069eabf02eb200dec9132e9f7ec5398b0468e4f",
+      "ruleId": "CTSO-SVC-LOCATION",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"approved by Contoso\") || input1.text.Contains(\"Contoso approves\") || input1.text.Contains(\"Contoso-approved\")",
+      "evaluatedInput": {
+        "id": "s_00000005",
+        "heading": "5. TAX PROVISIONS",
+        "heading_path": "/IT SERVICES AGREEMENT/5. TAX PROVISIONS",
+        "category": "tax",
+        "primary_topic": "tax",
+        "topics": [
+          "tax",
+          "governing_law",
+          "payment_terms",
+          "service_locations"
+        ],
+        "topic_scores": {
+          "tax": 0.9,
+          "governing_law": 0.4,
+          "payment_terms": 0.4,
+          "service_locations": 0.4
+        },
+        "topic_density": 5.5556,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "5.1 The Vendor shall be solely responsible for all income taxes arising from payments received under this Agreement.\n5.2 The Vendor shall provide services from the Vendor's global offices, including facilities in the United States, India, and the Philippines.\n5.3 The Vendor shall not create a permanent establishment of the Company in any jurisdiction."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 1739,
+        "charLength": 17,
+        "headingPath": "/IT SERVICES AGREEMENT/5. TAX PROVISIONS",
+        "charEnd": 1756
+      },
+      "errorMessage": "Rule 'CTSO-SVC-LOCATION' failed: Service-delivery locations must be approved by Contoso.",
+      "evidenceQuotes": [
+        "Approved service location"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000005",
+      "remediationText": "Restrict service-delivery locations to those approved by Contoso in the 5. TAX PROVISIONS clause.",
+      "predicateText": "input1.topics.Contains(\"service_locations\")"
+    },
+    {
+      "id": "lr1:6d5ecd1c04b91146e42e2c3d0d98a8c51f8e58ca2ad5daeebd13a284646b67ed",
+      "ruleId": "CTSO-TAX-EXCL",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"exclusive of\") && (input1.text.Contains(\"tax\") || input1.text.Contains(\"taxes\"))",
+      "evaluatedInput": {
+        "id": "s_00000004",
+        "heading": "4. PAYMENT TERMS",
+        "heading_path": "/IT SERVICES AGREEMENT/4. PAYMENT TERMS",
+        "category": "payment_terms",
+        "primary_topic": "payment_terms",
+        "topics": [
+          "payment_terms",
+          "tax"
+        ],
+        "topic_scores": {
+          "payment_terms": 0.9,
+          "tax": 0.4
+        },
+        "topic_density": 8.1081,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [
+            60
+          ],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [
+            2
+          ],
+          "dollar_amounts": [],
+          "day_count_min": 60,
+          "day_count_max": 60,
+          "percent_min": 2,
+          "percent_max": 2
+        },
+        "text": "4.1 The Company shall pay the Vendor within 60 days of receipt of a valid invoice.\n4.2 All fees are inclusive of applicable taxes.\n4.3 Late payments shall accrue interest at a rate of 2% per month."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 1524,
+        "charLength": 16,
+        "headingPath": "/IT SERVICES AGREEMENT/4. PAYMENT TERMS",
+        "charEnd": 1540
+      },
+      "errorMessage": "Rule 'CTSO-TAX-EXCL' failed: Pricing must be exclusive of applicable taxes (taxes are added on top, not bundled in).",
+      "evidenceQuotes": [
+        "Tax exclusivity"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000004",
+      "remediationText": "State explicitly in the 4. PAYMENT TERMS clause that all prices are exclusive of applicable taxes (GST/HST/QST/withholding) and are added at invoice.",
+      "predicateText": "input1.topics.Contains(\"tax\") || input1.category == \"payment_terms\""
+    },
+    {
+      "id": "lr1:6ea9e6752cd5680dbbc2f8913c848dd9d08a45ecf93b9b0e747980687caa0d93",
+      "ruleId": "CTSO-TAX-EXCL",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"exclusive of\") && (input1.text.Contains(\"tax\") || input1.text.Contains(\"taxes\"))",
+      "evaluatedInput": {
+        "id": "s_00000005",
+        "heading": "5. TAX PROVISIONS",
+        "heading_path": "/IT SERVICES AGREEMENT/5. TAX PROVISIONS",
+        "category": "tax",
+        "primary_topic": "tax",
+        "topics": [
+          "tax",
+          "governing_law",
+          "payment_terms",
+          "service_locations"
+        ],
+        "topic_scores": {
+          "tax": 0.9,
+          "governing_law": 0.4,
+          "payment_terms": 0.4,
+          "service_locations": 0.4
+        },
+        "topic_density": 5.5556,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "5.1 The Vendor shall be solely responsible for all income taxes arising from payments received under this Agreement.\n5.2 The Vendor shall provide services from the Vendor's global offices, including facilities in the United States, India, and the Philippines.\n5.3 The Vendor shall not create a permanent establishment of the Company in any jurisdiction."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 1739,
+        "charLength": 17,
+        "headingPath": "/IT SERVICES AGREEMENT/5. TAX PROVISIONS",
+        "charEnd": 1756
+      },
+      "errorMessage": "Rule 'CTSO-TAX-EXCL' failed: Pricing must be exclusive of applicable taxes (taxes are added on top, not bundled in).",
+      "evidenceQuotes": [
+        "Tax exclusivity"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000005",
+      "remediationText": "State explicitly in the 5. TAX PROVISIONS clause that all prices are exclusive of applicable taxes (GST/HST/QST/withholding) and are added at invoice.",
+      "predicateText": "input1.topics.Contains(\"tax\") || input1.category == \"payment_terms\""
+    },
+    {
+      "id": "lr1:f1fe9ecb3969ccec9df4e7050d7a9bf73ad65a116a585562b4122f82ea42953a",
+      "ruleId": "CTSO-TERM-001",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"30 days\") || input1.text.Contains(\"60 days\") || input1.text.Contains(\"90 days\") || input1.text.Contains(\"30 calendar days\") || input1.text.Contains(\"60 calendar days\") || input1.text.Contains(\"90 calendar days\")",
+      "evaluatedInput": {
+        "id": "s_00000001",
+        "heading": "1. TERM AND TERMINATION",
+        "heading_path": "/IT SERVICES AGREEMENT/1. TERM AND TERMINATION",
+        "category": "termination",
+        "primary_topic": "termination",
+        "topics": [
+          "termination",
+          "notices",
+          "parties",
+          "term"
+        ],
+        "topic_scores": {
+          "termination": 0.9,
+          "notices": 0.4,
+          "parties": 0.4,
+          "term": 0.4
+        },
+        "topic_density": 1.7544,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [
+            15,
+            30
+          ],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 15,
+          "day_count_max": 30
+        },
+        "text": "1.1 This Agreement shall commence on the Effective Date and shall continue for a period of twelve (12) months unless terminated earlier in accordance with this Agreement.\n1.2 Either party may terminate this Agreement with 30 days written notice to the other party.\n1.3 Upon termination, the Vendor shall return all Company materials within 15 business days."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 166,
+        "charLength": 23,
+        "headingPath": "/IT SERVICES AGREEMENT/1. TERM AND TERMINATION",
+        "charEnd": 189
+      },
+      "evidenceQuotes": [
+        "Termination notice"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000001",
+      "predicateText": "input1.category == \"termination\""
+    },
+    {
+      "id": "lr1:7c3ed3dce852be96391093acba5ec6ad2553d021e7644504eb9ab151ce5d5740",
+      "ruleId": "CTSO-TERM-CONV",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "!(input1.text.Contains(\"Either party may terminate\") || input1.text.Contains(\"either party may terminate\") || input1.text.Contains(\"each party may terminate\"))",
+      "evaluatedInput": {
+        "id": "s_00000001",
+        "heading": "1. TERM AND TERMINATION",
+        "heading_path": "/IT SERVICES AGREEMENT/1. TERM AND TERMINATION",
+        "category": "termination",
+        "primary_topic": "termination",
+        "topics": [
+          "termination",
+          "notices",
+          "parties",
+          "term"
+        ],
+        "topic_scores": {
+          "termination": 0.9,
+          "notices": 0.4,
+          "parties": 0.4,
+          "term": 0.4
+        },
+        "topic_density": 1.7544,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [
+            15,
+            30
+          ],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 15,
+          "day_count_max": 30
+        },
+        "text": "1.1 This Agreement shall commence on the Effective Date and shall continue for a period of twelve (12) months unless terminated earlier in accordance with this Agreement.\n1.2 Either party may terminate this Agreement with 30 days written notice to the other party.\n1.3 Upon termination, the Vendor shall return all Company materials within 15 business days."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:e51e8b1927065e0113c543ac57bd284a8a75de2f3050d73ffbe332880cbc1c48",
+        "charStart": 166,
+        "charLength": 23,
+        "headingPath": "/IT SERVICES AGREEMENT/1. TERM AND TERMINATION",
+        "charEnd": 189
+      },
+      "errorMessage": "Rule 'CTSO-TERM-CONV' failed: Termination for convenience must be a unilateral Contoso right (not symmetric).",
+      "evidenceQuotes": [
+        "Unilateral termination right"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000001",
+      "remediationText": "Re-cast the 1. TERM AND TERMINATION clause so termination for convenience is exercisable by Contoso only.",
+      "predicateText": "input1.category == \"termination\""
+    },
+    {
+      "id": "lr1:ccc735906367797c3e69e4dae99240af36bf6856a1065ce246a976be372727b2",
+      "ruleId": "CTSO-WAR-001",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Gap",
+      "lambdaText": "input1.text.Contains(\"days\") || input1.text.Contains(\"remedy\") || input1.text.Contains(\"replace\") || input1.text.Contains(\"refund\")",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "contoso-policy",
+        "charStart": 0,
+        "charLength": 1,
+        "pageNumber": 1,
+        "charEnd": 1
+      },
+      "evidenceQuotes": [
+        "Warranty remedy"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: Warranties must include a defined remedy / cure period.",
+      "predicateText": "input1.category == \"warranty\""
+    }
+  ],
+  "generatedAt": "2000-01-01T00:00:00+00:00",
+  "gaps": 1
+}
