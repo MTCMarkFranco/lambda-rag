@@ -84,24 +84,25 @@ dotnet run --project src/LambdaRag.Cli -- review `
   --mode     report
 
 # Same review → redlined Word document with tracked changes
+# (Markup mode requires a .docx source — supply your own contract here)
 dotnet run --project src/LambdaRag.Cli -- review `
-  --document out/contoso-test/contract.docx `
-  --ruleset  out/contoso-full/contoso-policies-ruleset.json `
+  --document path/to/your-contract.docx `
+  --ruleset  samples/contracts/contoso-demo-ruleset.json `
   --out      out/sample `
   --mode     markup
 
 # Add positive-confirmation ✓ comments for Pass verdicts (full coverage proof)
 dotnet run --project src/LambdaRag.Cli -- review `
-  --document out/contoso-test/contract.docx `
-  --ruleset  out/contoso-full/contoso-policies-ruleset.json `
+  --document path/to/your-contract.docx `
+  --ruleset  samples/contracts/contoso-demo-ruleset.json `
   --out      out/sample `
   --mode     markup `
   --annotate-pass
 
 # Both at once
 dotnet run --project src/LambdaRag.Cli -- review `
-  --document out/contoso-test/contract.docx `
-  --ruleset  out/contoso-full/contoso-policies-ruleset.json `
+  --document path/to/your-contract.docx `
+  --ruleset  samples/contracts/contoso-demo-ruleset.json `
   --out      out/sample `
   --mode     both
 ```
