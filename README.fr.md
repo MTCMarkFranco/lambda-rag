@@ -96,16 +96,16 @@ dotnet run --project src/LambdaRag.Cli -- review `
   --mode     report
 
 # Même revue → document Word annoté avec modifications suivies
-# (Le mode markup nécessite un fichier .docx — fournissez votre propre contrat)
+# (Le mode markup nécessite un fichier .docx — utilise le contrat échantillon fourni)
 dotnet run --project src/LambdaRag.Cli -- review `
-  --document path/to/your-contract.docx `
+  --document samples/contracts/contoso-sample-contract.docx `
   --ruleset  samples/contracts/contoso-demo-ruleset.json `
   --out      out/sample `
   --mode     markup
 
 # Ajouter des commentaires de confirmation positive ✓ pour les verdicts Pass
 dotnet run --project src/LambdaRag.Cli -- review `
-  --document path/to/your-contract.docx `
+  --document samples/contracts/contoso-sample-contract.docx `
   --ruleset  samples/contracts/contoso-demo-ruleset.json `
   --out      out/sample `
   --mode     markup `
@@ -113,7 +113,7 @@ dotnet run --project src/LambdaRag.Cli -- review `
 
 # Les deux à la fois
 dotnet run --project src/LambdaRag.Cli -- review `
-  --document path/to/your-contract.docx `
+  --document samples/contracts/contoso-sample-contract.docx `
   --ruleset  samples/contracts/contoso-demo-ruleset.json `
   --out      out/sample `
   --mode     both
