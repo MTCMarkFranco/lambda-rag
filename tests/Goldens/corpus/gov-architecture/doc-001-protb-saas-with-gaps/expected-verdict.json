@@ -5,7 +5,7 @@
   "ruleSetId": "rs_gc_cloud_guardrails_v2",
   "ruleSetVersion": "1.0.0",
   "ruleSetFingerprint": {
-    "value": "lr1:872966856e9547154ac93229b9112bd638c19b59fea0aa704a3909e2700eb8b5"
+    "value": "lr1:59ab8307c1e8ccba9a533ed18bb9033ee230695669c26d21d4bb8dd7e80d193f"
   },
   "projectorId": "contract",
   "projectorVersion": "1.4.0",
@@ -17,7 +17,7 @@
   "errored": 0,
   "verdicts": [
     {
-      "id": "lr1:64fe3118efc315be035c2ca7b2fdd6672b2276e2f97c67bd534a5a8a12eeb676",
+      "id": "lr1:b59af2305753806bee5290df5864cf265f5fbe6353101233ae075d5938bfa1eb",
       "ruleId": "GC-CG-01-MFA",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -45,16 +45,33 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "All administrative access to the portal control plane is gated bymulti-factor authentication. The MFA solution has been designated\"phishing-resistant\" by the vendor in marketing literature. Time-basedone-time passwords (TOTP) delivered via the vendor's mobile authenticatorapp are the standard second factor for all administrators. SMS-based MFAremains available as a backup for administrators travelling withouttheir primary device.\nThe vendor confirms that all MFA methods are \"modern and secure\" but thespecific cryptographic protocol bound to the authenticator has not beendocumented in this revision of the architecture."
+        "text": "All administrative access to the portal control plane is gated bymulti-factor authentication. The MFA solution has been designated\"phishing-resistant\" by the vendor in marketing literature. Time-basedone-time passwords (TOTP) delivered via the vendor's mobile authenticatorapp are the standard second factor for all administrators. SMS-based MFAremains available as a backup for administrators travelling withouttheir primary device.\nThe vendor confirms that all MFA methods are \"modern and secure\" but thespecific cryptographic protocol bound to the authenticator has not beendocumented in this revision of the architecture.",
+        "text_raw": "All administrative access to the portal control plane is gated bymulti-factor authentication. The MFA solution has been designated\"phishing-resistant\" by the vendor in marketing literature. Time-basedone-time passwords (TOTP) delivered via the vendor's mobile authenticatorapp are the standard second factor for all administrators. SMS-based MFAremains available as a backup for administrators travelling withouttheir primary device.\nThe vendor confirms that all MFA methods are \"modern and secure\" but thespecific cryptographic protocol bound to the authenticator has not beendocumented in this revision of the architecture.",
+        "text_char_start": 830
       },
       "sourceSpan": {
         "documentId": "lr1:fa5dd1b669e27b605a83c307913324e4bfc35f4b166219cf66dec5e933be13a8",
-        "charStart": 800,
-        "charLength": 28,
+        "charStart": 961,
+        "charLength": 18,
         "headingPath": "/Solution Architecture — ACME-Canada Citizen Engagement Portal (Protected B SaaS)/2. Phishing-Resistant MFA",
-        "charEnd": 828
+        "charEnd": 979
       },
       "errorMessage": "Rule 'GC-CG-01-MFA' failed: Strong, phishing-resistant multi-factor authentication must be implemented for all administrative user accounts. The mechanism must be explicitly identified (FIDO2, PIV-derived, or smart card MFA).",
       "evidenceQuotes": [
@@ -116,9 +133,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Customer data is encrypted at rest using the cloud provider'splatform-default storage encryption. The provider documentationindicates that \"industry-standard encryption\" is applied to all blobs,queues, and managed disks. The exact algorithm and key length aremanaged entirely by the platform and are not customer-configurable inthis tier.\nA future revision of this architecture will evaluate customer-managedkeys; for the initial launch we accept the platform-default posture."
+        "text": "Customer data is encrypted at rest using the cloud provider'splatform-default storage encryption. The provider documentationindicates that \"industry-standard encryption\" is applied to all blobs,queues, and managed disks. The exact algorithm and key length aremanaged entirely by the platform and are not customer-configurable inthis tier.\nA future revision of this architecture will evaluate customer-managedkeys; for the initial launch we accept the platform-default posture.",
+        "text_raw": "Customer data is encrypted at rest using the cloud provider'splatform-default storage encryption. The provider documentationindicates that \"industry-standard encryption\" is applied to all blobs,queues, and managed disks. The exact algorithm and key length aremanaged entirely by the platform and are not customer-configurable inthis tier.\nA future revision of this architecture will evaluate customer-managedkeys; for the initial launch we accept the platform-default posture.",
+        "text_char_start": 1492
       },
       "sourceSpan": {
         "documentId": "lr1:fa5dd1b669e27b605a83c307913324e4bfc35f4b166219cf66dec5e933be13a8",
@@ -159,7 +193,7 @@
       "predicateText": "input1.category == \"encryption_in_transit\""
     },
     {
-      "id": "lr1:f96a8670a099709b6f0b5a5d47d59e970e7d62aa7b05e35d5c2d5980ba5f7d2b",
+      "id": "lr1:8f5bde14b7d17b985e0b5da9cc593f258cbb1c993cfa0a192dfa27c0015a0b7d",
       "ruleId": "GC-CG-11-AuditLogging",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -187,16 +221,33 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Platform audit log streams are enabled by default. Operations staff havevisibility into administrative activity through the cloud provider'sconsole. Logs are retained \"for the lifetime of the workload\" per theprovider's standard offering."
+        "text": "Platform audit log streams are enabled by default. Operations staff havevisibility into administrative activity through the cloud provider'sconsole. Logs are retained \"for the lifetime of the workload\" per theprovider's standard offering.",
+        "text_raw": "Platform audit log streams are enabled by default. Operations staff havevisibility into administrative activity through the cloud provider'sconsole. Logs are retained \"for the lifetime of the workload\" per theprovider's standard offering.",
+        "text_char_start": 2520
       },
       "sourceSpan": {
         "documentId": "lr1:fa5dd1b669e27b605a83c307913324e4bfc35f4b166219cf66dec5e933be13a8",
-        "charStart": 2493,
-        "charLength": 25,
+        "charStart": 2529,
+        "charLength": 9,
         "headingPath": "/Solution Architecture — ACME-Canada Citizen Engagement Portal (Protected B SaaS)/5. Audit Log Retention",
-        "charEnd": 2518
+        "charEnd": 2538
       },
       "errorMessage": "Rule 'GC-CG-11-AuditLogging' failed: Audit logging must be enabled for the cloud environment and workloads, with sign-in, configuration-change, and resource-provisioning events captured, and a defined retention period.",
       "evidenceQuotes": [

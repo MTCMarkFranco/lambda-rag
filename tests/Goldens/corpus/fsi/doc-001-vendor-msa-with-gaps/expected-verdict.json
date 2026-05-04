@@ -5,7 +5,7 @@
   "ruleSetId": "rs_osfi_b10_tprm",
   "ruleSetVersion": "1.0.0",
   "ruleSetFingerprint": {
-    "value": "lr1:5dbc61f757c2cb25ad73b0fde2cd9988e266b9a0c9426b1a6f9e99f6eacfd94d"
+    "value": "lr1:bc40e4051d8695407fb3fcf3b823ef052e96b8ef19ff52c48708545ebb8c9861"
   },
   "projectorId": "contract",
   "projectorVersion": "1.4.0",
@@ -41,9 +41,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "The Bank acknowledges that this Agreement constitutes a third-partyarrangement under applicable Canadian regulatory expectations. The Bankmaintains policies for managing its third-party relationships at anenterprise level."
+        "text": "The Bank acknowledges that this Agreement constitutes a third-partyarrangement under applicable Canadian regulatory expectations. The Bankmaintains policies for managing its third-party relationships at anenterprise level.",
+        "text_raw": "The Bank acknowledges that this Agreement constitutes a third-partyarrangement under applicable Canadian regulatory expectations. The Bankmaintains policies for managing its third-party relationships at anenterprise level.",
+        "text_char_start": 751
       },
       "sourceSpan": {
         "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
@@ -86,9 +103,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "The Provider may subcontract any portion of the Services to anyaffiliate or qualified third party. The Provider remains responsiblefor the performance of its subcontractors. A current list of materialsubcontractors is available on request."
+        "text": "The Provider may subcontract any portion of the Services to anyaffiliate or qualified third party. The Provider remains responsiblefor the performance of its subcontractors. A current list of materialsubcontractors is available on request.",
+        "text_raw": "The Provider may subcontract any portion of the Services to anyaffiliate or qualified third party. The Provider remains responsiblefor the performance of its subcontractors. A current list of materialsubcontractors is available on request.",
+        "text_char_start": 1016
       },
       "sourceSpan": {
         "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
@@ -107,7 +141,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:f75d5ac3942746e4d20c7877809736148f0f48a9448f5adfdc9ebc5dfa995e87",
+      "id": "lr1:ffa7f374a2c5b3e080f23474a6f6319abeea5aae163f773d36fbcce0751ffec7",
       "ruleId": "OSFI-B10-AuditAccess",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -131,16 +165,33 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Once per calendar year, on at least sixty (60) days' written notice andduring normal business hours, the Bank's internal audit team may inspectthe Provider's records and systems strictly relevant to the Services.Such inspections shall not unreasonably disrupt the Provider'soperations."
+        "text": "Once per calendar year, on at least sixty (60) days' written notice andduring normal business hours, the Bank's internal audit team may inspectthe Provider's records and systems strictly relevant to the Services.Such inspections shall not unreasonably disrupt the Provider'soperations.",
+        "text_raw": "Once per calendar year, on at least sixty (60) days' written notice andduring normal business hours, the Bank's internal audit team may inspectthe Provider's records and systems strictly relevant to the Services.Such inspections shall not unreasonably disrupt the Provider'soperations.",
+        "text_char_start": 1304
       },
       "sourceSpan": {
         "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
-        "charStart": 1260,
-        "charLength": 42,
+        "charStart": 1425,
+        "charLength": 5,
         "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./5. Audit Rights — Vendor Risk Oversight",
-        "charEnd": 1302
+        "charEnd": 1430
       },
       "errorMessage": "Rule 'OSFI-B10-AuditAccess' failed: The arrangement must preserve the FRFI's and OSFI's rights of audit, examination and access to information, irrespective of the third party's location.",
       "evidenceQuotes": [
@@ -152,7 +203,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:bb3b88c7dbad639abcb1379d0f06ccb74c03130b20f7924060b558471c16070f",
+      "id": "lr1:88cac2cf695cdbf954d4f6d17405c63eafff9be9efd78423519324ca2ce25a3c",
       "ruleId": "OSFI-B10-BCP",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -178,16 +229,33 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "The Provider shall maintain a written business continuity plan (\"BCP\")covering the Services. The Provider shall test the BCP annually andshall provide the Bank with a summary of the test results on request."
+        "text": "The Provider shall maintain a written business continuity plan (\"BCP\")covering the Services. The Provider shall test the BCP annually andshall provide the Bank with a summary of the test results on request.",
+        "text_raw": "The Provider shall maintain a written business continuity plan (\"BCP\")covering the Services. The Provider shall test the BCP annually andshall provide the Bank with a summary of the test results on request.",
+        "text_char_start": 1622
       },
       "sourceSpan": {
         "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
-        "charStart": 1595,
-        "charLength": 25,
+        "charStart": 1687,
+        "charLength": 3,
         "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./6. Business Continuity",
-        "charEnd": 1620
+        "charEnd": 1690
       },
       "errorMessage": "Rule 'OSFI-B10-BCP' failed: The arrangement must include business-continuity and disaster-recovery provisions with stated recovery objectives (RTO / RPO) appropriate to the criticality of the activity.",
       "evidenceQuotes": [
@@ -225,9 +293,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "The Provider shall maintain a written business continuity plan (\"BCP\")covering the Services. The Provider shall test the BCP annually andshall provide the Bank with a summary of the test results on request."
+        "text": "The Provider shall maintain a written business continuity plan (\"BCP\")covering the Services. The Provider shall test the BCP annually andshall provide the Bank with a summary of the test results on request.",
+        "text_raw": "The Provider shall maintain a written business continuity plan (\"BCP\")covering the Services. The Provider shall test the BCP annually andshall provide the Bank with a summary of the test results on request.",
+        "text_char_start": 1622
       },
       "sourceSpan": {
         "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
@@ -270,9 +355,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "The Bank acknowledges that this Agreement constitutes a third-partyarrangement under applicable Canadian regulatory expectations. The Bankmaintains policies for managing its third-party relationships at anenterprise level."
+        "text": "The Bank acknowledges that this Agreement constitutes a third-partyarrangement under applicable Canadian regulatory expectations. The Bankmaintains policies for managing its third-party relationships at anenterprise level.",
+        "text_raw": "The Bank acknowledges that this Agreement constitutes a third-partyarrangement under applicable Canadian regulatory expectations. The Bankmaintains policies for managing its third-party relationships at anenterprise level.",
+        "text_char_start": 751
       },
       "sourceSpan": {
         "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
@@ -291,7 +393,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:1ff41e032008662b0b3496cf4cc1637e91e0971c871951b8dce07fcf94f6d123",
+      "id": "lr1:c05694f98e55e159c68b2661c6282c7e5e9591e02a292bba5a15db8c632551ab",
       "ruleId": "OSFI-B10-Subcontracting",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -315,16 +417,33 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "The Provider may subcontract any portion of the Services to anyaffiliate or qualified third party. The Provider remains responsiblefor the performance of its subcontractors. A current list of materialsubcontractors is available on request."
+        "text": "The Provider may subcontract any portion of the Services to anyaffiliate or qualified third party. The Provider remains responsiblefor the performance of its subcontractors. A current list of materialsubcontractors is available on request.",
+        "text_raw": "The Provider may subcontract any portion of the Services to anyaffiliate or qualified third party. The Provider remains responsiblefor the performance of its subcontractors. A current list of materialsubcontractors is available on request.",
+        "text_char_start": 1016
       },
       "sourceSpan": {
         "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
-        "charStart": 978,
-        "charLength": 36,
+        "charStart": 1033,
+        "charLength": 11,
         "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./4. Subcontractors and Outsourcing",
-        "charEnd": 1014
+        "charEnd": 1044
       },
       "errorMessage": "Rule 'OSFI-B10-Subcontracting' failed: Subcontracting by the third party must be subject to FRFI prior notice or consent and the contract must extend FRFI rights through the subcontracting chain.",
       "evidenceQuotes": [
@@ -360,9 +479,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Once per calendar year, on at least sixty (60) days' written notice andduring normal business hours, the Bank's internal audit team may inspectthe Provider's records and systems strictly relevant to the Services.Such inspections shall not unreasonably disrupt the Provider'soperations."
+        "text": "Once per calendar year, on at least sixty (60) days' written notice andduring normal business hours, the Bank's internal audit team may inspectthe Provider's records and systems strictly relevant to the Services.Such inspections shall not unreasonably disrupt the Provider'soperations.",
+        "text_raw": "Once per calendar year, on at least sixty (60) days' written notice andduring normal business hours, the Bank's internal audit team may inspectthe Provider's records and systems strictly relevant to the Services.Such inspections shall not unreasonably disrupt the Provider'soperations.",
+        "text_char_start": 1304
       },
       "sourceSpan": {
         "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
@@ -405,9 +541,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "The Bank acknowledges that this Agreement constitutes a third-partyarrangement under applicable Canadian regulatory expectations. The Bankmaintains policies for managing its third-party relationships at anenterprise level."
+        "text": "The Bank acknowledges that this Agreement constitutes a third-partyarrangement under applicable Canadian regulatory expectations. The Bankmaintains policies for managing its third-party relationships at anenterprise level.",
+        "text_raw": "The Bank acknowledges that this Agreement constitutes a third-partyarrangement under applicable Canadian regulatory expectations. The Bankmaintains policies for managing its third-party relationships at anenterprise level.",
+        "text_char_start": 751
       },
       "sourceSpan": {
         "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
@@ -450,9 +603,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "The Provider may subcontract any portion of the Services to anyaffiliate or qualified third party. The Provider remains responsiblefor the performance of its subcontractors. A current list of materialsubcontractors is available on request."
+        "text": "The Provider may subcontract any portion of the Services to anyaffiliate or qualified third party. The Provider remains responsiblefor the performance of its subcontractors. A current list of materialsubcontractors is available on request.",
+        "text_raw": "The Provider may subcontract any portion of the Services to anyaffiliate or qualified third party. The Provider remains responsiblefor the performance of its subcontractors. A current list of materialsubcontractors is available on request.",
+        "text_char_start": 1016
       },
       "sourceSpan": {
         "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
@@ -495,9 +665,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Once per calendar year, on at least sixty (60) days' written notice andduring normal business hours, the Bank's internal audit team may inspectthe Provider's records and systems strictly relevant to the Services.Such inspections shall not unreasonably disrupt the Provider'soperations."
+        "text": "Once per calendar year, on at least sixty (60) days' written notice andduring normal business hours, the Bank's internal audit team may inspectthe Provider's records and systems strictly relevant to the Services.Such inspections shall not unreasonably disrupt the Provider'soperations.",
+        "text_raw": "Once per calendar year, on at least sixty (60) days' written notice andduring normal business hours, the Bank's internal audit team may inspectthe Provider's records and systems strictly relevant to the Services.Such inspections shall not unreasonably disrupt the Provider'soperations.",
+        "text_char_start": 1304
       },
       "sourceSpan": {
         "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",

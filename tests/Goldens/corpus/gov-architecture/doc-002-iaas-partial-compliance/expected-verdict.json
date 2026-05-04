@@ -5,7 +5,7 @@
   "ruleSetId": "rs_gc_cloud_guardrails_v2",
   "ruleSetVersion": "1.0.0",
   "ruleSetFingerprint": {
-    "value": "lr1:872966856e9547154ac93229b9112bd638c19b59fea0aa704a3909e2700eb8b5"
+    "value": "lr1:59ab8307c1e8ccba9a533ed18bb9033ee230695669c26d21d4bb8dd7e80d193f"
   },
   "projectorId": "contract",
   "projectorVersion": "1.4.0",
@@ -51,9 +51,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "All administrative entry to the workbench requires phishing-resistantMFA enforced at the cloud tenant identity provider. The approvedauthenticators are FIDO2 hardware security keys (YubiKey 5 series) forhuman administrators, and PIV-derived credentials for federated PSPCcontractors. Username/password and SMS-based factors are explicitlydisabled in tenant policy. Two named global administrators areregistered, with break-glass credentials sealed in the departmentalvault."
+        "text": "All administrative entry to the workbench requires phishing-resistantMFA enforced at the cloud tenant identity provider. The approvedauthenticators are FIDO2 hardware security keys (YubiKey 5 series) forhuman administrators, and PIV-derived credentials for federated PSPCcontractors. Username/password and SMS-based factors are explicitlydisabled in tenant policy. Two named global administrators areregistered, with break-glass credentials sealed in the departmentalvault.",
+        "text_raw": "All administrative entry to the workbench requires phishing-resistantMFA enforced at the cloud tenant identity provider. The approvedauthenticators are FIDO2 hardware security keys (YubiKey 5 series) forhuman administrators, and PIV-derived credentials for federated PSPCcontractors. Username/password and SMS-based factors are explicitlydisabled in tenant policy. Two named global administrators areregistered, with break-glass credentials sealed in the departmentalvault.",
+        "text_char_start": 534
       },
       "sourceSpan": {
         "documentId": "lr1:35c72ac7c0ba3b3e2f376b10c867736dd83b950b9814fe11b5880d1ffb17c9ec",
@@ -98,9 +115,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "All workbench compute, storage, and database services are pinned to theprovider's Canada Central region (Toronto), with paired-region failoverto Canada East (Quebec). No data plane component is permitted to provisionoutside Canada; this is enforced through Azure Policy / AWS SCP / GCPOrganization Policy depending on the underlying CSP. Cross-regionreplication targets are restricted to the Canada Central / Canada Eastpair."
+        "text": "All workbench compute, storage, and database services are pinned to theprovider's Canada Central region (Toronto), with paired-region failoverto Canada East (Quebec). No data plane component is permitted to provisionoutside Canada; this is enforced through Azure Policy / AWS SCP / GCPOrganization Policy depending on the underlying CSP. Cross-regionreplication targets are restricted to the Canada Central / Canada Eastpair.",
+        "text_raw": "All workbench compute, storage, and database services are pinned to theprovider's Canada Central region (Toronto), with paired-region failoverto Canada East (Quebec). No data plane component is permitted to provisionoutside Canada; this is enforced through Azure Policy / AWS SCP / GCPOrganization Policy depending on the underlying CSP. Cross-regionreplication targets are restricted to the Canada Central / Canada Eastpair.",
+        "text_char_start": 1054
       },
       "sourceSpan": {
         "documentId": "lr1:35c72ac7c0ba3b3e2f376b10c867736dd83b950b9814fe11b5880d1ffb17c9ec",
@@ -147,9 +181,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "All persistent storage volumes, blob containers, and managed-disk typesare encrypted at rest with AES-256 using FIPS 140-2 validatedcryptographic modules provisioned by the platform key vault. Customer-managed keys are rotated annually. The key vault is bound to the sameCanadian region as the data and is HSM-backed."
+        "text": "All persistent storage volumes, blob containers, and managed-disk typesare encrypted at rest with AES-256 using FIPS 140-2 validatedcryptographic modules provisioned by the platform key vault. Customer-managed keys are rotated annually. The key vault is bound to the sameCanadian region as the data and is HSM-backed.",
+        "text_raw": "All persistent storage volumes, blob containers, and managed-disk typesare encrypted at rest with AES-256 using FIPS 140-2 validatedcryptographic modules provisioned by the platform key vault. Customer-managed keys are rotated annually. The key vault is bound to the sameCanadian region as the data and is HSM-backed.",
+        "text_char_start": 1513
       },
       "sourceSpan": {
         "documentId": "lr1:35c72ac7c0ba3b3e2f376b10c867736dd83b950b9814fe11b5880d1ffb17c9ec",
@@ -166,7 +217,7 @@
       "predicateText": "input1.category == \"encryption_at_rest\""
     },
     {
-      "id": "lr1:2a00af3f92ac871f66bbbef8fa12d6096ac94c00bf425c1f4597aa45d13e3dce",
+      "id": "lr1:9da97b5b2eba6b7abe44dbcdfbe35dab2ba149f60e86fa4aaf5d01b614cc24f8",
       "ruleId": "GC-CG-07-TLS",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -196,16 +247,33 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "All public-facing endpoints terminate TLS at the platform-managed loadbalancer with a minimum TLS version of TLS 1.2. TLS 1.3 is preferredwhere supported by the client. TLS 1.0 and TLS 1.1 are disabled inlistener policy. Cipher suites are restricted to the CSE-approved subsetdocumented in ITSP.40.062."
+        "text": "All public-facing endpoints terminate TLS at the platform-managed loadbalancer with a minimum TLS version of TLS 1.2. TLS 1.3 is preferredwhere supported by the client. TLS 1.0 and TLS 1.1 are disabled inlistener policy. Cipher suites are restricted to the CSE-approved subsetdocumented in ITSP.40.062.",
+        "text_raw": "All public-facing endpoints terminate TLS at the platform-managed loadbalancer with a minimum TLS version of TLS 1.2. TLS 1.3 is preferredwhere supported by the client. TLS 1.0 and TLS 1.1 are disabled inlistener policy. Cipher suites are restricted to the CSE-approved subsetdocumented in ITSP.40.062.",
+        "text_char_start": 1865
       },
       "sourceSpan": {
         "documentId": "lr1:35c72ac7c0ba3b3e2f376b10c867736dd83b950b9814fe11b5880d1ffb17c9ec",
-        "charStart": 1836,
-        "charLength": 27,
+        "charStart": 1974,
+        "charLength": 7,
         "headingPath": "/Solution Architecture — Departmental Modelling Workbench (Protected B IaaS)/5. TLS 1.2 Configuration",
-        "charEnd": 1863
+        "charEnd": 1981
       },
       "errorMessage": "Rule 'GC-CG-07-TLS' failed: Data in transit must be encrypted by default using TLS 1.2 or higher. The architecture must explicitly commit to TLS 1.2+ for all cloud services and external communications.",
       "evidenceQuotes": [
@@ -217,7 +285,7 @@
       "predicateText": "input1.category == \"encryption_in_transit\""
     },
     {
-      "id": "lr1:5cf984bd2e04b2608631a3dfe555762f8fc3fcd18be99183a606221ae79fb593",
+      "id": "lr1:887bfedf16bebd650edd2eff564c7bf17ecd7467984e32aa6c07e515d7039a1f",
       "ruleId": "GC-CG-11-AuditLogging",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -247,16 +315,33 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Platform-level audit logs are streamed to a central log analyticsworkspace. The pipeline ingests sign-in records, role-assignment changes,and resource-provisioning activities. Detailed retention requirementsare still under review by the departmental records-management office;the workbench team has reserved capacity for whatever retention periodis ultimately mandated."
+        "text": "Platform-level audit logs are streamed to a central log analyticsworkspace. The pipeline ingests sign-in records, role-assignment changes,and resource-provisioning activities. Detailed retention requirementsare still under review by the departmental records-management office;the workbench team has reserved capacity for whatever retention periodis ultimately mandated.",
+        "text_raw": "Platform-level audit logs are streamed to a central log analyticsworkspace. The pipeline ingests sign-in records, role-assignment changes,and resource-provisioning activities. Detailed retention requirementsare still under review by the departmental records-management office;the workbench team has reserved capacity for whatever retention periodis ultimately mandated.",
+        "text_char_start": 2199
       },
       "sourceSpan": {
         "documentId": "lr1:35c72ac7c0ba3b3e2f376b10c867736dd83b950b9814fe11b5880d1ffb17c9ec",
-        "charStart": 2173,
-        "charLength": 24,
+        "charStart": 2214,
+        "charLength": 9,
         "headingPath": "/Solution Architecture — Departmental Modelling Workbench (Protected B IaaS)/6. Audit Log Strategy",
-        "charEnd": 2197
+        "charEnd": 2223
       },
       "errorMessage": "Rule 'GC-CG-11-AuditLogging' failed: Audit logging must be enabled for the cloud environment and workloads, with sign-in, configuration-change, and resource-provisioning events captured, and a defined retention period.",
       "evidenceQuotes": [

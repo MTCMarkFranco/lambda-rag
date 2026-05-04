@@ -5,7 +5,7 @@
   "ruleSetId": "rs_canadian_commercial_contract",
   "ruleSetVersion": "1.0.0",
   "ruleSetFingerprint": {
-    "value": "lr1:c728248c50b9144221d8f511a14ec63e4ae65c9d5d4976f338fac669b9edd8fb"
+    "value": "lr1:2f541ac2024e20889677c0ff2e16188e1cb936daf685f953c3d67a8178e92d03"
   },
   "projectorId": "contract",
   "projectorVersion": "1.4.0",
@@ -41,9 +41,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "This Agreement is governed by the laws of the State of Delaware,without regard to its conflicts-of-law rules. The exclusive venue isthe state and federal courts located in Wilmington, Delaware."
+        "text": "This Agreement is governed by the laws of the State of Delaware,without regard to its conflicts-of-law rules. The exclusive venue isthe state and federal courts located in Wilmington, Delaware.",
+        "text_raw": "This Agreement is governed by the laws of the State of Delaware,without regard to its conflicts-of-law rules. The exclusive venue isthe state and federal courts located in Wilmington, Delaware.",
+        "text_char_start": 1434
       },
       "sourceSpan": {
         "documentId": "lr1:e0c17a2ba04ae8b895c7382a5e319822b11303100f5aa48e8dc0af8ec2840f2f",
@@ -90,9 +107,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Each party shall be responsible for damages caused by its own grossnegligence or wilful misconduct. The parties' respective liabilitiesshall be determined under applicable law."
+        "text": "Each party shall be responsible for damages caused by its own grossnegligence or wilful misconduct. The parties' respective liabilitiesshall be determined under applicable law.",
+        "text_raw": "Each party shall be responsible for damages caused by its own grossnegligence or wilful misconduct. The parties' respective liabilitiesshall be determined under applicable law.",
+        "text_char_start": 980
       },
       "sourceSpan": {
         "documentId": "lr1:e0c17a2ba04ae8b895c7382a5e319822b11303100f5aa48e8dc0af8ec2840f2f",
@@ -128,7 +162,7 @@
         "topic_scores": {
           "payment_terms": 0.9
         },
-        "topic_density": 12.5,
+        "topic_density": 11.5385,
         "is_operative_for_topic": true,
         "text_features": {
           "day_counts": [],
@@ -138,10 +172,25 @@
             1.5
           ],
           "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
           "percent_min": 1.5,
-          "percent_max": 1.5
+          "percent_max": 1.5,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Customer shall pay all undisputed invoices within forty-five (45) daysof receipt. Late payments accrue interest at 1.5% per month. All feesare stated in USD."
+        "text": "Maple LeafLogistics Inc. shall pay all undisputed invoices within forty-five (45) daysof receipt. Late payments accrue interest at 1.5% per month. All feesare stated in USD.",
+        "text_raw": "Customer shall pay all undisputed invoices within forty-five (45) daysof receipt. Late payments accrue interest at 1.5% per month. All feesare stated in USD.",
+        "text_char_start": 558
       },
       "sourceSpan": {
         "documentId": "lr1:e0c17a2ba04ae8b895c7382a5e319822b11303100f5aa48e8dc0af8ec2840f2f",
@@ -179,16 +228,33 @@
           "privacy": 0.9,
           "confidentiality": 0.4
         },
-        "topic_density": 13.0435,
+        "topic_density": 12,
         "is_operative_for_topic": true,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Provider shall process Personal Data in accordance with the GeneralData Protection Regulation (GDPR) and shall implement appropriatetechnical and organisational measures consistent with industrystandards."
+        "text": "PinewoodSoftware Holdings LLC shall process Personal Data in accordance with the GeneralData Protection Regulation (GDPR) and shall implement appropriatetechnical and organisational measures consistent with industrystandards.",
+        "text_raw": "Provider shall process Personal Data in accordance with the GeneralData Protection Regulation (GDPR) and shall implement appropriatetechnical and organisational measures consistent with industrystandards.",
+        "text_char_start": 754
       },
       "sourceSpan": {
         "documentId": "lr1:e0c17a2ba04ae8b895c7382a5e319822b11303100f5aa48e8dc0af8ec2840f2f",
@@ -207,7 +273,7 @@
       "predicateText": "input1.category == \"privacy\""
     },
     {
-      "id": "lr1:d6f32c65882661ae179b122c29dfa1be08c904f2b6794d443f90daf5cdc7c061",
+      "id": "lr1:9aaa9615a5b1bd1cf6224e33bb31b3edc45e5062673890fcaf7d9345d65adf96",
       "ruleId": "CAN-CONTRACT-TERM-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -237,16 +303,33 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Either party may terminate this Agreement for material uncured breachupon thirty (30) days' written notice. The Provider may, at its solediscretion, terminate this Agreement immediately upon non-payment byCustomer of any invoice."
+        "text": "Either party may terminate this Agreement for material uncured breachupon thirty (30) days' written notice. The PinewoodSoftware Holdings LLC may, at its solediscretion, terminate this Agreement immediately upon non-payment byCustomer of any invoice.",
+        "text_raw": "Either party may terminate this Agreement for material uncured breachupon thirty (30) days' written notice. The Provider may, at its solediscretion, terminate this Agreement immediately upon non-payment byCustomer of any invoice.",
+        "text_char_start": 1179
       },
       "sourceSpan": {
         "documentId": "lr1:e0c17a2ba04ae8b895c7382a5e319822b11303100f5aa48e8dc0af8ec2840f2f",
-        "charStart": 1160,
-        "charLength": 17,
+        "charStart": 1265,
+        "charLength": 4,
         "headingPath": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/6. Termination",
-        "charEnd": 1177
+        "charEnd": 1269
       },
       "errorMessage": "Rule 'CAN-CONTRACT-TERM-001' failed: The contract must include both a termination-for-cause clause and a termination-for-convenience clause with a defined notice period.",
       "evidenceQuotes": [
