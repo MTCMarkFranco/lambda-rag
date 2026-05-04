@@ -112,7 +112,7 @@ static class CliEntry
             if (args[i].StartsWith("--", StringComparison.Ordinal) && i + 1 < args.Length
                 && !args[i + 1].StartsWith("--", StringComparison.Ordinal))
             {
-                map[args[i][2..]] = args[i + 1];
+                map[args[i][2..]] = args[i + 1].Trim();
                 i++;
             }
         }
