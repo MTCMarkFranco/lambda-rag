@@ -142,7 +142,7 @@ it reaches `1.0.0`.
   Contoso sample contract, Contoso emits 29 comments vs lambda-rag's 5-rule demo
   ruleset emitting 2; classification of the 27-finding gap shows
   ~78 % are real coverage misses (no rule authored — the planned
-  `out/contoso-full/contoso-policies-ruleset.json` is not yet produced),
+  `out/dev-full/policies-ruleset.json` is not yet produced),
   ~17 % are Contoso LLM hallucinations / mis-citations (PIPEDA residency
   myth, GDPR-vs-PIPEDA breach-notification timer, MCSA §5.1 services-
   tax-vs-income-tax confusion, signature-page nits), ~7 % are Contoso
