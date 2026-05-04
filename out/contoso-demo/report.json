@@ -1,0 +1,916 @@
+{
+  "documentId": {
+    "value": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb"
+  },
+  "ruleSetId": "rs_contoso_demo",
+  "ruleSetVersion": "2.0.0",
+  "ruleSetFingerprint": {
+    "value": "lr1:6eec09addcc243fc0c613b1cfde0429df895c1b1d91df4f367a3c5b282892ee3"
+  },
+  "projectorId": "contract",
+  "projectorVersion": "1.4.0",
+  "score": 0.25,
+  "totalRules": 24,
+  "passed": 6,
+  "failed": 8,
+  "notApplicable": 0,
+  "errored": 0,
+  "verdicts": [
+    {
+      "id": "lr1:a78415cc542e36d0427180433c1b4e945b296eb6414e626f3d2a01295afc0e8a",
+      "ruleId": "CTSO-AI-ADDENDUM",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Gap",
+      "lambdaText": "input1.text.Contains(\"AI Addendum\") || input1.text.Contains(\"Artificial Intelligence Addendum\")",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "contoso-policy",
+        "charStart": 0,
+        "charLength": 1,
+        "pageNumber": 1,
+        "charEnd": 1
+      },
+      "evidenceQuotes": [
+        "AI Addendum reference"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: Contracts that process Contoso data via AI must reference an AI Addendum.",
+      "predicateText": "input1.topics.Contains(\"ai\")"
+    },
+    {
+      "id": "lr1:d7fa3c2af26f67e4cc75aedbc94da5beba25011ddc0f093250c2acbc4fbb9212",
+      "ruleId": "CTSO-AI-PRIVACY-SUPP",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Gap",
+      "lambdaText": "(input1.text.Contains(\"personal data\") || input1.text.Contains(\"personal information\")) ? (input1.text.Contains(\"Privacy T&C\") || input1.text.Contains(\"Privacy Terms\") || input1.text.Contains(\"Privacy Supplement\")) : true",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "contoso-policy",
+        "charStart": 0,
+        "charLength": 1,
+        "pageNumber": 1,
+        "charEnd": 1
+      },
+      "evidenceQuotes": [
+        "Privacy T&Cs supplement"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: AI processing of personal data must reference the Privacy T&Cs Supplement.",
+      "predicateText": "input1.topics.Contains(\"ai\")"
+    },
+    {
+      "id": "lr1:c791a9b21db56dde893174176ff0fffb9eb0f8f902e1b5a6bac7050e35170853",
+      "ruleId": "CTSO-CONF-001",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"year\") || input1.text.Contains(\"years\") || input1.text.Contains(\"perpetual\")",
+      "evaluatedInput": {
+        "id": "s_00000004",
+        "heading": "4. Confidentiality",
+        "heading_path": "/Master Services Agreement/4. Confidentiality",
+        "category": "confidentiality",
+        "primary_topic": "confidentiality",
+        "topics": [
+          "confidentiality",
+          "parties"
+        ],
+        "topic_scores": {
+          "confidentiality": 0.9,
+          "parties": 0.4
+        },
+        "topic_density": 3.125,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [
+            5
+          ],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "year_count_min": 5,
+          "year_count_max": 5
+        },
+        "text": "Each party shall protect Confidential Information of the other for a period of 5 years. Disclosure is permitted only to personnel with a need to know who are bound by equivalent obligations."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb",
+        "charStart": 560,
+        "charLength": 21,
+        "headingPath": "/Master Services Agreement/4. Confidentiality",
+        "charEnd": 581
+      },
+      "evidenceQuotes": [
+        "Confidentiality survival"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000004",
+      "predicateText": "input1.category == \"confidentiality\""
+    },
+    {
+      "id": "lr1:ebeec1f56bd2f793c906867b03cac2290455f982b7fe4ec3761edce35e02291d",
+      "ruleId": "CTSO-CYBER-CRYPTO",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Gap",
+      "lambdaText": "(input1.text.Contains(\"AES-256\") || input1.text.Contains(\"AES 256\")) && (input1.text.Contains(\"TLS 1.2\") || input1.text.Contains(\"TLS 1.3\") || input1.text.Contains(\"TLS1.2\") || input1.text.Contains(\"TLS1.3\"))",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "contoso-policy",
+        "charStart": 0,
+        "charLength": 1,
+        "pageNumber": 1,
+        "charEnd": 1
+      },
+      "evidenceQuotes": [
+        "Encryption standards"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: Security clause must specify AES-256 at rest and TLS 1.2+ in transit.",
+      "predicateText": "input1.category == \"security\""
+    },
+    {
+      "id": "lr1:870b8ee0db1a89d7c9ac298929e362311230b23e2c9ac5602c3a2a88a715e559",
+      "ruleId": "CTSO-INDM-001",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Gap",
+      "lambdaText": "(input1.text.Contains(\"defend\") || input1.text.Contains(\"defense\")) && (input1.text.Contains(\"infringement\") || input1.text.Contains(\"infringe\") || input1.text.Contains(\"intellectual property\") || input1.text.Contains(\"IP claim\") || input1.text.Contains(\"third-party claim\") || input1.text.Contains(\"third party claim\"))",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "contoso-policy",
+        "charStart": 0,
+        "charLength": 1,
+        "pageNumber": 1,
+        "charEnd": 1
+      },
+      "evidenceQuotes": [
+        "IP indemnity"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: Indemnification clause must address third-party IP infringement (defend Contoso against IP-infringement claims).",
+      "predicateText": "input1.text.Contains(\"infringement\") || input1.text.Contains(\"infringe\") || input1.text.Contains(\"indemn\")"
+    },
+    {
+      "id": "lr1:f0394e6cc63391cd33a2777a9d2eab23f8236ec9dbf86dec6979e1ff78806135",
+      "ruleId": "CTSO-INS-CYBER-10M",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Gap",
+      "lambdaText": "input1.text_features.dollar_max >= 10000000",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "contoso-policy",
+        "charStart": 0,
+        "charLength": 1,
+        "pageNumber": 1,
+        "charEnd": 1
+      },
+      "evidenceQuotes": [
+        "Cyber-liability minimum"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: Cyber liability insurance must be at least $10,000,000 per claim.",
+      "predicateText": "input1.topics.Contains(\"insurance\") && input1.text_features.dollar_amounts.Count > 0 && (input1.text.Contains(\"cyber\") || input1.text.Contains(\"network security\") || input1.text.Contains(\"privacy liability\"))"
+    },
+    {
+      "id": "lr1:db1c7377723313f61b88e2e05b18f282e47a949508e1e314f095e2c1cc531d4e",
+      "ruleId": "CTSO-INS-GCL-5M",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Gap",
+      "lambdaText": "input1.text_features.dollar_max >= 5000000",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "contoso-policy",
+        "charStart": 0,
+        "charLength": 1,
+        "pageNumber": 1,
+        "charEnd": 1
+      },
+      "evidenceQuotes": [
+        "GCL minimum"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: General Commercial Liability (GCL) insurance must be at least $5,000,000 per occurrence.",
+      "predicateText": "input1.topics.Contains(\"insurance\") && input1.text_features.dollar_amounts.Count > 0 && (input1.text.Contains(\"general\") || input1.text.Contains(\"GCL\") || input1.text.Contains(\"commercial liability\"))"
+    },
+    {
+      "id": "lr1:3d3eafab3d0ec54f676e5745c5dbfe8ea37c264392d0ad5aae78e13c1d292e78",
+      "ruleId": "CTSO-IP-WORKFORHIRE",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Gap",
+      "lambdaText": "input1.text.Contains(\"Contoso\") && (input1.text.Contains(\"works made for hire\") || input1.text.Contains(\"work made for hire\") || input1.text.Contains(\"assigned to\") || input1.text.Contains(\"hereby assigns\"))",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "contoso-policy",
+        "charStart": 0,
+        "charLength": 1,
+        "pageNumber": 1,
+        "charEnd": 1
+      },
+      "evidenceQuotes": [
+        "Works-made-for-hire"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: Deliverables must vest in Contoso as works made for hire (or be irrevocably assigned).",
+      "predicateText": "input1.category == \"ip_ownership\""
+    },
+    {
+      "id": "lr1:97cb0bb886e4fd114e358172a652cf3e5f5752e81c9831549b2f642ba0700c8f",
+      "ruleId": "CTSO-LAW-QUEBEC",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"Quebec\") && (input1.text.Contains(\"Montreal\") || input1.text.Contains(\"Montréal\"))",
+      "evaluatedInput": {
+        "id": "s_00000008",
+        "heading": "8. Governing Law",
+        "heading_path": "/Master Services Agreement/8. Governing Law",
+        "category": "governing_law",
+        "primary_topic": "governing_law",
+        "topics": [
+          "governing_law"
+        ],
+        "topic_scores": {
+          "governing_law": 0.9
+        },
+        "topic_density": 4,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "This Agreement is governed by the laws of the State of Delaware, without regard to conflicts of law principles. The exclusive venue is Wilmington, Delaware."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb",
+        "charStart": 1332,
+        "charLength": 19,
+        "headingPath": "/Master Services Agreement/8. Governing Law",
+        "charEnd": 1351
+      },
+      "errorMessage": "Rule 'CTSO-LAW-QUEBEC' failed: Governing law must be Quebec; venue Montreal.",
+      "evidenceQuotes": [
+        "Governing law / venue"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000008",
+      "remediationText": "Set governing law to the Province of Quebec and venue to Montreal in the 8. Governing Law clause.",
+      "predicateText": "input1.category == \"governing_law\""
+    },
+    {
+      "id": "lr1:3413e6e00c709244983e46b60ac82c6e3a77f7d1d3a538e89d3645526ffb03ee",
+      "ruleId": "CTSO-LIAB-001",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"$\") || input1.text.Contains(\"fees paid\") || input1.text.Contains(\"amount paid\") || input1.text.Contains(\"twelve months\") || input1.text.Contains(\"12 months\")",
+      "evaluatedInput": {
+        "id": "s_00000006",
+        "heading": "6. Liability",
+        "heading_path": "/Master Services Agreement/6. Liability",
+        "category": "liability",
+        "primary_topic": "liability",
+        "topics": [
+          "liability",
+          "parties",
+          "payment_terms"
+        ],
+        "topic_scores": {
+          "liability": 0.9,
+          "parties": 0.4,
+          "payment_terms": 0.4
+        },
+        "topic_density": 3.8462,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "Each party's aggregate liability is capped at the fees paid in the twelve months preceding the claim. Neither party is liable for indirect or consequential damages."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb",
+        "charStart": 982,
+        "charLength": 15,
+        "headingPath": "/Master Services Agreement/6. Liability",
+        "charEnd": 997
+      },
+      "evidenceQuotes": [
+        "Limitation of liability"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000006",
+      "predicateText": "input1.topics.Contains(\"liability\")"
+    },
+    {
+      "id": "lr1:fcc7db3b9333ede595ea9358fd0d8ce1159355d5a05402d1e413f9ef9f4c9e80",
+      "ruleId": "CTSO-LIAB-CARVEOUTS",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"gross negligence\") || input1.text.Contains(\"willful misconduct\") || input1.text.Contains(\"wilful misconduct\")) && input1.text.Contains(\"fraud\") && (input1.text.Contains(\"intellectual property\") || input1.text.Contains(\"IP indemnity\") || input1.text.Contains(\"infringement\")) && input1.text.Contains(\"confidential\") && (input1.text.Contains(\"data breach\") || input1.text.Contains(\"personal data\"))",
+      "evaluatedInput": {
+        "id": "s_00000006",
+        "heading": "6. Liability",
+        "heading_path": "/Master Services Agreement/6. Liability",
+        "category": "liability",
+        "primary_topic": "liability",
+        "topics": [
+          "liability",
+          "parties",
+          "payment_terms"
+        ],
+        "topic_scores": {
+          "liability": 0.9,
+          "parties": 0.4,
+          "payment_terms": 0.4
+        },
+        "topic_density": 3.8462,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "Each party's aggregate liability is capped at the fees paid in the twelve months preceding the claim. Neither party is liable for indirect or consequential damages."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb",
+        "charStart": 982,
+        "charLength": 15,
+        "headingPath": "/Master Services Agreement/6. Liability",
+        "charEnd": 997
+      },
+      "errorMessage": "Rule 'CTSO-LIAB-CARVEOUTS' failed: Limitation of liability must carve out gross negligence, wilful misconduct, fraud, IP indemnity, confidentiality breach, and data breach.",
+      "evidenceQuotes": [
+        "Liability cap carve-outs"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000006",
+      "remediationText": "Carve out gross negligence, wilful misconduct, fraud, IP indemnity, confidentiality breach, and data-breach liability from the cap in the 6. Liability clause.",
+      "predicateText": "input1.topics.Contains(\"liability\") && input1.is_operative_for_topic"
+    },
+    {
+      "id": "lr1:3439de94369cc16712ef682cb5b0d2dc9297dae16f66d07eaf5a02d9457f9d83",
+      "ruleId": "CTSO-PAY-INT-MAX",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text_features.percent_max <= 1.5",
+      "evaluatedInput": {
+        "id": "s_00000003",
+        "heading": "3. Payment Terms",
+        "heading_path": "/Master Services Agreement/3. Payment Terms",
+        "category": "payment_terms",
+        "primary_topic": "payment_terms",
+        "topics": [
+          "payment_terms"
+        ],
+        "topic_scores": {
+          "payment_terms": 0.9
+        },
+        "topic_density": 12,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [
+            45
+          ],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [
+            1.5
+          ],
+          "dollar_amounts": [],
+          "day_count_min": 45,
+          "day_count_max": 45,
+          "percent_min": 1.5,
+          "percent_max": 1.5
+        },
+        "text": "Customer shall pay all undisputed invoices within 45 days of receipt. Late payments accrue interest at 1.5% per month. All fees are stated in USD."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb",
+        "charStart": 388,
+        "charLength": 19,
+        "headingPath": "/Master Services Agreement/3. Payment Terms",
+        "charEnd": 407
+      },
+      "evidenceQuotes": [
+        "Late-payment interest cap"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000003",
+      "predicateText": "input1.category == \"payment_terms\" && input1.text_features.percent_values.Count > 0"
+    },
+    {
+      "id": "lr1:2bdcf4f67583bf0841eb026b248728135f472451ebea2a8bc0c2f1981e52c2d0",
+      "ruleId": "CTSO-PAY-NET45",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text_features.day_count_max <= 45",
+      "evaluatedInput": {
+        "id": "s_00000003",
+        "heading": "3. Payment Terms",
+        "heading_path": "/Master Services Agreement/3. Payment Terms",
+        "category": "payment_terms",
+        "primary_topic": "payment_terms",
+        "topics": [
+          "payment_terms"
+        ],
+        "topic_scores": {
+          "payment_terms": 0.9
+        },
+        "topic_density": 12,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [
+            45
+          ],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [
+            1.5
+          ],
+          "dollar_amounts": [],
+          "day_count_min": 45,
+          "day_count_max": 45,
+          "percent_min": 1.5,
+          "percent_max": 1.5
+        },
+        "text": "Customer shall pay all undisputed invoices within 45 days of receipt. Late payments accrue interest at 1.5% per month. All fees are stated in USD."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb",
+        "charStart": 388,
+        "charLength": 19,
+        "headingPath": "/Master Services Agreement/3. Payment Terms",
+        "charEnd": 407
+      },
+      "evidenceQuotes": [
+        "Payment-term length"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000003",
+      "predicateText": "input1.category == \"payment_terms\" && input1.text_features.day_counts.Count > 0"
+    },
+    {
+      "id": "lr1:b157cad6678b38877552e4ace97ff52f444474294cc860ef7310cb8114cbd97c",
+      "ruleId": "CTSO-PRIV-72H-Contoso",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"Privacy Commissioner\") || input1.text.Contains(\"OPC\") || input1.text.Contains(\"as soon as feasible\")) && input1.text.Contains(\"Contoso\")",
+      "evaluatedInput": {
+        "id": "s_00000005",
+        "heading": "5. Data Protection",
+        "heading_path": "/Master Services Agreement/5. Data Protection",
+        "category": "privacy",
+        "primary_topic": "privacy",
+        "topics": [
+          "privacy",
+          "security"
+        ],
+        "topic_scores": {
+          "privacy": 0.9,
+          "security": 0.4
+        },
+        "topic_density": 4.1667,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "Vendor shall process Customer Personal Data only as instructed and shall implement security measures consistent with ISO 27001. Sub-processors require Customer's prior written consent."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb",
+        "charStart": 774,
+        "charLength": 21,
+        "headingPath": "/Master Services Agreement/5. Data Protection",
+        "charEnd": 795
+      },
+      "errorMessage": "Rule 'CTSO-PRIV-72H-Contoso' failed: Privacy breach must be notified to Contoso and the Privacy Commissioner of Canada (PIPEDA: as soon as feasible).",
+      "evidenceQuotes": [
+        "Breach notification"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000005",
+      "remediationText": "Require breach notification to Contoso and to the Office of the Privacy Commissioner of Canada (OPC) \"as soon as feasible\" in the 5. Data Protection clause.",
+      "predicateText": "input1.category == \"privacy\""
+    },
+    {
+      "id": "lr1:1ff3e020140c346d8cd566aeffd3b2251b92b69a48d80be8cbadcec18f6ce879",
+      "ruleId": "CTSO-PRIV-CONSENT",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "!(input1.text.Contains(\"Vendor's discretion\") || input1.text.Contains(\"Vendor discretion\") || input1.text.Contains(\"Provider's discretion\") || input1.text.Contains(\"Provider discretion\")) && (input1.text.Contains(\"explicit consent\") || input1.text.Contains(\"informed consent\") || input1.text.Contains(\"PIPEDA\"))",
+      "evaluatedInput": {
+        "id": "s_00000005",
+        "heading": "5. Data Protection",
+        "heading_path": "/Master Services Agreement/5. Data Protection",
+        "category": "privacy",
+        "primary_topic": "privacy",
+        "topics": [
+          "privacy",
+          "security"
+        ],
+        "topic_scores": {
+          "privacy": 0.9,
+          "security": 0.4
+        },
+        "topic_density": 4.1667,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "Vendor shall process Customer Personal Data only as instructed and shall implement security measures consistent with ISO 27001. Sub-processors require Customer's prior written consent."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb",
+        "charStart": 774,
+        "charLength": 21,
+        "headingPath": "/Master Services Agreement/5. Data Protection",
+        "charEnd": 795
+      },
+      "errorMessage": "Rule 'CTSO-PRIV-CONSENT' failed: Personal-data consent must follow PIPEDA explicit-consent standard (not Vendor's discretion).",
+      "evidenceQuotes": [
+        "Consent standard"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000005",
+      "remediationText": "Replace any \"at Vendor's discretion\" consent language in the 5. Data Protection clause with PIPEDA explicit-consent obligations.",
+      "predicateText": "input1.category == \"privacy\""
+    },
+    {
+      "id": "lr1:27052955d3f78b10b3db6f8527fc2a5b11f8227a5b68f42fb1a2612782c28060",
+      "ruleId": "CTSO-PRIV-EXPLICIT-LAWS",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"PIPEDA\") && (input1.text.Contains(\"Law 25\") || input1.text.Contains(\"loi 25\"))",
+      "evaluatedInput": {
+        "id": "s_00000005",
+        "heading": "5. Data Protection",
+        "heading_path": "/Master Services Agreement/5. Data Protection",
+        "category": "privacy",
+        "primary_topic": "privacy",
+        "topics": [
+          "privacy",
+          "security"
+        ],
+        "topic_scores": {
+          "privacy": 0.9,
+          "security": 0.4
+        },
+        "topic_density": 4.1667,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "Vendor shall process Customer Personal Data only as instructed and shall implement security measures consistent with ISO 27001. Sub-processors require Customer's prior written consent."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb",
+        "charStart": 774,
+        "charLength": 21,
+        "headingPath": "/Master Services Agreement/5. Data Protection",
+        "charEnd": 795
+      },
+      "errorMessage": "Rule 'CTSO-PRIV-EXPLICIT-LAWS' failed: Privacy clause must explicitly enumerate PIPEDA and Quebec Law 25 (and GDPR where applicable).",
+      "evidenceQuotes": [
+        "Privacy laws enumeration"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000005",
+      "remediationText": "Enumerate PIPEDA, Quebec Law 25, and (where applicable) GDPR in the 5. Data Protection clause.",
+      "predicateText": "input1.category == \"privacy\""
+    },
+    {
+      "id": "lr1:c61ed614b54aa6f6e562e3159bc2c539477d69e85c3ff8ba0db06a99e7d7849d",
+      "ruleId": "REMOVED-RULE",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Pass",
+      "lambdaText": "!(input1.text.Contains(\"any country\") || input1.text.Contains(\"transfer outside\") || input1.text.Contains(\"transferred to\") || input1.text.Contains(\"processed outside Canada\"))",
+      "evaluatedInput": {
+        "id": "s_00000005",
+        "heading": "5. Data Protection",
+        "heading_path": "/Master Services Agreement/5. Data Protection",
+        "category": "privacy",
+        "primary_topic": "privacy",
+        "topics": [
+          "privacy",
+          "security"
+        ],
+        "topic_scores": {
+          "privacy": 0.9,
+          "security": 0.4
+        },
+        "topic_density": 4.1667,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "Vendor shall process Customer Personal Data only as instructed and shall implement security measures consistent with ISO 27001. Sub-processors require Customer's prior written consent."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb",
+        "charStart": 774,
+        "charLength": 21,
+        "headingPath": "/Master Services Agreement/5. Data Protection",
+        "charEnd": 795
+      },
+      "evidenceQuotes": [
+        "Data residency"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000005",
+      "predicateText": "input1.category == \"privacy\""
+    },
+    {
+      "id": "lr1:89ad502cc4226646dec9e65cc9fd1a08a0b1d06888581d738babf34561182a61",
+      "ruleId": "CTSO-PRIV-RETENTION",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text_features.year_counts.Count > 0 && input1.text_features.year_count_max <= 7",
+      "evaluatedInput": {
+        "id": "s_00000005",
+        "heading": "5. Data Protection",
+        "heading_path": "/Master Services Agreement/5. Data Protection",
+        "category": "privacy",
+        "primary_topic": "privacy",
+        "topics": [
+          "privacy",
+          "security"
+        ],
+        "topic_scores": {
+          "privacy": 0.9,
+          "security": 0.4
+        },
+        "topic_density": 4.1667,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": []
+        },
+        "text": "Vendor shall process Customer Personal Data only as instructed and shall implement security measures consistent with ISO 27001. Sub-processors require Customer's prior written consent."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb",
+        "charStart": 774,
+        "charLength": 21,
+        "headingPath": "/Master Services Agreement/5. Data Protection",
+        "charEnd": 795
+      },
+      "errorMessage": "Exception while parsing expression `input1.text_features.year_counts.Count > 0 && input1.text_features.year_count_max <= 7` - The binary operator LessThanOrEqual is not defined for the types 'System.Object' and 'System.Int32'.",
+      "evidenceQuotes": [
+        "Retention cap"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000005",
+      "remediationText": "Specify a maximum retention period (e.g., seven (7) years from termination) for personal data in the 5. Data Protection clause.",
+      "predicateText": "input1.category == \"privacy\""
+    },
+    {
+      "id": "lr1:901a4a13d6bc51e7e91a5095327a91fe0364b1d245ba65aebd60b6454e9b0f05",
+      "ruleId": "CTSO-SUBK-APPROVAL",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Gap",
+      "lambdaText": "input1.text.Contains(\"prior written\") && (input1.text.Contains(\"approval\") || input1.text.Contains(\"consent\"))",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "contoso-policy",
+        "charStart": 0,
+        "charLength": 1,
+        "pageNumber": 1,
+        "charEnd": 1
+      },
+      "evidenceQuotes": [
+        "Subcontractor approval"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: Subcontracting requires Contoso's prior written approval.",
+      "predicateText": "input1.topics.Contains(\"subcontracting\")"
+    },
+    {
+      "id": "lr1:3da732742a86a3c7d3cc0bc51ff580b1eee511703b515918ec8aa7d0445d106a",
+      "ruleId": "CTSO-SVC-LOCATION",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Gap",
+      "lambdaText": "input1.text.Contains(\"approved by Contoso\") || input1.text.Contains(\"Contoso approves\") || input1.text.Contains(\"Contoso-approved\")",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "contoso-policy",
+        "charStart": 0,
+        "charLength": 1,
+        "pageNumber": 1,
+        "charEnd": 1
+      },
+      "evidenceQuotes": [
+        "Approved service location"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: Service-delivery locations must be approved by Contoso.",
+      "predicateText": "input1.topics.Contains(\"service_locations\")"
+    },
+    {
+      "id": "lr1:6122bbcf48c1b9fc58a02d59c20cba5fcb2bc4bd810a4d48923be86abcddd389",
+      "ruleId": "CTSO-TAX-EXCL",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"exclusive of\") && (input1.text.Contains(\"tax\") || input1.text.Contains(\"taxes\"))",
+      "evaluatedInput": {
+        "id": "s_00000003",
+        "heading": "3. Payment Terms",
+        "heading_path": "/Master Services Agreement/3. Payment Terms",
+        "category": "payment_terms",
+        "primary_topic": "payment_terms",
+        "topics": [
+          "payment_terms"
+        ],
+        "topic_scores": {
+          "payment_terms": 0.9
+        },
+        "topic_density": 12,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [
+            45
+          ],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [
+            1.5
+          ],
+          "dollar_amounts": [],
+          "day_count_min": 45,
+          "day_count_max": 45,
+          "percent_min": 1.5,
+          "percent_max": 1.5
+        },
+        "text": "Customer shall pay all undisputed invoices within 45 days of receipt. Late payments accrue interest at 1.5% per month. All fees are stated in USD."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb",
+        "charStart": 388,
+        "charLength": 19,
+        "headingPath": "/Master Services Agreement/3. Payment Terms",
+        "charEnd": 407
+      },
+      "errorMessage": "Rule 'CTSO-TAX-EXCL' failed: Pricing must be exclusive of applicable taxes (taxes are added on top, not bundled in).",
+      "evidenceQuotes": [
+        "Tax exclusivity"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000003",
+      "remediationText": "State explicitly in the 3. Payment Terms clause that all prices are exclusive of applicable taxes (GST/HST/QST/withholding) and are added at invoice.",
+      "predicateText": "input1.topics.Contains(\"tax\") || input1.category == \"payment_terms\""
+    },
+    {
+      "id": "lr1:32a29f7f3c988da7488a7d218cf74c83ec3ca261c937a3ad293d52fb208409a4",
+      "ruleId": "CTSO-TERM-001",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"30 days\") || input1.text.Contains(\"60 days\") || input1.text.Contains(\"90 days\") || input1.text.Contains(\"30 calendar days\") || input1.text.Contains(\"60 calendar days\") || input1.text.Contains(\"90 calendar days\")",
+      "evaluatedInput": {
+        "id": "s_00000007",
+        "heading": "7. Termination",
+        "heading_path": "/Master Services Agreement/7. Termination",
+        "category": "termination",
+        "primary_topic": "termination",
+        "topics": [
+          "termination",
+          "notices",
+          "parties"
+        ],
+        "topic_scores": {
+          "termination": 0.9,
+          "notices": 0.4,
+          "parties": 0.4
+        },
+        "topic_density": 0,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [
+            30,
+            90
+          ],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 30,
+          "day_count_max": 90
+        },
+        "text": "Either party may terminate for material breach uncured after 30 days' written notice. Customer may terminate for convenience on 90 days' notice."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb",
+        "charStart": 1168,
+        "charLength": 17,
+        "headingPath": "/Master Services Agreement/7. Termination",
+        "charEnd": 1185
+      },
+      "evidenceQuotes": [
+        "Termination notice"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000007",
+      "predicateText": "input1.category == \"termination\""
+    },
+    {
+      "id": "lr1:82547b4df6a2b68ffb7298428075d5adbb7f235f534bcc5227bac558c846f778",
+      "ruleId": "CTSO-TERM-CONV",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Fail",
+      "lambdaText": "!(input1.text.Contains(\"Either party may terminate\") || input1.text.Contains(\"either party may terminate\") || input1.text.Contains(\"each party may terminate\"))",
+      "evaluatedInput": {
+        "id": "s_00000007",
+        "heading": "7. Termination",
+        "heading_path": "/Master Services Agreement/7. Termination",
+        "category": "termination",
+        "primary_topic": "termination",
+        "topics": [
+          "termination",
+          "notices",
+          "parties"
+        ],
+        "topic_scores": {
+          "termination": 0.9,
+          "notices": 0.4,
+          "parties": 0.4
+        },
+        "topic_density": 0,
+        "is_operative_for_topic": true,
+        "text_features": {
+          "day_counts": [
+            30,
+            90
+          ],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 30,
+          "day_count_max": 90
+        },
+        "text": "Either party may terminate for material breach uncured after 30 days' written notice. Customer may terminate for convenience on 90 days' notice."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb",
+        "charStart": 1168,
+        "charLength": 17,
+        "headingPath": "/Master Services Agreement/7. Termination",
+        "charEnd": 1185
+      },
+      "errorMessage": "Rule 'CTSO-TERM-CONV' failed: Termination for convenience must be a unilateral Contoso right (not symmetric).",
+      "evidenceQuotes": [
+        "Unilateral termination right"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000007",
+      "remediationText": "Re-cast the 7. Termination clause so termination for convenience is exercisable by Contoso only.",
+      "predicateText": "input1.category == \"termination\""
+    },
+    {
+      "id": "lr1:ccc735906367797c3e69e4dae99240af36bf6856a1065ce246a976be372727b2",
+      "ruleId": "CTSO-WAR-001",
+      "ruleSetVersion": "2.0.0",
+      "outcome": "Gap",
+      "lambdaText": "input1.text.Contains(\"days\") || input1.text.Contains(\"remedy\") || input1.text.Contains(\"replace\") || input1.text.Contains(\"refund\")",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "contoso-policy",
+        "charStart": 0,
+        "charLength": 1,
+        "pageNumber": 1,
+        "charEnd": 1
+      },
+      "evidenceQuotes": [
+        "Warranty remedy"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: Warranties must include a defined remedy / cure period.",
+      "predicateText": "input1.category == \"warranty\""
+    }
+  ],
+  "generatedAt": "2000-01-01T00:00:00+00:00",
+  "gaps": 10
+}
