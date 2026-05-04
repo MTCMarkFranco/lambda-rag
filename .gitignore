@@ -485,8 +485,6 @@ $RECYCLE.BIN/
 
 # Lambda-RAG specific
 _reference/
-out/
-out2/
 *.db
 *.db-journal
 
