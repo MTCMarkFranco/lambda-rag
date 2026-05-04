@@ -5,7 +5,7 @@
   "ruleSetId": "rs_can_oil_gas_v1",
   "ruleSetVersion": "1.0.0",
   "ruleSetFingerprint": {
-    "value": "lr1:a263483c4755f06935102facd023ebd599700e2c70032ab855f5c5b1ad73d1ad"
+    "value": "lr1:21c578c23044d212b4d998147ba3daf1973df84e5fbee41894a6ece68f1ccfe4"
   },
   "projectorId": "contract",
   "projectorVersion": "1.4.0",
@@ -43,9 +43,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "End-of-life decommissioning will be addressed at retirement under afuture abandonment plan to be filed with the regulator. The currentoperations manual does not address financial assurance."
+        "text": "End-of-life decommissioning will be addressed at retirement under afuture abandonment plan to be filed with the regulator. The currentoperations manual does not address financial assurance.",
+        "text_raw": "End-of-life decommissioning will be addressed at retirement under afuture abandonment plan to be filed with the regulator. The currentoperations manual does not address financial assurance.",
+        "text_char_start": 1210
       },
       "sourceSpan": {
         "documentId": "lr1:f339cdf4db518f2aae3fb978e2bfb6589bf45b3199c566f569df940eda7120d2",
@@ -86,9 +103,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "The emergency response plan (ERP) is maintained in accordance with CEROPR s. 32 and reviewed annually. ICS structure, notification matrix,and tier-1/2/3 spill response are documented in the ERP and exercisedtwice per year."
+        "text": "The emergency response plan (ERP) is maintained in accordance with CEROPR s. 32 and reviewed annually. ICS structure, notification matrix,and tier-1/2/3 spill response are documented in the ERP and exercisedtwice per year.",
+        "text_raw": "The emergency response plan (ERP) is maintained in accordance with CEROPR s. 32 and reviewed annually. ICS structure, notification matrix,and tier-1/2/3 spill response are documented in the ERP and exercisedtwice per year.",
+        "text_char_start": 783
       },
       "sourceSpan": {
         "documentId": "lr1:f339cdf4db518f2aae3fb978e2bfb6589bf45b3199c566f569df940eda7120d2",
@@ -173,9 +207,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Acme operates a pipeline integrity management program (PIM) consistentwith CSA Z662 and CER OPR. The program covers:\nthreat identification (external corrosion, internal corrosion,geohazards, third-party damage, manufacturing defects)\nILI scheduling on a five-year cadence\nmonitoring via cathodic protection surveys, close-interval surveys,and pressure cycling analysis\ncorrective-action triggers tied to API 1163 ILI tool tolerance."
+        "text": "Acme operates a pipeline integrity management program (PIM) consistentwith CSA Z662 and CER OPR. The program covers:\nthreat identification (external corrosion, internal corrosion,geohazards, third-party damage, manufacturing defects)\nILI scheduling on a five-year cadence\nmonitoring via cathodic protection surveys, close-interval surveys,and pressure cycling analysis\ncorrective-action triggers tied to API 1163 ILI tool tolerance.",
+        "text_raw": "Acme operates a pipeline integrity management program (PIM) consistentwith CSA Z662 and CER OPR. The program covers:\nthreat identification (external corrosion, internal corrosion,geohazards, third-party damage, manufacturing defects)\nILI scheduling on a five-year cadence\nmonitoring via cathodic protection surveys, close-interval surveys,and pressure cycling analysis\ncorrective-action triggers tied to API 1163 ILI tool tolerance.",
+        "text_char_start": 305
       },
       "sourceSpan": {
         "documentId": "lr1:f339cdf4db518f2aae3fb978e2bfb6589bf45b3199c566f569df940eda7120d2",

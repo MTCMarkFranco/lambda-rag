@@ -5,7 +5,7 @@
   "ruleSetId": "rs_can_permitting_v1",
   "ruleSetVersion": "1.0.0",
   "ruleSetFingerprint": {
-    "value": "lr1:ab1d7b31f10f5c91568dfec7e149544187da8d87faa59162090fdc19d6038c45"
+    "value": "lr1:d3e4f1fd62da6b02c9771dc1537bc45a196f93ae9cca5866c69eed1983eaa755"
   },
   "projectorId": "contract",
   "projectorVersion": "1.4.0",
@@ -85,9 +85,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Two scissor stairs provide independent means of egress from each floor.The travel distance from the most remote point on each floor to thenearest exit door is 24.0 m. The building is fully sprinklered."
+        "text": "Two scissor stairs provide independent means of egress from each floor.The travel distance from the most remote point on each floor to thenearest exit door is 24.0 m. The building is fully sprinklered.",
+        "text_raw": "Two scissor stairs provide independent means of egress from each floor.The travel distance from the most remote point on each floor to thenearest exit door is 24.0 m. The building is fully sprinklered.",
+        "text_char_start": 1196
       },
       "sourceSpan": {
         "documentId": "lr1:55464f01a84c728f805e408adb57006ed4e6de0ebde7b9f0061e620381b5cde7",
@@ -104,7 +121,7 @@
       "predicateText": "input1.category == \"fire_egress\""
     },
     {
-      "id": "lr1:1080caa5b2ebc8cc34d29c6ae16ea6b820880d4dd16d3253e2f8edbee340b0eb",
+      "id": "lr1:e0d594f2b3f2585963e2671357eae42f8fe85fa9f916341f3e528f4a4a2db149",
       "ruleId": "PERMIT-FIRE-SPRINK-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -128,16 +145,33 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "A wet-pipe sprinkler system is provided throughout the building.Standpipes are provided in each exit stair. The fire alarm system istwo-stage, supervised by a ULC-listed monitoring service."
+        "text": "A wet-pipe sprinkler system is provided throughout the building.Standpipes are provided in each exit stair. The fire alarm system istwo-stage, supervised by a ULC-listed monitoring service.",
+        "text_raw": "A wet-pipe sprinkler system is provided throughout the building.Standpipes are provided in each exit stair. The fire alarm system istwo-stage, supervised by a ULC-listed monitoring service.",
+        "text_char_start": 1441
       },
       "sourceSpan": {
         "documentId": "lr1:55464f01a84c728f805e408adb57006ed4e6de0ebde7b9f0061e620381b5cde7",
-        "charStart": 1401,
-        "charLength": 38,
+        "charStart": 1452,
+        "charLength": 9,
         "headingPath": "/Building Permit Application — 245 Bay Tower, Toronto, ON/Fire Suppression — Sprinkler System",
-        "charEnd": 1439
+        "charEnd": 1461
       },
       "errorMessage": "Rule 'PERMIT-FIRE-SPRINK-001' failed: Buildings of the major occupancies and sizes triggered by OBC 3.2.2 must be sprinklered to NFPA 13.",
       "evidenceQuotes": [

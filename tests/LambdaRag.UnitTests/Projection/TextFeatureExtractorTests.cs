@@ -87,16 +87,22 @@ public class TextFeatureExtractorTests
     }
 
     [Fact]
-    public void Empty_text_yields_empty_arrays_no_scalar_keys()
+    public void Empty_text_yields_empty_arrays_with_zero_scalar_keys()
     {
         var f = TextFeatureExtractor.Extract("");
 
         f["day_counts"]!.AsArray().Should().BeEmpty();
         f["dollar_amounts"]!.AsArray().Should().BeEmpty();
-        // Scalar convenience keys are omitted when empty so rule authors
-        // can defensively check Count > 0 first.
-        f.ContainsKey("day_count_max").Should().BeFalse();
-        f.ContainsKey("dollar_max").Should().BeFalse();
+        // Scalar convenience keys are now ALWAYS emitted with default 0 so
+        // RulesEngine lambda expressions like
+        //   year_counts.Count > 0 && year_count_max <= 7
+        // bind the operator at compile time even when the underlying array
+        // is empty (System.Object vs System.Int32 type-inference exception
+        // observed in eval-001 — see ruleset-accuracy-eval-001.md).
+        f.ContainsKey("day_count_max").Should().BeTrue();
+        ((long)f["day_count_max"]!).Should().Be(0L);
+        f.ContainsKey("dollar_max").Should().BeTrue();
+        ((long)f["dollar_max"]!).Should().Be(0L);
     }
 
     [Fact]

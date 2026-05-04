@@ -89,6 +89,17 @@ public sealed record Rule(
     public string? Remediation { get; init; }
 
     /// <summary>
+    /// Optional regex used to refine the markup anchor when the rule
+    /// produces a Fail verdict. The first match inside the matched
+    /// section's body text becomes the anchor span (substring-precise
+    /// instead of section-wide). When unset, the engine falls back to
+    /// extracting the first <c>Contains("…")</c> literal from the lambda
+    /// (positive-keyword rules) or to the section's first sentence
+    /// (absence-of-keyword rules). Case-insensitive.
+    /// </summary>
+    public string? Anchor { get; init; }
+
+    /// <summary>
     /// The original source chunk this rule was extracted from. Stored for
     /// audit and used by the coverage tool — never by the runtime evaluator.
     /// </summary>
@@ -121,6 +132,7 @@ public sealed record Rule(
         Predicate,
         Lambda,
         Remediation ?? string.Empty,
+        Anchor ?? string.Empty,
         AppliesToSchema.ToJsonString(),
         Severity.ToString(),
         Applicability.ToString());

@@ -5,7 +5,7 @@
   "ruleSetId": "rs_can_permitting_v1",
   "ruleSetVersion": "1.0.0",
   "ruleSetFingerprint": {
-    "value": "lr1:ab1d7b31f10f5c91568dfec7e149544187da8d87faa59162090fdc19d6038c45"
+    "value": "lr1:d3e4f1fd62da6b02c9771dc1537bc45a196f93ae9cca5866c69eed1983eaa755"
   },
   "projectorId": "contract",
   "projectorVersion": "1.4.0",
@@ -43,9 +43,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "All exterior paths of travel are designed in accordance with IASRO. Reg. 191/11, Part IV.1 (Design of Public Spaces Standards). Theaccessible path of travel from the public sidewalk to the principalentrance is a minimum 1.65 m clear width with a maximum running slope of1:20 and a stable, slip-resistant surface. The visitor parking areaincludes two Type A and two Type B accessible spaces, with signageconforming to IASR s. 80.36. The principal entrance is power-operatedper IASR s. 80.13. The application explicitly attests to AODA / IASRconformance for all elements within the regulation's scope."
+        "text": "All exterior paths of travel are designed in accordance with IASRO. Reg. 191/11, Part IV.1 (Design of Public Spaces Standards). Theaccessible path of travel from the public sidewalk to the principalentrance is a minimum 1.65 m clear width with a maximum running slope of1:20 and a stable, slip-resistant surface. The visitor parking areaincludes two Type A and two Type B accessible spaces, with signageconforming to IASR s. 80.36. The principal entrance is power-operatedper IASR s. 80.13. The application explicitly attests to AODA / IASRconformance for all elements within the regulation's scope.",
+        "text_raw": "All exterior paths of travel are designed in accordance with IASRO. Reg. 191/11, Part IV.1 (Design of Public Spaces Standards). Theaccessible path of travel from the public sidewalk to the principalentrance is a minimum 1.65 m clear width with a maximum running slope of1:20 and a stable, slip-resistant surface. The visitor parking areaincludes two Type A and two Type B accessible spaces, with signageconforming to IASR s. 80.36. The principal entrance is power-operatedper IASR s. 80.13. The application explicitly attests to AODA / IASRconformance for all elements within the regulation's scope.",
+        "text_char_start": 620
       },
       "sourceSpan": {
         "documentId": "lr1:dba8808c16cfbda50a1af2c1d8b9a07c224baedb8a30209bb9aeabd86c99b186",
@@ -88,9 +105,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "A federal designated-project screening has been completed under theImpact Assessment Act, S.C. 2019, c. 28. The proposed warehouse isnot a \"designated project\" listed in the Physical ActivitiesRegulations (SOR/2019-285), and accordingly no federal impact assessmentis triggered. The proponent has filed a screening memo with IAAC for therecord. This determination is documented in the Federal IAA ScreeningMemo (Appendix C)."
+        "text": "A federal designated-project screening has been completed under theImpact Assessment Act, S.C. 2019, c. 28. The proposed warehouse isnot a \"designated project\" listed in the Physical ActivitiesRegulations (SOR/2019-285), and accordingly no federal impact assessmentis triggered. The proponent has filed a screening memo with IAAC for therecord. This determination is documented in the Federal IAA ScreeningMemo (Appendix C).",
+        "text_raw": "A federal designated-project screening has been completed under theImpact Assessment Act, S.C. 2019, c. 28. The proposed warehouse isnot a \"designated project\" listed in the Physical ActivitiesRegulations (SOR/2019-285), and accordingly no federal impact assessmentis triggered. The proponent has filed a screening memo with IAAC for therecord. This determination is documented in the Federal IAA ScreeningMemo (Appendix C).",
+        "text_char_start": 2319
       },
       "sourceSpan": {
         "documentId": "lr1:dba8808c16cfbda50a1af2c1d8b9a07c224baedb8a30209bb9aeabd86c99b186",
@@ -131,9 +165,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Per OBC 3.4.2, the maximum travel distance from any point in thewarehouse floor area to the nearest exit is 31.0 m, within the 45 mallowable for sprinklered Group F-2 occupancies. Two-hour fire-ratedexit stairs serve the office mezzanine. Travel distance to an exit dooron the office level is 18.0 m. The application confirms fullconformance with OBC 3.4.2."
+        "text": "Per OBC 3.4.2, the maximum travel distance from any point in thewarehouse floor area to the nearest exit is 31.0 m, within the 45 mallowable for sprinklered Group F-2 occupancies. Two-hour fire-ratedexit stairs serve the office mezzanine. Travel distance to an exit dooron the office level is 18.0 m. The application confirms fullconformance with OBC 3.4.2.",
+        "text_raw": "Per OBC 3.4.2, the maximum travel distance from any point in thewarehouse floor area to the nearest exit is 31.0 m, within the 45 mallowable for sprinklered Group F-2 occupancies. Two-hour fire-ratedexit stairs serve the office mezzanine. Travel distance to an exit dooron the office level is 18.0 m. The application confirms fullconformance with OBC 3.4.2.",
+        "text_char_start": 1245
       },
       "sourceSpan": {
         "documentId": "lr1:dba8808c16cfbda50a1af2c1d8b9a07c224baedb8a30209bb9aeabd86c99b186",
@@ -174,9 +225,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "A fully-supervised wet-pipe sprinkler system designed and installed inaccordance with NFPA 13 is provided throughout the warehouse andoffice. Hazard classification is Extra Hazard Group 2 (rack storage).Sprinkler protection complies with OBC 3.2.2. A two-stage firealarm system per CAN/ULC-S524 is provided."
+        "text": "A fully-supervised wet-pipe sprinkler system designed and installed inaccordance with NFPA 13 is provided throughout the warehouse andoffice. Hazard classification is Extra Hazard Group 2 (rack storage).Sprinkler protection complies with OBC 3.2.2. A two-stage firealarm system per CAN/ULC-S524 is provided.",
+        "text_raw": "A fully-supervised wet-pipe sprinkler system designed and installed inaccordance with NFPA 13 is provided throughout the warehouse andoffice. Hazard classification is Extra Hazard Group 2 (rack storage).Sprinkler protection complies with OBC 3.2.2. A two-stage firealarm system per CAN/ULC-S524 is provided.",
+        "text_char_start": 1649
       },
       "sourceSpan": {
         "documentId": "lr1:dba8808c16cfbda50a1af2c1d8b9a07c224baedb8a30209bb9aeabd86c99b186",
@@ -225,9 +293,24 @@
           "percent_values": [],
           "dollar_amounts": [],
           "day_count_min": 30,
-          "day_count_max": 30
+          "day_count_max": 30,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "The proponent acknowledges the Crown's duty to consult under section35 of the Constitution Act, 1982 and Haida Nation v. British Columbia(Minister of Forests), 2004 SCC 73. A consultation log recordsengagement with the Mississaugas of the Credit First Nation, whosetreaty territory includes the project lands. The First Nation has beenprovided with the application package and a 30-day comment window.Accommodations agreed to include a pre-construction archaeologicalassessment under the Ontario Heritage Act and a community-benefitscontribution. Engagement is logged in the Consultation andAccommodation Log (Appendix D)."
+        "text": "The proponent acknowledges the Crown's duty to consult under section35 of the Constitution Act, 1982 and Haida Nation v. British Columbia(Minister of Forests), 2004 SCC 73. A consultation log recordsengagement with the Mississaugas of the Credit First Nation, whosetreaty territory includes the project lands. The First Nation has beenprovided with the application package and a 30-day comment window.Accommodations agreed to include a pre-construction archaeologicalassessment under the Ontario Heritage Act and a community-benefitscontribution. Engagement is logged in the Consultation andAccommodation Log (Appendix D).",
+        "text_raw": "The proponent acknowledges the Crown's duty to consult under section35 of the Constitution Act, 1982 and Haida Nation v. British Columbia(Minister of Forests), 2004 SCC 73. A consultation log recordsengagement with the Mississaugas of the Credit First Nation, whosetreaty territory includes the project lands. The First Nation has beenprovided with the application package and a 30-day comment window.Accommodations agreed to include a pre-construction archaeologicalassessment under the Ontario Heritage Act and a community-benefitscontribution. Engagement is logged in the Consultation andAccommodation Log (Appendix D).",
+        "text_char_start": 2799
       },
       "sourceSpan": {
         "documentId": "lr1:dba8808c16cfbda50a1af2c1d8b9a07c224baedb8a30209bb9aeabd86c99b186",

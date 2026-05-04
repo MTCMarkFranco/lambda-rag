@@ -104,6 +104,15 @@ public sealed class DeterministicContractProjector : IDocumentProjector
         var categories = new Dictionary<string, JsonArray>(StringComparer.Ordinal);
         var unknown = new JsonArray();
 
+        // Defined-party alias resolution: capture every `Canonical ("Alias")`
+        // form across the whole document so that downstream lambdas which
+        // expect a literal like `Contains("Contoso")` still match when the
+        // operative clause uses the alias `"Company"`. Pure pre-processor —
+        // we substitute alias → canonical inside each section's body text
+        // before classification / feature extraction. The original parsed
+        // text is left untouched so spans remain valid.
+        var aliasMap = ExtractPartyAliases(parsed.Blocks);
+
         // Pre-pass: collect (sectionId, primaryTopic, headingLower) so amendment
         // resolver can look up by heading text mentioned in cross-references.
         var processed = new List<(string Id, string Heading, string PrimaryTopic)>();
@@ -122,10 +131,17 @@ public sealed class DeterministicContractProjector : IDocumentProjector
             var heading = group.Heading?.Text ?? string.Empty;
             var headingPath = group.HeadingPath;
             var bodyText = string.Join("\n", group.Body.Select(b => b.Text));
+            var resolvedBodyText = ApplyAliases(bodyText, aliasMap);
             var firstSpan = (group.Heading ?? group.Body.FirstOrDefault())?.Span ?? SourceSpan.Unknown;
+            // Char offset of body text inside the canonical document — lets
+            // downstream markup compute substring-precise spans without
+            // re-walking the parser output. Falls back to firstSpan for
+            // body-less sections so the offset is always well-defined.
+            var bodyCharStart = group.Body.FirstOrDefault()?.Span.CharStart
+                                ?? firstSpan.CharStart;
             var sectionId = $"s_{index:D8}";
 
-            var classification = Classify(heading, bodyText, processed);
+            var classification = Classify(heading, resolvedBodyText, processed);
 
             var topicsArr = new JsonArray();
             var scoresObj = new JsonObject();
@@ -138,7 +154,7 @@ public sealed class DeterministicContractProjector : IDocumentProjector
             }
 
             var primary = classification.PrimaryTopic ?? "unknown";
-            var density = ComputeDensity(primary, bodyText);
+            var density = ComputeDensity(primary, resolvedBodyText);
 
             var sectionNode = new JsonObject
             {
@@ -151,8 +167,13 @@ public sealed class DeterministicContractProjector : IDocumentProjector
                 ["topic_scores"] = scoresObj,
                 ["topic_density"] = density,
                 ["is_operative_for_topic"] = false,
-                ["text_features"] = TextFeatureExtractor.Extract(bodyText),
-                ["text"] = bodyText,
+                ["text_features"] = TextFeatureExtractor.Extract(resolvedBodyText),
+                ["text"] = resolvedBodyText,
+                // Original (non-alias-resolved) body text — kept so callers
+                // that need verbatim source can still get it without
+                // re-parsing the document.
+                ["text_raw"] = bodyText,
+                ["text_char_start"] = bodyCharStart,
             };
             if (classification.InheritedFrom is not null)
                 sectionNode["inherited_from"] = classification.InheritedFrom;
@@ -386,4 +407,67 @@ public sealed class DeterministicContractProjector : IDocumentProjector
     }
 
     private record HeadingGroup(ContentBlock? Heading, List<ContentBlock> Body, string HeadingPath);
+
+    /// <summary>
+    /// Defined-term party-alias regex. Captures patterns like:
+    ///   <c>Contoso ("Company")</c> · <c>Vendor Corp ("Vendor")</c> ·
+    ///   <c>Acme Inc. ("Supplier")</c>. Group 1 = canonical name (left of
+    ///   parens), group 2 = alias inside the quotes. We accept ASCII straight
+    ///   quotes and curly quotes so the regex works on Word-processed text.
+    /// </summary>
+    private static readonly Regex AliasRx = new(
+        @"([A-Z][\w&.\-]*(?:\s+[A-Z][\w&.\-]*){0,4})\s*\([\u0022\u201C\u2018']([A-Z][\w]{2,30})[\u0022\u201D\u2019']\)",
+        RegexOptions.Compiled);
+
+    /// <summary>
+    /// Build alias → canonical map by scanning every parsed block. Aliases
+    /// shorter than 3 characters or identical to the canonical name are
+    /// discarded. The map is ordered by alias length (longest first) so
+    /// substitution doesn't get partially shadowed by shorter aliases.
+    /// </summary>
+    private static IReadOnlyList<(string Alias, string Canonical)> ExtractPartyAliases(
+        IReadOnlyList<ContentBlock> blocks)
+    {
+        var map = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var block in blocks)
+        {
+            foreach (Match m in AliasRx.Matches(block.Text))
+            {
+                var canonical = m.Groups[1].Value.Trim();
+                var alias = m.Groups[2].Value.Trim();
+                if (alias.Length < 3) continue;
+                if (string.Equals(alias, canonical, StringComparison.Ordinal)) continue;
+                if (canonical.Contains(alias, StringComparison.Ordinal)) continue;
+                // First definition wins — contracts only define each alias once.
+                map.TryAdd(alias, canonical);
+            }
+        }
+        return map
+            .OrderByDescending(kvp => kvp.Key.Length)
+            .ThenBy(kvp => kvp.Key, StringComparer.Ordinal)
+            .Select(kvp => (kvp.Key, kvp.Value))
+            .ToList();
+    }
+
+    /// <summary>
+    /// Substitute aliases with their canonical names using whole-word
+    /// boundaries so we don't rewrite substrings of unrelated words. The
+    /// match is case-sensitive (defined terms in contracts are capitalized
+    /// consistently), which avoids accidentally rewriting common nouns.
+    /// </summary>
+    private static string ApplyAliases(string text, IReadOnlyList<(string Alias, string Canonical)> map)
+    {
+        if (map.Count == 0 || string.IsNullOrEmpty(text)) return text;
+        var result = text;
+        foreach (var (alias, canonical) in map)
+        {
+            // Word-boundary substitution. We don't add a possessive carve-out
+            // ("Company's") on purpose — `\b` already breaks on the apostrophe,
+            // so "Company's" becomes "Contoso's" naturally.
+            var rx = new Regex($@"\b{Regex.Escape(alias)}\b", RegexOptions.None,
+                TimeSpan.FromMilliseconds(200));
+            result = rx.Replace(result, canonical);
+        }
+        return result;
+    }
 }

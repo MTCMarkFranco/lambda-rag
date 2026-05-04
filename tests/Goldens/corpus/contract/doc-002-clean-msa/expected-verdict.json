@@ -5,7 +5,7 @@
   "ruleSetId": "rs_canadian_commercial_contract",
   "ruleSetVersion": "1.0.0",
   "ruleSetFingerprint": {
-    "value": "lr1:c728248c50b9144221d8f511a14ec63e4ae65c9d5d4976f338fac669b9edd8fb"
+    "value": "lr1:2f541ac2024e20889677c0ff2e16188e1cb936daf685f953c3d67a8178e92d03"
   },
   "projectorId": "contract",
   "projectorVersion": "1.4.0",
@@ -41,9 +41,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "This Agreement is governed by the laws of the Province of Ontario andthe federal laws of Canada applicable therein. The exclusive venue forany dispute is the courts of Ontario."
+        "text": "This Agreement is governed by the laws of the Province of Ontario andthe federal laws of Canada applicable therein. The exclusive venue forany dispute is the courts of Ontario.",
+        "text_raw": "This Agreement is governed by the laws of the Province of Ontario andthe federal laws of Canada applicable therein. The exclusive venue forany dispute is the courts of Ontario.",
+        "text_char_start": 1753
       },
       "sourceSpan": {
         "documentId": "lr1:2599bd02b2435eda9583942c03272342cab08fc7c6a882a36a243c96471581e6",
@@ -81,16 +98,33 @@
           "parties": 0.4,
           "payment_terms": 0.4
         },
-        "topic_density": 2.7027,
+        "topic_density": 2.439,
         "is_operative_for_topic": true,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Each party's aggregate liability under this Agreement shall not exceedthe fees paid by Customer to Provider in the twelve (12) monthspreceding the event giving rise to the claim. Neither party is liablefor indirect, incidental, or consequential damages."
+        "text": "Each party's aggregate liability under this Agreement shall not exceedthe fees paid by North BayManufacturing Ltd. to Cedarwood Technologies Inc. in the twelve (12) monthspreceding the event giving rise to the claim. Neither party is liablefor indirect, incidental, or consequential damages.",
+        "text_raw": "Each party's aggregate liability under this Agreement shall not exceedthe fees paid by Customer to Provider in the twelve (12) monthspreceding the event giving rise to the claim. Neither party is liablefor indirect, incidental, or consequential damages.",
+        "text_char_start": 1256
       },
       "sourceSpan": {
         "documentId": "lr1:2599bd02b2435eda9583942c03272342cab08fc7c6a882a36a243c96471581e6",
@@ -124,7 +158,7 @@
         "topic_scores": {
           "payment_terms": 0.9
         },
-        "topic_density": 9.0909,
+        "topic_density": 8.5714,
         "is_operative_for_topic": true,
         "text_features": {
           "day_counts": [],
@@ -134,10 +168,25 @@
             1
           ],
           "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
           "percent_min": 1,
-          "percent_max": 1
+          "percent_max": 1,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Customer shall pay all undisputed invoices within thirty (30) days(net 30) of receipt of a valid invoice. Late payments accrue interestat the rate published by the Bank of Canada plus 1% per annum."
+        "text": "North BayManufacturing Ltd. shall pay all undisputed invoices within thirty (30) days(net 30) of receipt of a valid invoice. Late payments accrue interestat the rate published by the Bank of Canada plus 1% per annum.",
+        "text_raw": "Customer shall pay all undisputed invoices within thirty (30) days(net 30) of receipt of a valid invoice. Late payments accrue interestat the rate published by the Bank of Canada plus 1% per annum.",
+        "text_char_start": 680
       },
       "sourceSpan": {
         "documentId": "lr1:2599bd02b2435eda9583942c03272342cab08fc7c6a882a36a243c96471581e6",
@@ -173,16 +222,33 @@
           "privacy": 0.9,
           "service_levels": 0.4
         },
-        "topic_density": 2.5641,
+        "topic_density": 2.439,
         "is_operative_for_topic": true,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Provider shall process Personal Information only as required to deliverthe Services and in compliance with the Personal InformationProtection and Electronic Documents Act (PIPEDA) and any substantiallysimilar provincial privacy legislation applicable to the data subjects,including Quebec's Law 25 where applicable."
+        "text": "Cedarwood Technologies Inc. shall process Personal Information only as required to deliverthe Services and in compliance with the Personal InformationProtection and Electronic Documents Act (PIPEDA) and any substantiallysimilar provincial privacy legislation applicable to the data subjects,including Quebec's Law 25 where applicable.",
+        "text_raw": "Provider shall process Personal Information only as required to deliverthe Services and in compliance with the Personal InformationProtection and Electronic Documents Act (PIPEDA) and any substantiallysimilar provincial privacy legislation applicable to the data subjects,including Quebec's Law 25 where applicable.",
+        "text_char_start": 916
       },
       "sourceSpan": {
         "documentId": "lr1:2599bd02b2435eda9583942c03272342cab08fc7c6a882a36a243c96471581e6",
@@ -199,7 +265,7 @@
       "predicateText": "input1.category == \"privacy\""
     },
     {
-      "id": "lr1:339d74cd639e572e12a1e7e2ebd4c6c71eb38f5e163c1dbb99b754cfd2231b29",
+      "id": "lr1:76a73fe63fc037e3f198eb442171514aa9e7df89459a5cc6daa194d85ebbf8ac",
       "ruleId": "CAN-CONTRACT-TERM-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -227,16 +293,33 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Either party may terminate this Agreement for material uncured breachon thirty (30) days' written notice. Customer may terminate thisAgreement for convenience on ninety (90) days' written notice."
+        "text": "Either party may terminate this Agreement for material uncured breachon thirty (30) days' written notice. North BayManufacturing Ltd. may terminate thisAgreement for convenience on ninety (90) days' written notice.",
+        "text_raw": "Either party may terminate this Agreement for material uncured breachon thirty (30) days' written notice. Customer may terminate thisAgreement for convenience on ninety (90) days' written notice.",
+        "text_char_start": 1533
       },
       "sourceSpan": {
         "documentId": "lr1:2599bd02b2435eda9583942c03272342cab08fc7c6a882a36a243c96471581e6",
-        "charStart": 1514,
-        "charLength": 17,
+        "charStart": 1699,
+        "charLength": 11,
         "headingPath": "/Master Services Agreement — Canadian Commercial Customer - Canadian-Law Vendor/6. Termination",
-        "charEnd": 1531
+        "charEnd": 1710
       },
       "errorMessage": "Rule 'CAN-CONTRACT-TERM-001' failed: The contract must include both a termination-for-cause clause and a termination-for-convenience clause with a defined notice period.",
       "evidenceQuotes": [

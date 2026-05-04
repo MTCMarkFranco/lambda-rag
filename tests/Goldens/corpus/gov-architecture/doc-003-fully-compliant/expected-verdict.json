@@ -5,7 +5,7 @@
   "ruleSetId": "rs_gc_cloud_guardrails_v2",
   "ruleSetVersion": "1.0.0",
   "ruleSetFingerprint": {
-    "value": "lr1:872966856e9547154ac93229b9112bd638c19b59fea0aa704a3909e2700eb8b5"
+    "value": "lr1:59ab8307c1e8ccba9a533ed18bb9033ee230695669c26d21d4bb8dd7e80d193f"
   },
   "projectorId": "contract",
   "projectorVersion": "1.4.0",
@@ -51,9 +51,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "All administrative access — including the two registered globaladministrators — is gated by phishing-resistant MFA. The supportedauthenticators are FIDO2 security keys and PIV-derived smart cardcredentials issued under the departmental PKI. Password-based andSMS-based authentication are disabled in conditional access policy."
+        "text": "All administrative access — including the two registered globaladministrators — is gated by phishing-resistant MFA. The supportedauthenticators are FIDO2 security keys and PIV-derived smart cardcredentials issued under the departmental PKI. Password-based andSMS-based authentication are disabled in conditional access policy.",
+        "text_raw": "All administrative access — including the two registered globaladministrators — is gated by phishing-resistant MFA. The supportedauthenticators are FIDO2 security keys and PIV-derived smart cardcredentials issued under the departmental PKI. Password-based andSMS-based authentication are disabled in conditional access policy.",
+        "text_char_start": 581
       },
       "sourceSpan": {
         "documentId": "lr1:cc4b686cc4d65b30c353c56b0bae9f6b86c5b7de3a77ebb13d5dcc09a8631d3b",
@@ -98,9 +115,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Every data-plane resource — compute, managed databases, blob storage,key vaults, and log analytics workspaces — is pinned to the provider'sCanada Central region (Toronto), with a designated paired failoverregion of Canada East (Quebec). Provisioning outside Canadian datacentre regions is blocked by tenant-level policy."
+        "text": "Every data-plane resource — compute, managed databases, blob storage,key vaults, and log analytics workspaces — is pinned to the provider'sCanada Central region (Toronto), with a designated paired failoverregion of Canada East (Quebec). Provisioning outside Canadian datacentre regions is blocked by tenant-level policy.",
+        "text_raw": "Every data-plane resource — compute, managed databases, blob storage,key vaults, and log analytics workspaces — is pinned to the provider'sCanada Central region (Toronto), with a designated paired failoverregion of Canada East (Quebec). Provisioning outside Canadian datacentre regions is blocked by tenant-level policy.",
+        "text_char_start": 951
       },
       "sourceSpan": {
         "documentId": "lr1:cc4b686cc4d65b30c353c56b0bae9f6b86c5b7de3a77ebb13d5dcc09a8631d3b",
@@ -117,7 +151,7 @@
       "predicateText": "input1.category == \"data_residency_canada\""
     },
     {
-      "id": "lr1:cbc995a36b81346a87944be9ed094098b21a56aca6e9fafa06b1d70456e1d4ad",
+      "id": "lr1:e67f8aa54f15a26239db907aee9f61d4f198201348850c753df0d1fcf918de90",
       "ruleId": "GC-CG-06-EncryptionAtRest",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -147,16 +181,33 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "All persistent storage is encrypted at rest with AES-256 using a FIPS140-2 validated cryptographic module. Customer-managed keys are storedin an HSM-backed key vault in Canada Central with annual key rotationand dual-control administrative access."
+        "text": "All persistent storage is encrypted at rest with AES-256 using a FIPS140-2 validated cryptographic module. Customer-managed keys are storedin an HSM-backed key vault in Canada Central with annual key rotationand dual-control administrative access.",
+        "text_raw": "All persistent storage is encrypted at rest with AES-256 using a FIPS140-2 validated cryptographic module. Customer-managed keys are storedin an HSM-backed key vault in Canada Central with annual key rotationand dual-control administrative access.",
+        "text_char_start": 1303
       },
       "sourceSpan": {
         "documentId": "lr1:cc4b686cc4d65b30c353c56b0bae9f6b86c5b7de3a77ebb13d5dcc09a8631d3b",
-        "charStart": 1277,
-        "charLength": 24,
+        "charStart": 1352,
+        "charLength": 7,
         "headingPath": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/4. Encryption at Rest",
-        "charEnd": 1301
+        "charEnd": 1359
       },
       "errorMessage": "Rule 'GC-CG-06-EncryptionAtRest' failed: Data at rest must be encrypted using CSE-approved cryptographic algorithms (per ITSP.40.111). The architecture must reference an approved algorithm (AES-256) and FIPS 140 validation status.",
       "evidenceQuotes": [
@@ -168,7 +219,7 @@
       "predicateText": "input1.category == \"encryption_at_rest\""
     },
     {
-      "id": "lr1:d7369a66706c22b2bd50f4ef94f9cb33e1ae7427d11ffe45da6931af5f920092",
+      "id": "lr1:2d61d1c4fc354bc31e78c94583aa0743624b289903523566eade34e038352f59",
       "ruleId": "GC-CG-07-TLS",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -198,16 +249,33 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "All ingress traffic terminates with a minimum negotiated TLS version ofTLS 1.2; TLS 1.3 is preferred and offered first. TLS 1.0 and TLS 1.1 areexplicitly disabled. Cipher suites are restricted to the CSE-approvedsubset."
+        "text": "All ingress traffic terminates with a minimum negotiated TLS version ofTLS 1.2; TLS 1.3 is preferred and offered first. TLS 1.0 and TLS 1.1 areexplicitly disabled. Cipher suites are restricted to the CSE-approvedsubset.",
+        "text_raw": "All ingress traffic terminates with a minimum negotiated TLS version ofTLS 1.2; TLS 1.3 is preferred and offered first. TLS 1.0 and TLS 1.1 areexplicitly disabled. Cipher suites are restricted to the CSE-approvedsubset.",
+        "text_char_start": 1584
       },
       "sourceSpan": {
         "documentId": "lr1:cc4b686cc4d65b30c353c56b0bae9f6b86c5b7de3a77ebb13d5dcc09a8631d3b",
-        "charStart": 1555,
-        "charLength": 27,
+        "charStart": 1655,
+        "charLength": 7,
         "headingPath": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/5. TLS 1.2 Configuration",
-        "charEnd": 1582
+        "charEnd": 1662
       },
       "errorMessage": "Rule 'GC-CG-07-TLS' failed: Data in transit must be encrypted by default using TLS 1.2 or higher. The architecture must explicitly commit to TLS 1.2+ for all cloud services and external communications.",
       "evidenceQuotes": [
@@ -258,10 +326,23 @@
           "dollar_amounts": [],
           "day_count_min": 365,
           "day_count_max": 365,
+          "month_count_min": 0,
+          "month_count_max": 0,
           "year_count_min": 7,
-          "year_count_max": 7
+          "year_count_max": 7,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Platform audit logs are streamed to a centralised log analyticsworkspace and retained for 365 days online with a further 7 years intiered immutable storage. The log pipeline captures sign-in events(interactive and non-interactive), configuration changes, and resourceprovisioning activities. Two named information-security personnel areregistered as the platform security contacts."
+        "text": "Platform audit logs are streamed to a centralised log analyticsworkspace and retained for 365 days online with a further 7 years intiered immutable storage. The log pipeline captures sign-in events(interactive and non-interactive), configuration changes, and resourceprovisioning activities. Two named information-security personnel areregistered as the platform security contacts.",
+        "text_raw": "Platform audit logs are streamed to a centralised log analyticsworkspace and retained for 365 days online with a further 7 years intiered immutable storage. The log pipeline captures sign-in events(interactive and non-interactive), configuration changes, and resourceprovisioning activities. Two named information-security personnel areregistered as the platform security contacts.",
+        "text_char_start": 1834
       },
       "sourceSpan": {
         "documentId": "lr1:cc4b686cc4d65b30c353c56b0bae9f6b86c5b7de3a77ebb13d5dcc09a8631d3b",

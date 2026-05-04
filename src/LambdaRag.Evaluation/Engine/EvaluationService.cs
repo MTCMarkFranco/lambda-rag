@@ -180,7 +180,30 @@ public sealed class EvaluationService
             var engine = new RE.RulesEngine([workflow]);
             var results = await engine.ExecuteAllRulesAsync(WorkflowFactory.WorkflowName, input!).ConfigureAwait(false);
             var result = results.Single();
+
+            // Distinguish a "rule legitimately returned false" from a
+            // "lambda failed to compile / threw at runtime". RulesEngine
+            // packs both into IsSuccess=false; the parse/runtime path
+            // surfaces a stack-trace-shaped ExceptionMessage. We treat the
+            // latter as Error so silent failures don't masquerade as Fail.
+            if (!result.IsSuccess && IsRuntimeException(result.ExceptionMessage))
+            {
+                _logger.LogWarning(
+                    "Rule {RuleId} ({RuleVersion}) lambda raised a runtime/parse exception at {Path}: {Message}",
+                    rule.Id, rule.Version, section.Path, result.ExceptionMessage);
+                return BuildVerdict(
+                    rule, ruleSet, VerdictOutcome.Error,
+                    section: section,
+                    input: inputJson,
+                    span: section.Span,
+                    error: result.ExceptionMessage,
+                    remediationText: null);
+            }
+
             var outcome = result.IsSuccess ? VerdictOutcome.Pass : VerdictOutcome.Fail;
+            var span = outcome == VerdictOutcome.Fail
+                ? RefineAnchor(rule, section)
+                : section.Span;
             var remediationText = outcome == VerdictOutcome.Fail
                 ? RemediationRenderer.Render(rule.Remediation, rule, section)
                 : null;
@@ -188,7 +211,7 @@ public sealed class EvaluationService
                 rule, ruleSet, outcome,
                 section: section,
                 input: inputJson,
-                span: section.Span,
+                span: span,
                 error: result.IsSuccess ? null : result.ExceptionMessage,
                 remediationText: remediationText);
         }
@@ -203,6 +226,101 @@ public sealed class EvaluationService
                 span: section.Span,
                 error: ex.Message,
                 remediationText: null);
+        }
+    }
+
+    private static bool IsRuntimeException(string? exceptionMessage)
+    {
+        if (string.IsNullOrEmpty(exceptionMessage)) return false;
+        // RulesEngine wraps parse / type-binding errors with a recognizable
+        // prefix. Anything matching this shape is engine-side, not a
+        // legitimate "rule said false".
+        return exceptionMessage.StartsWith("Exception while parsing expression", StringComparison.Ordinal)
+            || exceptionMessage.Contains("RuleException", StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Refine the markup anchor for a Fail verdict so reviewer comments land
+    /// on the substring that triggered the verdict, not the section heading.
+    /// Strategy:
+    ///   1. If the rule declares an explicit <see cref="Rule.Anchor"/> regex,
+    ///      use the first match inside the section's body text.
+    ///   2. Otherwise, scan the lambda for <c>Contains("…")</c> literals and
+    ///      anchor on the first one found in the body text. (Helps "must
+    ///      contain X" rules anchor to the X they did find but rejected, and
+    ///      also "must not contain Y" rules anchor to the offending Y.)
+    ///   3. Fallback to the section's existing span (heading) when nothing
+    ///      matches — better than dropping the comment entirely.
+    /// All lookups read the section's <c>text_char_start</c> projection
+    /// field so spans line up with the canonical document offsets.
+    /// </summary>
+    private static SourceSpan RefineAnchor(Rule rule, MatchedSection section)
+    {
+        if (section.Node is not JsonObject obj) return section.Span;
+        var text = obj["text"]?.GetValue<string>() ?? string.Empty;
+        if (text.Length == 0) return section.Span;
+        long bodyStart = section.Span.CharStart;
+        var bodyStartNode = obj["text_char_start"];
+        if (bodyStartNode is JsonValue bv)
+        {
+            if (bv.TryGetValue<long>(out var lv)) bodyStart = lv;
+            else if (bv.TryGetValue<int>(out var iv)) bodyStart = iv;
+        }
+
+        (int Index, int Length)? hit = null;
+        if (!string.IsNullOrEmpty(rule.Anchor))
+        {
+            try
+            {
+                var rx = new System.Text.RegularExpressions.Regex(
+                    rule.Anchor,
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase
+                    | System.Text.RegularExpressions.RegexOptions.Singleline,
+                    TimeSpan.FromMilliseconds(200));
+                var m = rx.Match(text);
+                if (m.Success && m.Length > 0) hit = (m.Index, m.Length);
+            }
+            catch
+            {
+                // Treat invalid anchor regex as "no anchor" — fall through.
+            }
+        }
+
+        if (hit is null)
+        {
+            foreach (var literal in ExtractContainsLiterals(rule.Lambda))
+            {
+                var idx = text.IndexOf(literal, StringComparison.OrdinalIgnoreCase);
+                if (idx >= 0)
+                {
+                    hit = (idx, literal.Length);
+                    break;
+                }
+            }
+        }
+
+        if (hit is null) return section.Span;
+
+        return new SourceSpan(
+            section.Span.DocumentId,
+            CharStart: (int)(bodyStart + hit.Value.Index),
+            CharLength: hit.Value.Length,
+            PageNumber: section.Span.PageNumber,
+            HeadingPath: section.Span.HeadingPath);
+    }
+
+    private static readonly System.Text.RegularExpressions.Regex ContainsLiteralRx = new(
+        "Contains\\(\\s*\"((?:[^\"\\\\]|\\\\.)*)\"\\s*\\)",
+        System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    private static IEnumerable<string> ExtractContainsLiterals(string lambda)
+    {
+        if (string.IsNullOrEmpty(lambda)) yield break;
+        foreach (System.Text.RegularExpressions.Match m in ContainsLiteralRx.Matches(lambda))
+        {
+            var raw = m.Groups[1].Value;
+            if (raw.Length > 0)
+                yield return System.Text.RegularExpressions.Regex.Unescape(raw);
         }
     }
 

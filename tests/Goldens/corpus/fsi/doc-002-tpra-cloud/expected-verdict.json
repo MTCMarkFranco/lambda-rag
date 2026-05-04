@@ -5,7 +5,7 @@
   "ruleSetId": "rs_osfi_b10_tprm",
   "ruleSetVersion": "1.0.0",
   "ruleSetFingerprint": {
-    "value": "lr1:5dbc61f757c2cb25ad73b0fde2cd9988e266b9a0c9426b1a6f9e99f6eacfd94d"
+    "value": "lr1:bc40e4051d8695407fb3fcf3b823ef052e96b8ef19ff52c48708545ebb8c9861"
   },
   "projectorId": "contract",
   "projectorVersion": "1.4.0",
@@ -41,9 +41,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Synthetic / public-domain only. Authored for the lambda-rag goldencorpus."
+        "text": "Synthetic / public-domain only. Authored for the lambda-rag goldencorpus.",
+        "text_raw": "Synthetic / public-domain only. Authored for the lambda-rag goldencorpus.",
+        "text_char_start": 77
       },
       "sourceSpan": {
         "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
@@ -86,9 +103,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "This arrangement is governed by BetaBank's enterprise-wide Third-PartyRisk Management Framework (TPRMF), under which it has been risk-tiered\"Tier 1 — Critical\" by the Vendor Governance Committee. Criticality hasbeen re-confirmed annually since onboarding, and the arrangement isincluded in the Bank's quarterly TPRMF reporting to the Risk Committeeof the Board."
+        "text": "This arrangement is governed by BetaBank's enterprise-wide Third-PartyRisk Management Framework (TPRMF), under which it has been risk-tiered\"Tier 1 — Critical\" by the Vendor Governance Committee. Criticality hasbeen re-confirmed annually since onboarding, and the arrangement isincluded in the Bank's quarterly TPRMF reporting to the Risk Committeeof the Board.",
+        "text_raw": "This arrangement is governed by BetaBank's enterprise-wide Third-PartyRisk Management Framework (TPRMF), under which it has been risk-tiered\"Tier 1 — Critical\" by the Vendor Governance Committee. Criticality hasbeen re-confirmed annually since onboarding, and the arrangement isincluded in the Bank's quarterly TPRMF reporting to the Risk Committeeof the Board.",
+        "text_char_start": 533
       },
       "sourceSpan": {
         "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
@@ -133,9 +167,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "NorthStar may engage cloud-infrastructure and observabilitysubcontractors as necessary to deliver the SaaS platform. The currentsubcontractor inventory is reviewed by the Bank annually. NorthStarwill keep BetaBank informed of changes through the standard quarterlyservice review."
+        "text": "NorthStar may engage cloud-infrastructure and observabilitysubcontractors as necessary to deliver the SaaS platform. The currentsubcontractor inventory is reviewed by the Bank annually. NorthStarwill keep BetaBank informed of changes through the standard quarterlyservice review.",
+        "text_raw": "NorthStar may engage cloud-infrastructure and observabilitysubcontractors as necessary to deliver the SaaS platform. The currentsubcontractor inventory is reviewed by the Bank annually. NorthStarwill keep BetaBank informed of changes through the standard quarterlyservice review.",
+        "text_char_start": 951
       },
       "sourceSpan": {
         "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
@@ -178,9 +229,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "The contract preserves audit and examination rights for BetaBank, itsinternal and external auditors, and OSFI, upon reasonable notice. TheProvider shall make personnel, records, and operational systemsrelevant to the Services available for examination by such parties,including in the context of an OSFI supervisory review."
+        "text": "The contract preserves audit and examination rights for BetaBank, itsinternal and external auditors, and OSFI, upon reasonable notice. TheProvider shall make personnel, records, and operational systemsrelevant to the Services available for examination by such parties,including in the context of an OSFI supervisory review.",
+        "text_raw": "The contract preserves audit and examination rights for BetaBank, itsinternal and external auditors, and OSFI, upon reasonable notice. TheProvider shall make personnel, records, and operational systemsrelevant to the Services available for examination by such parties,including in the context of an OSFI supervisory review.",
+        "text_char_start": 1289
       },
       "sourceSpan": {
         "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
@@ -223,9 +291,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "A documented business continuity plan governs the Services. NorthStarcommits to a Recovery Time Objective (RTO) of 4 hours and a RecoveryPoint Objective (RPO) of 15 minutes for the production treasuryworkload. BCP exercises are conducted semi-annually with BetaBankparticipation."
+        "text": "A documented business continuity plan governs the Services. NorthStarcommits to a Recovery Time Objective (RTO) of 4 hours and a RecoveryPoint Objective (RPO) of 15 minutes for the production treasuryworkload. BCP exercises are conducted semi-annually with BetaBankparticipation.",
+        "text_raw": "A documented business continuity plan governs the Services. NorthStarcommits to a Recovery Time Objective (RTO) of 4 hours and a RecoveryPoint Objective (RPO) of 15 minutes for the production treasuryworkload. BCP exercises are conducted semi-annually with BetaBankparticipation.",
+        "text_char_start": 1645
       },
       "sourceSpan": {
         "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
@@ -270,9 +355,24 @@
           "percent_values": [],
           "dollar_amounts": [],
           "day_count_min": 180,
-          "day_count_max": 180
+          "day_count_max": 180,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "A documented exit plan is maintained by the Bank for this criticalarrangement, with invocation triggers covering both planned exit (e.g.contract non-renewal, change of strategic direction) and stressed exit(e.g. provider insolvency, sustained service degradation). The exitplan includes 180 days of transition assistance and a certified datareturn / destruction obligation."
+        "text": "A documented exit plan is maintained by the Bank for this criticalarrangement, with invocation triggers covering both planned exit (e.g.contract non-renewal, change of strategic direction) and stressed exit(e.g. provider insolvency, sustained service degradation). The exitplan includes 180 days of transition assistance and a certified datareturn / destruction obligation.",
+        "text_raw": "A documented exit plan is maintained by the Bank for this criticalarrangement, with invocation triggers covering both planned exit (e.g.contract non-renewal, change of strategic direction) and stressed exit(e.g. provider insolvency, sustained service degradation). The exitplan includes 180 days of transition assistance and a certified datareturn / destruction obligation.",
+        "text_char_start": 1987
       },
       "sourceSpan": {
         "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
@@ -317,9 +417,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "A documented business continuity plan governs the Services. NorthStarcommits to a Recovery Time Objective (RTO) of 4 hours and a RecoveryPoint Objective (RPO) of 15 minutes for the production treasuryworkload. BCP exercises are conducted semi-annually with BetaBankparticipation."
+        "text": "A documented business continuity plan governs the Services. NorthStarcommits to a Recovery Time Objective (RTO) of 4 hours and a RecoveryPoint Objective (RPO) of 15 minutes for the production treasuryworkload. BCP exercises are conducted semi-annually with BetaBankparticipation.",
+        "text_raw": "A documented business continuity plan governs the Services. NorthStarcommits to a Recovery Time Objective (RTO) of 4 hours and a RecoveryPoint Objective (RPO) of 15 minutes for the production treasuryworkload. BCP exercises are conducted semi-annually with BetaBankparticipation.",
+        "text_char_start": 1645
       },
       "sourceSpan": {
         "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
@@ -366,9 +483,24 @@
           "percent_values": [],
           "dollar_amounts": [],
           "day_count_min": 180,
-          "day_count_max": 180
+          "day_count_max": 180,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "A documented exit plan is maintained by the Bank for this criticalarrangement, with invocation triggers covering both planned exit (e.g.contract non-renewal, change of strategic direction) and stressed exit(e.g. provider insolvency, sustained service degradation). The exitplan includes 180 days of transition assistance and a certified datareturn / destruction obligation."
+        "text": "A documented exit plan is maintained by the Bank for this criticalarrangement, with invocation triggers covering both planned exit (e.g.contract non-renewal, change of strategic direction) and stressed exit(e.g. provider insolvency, sustained service degradation). The exitplan includes 180 days of transition assistance and a certified datareturn / destruction obligation.",
+        "text_raw": "A documented exit plan is maintained by the Bank for this criticalarrangement, with invocation triggers covering both planned exit (e.g.contract non-renewal, change of strategic direction) and stressed exit(e.g. provider insolvency, sustained service degradation). The exitplan includes 180 days of transition assistance and a certified datareturn / destruction obligation.",
+        "text_char_start": 1987
       },
       "sourceSpan": {
         "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
@@ -409,9 +541,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Synthetic / public-domain only. Authored for the lambda-rag goldencorpus."
+        "text": "Synthetic / public-domain only. Authored for the lambda-rag goldencorpus.",
+        "text_raw": "Synthetic / public-domain only. Authored for the lambda-rag goldencorpus.",
+        "text_char_start": 77
       },
       "sourceSpan": {
         "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
@@ -454,9 +603,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "This arrangement is governed by BetaBank's enterprise-wide Third-PartyRisk Management Framework (TPRMF), under which it has been risk-tiered\"Tier 1 — Critical\" by the Vendor Governance Committee. Criticality hasbeen re-confirmed annually since onboarding, and the arrangement isincluded in the Bank's quarterly TPRMF reporting to the Risk Committeeof the Board."
+        "text": "This arrangement is governed by BetaBank's enterprise-wide Third-PartyRisk Management Framework (TPRMF), under which it has been risk-tiered\"Tier 1 — Critical\" by the Vendor Governance Committee. Criticality hasbeen re-confirmed annually since onboarding, and the arrangement isincluded in the Bank's quarterly TPRMF reporting to the Risk Committeeof the Board.",
+        "text_raw": "This arrangement is governed by BetaBank's enterprise-wide Third-PartyRisk Management Framework (TPRMF), under which it has been risk-tiered\"Tier 1 — Critical\" by the Vendor Governance Committee. Criticality hasbeen re-confirmed annually since onboarding, and the arrangement isincluded in the Bank's quarterly TPRMF reporting to the Risk Committeeof the Board.",
+        "text_char_start": 533
       },
       "sourceSpan": {
         "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
@@ -475,7 +641,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:f3a5e5d0a0d11fc669a6871a66876bc993f205650bd3691e39a76690d8b0ea3c",
+      "id": "lr1:817c54620eecf3345d141d785b4f8e4fdad1dfbe78a9e3348076a6340dd50f5b",
       "ruleId": "OSFI-B10-Subcontracting",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -501,16 +667,33 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "NorthStar may engage cloud-infrastructure and observabilitysubcontractors as necessary to deliver the SaaS platform. The currentsubcontractor inventory is reviewed by the Bank annually. NorthStarwill keep BetaBank informed of changes through the standard quarterlyservice review."
+        "text": "NorthStar may engage cloud-infrastructure and observabilitysubcontractors as necessary to deliver the SaaS platform. The currentsubcontractor inventory is reviewed by the Bank annually. NorthStarwill keep BetaBank informed of changes through the standard quarterlyservice review.",
+        "text_raw": "NorthStar may engage cloud-infrastructure and observabilitysubcontractors as necessary to deliver the SaaS platform. The currentsubcontractor inventory is reviewed by the Bank annually. NorthStarwill keep BetaBank informed of changes through the standard quarterlyservice review.",
+        "text_char_start": 951
       },
       "sourceSpan": {
         "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
-        "charStart": 901,
-        "charLength": 48,
+        "charStart": 1010,
+        "charLength": 11,
         "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)/3. Subcontracting and Outsourcing of Services",
-        "charEnd": 949
+        "charEnd": 1021
       },
       "errorMessage": "Rule 'OSFI-B10-Subcontracting' failed: Subcontracting by the third party must be subject to FRFI prior notice or consent and the contract must extend FRFI rights through the subcontracting chain.",
       "evidenceQuotes": [
@@ -546,9 +729,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "The contract preserves audit and examination rights for BetaBank, itsinternal and external auditors, and OSFI, upon reasonable notice. TheProvider shall make personnel, records, and operational systemsrelevant to the Services available for examination by such parties,including in the context of an OSFI supervisory review."
+        "text": "The contract preserves audit and examination rights for BetaBank, itsinternal and external auditors, and OSFI, upon reasonable notice. TheProvider shall make personnel, records, and operational systemsrelevant to the Services available for examination by such parties,including in the context of an OSFI supervisory review.",
+        "text_raw": "The contract preserves audit and examination rights for BetaBank, itsinternal and external auditors, and OSFI, upon reasonable notice. TheProvider shall make personnel, records, and operational systemsrelevant to the Services available for examination by such parties,including in the context of an OSFI supervisory review.",
+        "text_char_start": 1289
       },
       "sourceSpan": {
         "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
@@ -591,9 +791,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "Synthetic / public-domain only. Authored for the lambda-rag goldencorpus."
+        "text": "Synthetic / public-domain only. Authored for the lambda-rag goldencorpus.",
+        "text_raw": "Synthetic / public-domain only. Authored for the lambda-rag goldencorpus.",
+        "text_char_start": 77
       },
       "sourceSpan": {
         "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
@@ -636,9 +853,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "This arrangement is governed by BetaBank's enterprise-wide Third-PartyRisk Management Framework (TPRMF), under which it has been risk-tiered\"Tier 1 — Critical\" by the Vendor Governance Committee. Criticality hasbeen re-confirmed annually since onboarding, and the arrangement isincluded in the Bank's quarterly TPRMF reporting to the Risk Committeeof the Board."
+        "text": "This arrangement is governed by BetaBank's enterprise-wide Third-PartyRisk Management Framework (TPRMF), under which it has been risk-tiered\"Tier 1 — Critical\" by the Vendor Governance Committee. Criticality hasbeen re-confirmed annually since onboarding, and the arrangement isincluded in the Bank's quarterly TPRMF reporting to the Risk Committeeof the Board.",
+        "text_raw": "This arrangement is governed by BetaBank's enterprise-wide Third-PartyRisk Management Framework (TPRMF), under which it has been risk-tiered\"Tier 1 — Critical\" by the Vendor Governance Committee. Criticality hasbeen re-confirmed annually since onboarding, and the arrangement isincluded in the Bank's quarterly TPRMF reporting to the Risk Committeeof the Board.",
+        "text_char_start": 533
       },
       "sourceSpan": {
         "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
@@ -681,9 +915,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "NorthStar may engage cloud-infrastructure and observabilitysubcontractors as necessary to deliver the SaaS platform. The currentsubcontractor inventory is reviewed by the Bank annually. NorthStarwill keep BetaBank informed of changes through the standard quarterlyservice review."
+        "text": "NorthStar may engage cloud-infrastructure and observabilitysubcontractors as necessary to deliver the SaaS platform. The currentsubcontractor inventory is reviewed by the Bank annually. NorthStarwill keep BetaBank informed of changes through the standard quarterlyservice review.",
+        "text_raw": "NorthStar may engage cloud-infrastructure and observabilitysubcontractors as necessary to deliver the SaaS platform. The currentsubcontractor inventory is reviewed by the Bank annually. NorthStarwill keep BetaBank informed of changes through the standard quarterlyservice review.",
+        "text_char_start": 951
       },
       "sourceSpan": {
         "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
@@ -726,9 +977,26 @@
           "month_counts": [],
           "year_counts": [],
           "percent_values": [],
-          "dollar_amounts": []
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
         },
-        "text": "The contract preserves audit and examination rights for BetaBank, itsinternal and external auditors, and OSFI, upon reasonable notice. TheProvider shall make personnel, records, and operational systemsrelevant to the Services available for examination by such parties,including in the context of an OSFI supervisory review."
+        "text": "The contract preserves audit and examination rights for BetaBank, itsinternal and external auditors, and OSFI, upon reasonable notice. TheProvider shall make personnel, records, and operational systemsrelevant to the Services available for examination by such parties,including in the context of an OSFI supervisory review.",
+        "text_raw": "The contract preserves audit and examination rights for BetaBank, itsinternal and external auditors, and OSFI, upon reasonable notice. TheProvider shall make personnel, records, and operational systemsrelevant to the Services available for examination by such parties,including in the context of an OSFI supervisory review.",
+        "text_char_start": 1289
       },
       "sourceSpan": {
         "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
