@@ -63,9 +63,43 @@ Given:
 evaluation must run **fully offline** with byte-identical verdicts to the
 authoring run. Cloud calls happen **only** when re-embedding from source.
 
+## Authoring DSL — fluent C# extension methods
+
+Rules are authored as `Expression<Func<Section, bool>>` and serialized to JSON
+for audit/replay. Semantic checks become **extension methods on `Section`**, so
+they compose with native C# operators and Tier 1/2 predicates:
+
+```csharp
+// Rule body — idiomatic C#, type-checked at compile time.
+Expression<Func<Section, bool>> rule =
+    s => s.ContainsMeaning("contract tax bracket") && s.Tax < 100;
+
+// Same expression:
+//   - compiles to a delegate for execution
+//   - walks to JSON for storage / audit / replay
+```
+
+- `ContainsMeaning(string concept, double threshold = 0.78)` — Tier 3 semantic
+  leaf. At runtime resolves to a **precomputed-vector cosine lookup** against
+  the rule artifact. Never calls the LLM at runtime. Missing vector → throws
+  (no silent re-embed, preserves replay guarantee).
+- `MatchesAny(params string[] concepts)` — convenience for OR-of-concepts.
+- Authoring-time helper walks the expression tree, recognizes calls to these
+  extensions, and emits a structured JSON node:
+  `{ "op": "containsMeaning", "concept": "...", "threshold": 0.78,
+     "conceptVectorRef": "vec/abc123.f32" }`.
+
+This keeps the **rule body** elegant and the **persisted artifact**
+deterministic and inspectable.
+
 ## Components
 
-- `Semantic.Matches(section, conceptDescription, threshold)` — new lambda DSL leaf.
+- `Section.ContainsMeaning(...)` / `Section.MatchesAny(...)` — extension methods
+  on the projected section type; the public face of the Tier 3 leaf.
+- `LambdaRuleSerializer` — walks `Expression<Func<Section, bool>>` to/from
+  JSON. Recognizes `ContainsMeaning` calls and embeds vector pointers.
+- `Semantic.Matches(section, conceptDescription, threshold)` — internal leaf
+  the extension method delegates to.
 - `IEmbeddingProvider` — abstraction; first impl: `AzureFoundryEmbeddingProvider`
   using the projects v2 SDK.
 - Rule loader — embeds each rule description once; persists vectors next to the rule.
