@@ -1,6 +1,6 @@
 {
   "documentId": {
-    "value": "lr1:f584ae11ff882c5312ec5d34678f8b94bb04dbd6bae948041079dcd012954679"
+    "value": "lr1:090eace3635a662a87414bf06c5328f671ebf5ae720c7fe30f6df40c9571923f"
   },
   "ruleSetId": "rs_can_oil_gas_v1",
   "ruleSetVersion": "1.0.0",
@@ -17,7 +17,7 @@
   "errored": 0,
   "verdicts": [
     {
-      "id": "lr1:eab20891791adf6fccfca3a26d32128d52e47292935591d72541141cff3c2f7d",
+      "id": "lr1:5caa3872a6017614488d3d857f77d21dba01b7731cae2dd4714974feb57ae30c",
       "ruleId": "OG-DECOM-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -72,7 +72,7 @@
         "text_char_start": 1989
       },
       "sourceSpan": {
-        "documentId": "lr1:f584ae11ff882c5312ec5d34678f8b94bb04dbd6bae948041079dcd012954679",
+        "documentId": "lr1:090eace3635a662a87414bf06c5328f671ebf5ae720c7fe30f6df40c9571923f",
         "charStart": 1955,
         "charLength": 32,
         "headingPath": "/Operations & Compliance Program — Northstar NPS 12 Sweet Gas Gathering System/Decommissioning - Abandonment",
@@ -86,7 +86,7 @@
       "predicateText": "input1.category == \"decommissioning\""
     },
     {
-      "id": "lr1:48400bc2137532dfd4dea11bd9532deed0e5c6ab8e5e83b2283978e2fb3331a4",
+      "id": "lr1:50cccb57664f969313d02ad7d4a6be0b6f77d4bbf09f6ee934081d835fbf9f4e",
       "ruleId": "OG-EMERGENCY-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -139,7 +139,7 @@
         "text_char_start": 797
       },
       "sourceSpan": {
-        "documentId": "lr1:f584ae11ff882c5312ec5d34678f8b94bb04dbd6bae948041079dcd012954679",
+        "documentId": "lr1:090eace3635a662a87414bf06c5328f671ebf5ae720c7fe30f6df40c9571923f",
         "charStart": 738,
         "charLength": 57,
         "headingPath": "/Operations & Compliance Program — Northstar NPS 12 Sweet Gas Gathering System/Emergency Response Plan — Emergency Management Program",
@@ -153,7 +153,7 @@
       "predicateText": "input1.category == \"emergency_response\""
     },
     {
-      "id": "lr1:765f81ea5c1b904b85cc27afbf6320605dac5f5f83ac1208cec37c2b264a8956",
+      "id": "lr1:7359aa13c822b4bc8ea6d4c20bea1f1a720469dcacdcc66de14edc344ae2a6b1",
       "ruleId": "OG-INDIG-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -204,7 +204,7 @@
         "text_char_start": 2465
       },
       "sourceSpan": {
-        "documentId": "lr1:f584ae11ff882c5312ec5d34678f8b94bb04dbd6bae948041079dcd012954679",
+        "documentId": "lr1:090eace3635a662a87414bf06c5328f671ebf5ae720c7fe30f6df40c9571923f",
         "charStart": 2419,
         "charLength": 44,
         "headingPath": "/Operations & Compliance Program — Northstar NPS 12 Sweet Gas Gathering System/Indigenous Consultation and Accommodation",
@@ -218,7 +218,7 @@
       "predicateText": "input1.category == \"indigenous_consultation\""
     },
     {
-      "id": "lr1:8a8131517eecf98efb08ae999e913f269809a9d271356f4739ededa4fb151f33",
+      "id": "lr1:1982026cce50fc938dd338f1622db7d2165f05a613fc4453b8cf8e942a20c7a3",
       "ruleId": "OG-METHANE-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -273,7 +273,7 @@
         "text_char_start": 1300
       },
       "sourceSpan": {
-        "documentId": "lr1:f584ae11ff882c5312ec5d34678f8b94bb04dbd6bae948041079dcd012954679",
+        "documentId": "lr1:090eace3635a662a87414bf06c5328f671ebf5ae720c7fe30f6df40c9571923f",
         "charStart": 1277,
         "charLength": 21,
         "headingPath": "/Operations & Compliance Program — Northstar NPS 12 Sweet Gas Gathering System/Methane Management",
@@ -287,7 +287,7 @@
       "predicateText": "input1.category == \"methane_management\""
     },
     {
-      "id": "lr1:c6e9f7419d48ac96c2fe490992e2be137e7688e6f033f95314ee69002a7f2e52",
+      "id": "lr1:d09839bd9c287870bedd7fc641a665c0c37574481c240e4add3419b6a6a15b4b",
       "ruleId": "OG-PIM-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -338,7 +338,7 @@
         "text_char_start": 304
       },
       "sourceSpan": {
-        "documentId": "lr1:f584ae11ff882c5312ec5d34678f8b94bb04dbd6bae948041079dcd012954679",
+        "documentId": "lr1:090eace3635a662a87414bf06c5328f671ebf5ae720c7fe30f6df40c9571923f",
         "charStart": 262,
         "charLength": 40,
         "headingPath": "/Operations & Compliance Program — Northstar NPS 12 Sweet Gas Gathering System/Pipeline Integrity Management Program",

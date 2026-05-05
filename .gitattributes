@@ -1,0 +1,14 @@
+# Force LF line endings for all text — keeps content hashes stable across OSes.
+* text=auto eol=lf
+
+# Goldens, samples and source markdown must always be LF.
+*.md   text eol=lf
+*.json text eol=lf
+*.cs   text eol=lf
+
+# Binary documents — never normalise.
+*.docx binary
+*.pdf  binary
+*.png  binary
+*.jpg  binary
+*.f32  binary

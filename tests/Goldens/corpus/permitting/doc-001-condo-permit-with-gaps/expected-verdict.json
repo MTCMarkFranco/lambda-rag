@@ -1,6 +1,6 @@
 {
   "documentId": {
-    "value": "lr1:55464f01a84c728f805e408adb57006ed4e6de0ebde7b9f0061e620381b5cde7"
+    "value": "lr1:0b2f9f8f83e5362b92375771d71c28a3b6126d721154acc481b0a82e81020478"
   },
   "ruleSetId": "rs_can_permitting_v1",
   "ruleSetVersion": "1.0.0",
@@ -61,7 +61,7 @@
       "predicateText": "input1.category == \"environmental_review\""
     },
     {
-      "id": "lr1:b79e5731d2337d3973f69fa9ee1d1311639f30e56fc4432e22b87abf6d031f40",
+      "id": "lr1:f80292e207cb282bc2e1590b3504ba8b5174f7db0072f9a1b3339a522748e4c7",
       "ruleId": "PERMIT-FIRE-EGRESS-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -110,7 +110,7 @@
         "text_char_start": 1196
       },
       "sourceSpan": {
-        "documentId": "lr1:55464f01a84c728f805e408adb57006ed4e6de0ebde7b9f0061e620381b5cde7",
+        "documentId": "lr1:0b2f9f8f83e5362b92375771d71c28a3b6126d721154acc481b0a82e81020478",
         "charStart": 1180,
         "charLength": 14,
         "headingPath": "/Building Permit Application — 245 Bay Tower, Toronto, ON/Fire Egress",
@@ -124,7 +124,7 @@
       "predicateText": "input1.category == \"fire_egress\""
     },
     {
-      "id": "lr1:e0d594f2b3f2585963e2671357eae42f8fe85fa9f916341f3e528f4a4a2db149",
+      "id": "lr1:0e4c1627464af168b0031d75a952cba38cfb5565f0726dace73f17357e0cb213",
       "ruleId": "PERMIT-FIRE-SPRINK-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -173,7 +173,7 @@
         "text_char_start": 1441
       },
       "sourceSpan": {
-        "documentId": "lr1:55464f01a84c728f805e408adb57006ed4e6de0ebde7b9f0061e620381b5cde7",
+        "documentId": "lr1:0b2f9f8f83e5362b92375771d71c28a3b6126d721154acc481b0a82e81020478",
         "charStart": 1452,
         "charLength": 9,
         "headingPath": "/Building Permit Application — 245 Bay Tower, Toronto, ON/Fire Suppression — Sprinkler System",

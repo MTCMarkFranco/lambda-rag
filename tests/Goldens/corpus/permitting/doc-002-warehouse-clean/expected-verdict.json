@@ -1,6 +1,6 @@
 {
   "documentId": {
-    "value": "lr1:dba8808c16cfbda50a1af2c1d8b9a07c224baedb8a30209bb9aeabd86c99b186"
+    "value": "lr1:64aedd11a4a586cce2ed39bbfda5c83c6f14ae894d1407192468c79085bc7bb9"
   },
   "ruleSetId": "rs_can_permitting_v1",
   "ruleSetVersion": "1.0.0",
@@ -17,7 +17,7 @@
   "errored": 0,
   "verdicts": [
     {
-      "id": "lr1:87ec5e0f73a383cc84f7103586f06a17cb396fc0164f47d37d07a40928f08f14",
+      "id": "lr1:d84b339cede32b49d9490b101d060772dab52b5e0e2fbc0c6be0445ae77d2ed8",
       "ruleId": "PERMIT-AODA-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -68,7 +68,7 @@
         "text_char_start": 620
       },
       "sourceSpan": {
-        "documentId": "lr1:dba8808c16cfbda50a1af2c1d8b9a07c224baedb8a30209bb9aeabd86c99b186",
+        "documentId": "lr1:64aedd11a4a586cce2ed39bbfda5c83c6f14ae894d1407192468c79085bc7bb9",
         "charStart": 577,
         "charLength": 41,
         "headingPath": "/Building Permit Application — Distribution Warehouse, Mississauga, ON/Accessibility — AODA - IASR Compliance",
@@ -82,7 +82,7 @@
       "predicateText": "input1.category == \"accessibility_aoda\""
     },
     {
-      "id": "lr1:1bb5a948489e6e92742be94fe9d3b22dd7998c5c6f7ac7cdff3edd6b277d5f50",
+      "id": "lr1:1cedb425844d83f97f482cefbaf296543c08449eb86cb10effb5d11fb0306951",
       "ruleId": "PERMIT-EIA-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -133,7 +133,7 @@
         "text_char_start": 2319
       },
       "sourceSpan": {
-        "documentId": "lr1:dba8808c16cfbda50a1af2c1d8b9a07c224baedb8a30209bb9aeabd86c99b186",
+        "documentId": "lr1:64aedd11a4a586cce2ed39bbfda5c83c6f14ae894d1407192468c79085bc7bb9",
         "charStart": 2263,
         "charLength": 54,
         "headingPath": "/Building Permit Application — Distribution Warehouse, Mississauga, ON/Environmental Impact Assessment — Federal Screening",
@@ -147,7 +147,7 @@
       "predicateText": "input1.category == \"environmental_review\""
     },
     {
-      "id": "lr1:8094b7a9a1afb035877f69281df7257037fe09d4e7665064c739ae371be5468a",
+      "id": "lr1:fe90103fe70a1e67f62a0565b9c61fb4fb6f3d25fa7a76df829e9d8abd21c539",
       "ruleId": "PERMIT-FIRE-EGRESS-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -196,7 +196,7 @@
         "text_char_start": 1245
       },
       "sourceSpan": {
-        "documentId": "lr1:dba8808c16cfbda50a1af2c1d8b9a07c224baedb8a30209bb9aeabd86c99b186",
+        "documentId": "lr1:64aedd11a4a586cce2ed39bbfda5c83c6f14ae894d1407192468c79085bc7bb9",
         "charStart": 1229,
         "charLength": 14,
         "headingPath": "/Building Permit Application — Distribution Warehouse, Mississauga, ON/Fire Egress",
@@ -210,7 +210,7 @@
       "predicateText": "input1.category == \"fire_egress\""
     },
     {
-      "id": "lr1:77b120af56e66a6c5ae65390a9d958c24b8abc7211afe15729c5a0b554aae8a2",
+      "id": "lr1:a164f6d1ab8a8b8d7d3c62737e9fbdc0321e792b0e7a9e1a8552ff0ef65fb4f9",
       "ruleId": "PERMIT-FIRE-SPRINK-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -259,7 +259,7 @@
         "text_char_start": 1649
       },
       "sourceSpan": {
-        "documentId": "lr1:dba8808c16cfbda50a1af2c1d8b9a07c224baedb8a30209bb9aeabd86c99b186",
+        "documentId": "lr1:64aedd11a4a586cce2ed39bbfda5c83c6f14ae894d1407192468c79085bc7bb9",
         "charStart": 1609,
         "charLength": 38,
         "headingPath": "/Building Permit Application — Distribution Warehouse, Mississauga, ON/Fire Suppression — Sprinkler System",
@@ -273,7 +273,7 @@
       "predicateText": "input1.category == \"fire_suppression\""
     },
     {
-      "id": "lr1:f10fa7d10a8b2db02c9afbdff4f23554cd353c4c5bf52b543b25aa8acbbd6bf6",
+      "id": "lr1:61aff9e8b450e29f9d33b7227a15f8ae5a203817182477d721c40d288e04a5e7",
       "ruleId": "PERMIT-INDIG-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -328,7 +328,7 @@
         "text_char_start": 2799
       },
       "sourceSpan": {
-        "documentId": "lr1:dba8808c16cfbda50a1af2c1d8b9a07c224baedb8a30209bb9aeabd86c99b186",
+        "documentId": "lr1:64aedd11a4a586cce2ed39bbfda5c83c6f14ae894d1407192468c79085bc7bb9",
         "charStart": 2753,
         "charLength": 44,
         "headingPath": "/Building Permit Application — Distribution Warehouse, Mississauga, ON/Indigenous Consultation and Accommodation",

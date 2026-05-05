@@ -1,6 +1,6 @@
 {
   "documentId": {
-    "value": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953"
+    "value": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4"
   },
   "ruleSetId": "rs_osfi_b10_tprm",
   "ruleSetVersion": "1.0.0",
@@ -17,7 +17,7 @@
   "errored": 0,
   "verdicts": [
     {
-      "id": "lr1:4fd6f8f1288b62e613dd1102533a795f812fce40a82d47f4668b45e12f140336",
+      "id": "lr1:1e2f4fc86bdc5ced8b6a79f1f0ea48c226d4a3a30da577bc1c55fb79eb2e0fe9",
       "ruleId": "OSFI-B10-AuditAccess",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -66,7 +66,7 @@
         "text_char_start": 751
       },
       "sourceSpan": {
-        "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
         "charStart": 697,
         "charLength": 52,
         "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./3. Outsourcing — Third-Party Risk Acknowledgement",
@@ -82,7 +82,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:8305bada28368bc53fe6d7732084117771c1a120aa0c893776f396a1f7fc6395",
+      "id": "lr1:68a1091056b0220b6de517452d40d3bfc6da6da9fb425a46f4410f041c30934c",
       "ruleId": "OSFI-B10-AuditAccess",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -131,7 +131,7 @@
         "text_char_start": 1016
       },
       "sourceSpan": {
-        "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
         "charStart": 978,
         "charLength": 36,
         "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./4. Subcontractors and Outsourcing",
@@ -147,7 +147,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:ffa7f374a2c5b3e080f23474a6f6319abeea5aae163f773d36fbcce0751ffec7",
+      "id": "lr1:22d7f70a533c5822ac078c946ade9628ae31360adf2f060cb15cc111f4887d0f",
       "ruleId": "OSFI-B10-AuditAccess",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -196,7 +196,7 @@
         "text_char_start": 1304
       },
       "sourceSpan": {
-        "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
         "charStart": 1425,
         "charLength": 5,
         "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./5. Audit Rights — Vendor Risk Oversight",
@@ -212,7 +212,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:88cac2cf695cdbf954d4f6d17405c63eafff9be9efd78423519324ca2ce25a3c",
+      "id": "lr1:6285eab142a1deda64c8dfe1a2557b7ff0663b9297df179df68a835987ffd986",
       "ruleId": "OSFI-B10-BCP",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -263,7 +263,7 @@
         "text_char_start": 1622
       },
       "sourceSpan": {
-        "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
         "charStart": 1687,
         "charLength": 3,
         "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./6. Business Continuity",
@@ -279,7 +279,7 @@
       "predicateText": "input1.category == \"business_continuity\""
     },
     {
-      "id": "lr1:41d21988e694ca7d385c7bc24670f2002f9bc3728f99395319f37772334402f1",
+      "id": "lr1:30f520f0f80a5b27a7f8c7fe2c6015ac2a877cf391e2923cdfc25f80eb5d10ab",
       "ruleId": "OSFI-B10-ExitPlan",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -330,7 +330,7 @@
         "text_char_start": 1622
       },
       "sourceSpan": {
-        "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
         "charStart": 1595,
         "charLength": 25,
         "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./6. Business Continuity",
@@ -346,7 +346,7 @@
       "predicateText": "input1.category == \"business_continuity\""
     },
     {
-      "id": "lr1:089e3445ea44eaa47204f576ab864ba14fdda64173a6ae78148aa269a6dce857",
+      "id": "lr1:9ac9feb45bb2814f8cd187de8fe97a785a3fbe78bb22baf6d3e7aab20194daa2",
       "ruleId": "OSFI-B10-Subcontracting",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -395,7 +395,7 @@
         "text_char_start": 751
       },
       "sourceSpan": {
-        "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
         "charStart": 697,
         "charLength": 52,
         "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./3. Outsourcing — Third-Party Risk Acknowledgement",
@@ -411,7 +411,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:c05694f98e55e159c68b2661c6282c7e5e9591e02a292bba5a15db8c632551ab",
+      "id": "lr1:bc179dbc4ddff4b55af6d1143dee0a66d5847795551d4ef49a272f6839333abc",
       "ruleId": "OSFI-B10-Subcontracting",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -460,7 +460,7 @@
         "text_char_start": 1016
       },
       "sourceSpan": {
-        "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
         "charStart": 1033,
         "charLength": 11,
         "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./4. Subcontractors and Outsourcing",
@@ -476,7 +476,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:157248fc625462aa402830e7bbbfaa6ddc8c9be2d42da8df8f7847b4a76cb257",
+      "id": "lr1:2af0a220eb87e8681ef437ee7503a34bc54a2ab17291a8464bde7050b3c0b67d",
       "ruleId": "OSFI-B10-Subcontracting",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -525,7 +525,7 @@
         "text_char_start": 1304
       },
       "sourceSpan": {
-        "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
         "charStart": 1260,
         "charLength": 42,
         "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./5. Audit Rights — Vendor Risk Oversight",
@@ -541,7 +541,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:ecc09c8ab2cbe4e5d1d05b7b1d4de5f2d086f4c6dc920ad2e759a96ba94a43b6",
+      "id": "lr1:0e07f515908a4ad4f8ad8299c76ae1baf8ce0fed0094ccc29aa9e07cf4c17b5f",
       "ruleId": "OSFI-B10-TPRMF",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -590,7 +590,7 @@
         "text_char_start": 751
       },
       "sourceSpan": {
-        "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
         "charStart": 697,
         "charLength": 52,
         "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./3. Outsourcing — Third-Party Risk Acknowledgement",
@@ -606,7 +606,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:7161e1bb79f939808c2a7d8e1fc424eb3a4b43d63726a9c482d67298f932f4fa",
+      "id": "lr1:c1e0c8a5f991f0e351e7455b2871e3daddcfe67939158ee1e63489bfe7068ac2",
       "ruleId": "OSFI-B10-TPRMF",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -655,7 +655,7 @@
         "text_char_start": 1016
       },
       "sourceSpan": {
-        "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
         "charStart": 978,
         "charLength": 36,
         "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./4. Subcontractors and Outsourcing",
@@ -671,7 +671,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:2d97a72a279f4d441b7355a4dff5dbfdafdbba9dd3adf4e2b17a839f8abff785",
+      "id": "lr1:59918a5adbfaa75bc955030c7f01929af35f2c0a0aee661879705be88d1a3903",
       "ruleId": "OSFI-B10-TPRMF",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -720,7 +720,7 @@
         "text_char_start": 1304
       },
       "sourceSpan": {
-        "documentId": "lr1:f294c8034f11997b05deaa0ebe8c534f765e0524b95805dc8f88ca90a5245953",
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
         "charStart": 1260,
         "charLength": 42,
         "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./5. Audit Rights — Vendor Risk Oversight",

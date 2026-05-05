@@ -1,6 +1,6 @@
 {
   "documentId": {
-    "value": "lr1:35c72ac7c0ba3b3e2f376b10c867736dd83b950b9814fe11b5880d1ffb17c9ec"
+    "value": "lr1:0794c4cfbc2dd3c1db7daacca0430c6a9d3356a629de2669032cc6ef3066bde3"
   },
   "ruleSetId": "rs_gc_cloud_guardrails_v2",
   "ruleSetVersion": "1.0.0",
@@ -17,7 +17,7 @@
   "errored": 0,
   "verdicts": [
     {
-      "id": "lr1:1b6d59537ae68545e1efc71bab8b8f3bc111e424761539c4a2df93c565f450ff",
+      "id": "lr1:327276cdb0f881dc85e00ee33683120565141fbabdab886da6470bbc54aa5374",
       "ruleId": "GC-CG-01-MFA",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -76,7 +76,7 @@
         "text_char_start": 534
       },
       "sourceSpan": {
-        "documentId": "lr1:35c72ac7c0ba3b3e2f376b10c867736dd83b950b9814fe11b5880d1ffb17c9ec",
+        "documentId": "lr1:0794c4cfbc2dd3c1db7daacca0430c6a9d3356a629de2669032cc6ef3066bde3",
         "charStart": 504,
         "charLength": 28,
         "headingPath": "/Solution Architecture — Departmental Modelling Workbench (Protected B IaaS)/2. Phishing-Resistant MFA",
@@ -90,7 +90,7 @@
       "predicateText": "input1.category == \"phishing_resistant_mfa\""
     },
     {
-      "id": "lr1:3f82eff835a45dd83cbdcd29a96d518d36a6160de4b4497bef93493a1742387d",
+      "id": "lr1:26fa981ba6b29a8e6c8223cfd1d19b3132e9b8b505f87b335a795912226efc40",
       "ruleId": "GC-CG-05-DataResidency",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -143,7 +143,7 @@
         "text_char_start": 1054
       },
       "sourceSpan": {
-        "documentId": "lr1:35c72ac7c0ba3b3e2f376b10c867736dd83b950b9814fe11b5880d1ffb17c9ec",
+        "documentId": "lr1:0794c4cfbc2dd3c1db7daacca0430c6a9d3356a629de2669032cc6ef3066bde3",
         "charStart": 1016,
         "charLength": 36,
         "headingPath": "/Solution Architecture — Departmental Modelling Workbench (Protected B IaaS)/3. Canadian Data Centre Selection",
@@ -157,7 +157,7 @@
       "predicateText": "input1.category == \"data_residency_canada\""
     },
     {
-      "id": "lr1:ac809a5f987c4869f0f74bc52a5e28e981c0071b766c1abde2ce38ac77b7ca0b",
+      "id": "lr1:10f3236bedd0f1feb6fbb76bb0932a60ee6d8c8b1a2239830cea9eb7474849ed",
       "ruleId": "GC-CG-06-EncryptionAtRest",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -212,7 +212,7 @@
         "text_char_start": 1513
       },
       "sourceSpan": {
-        "documentId": "lr1:35c72ac7c0ba3b3e2f376b10c867736dd83b950b9814fe11b5880d1ffb17c9ec",
+        "documentId": "lr1:0794c4cfbc2dd3c1db7daacca0430c6a9d3356a629de2669032cc6ef3066bde3",
         "charStart": 1487,
         "charLength": 24,
         "headingPath": "/Solution Architecture — Departmental Modelling Workbench (Protected B IaaS)/4. Encryption at Rest",
@@ -226,7 +226,7 @@
       "predicateText": "input1.category == \"encryption_at_rest\""
     },
     {
-      "id": "lr1:9da97b5b2eba6b7abe44dbcdfbe35dab2ba149f60e86fa4aaf5d01b614cc24f8",
+      "id": "lr1:90008478232505921ee60c40b450d46e7865c6c57b17423be2c640fbf7e92b2d",
       "ruleId": "GC-CG-07-TLS",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -281,7 +281,7 @@
         "text_char_start": 1865
       },
       "sourceSpan": {
-        "documentId": "lr1:35c72ac7c0ba3b3e2f376b10c867736dd83b950b9814fe11b5880d1ffb17c9ec",
+        "documentId": "lr1:0794c4cfbc2dd3c1db7daacca0430c6a9d3356a629de2669032cc6ef3066bde3",
         "charStart": 1974,
         "charLength": 7,
         "headingPath": "/Solution Architecture — Departmental Modelling Workbench (Protected B IaaS)/5. TLS 1.2 Configuration",
@@ -297,7 +297,7 @@
       "predicateText": "input1.category == \"encryption_in_transit\""
     },
     {
-      "id": "lr1:887bfedf16bebd650edd2eff564c7bf17ecd7467984e32aa6c07e515d7039a1f",
+      "id": "lr1:357009f3b52fcecd47fc07575d39d5f6745a9b12811801fe93414989e2194be9",
       "ruleId": "GC-CG-11-AuditLogging",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -352,7 +352,7 @@
         "text_char_start": 2199
       },
       "sourceSpan": {
-        "documentId": "lr1:35c72ac7c0ba3b3e2f376b10c867736dd83b950b9814fe11b5880d1ffb17c9ec",
+        "documentId": "lr1:0794c4cfbc2dd3c1db7daacca0430c6a9d3356a629de2669032cc6ef3066bde3",
         "charStart": 2214,
         "charLength": 9,
         "headingPath": "/Solution Architecture — Departmental Modelling Workbench (Protected B IaaS)/6. Audit Log Strategy",

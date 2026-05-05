@@ -18,7 +18,6 @@ public sealed record SourceDocument(
 {
     public static SourceDocument FromFile(string path, DateTimeOffset? now = null)
     {
-        var hash = ContentHash.OfFile(path);
         var fi = new FileInfo(path);
         var kind = Path.GetExtension(path).ToLowerInvariant() switch
         {
@@ -29,6 +28,33 @@ public sealed record SourceDocument(
             ".html" or ".htm" => SourceDocumentKind.Html,
             _ => SourceDocumentKind.Unknown,
         };
-        return new SourceDocument(hash, fi.Name, kind, fi.Length, now ?? DateTimeOffset.UtcNow);
+
+        // Text-kind documents must hash deterministically across OSes: normalise
+        // CRLF/CR -> LF and strip a UTF-8 BOM before hashing. Binary kinds keep
+        // raw-byte hashing so their on-disk bytes remain the source of truth.
+        ContentHash hash;
+        long byteLength;
+        if (kind is SourceDocumentKind.Markdown or SourceDocumentKind.Text or SourceDocumentKind.Html)
+        {
+            var raw = File.ReadAllText(path);
+            var normalised = NormaliseTextForHashing(raw);
+            var bytes = System.Text.Encoding.UTF8.GetBytes(normalised);
+            hash = ContentHash.OfBytes(bytes);
+            byteLength = bytes.LongLength;
+        }
+        else
+        {
+            hash = ContentHash.OfFile(path);
+            byteLength = fi.Length;
+        }
+
+        return new SourceDocument(hash, fi.Name, kind, byteLength, now ?? DateTimeOffset.UtcNow);
+    }
+
+    private static string NormaliseTextForHashing(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+        if (text[0] == '\uFEFF') text = text.Substring(1);
+        return text.Replace("\r\n", "\n").Replace("\r", "\n");
     }
 }

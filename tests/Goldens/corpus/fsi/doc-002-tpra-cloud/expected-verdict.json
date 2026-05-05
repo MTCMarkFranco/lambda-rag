@@ -1,6 +1,6 @@
 {
   "documentId": {
-    "value": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450"
+    "value": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d"
   },
   "ruleSetId": "rs_osfi_b10_tprm",
   "ruleSetVersion": "1.0.0",
@@ -17,7 +17,7 @@
   "errored": 0,
   "verdicts": [
     {
-      "id": "lr1:3d1ee22e28e4ca7fed2816d5928d8bc8d872946644393b5e3644599be665365d",
+      "id": "lr1:f4b415587a8f8bc93c4e4a07138050c01834950b9757daeadba67a333dfdb62a",
       "ruleId": "OSFI-B10-AuditAccess",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -66,7 +66,7 @@
         "text_char_start": 77
       },
       "sourceSpan": {
-        "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
+        "documentId": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
         "charStart": 0,
         "charLength": 73,
         "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)",
@@ -82,7 +82,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:616fe6d59d1e1a5c78fe6dd5ca771a94a358aaa8af6f81cf9d96d80fe58a089c",
+      "id": "lr1:a98b5a40125cf22f165c80a0f7894c52fab1353393ed3a353f0e949834714a96",
       "ruleId": "OSFI-B10-AuditAccess",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -131,7 +131,7 @@
         "text_char_start": 533
       },
       "sourceSpan": {
-        "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
+        "documentId": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
         "charStart": 459,
         "charLength": 72,
         "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)/2. Outsourcing — Governance and Third-Party Risk Management Framework",
@@ -147,7 +147,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:1cbd253ed02bae4938ec3d4a8d798ca968548be1460709058f51d4c1d74d2536",
+      "id": "lr1:329922fb4c57b2751a0dc9ac9bb31d491235a19687ae3a3cf89b56398d198e87",
       "ruleId": "OSFI-B10-AuditAccess",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -198,7 +198,7 @@
         "text_char_start": 951
       },
       "sourceSpan": {
-        "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
+        "documentId": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
         "charStart": 901,
         "charLength": 48,
         "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)/3. Subcontracting and Outsourcing of Services",
@@ -214,7 +214,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:a6a697110282b1fd637fb0c9282201f5efb2e4a62bcd6aab1e1ee277b6f6b302",
+      "id": "lr1:88c9577d15aaabab8293e5e5d731441600a2056d04315dc8a276f50d5894fa7b",
       "ruleId": "OSFI-B10-AuditAccess",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -263,7 +263,7 @@
         "text_char_start": 1289
       },
       "sourceSpan": {
-        "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
+        "documentId": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
         "charStart": 1236,
         "charLength": 51,
         "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)/4. Audit and Examination — Vendor Risk Oversight",
@@ -277,7 +277,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:bb8d19c5b93db6c476b860190ca4c3917df44f9a696963de39395980022241e7",
+      "id": "lr1:acf3afcece97b0af825c46ceb3ff856728e4d2b5fa530b4679959ea0846ae539",
       "ruleId": "OSFI-B10-BCP",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -328,7 +328,7 @@
         "text_char_start": 1645
       },
       "sourceSpan": {
-        "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
+        "documentId": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
         "charStart": 1618,
         "charLength": 25,
         "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)/5. Business Continuity",
@@ -342,7 +342,7 @@
       "predicateText": "input1.category == \"business_continuity\""
     },
     {
-      "id": "lr1:a2aebbff30ff87a261dc820e790488c08809c894b1e5597ab8856d2db00c73d1",
+      "id": "lr1:41c6d7cc02dec65bcd9647e0485e4b4a53f918cc81f3f061bde6bef4b7bc3822",
       "ruleId": "OSFI-B10-BCP",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -393,7 +393,7 @@
         "text_char_start": 1987
       },
       "sourceSpan": {
-        "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
+        "documentId": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
         "charStart": 1930,
         "charLength": 55,
         "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)/6. Operational Resilience — Exit Plan and Transition",
@@ -409,7 +409,7 @@
       "predicateText": "input1.category == \"business_continuity\""
     },
     {
-      "id": "lr1:dcaa509c5b73bb85b9fac653a08271cca5549b8d6bc356c43f16f8d73709a8c0",
+      "id": "lr1:1d3ddb2c8ca404f4958069ca61998e42415e1df7d861769bc82582a1c8a6a201",
       "ruleId": "OSFI-B10-ExitPlan",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -460,7 +460,7 @@
         "text_char_start": 1645
       },
       "sourceSpan": {
-        "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
+        "documentId": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
         "charStart": 1618,
         "charLength": 25,
         "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)/5. Business Continuity",
@@ -476,7 +476,7 @@
       "predicateText": "input1.category == \"business_continuity\""
     },
     {
-      "id": "lr1:a1ee4ba7ab35c6a73fa5c3c901ae49959304e7ce58cae66751e491f3eecb4755",
+      "id": "lr1:e920e57e51ef906ba3d667291903614f442c03139b1e11448d778038b5ea6428",
       "ruleId": "OSFI-B10-ExitPlan",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -527,7 +527,7 @@
         "text_char_start": 1987
       },
       "sourceSpan": {
-        "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
+        "documentId": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
         "charStart": 1930,
         "charLength": 55,
         "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)/6. Operational Resilience — Exit Plan and Transition",
@@ -541,7 +541,7 @@
       "predicateText": "input1.category == \"business_continuity\""
     },
     {
-      "id": "lr1:3dbc09fd5e2137215d309c62fd11b0faa7ac1cc168b2408c0dfb738443f5c5b3",
+      "id": "lr1:f0b46c44d09c0eb33d54d902f1fee38186e7d03055306228395d2b661a887ffd",
       "ruleId": "OSFI-B10-Subcontracting",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -590,7 +590,7 @@
         "text_char_start": 77
       },
       "sourceSpan": {
-        "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
+        "documentId": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
         "charStart": 0,
         "charLength": 73,
         "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)",
@@ -606,7 +606,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:139125d2e7fd13579650c3c125a3c147670102afe730412b4b129c3e5762dfae",
+      "id": "lr1:88f2eef361c32ff59641d934f581427975edd752cb1377e476f9b817b4f972b9",
       "ruleId": "OSFI-B10-Subcontracting",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -655,7 +655,7 @@
         "text_char_start": 533
       },
       "sourceSpan": {
-        "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
+        "documentId": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
         "charStart": 459,
         "charLength": 72,
         "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)/2. Outsourcing — Governance and Third-Party Risk Management Framework",
@@ -671,7 +671,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:817c54620eecf3345d141d785b4f8e4fdad1dfbe78a9e3348076a6340dd50f5b",
+      "id": "lr1:7b61dd6101d2623743d4a495a3923a8cbb944a9627412ab46f2569d296521fcd",
       "ruleId": "OSFI-B10-Subcontracting",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -722,7 +722,7 @@
         "text_char_start": 951
       },
       "sourceSpan": {
-        "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
+        "documentId": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
         "charStart": 1010,
         "charLength": 11,
         "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)/3. Subcontracting and Outsourcing of Services",
@@ -738,7 +738,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:5e42bd00f781cdaf58ae24261232bd09f4db2f9b9469fd2df3be116b11124218",
+      "id": "lr1:fdba26caa9863fa52422c76e4ff3f3420776f0aed26e21b03306b08c2b6bd58e",
       "ruleId": "OSFI-B10-Subcontracting",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -787,7 +787,7 @@
         "text_char_start": 1289
       },
       "sourceSpan": {
-        "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
+        "documentId": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
         "charStart": 1236,
         "charLength": 51,
         "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)/4. Audit and Examination — Vendor Risk Oversight",
@@ -803,7 +803,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:218957e3920c7bff1250873ca2ff552d73c9a7173847465c5b42efa67cc97cff",
+      "id": "lr1:0680d1b606bf267a3650e5da37b67f829489fe2861083f04def42966d0140839",
       "ruleId": "OSFI-B10-TPRMF",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -852,7 +852,7 @@
         "text_char_start": 77
       },
       "sourceSpan": {
-        "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
+        "documentId": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
         "charStart": 0,
         "charLength": 73,
         "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)",
@@ -868,7 +868,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:d12b43a01132cb183e4d99cd2449779c3b9625131bf2184a86b9c4784544cec5",
+      "id": "lr1:c5dba92ac62501151bd494beb743972bc5f690da284c97b09a5d14be3247bdb1",
       "ruleId": "OSFI-B10-TPRMF",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -917,7 +917,7 @@
         "text_char_start": 533
       },
       "sourceSpan": {
-        "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
+        "documentId": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
         "charStart": 459,
         "charLength": 72,
         "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)/2. Outsourcing — Governance and Third-Party Risk Management Framework",
@@ -931,7 +931,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:821471bd6fec6801cd6ab7a96875b73e162db3cf49adc78f6158aa92782f2600",
+      "id": "lr1:8db1447aa1184cb08d6a348048c480a46875e590741f1d29fc995d2a721cedc4",
       "ruleId": "OSFI-B10-TPRMF",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -982,7 +982,7 @@
         "text_char_start": 951
       },
       "sourceSpan": {
-        "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
+        "documentId": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
         "charStart": 901,
         "charLength": 48,
         "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)/3. Subcontracting and Outsourcing of Services",
@@ -998,7 +998,7 @@
       "predicateText": "input1.category == \"third_party_risk\""
     },
     {
-      "id": "lr1:de9c65d7e33f40780258312ffc36a587bc37cc3bf79f8a85a0097a2a3f50809a",
+      "id": "lr1:5fc938fa993ed9c74ab152ff6be20527db1e90be6b568f6148a70ae606571c48",
       "ruleId": "OSFI-B10-TPRMF",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -1047,7 +1047,7 @@
         "text_char_start": 1289
       },
       "sourceSpan": {
-        "documentId": "lr1:30470bd234515198bb4cb3d5f61894fefd4949272777480c5db3bf97ef28e450",
+        "documentId": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
         "charStart": 1236,
         "charLength": 51,
         "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)/4. Audit and Examination — Vendor Risk Oversight",
