@@ -1,0 +1,25 @@
+{
+  "name": "lambda-rag-rules-indexer",
+  "dataSourceName": "lambda-rag-policies-ds",
+  "skillsetName": "lambda-rag-rules-skillset",
+  "targetIndexName": "lambda-rag-rules",
+  "schedule": null,
+  "parameters": {
+    "batchSize": 1,
+    "maxFailedItems": 0,
+    "maxFailedItemsPerBatch": 0,
+    "configuration": {
+      "dataToExtract": "contentAndMetadata",
+      "parsingMode": "default",
+      "allowSkillsetToReadFileData": true
+    }
+  },
+  "fieldMappings": [
+    {
+      "sourceFieldName": "metadata_storage_path",
+      "targetFieldName": "sourceSpan/documentId",
+      "mappingFunction": { "name": "base64Encode", "parameters": { "useHttpServerUtilityUrlTokenEncode": false } }
+    }
+  ],
+  "outputFieldMappings": []
+}

@@ -1,0 +1,110 @@
+{
+  "name": "lambda-rag-rules-skillset",
+  "description": "Layout → Split → GenAI prompt (rule extraction) → Embedding(concepts).",
+  "skills": [
+    {
+      "@odata.type": "#Microsoft.Skills.Util.DocumentIntelligenceLayoutSkill",
+      "name": "layout",
+      "description": "Extracts structured text + heading hierarchy from policy PDFs.",
+      "context": "/document",
+      "outputMode": "oneToMany",
+      "markdownHeaderDepth": "h3",
+      "inputs": [
+        { "name": "file_data", "source": "/document/file_data" }
+      ],
+      "outputs": [
+        { "name": "markdown_document", "targetName": "layoutMarkdown" }
+      ]
+    },
+    {
+      "@odata.type": "#Microsoft.Skills.Text.SplitSkill",
+      "name": "split",
+      "description": "Section-aware split keeping headings with content.",
+      "context": "/document/layoutMarkdown/*",
+      "textSplitMode": "pages",
+      "maximumPageLength": 3500,
+      "pageOverlapLength": 200,
+      "unit": "characters",
+      "inputs": [
+        { "name": "text", "source": "/document/layoutMarkdown/*/content" }
+      ],
+      "outputs": [
+        { "name": "textItems", "targetName": "chunks" }
+      ]
+    },
+    {
+      "@odata.type": "#Microsoft.Skills.Util.GenerativeContentSkill",
+      "name": "extractRule",
+      "description": "GenAI prompt skill — converts each chunk into an ExtractedRule JSON.",
+      "context": "/document/layoutMarkdown/*/chunks/*",
+      "uri": "{{AZURE_OPENAI_ENDPOINT}}/openai/deployments/{{CHAT_DEPLOYMENT}}/chat/completions?api-version=2024-10-21",
+      "timeout": "PT60S",
+      "responseFormat": "json_object",
+      "authIdentity": null,
+      "modelParameters": {
+        "temperature": 0,
+        "max_tokens": 1500
+      },
+      "messages": [
+        {
+          "role": "system",
+          "content": "{{SYSTEM_PROMPT}}"
+        },
+        {
+          "role": "user",
+          "content": "DOMAIN: architecture-review\nDOCUMENT_ID: $(/document/metadata_storage_name)\nCHUNK_ORDINAL: $(/document/layoutMarkdown/*/chunks/*/$ordinal)\n\n--- CHUNK ---\n$(/document/layoutMarkdown/*/chunks/*)\n--- END CHUNK ---"
+        }
+      ],
+      "inputs": [],
+      "outputs": [
+        { "name": "response", "targetName": "extractedRule" }
+      ]
+    },
+    {
+      "@odata.type": "#Microsoft.Skills.Text.AzureOpenAIEmbeddingSkill",
+      "name": "embedConcepts",
+      "description": "Vectorize the concept list for hybrid retrieval (Phase B).",
+      "context": "/document/layoutMarkdown/*/chunks/*",
+      "resourceUri": "{{AZURE_OPENAI_ENDPOINT}}",
+      "deploymentId": "{{EMBEDDING_DEPLOYMENT}}",
+      "modelName": "text-embedding-3-large",
+      "authIdentity": null,
+      "inputs": [
+        { "name": "text", "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/concepts" }
+      ],
+      "outputs": [
+        { "name": "embedding", "targetName": "conceptsVector" }
+      ]
+    }
+  ],
+  "indexProjections": {
+    "selectors": [
+      {
+        "targetIndexName": "lambda-rag-rules",
+        "parentKeyFieldName": "documentId",
+        "sourceContext": "/document/layoutMarkdown/*/chunks/*",
+        "mappings": [
+          { "name": "ruleId",          "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/ruleId" },
+          { "name": "domain",          "source": "='architecture-review'" },
+          { "name": "version",         "source": "/document/version" },
+          { "name": "status",          "source": "='draft'" },
+          { "name": "naturalLanguage", "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/naturalLanguage" },
+          { "name": "predicate",       "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/predicate" },
+          { "name": "lambda",          "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/lambda" },
+          { "name": "concepts",        "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/concepts" },
+          { "name": "conceptsVector",  "source": "/document/layoutMarkdown/*/chunks/*/conceptsVector" },
+          { "name": "severity",        "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/severity" },
+          { "name": "applicability",   "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/applicability" },
+          { "name": "remediation",     "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/remediation" },
+          { "name": "evidenceQuote",   "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/evidenceQuote" },
+          { "name": "sourceSpan",      "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/sourceSpan" },
+          { "name": "examples",        "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/examples" },
+          { "name": "metadata",        "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/metadata" }
+        ]
+      }
+    ],
+    "parameters": {
+      "projectionMode": "skipIndexingParentDocuments"
+    }
+  }
+}

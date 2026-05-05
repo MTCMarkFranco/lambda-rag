@@ -1,0 +1,14 @@
+{
+  "name": "lambda-rag-policies-ds",
+  "type": "azureblob",
+  "credentials": {
+    "connectionString": "ResourceId=/subscriptions/{{SUBSCRIPTION_ID}}/resourceGroups/{{RESOURCE_GROUP}}/providers/Microsoft.Storage/storageAccounts/{{STORAGE_ACCOUNT}};"
+  },
+  "container": {
+    "name": "policies"
+  },
+  "dataChangeDetectionPolicy": {
+    "@odata.type": "#Microsoft.Azure.Search.HighWaterMarkChangeDetectionPolicy",
+    "highWaterMarkColumnName": "metadata_storage_last_modified"
+  }
+}
