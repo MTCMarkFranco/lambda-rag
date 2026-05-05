@@ -12,14 +12,15 @@ namespace LambdaRag.Authoring.Dsl;
 ///     .ContainsMeaning("contract tax bracket")
 ///     .And(Lambda.Field("input1", "tax").LessThan(100))
 ///     .ToExpression();
-/// // → "ContainsMeaning(input1.id, \"contract tax bracket\", 0.78) &amp;&amp; input1.tax &lt; 100"
+/// // → "SemanticFunctions.ContainsMeaning(input1.id, \"contract tax bracket\", 0.78) &amp;&amp; input1.tax &lt; 100"
 /// </code>
 ///
 /// reads naturally in C#, compiles, and serialises to the JSON ruleset
 /// without a parser. The methods below are pure string composition — they
 /// do not touch the LLM or compute embeddings; vectors are resolved at
-/// evaluation time by the registered <c>ContainsMeaning</c> RulesEngine
-/// function against a precomputed <see cref="LambdaRag.Authoring.Semantic.ISemanticVectorStore"/>.
+/// evaluation time by the registered <c>SemanticFunctions.ContainsMeaning</c>
+/// custom-type method against a precomputed
+/// <see cref="LambdaRag.Core.Semantic.ISemanticVectorStore"/>.
 /// </summary>
 public static class Lambda
 {
@@ -67,7 +68,7 @@ public readonly record struct SectionRef(string Variable)
     {
         if (string.IsNullOrWhiteSpace(concept))
             throw new ArgumentException("concept must be non-empty", nameof(concept));
-        var expr = $"ContainsMeaning({Variable}.id, \"{Lambda.EscapeStringLiteral(concept)}\", {Lambda.Inv(threshold)})";
+        var expr = $"SemanticFunctions.ContainsMeaning({Variable}.id, \"{Lambda.EscapeStringLiteral(concept)}\", {Lambda.Inv(threshold)})";
         return new LambdaPredicate(expr);
     }
 
@@ -82,7 +83,7 @@ public readonly record struct SectionRef(string Variable)
         if (concepts is null || concepts.Length == 0)
             throw new ArgumentException("at least one concept required", nameof(concepts));
         var joined = string.Join("|", concepts.Select(Lambda.EscapeStringLiteral));
-        var expr = $"MatchesAnyMeaning({Variable}.id, \"{joined}\", {Lambda.Inv(threshold)})";
+        var expr = $"SemanticFunctions.MatchesAnyMeaning({Variable}.id, \"{joined}\", {Lambda.Inv(threshold)})";
         return new LambdaPredicate(expr);
     }
 

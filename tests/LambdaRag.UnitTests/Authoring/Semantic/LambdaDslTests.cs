@@ -1,6 +1,6 @@
 using FluentAssertions;
 using LambdaRag.Authoring.Dsl;
-using LambdaRag.Authoring.Semantic;
+using LambdaRag.Core.Semantic;
 using Xunit;
 
 namespace LambdaRag.UnitTests.Authoring.Semantic;
@@ -11,21 +11,21 @@ public class LambdaDslTests
     public void ContainsMeaning_emits_expected_RulesEngine_call()
     {
         var expr = Lambda.ContainsMeaning("works made for hire");
-        expr.Should().Be("ContainsMeaning(input1.id, \"works made for hire\", 0.78)");
+        expr.Should().Be("SemanticFunctions.ContainsMeaning(input1.id, \"works made for hire\", 0.78)");
     }
 
     [Fact]
     public void ContainsMeaning_with_custom_threshold_uses_invariant_culture()
     {
         var expr = Lambda.ContainsMeaning("indemnification", threshold: 0.825);
-        expr.Should().Be("ContainsMeaning(input1.id, \"indemnification\", 0.825)");
+        expr.Should().Be("SemanticFunctions.ContainsMeaning(input1.id, \"indemnification\", 0.825)");
     }
 
     [Fact]
     public void ContainsMeaning_with_quotes_in_concept_is_escaped()
     {
         var expr = Lambda.ContainsMeaning("the \"works\" clause");
-        expr.Should().Be("ContainsMeaning(input1.id, \"the \\\"works\\\" clause\", 0.78)");
+        expr.Should().Be("SemanticFunctions.ContainsMeaning(input1.id, \"the \\\"works\\\" clause\", 0.78)");
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class LambdaDslTests
             .ToExpression();
 
         expr.Should().Be(
-            "(ContainsMeaning(input1.id, \"contract tax bracket\", 0.78)) && (input1.tax < 100)");
+            "(SemanticFunctions.ContainsMeaning(input1.id, \"contract tax bracket\", 0.78)) && (input1.tax < 100)");
     }
 
     [Fact]
@@ -52,7 +52,7 @@ public class LambdaDslTests
             .ToExpression();
 
         expr.Should().Be(
-            "!((ContainsMeaning(input1.id, \"work for hire\", 0.78)) || (ContainsMeaning(input1.id, \"hereby assigns\", 0.78)))");
+            "!((SemanticFunctions.ContainsMeaning(input1.id, \"work for hire\", 0.78)) || (SemanticFunctions.ContainsMeaning(input1.id, \"hereby assigns\", 0.78)))");
     }
 
     [Fact]
@@ -64,7 +64,7 @@ public class LambdaDslTests
             .ToExpression();
 
         expr.Should().Be(
-            "MatchesAnyMeaning(input1.id, \"work for hire|hereby assigns|vests in customer\", 0.78)");
+            "SemanticFunctions.MatchesAnyMeaning(input1.id, \"work for hire|hereby assigns|vests in customer\", 0.78)");
     }
 
     [Fact]
