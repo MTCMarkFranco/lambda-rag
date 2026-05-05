@@ -1,5 +1,6 @@
 using System.Text.Json;
 using LambdaRag.Authoring;
+using LambdaRag.Authoring.AISearch;
 using LambdaRag.Authoring.Embeddings;
 using LambdaRag.Cli;
 using LambdaRag.Core.Semantic;
@@ -43,6 +44,7 @@ static class CliEntry
                 "topic-map" => await TopicMapAsync(args.Skip(1).ToArray()),
                 "extract-rules" => await ExtractRulesAsync(args.Skip(1).ToArray()),
                 "rules"    => await RulesCommand.RunAsync(args.Skip(1).ToArray(), TimeProvider.System),
+                "ruleset"  => await RulesetAsync(args.Skip(1).ToArray()),
                 _ => UnknownCommand(args[0]),
             };
         }
@@ -71,6 +73,11 @@ static class CliEntry
               lambda-rag parse    --document <path> --out <path>
               lambda-rag coverage --document <path> --ruleset <path> --out <path>
               lambda-rag author   --chunk <path> --domain <name> --prefix <id-prefix> --out <path>
+              lambda-rag author   --source <pdf-or-dir> --search-service <name> --storage-url <blob-url>
+                                  [--container policies] [--indexer lambda-rag-rules-indexer]
+                                  [--poll-seconds 5] [--timeout-minutes 15]
+              lambda-rag ruleset pull --search-service <name> --domain <d> --version <v> --out <path>
+                                  [--status approved] [--index lambda-rag-rules]
               lambda-rag index    --ruleset <path> [--out <path>]
               lambda-rag topic-map list
               lambda-rag topic-map show <id-or-path>
@@ -361,6 +368,14 @@ static class CliEntry
     static async Task<int> AuthorAsync(string[] args)
     {
         var f = ParseFlags(args);
+
+        // Route to the AI Search authoring path when --source / --search-service
+        // are supplied. The legacy --chunk path is preserved for offline use.
+        if (f.ContainsKey("source") || f.ContainsKey("search-service"))
+        {
+            return await AuthorViaAiSearchAsync(f);
+        }
+
         var chunkPath = f.GetValueOrDefault("chunk") ?? throw new ArgumentException("--chunk required");
         var domain = f.GetValueOrDefault("domain") ?? "contract";
         var prefix = f.GetValueOrDefault("prefix") ?? string.Empty;
@@ -398,6 +413,116 @@ static class CliEntry
             Console.WriteLine($"  {s.Rule.Id}  conf={s.Confidence:F2}  predicate=\"{s.Rule.Predicate}\"");
         }
         Console.WriteLine($"Wrote:     {outPath}");
+        return 0;
+    }
+
+    static async Task<int> AuthorViaAiSearchAsync(Dictionary<string, string> f)
+    {
+        var sources = (f.GetValueOrDefault("source") ?? throw new ArgumentException("--source required (file or directory)"));
+        var serviceName = f.GetValueOrDefault("search-service") ?? throw new ArgumentException("--search-service required");
+        var storageUrl = f.GetValueOrDefault("storage-url") ?? throw new ArgumentException("--storage-url required (e.g. https://<acct>.blob.core.windows.net)");
+        var container = f.GetValueOrDefault("container") ?? "policies";
+        var indexer = f.GetValueOrDefault("indexer") ?? "lambda-rag-rules-indexer";
+        var pollSeconds = int.TryParse(f.GetValueOrDefault("poll-seconds") ?? "5", out var ps) ? ps : 5;
+        var timeoutMinutes = int.TryParse(f.GetValueOrDefault("timeout-minutes") ?? "15", out var tm) ? tm : 15;
+
+        var localPaths = ResolveLocalSources(sources);
+        if (localPaths.Count == 0)
+        {
+            Console.Error.WriteLine($"No source files found at {sources}.");
+            return 1;
+        }
+
+        var options = new AzureSearchAuthoringOptions
+        {
+            SearchServiceName = serviceName,
+            StorageAccountUrl = storageUrl,
+            SourceContainerName = container,
+            IndexerName = indexer,
+        };
+
+        var driver = new AzureSearchAuthoringDriver(options);
+
+        Console.WriteLine($"Uploading {localPaths.Count} file(s) to {storageUrl}/{container} ...");
+        var uploaded = await driver.UploadSourcesAsync(localPaths);
+        foreach (var name in uploaded)
+        {
+            Console.WriteLine($"  ↑ {name}");
+        }
+
+        Console.WriteLine($"Running indexer {indexer} ...");
+        var result = await driver.RunIndexerAsync(
+            pollInterval: TimeSpan.FromSeconds(pollSeconds),
+            timeout: TimeSpan.FromMinutes(timeoutMinutes));
+
+        Console.WriteLine($"Status:    {result.Status}");
+        Console.WriteLine($"Processed: {result.ItemsProcessed}");
+        Console.WriteLine($"Failed:    {result.ItemsFailed}");
+        if (!result.Success)
+        {
+            Console.Error.WriteLine($"Indexer run did not succeed: {result.ErrorMessage}");
+            return 2;
+        }
+        Console.WriteLine("✅ Authoring run succeeded.");
+        return 0;
+    }
+
+    static List<string> ResolveLocalSources(string source)
+    {
+        if (Directory.Exists(source))
+        {
+            return Directory.EnumerateFiles(source)
+                .Where(p => !Path.GetFileName(p).StartsWith('.'))
+                .OrderBy(p => p, StringComparer.Ordinal)
+                .ToList();
+        }
+        if (File.Exists(source)) return new List<string> { source };
+        return new List<string>();
+    }
+
+    static async Task<int> RulesetAsync(string[] args)
+    {
+        if (args.Length == 0 || args[0] == "-h" || args[0] == "--help")
+        {
+            Console.WriteLine("""
+                lambda-rag ruleset pull --search-service <name> --domain <d> --version <v> --out <path>
+                                        [--status approved] [--index lambda-rag-rules]
+                """);
+            return 0;
+        }
+
+        return args[0] switch
+        {
+            "pull" => await RulesetPullAsync(args.Skip(1).ToArray()),
+            _ => UnknownCommand($"ruleset {args[0]}"),
+        };
+    }
+
+    static async Task<int> RulesetPullAsync(string[] args)
+    {
+        var f = ParseFlags(args);
+        var serviceName = f.GetValueOrDefault("search-service") ?? throw new ArgumentException("--search-service required");
+        var domain = f.GetValueOrDefault("domain") ?? throw new ArgumentException("--domain required");
+        var version = f.GetValueOrDefault("version") ?? throw new ArgumentException("--version required");
+        var outPath = f.GetValueOrDefault("out") ?? throw new ArgumentException("--out required");
+        var status = f.GetValueOrDefault("status") ?? "approved";
+        var indexName = f.GetValueOrDefault("index") ?? "lambda-rag-rules";
+
+        var options = new AzureSearchAuthoringOptions
+        {
+            SearchServiceName = serviceName,
+            // StorageAccountUrl is unused for pull but required by the record.
+            StorageAccountUrl = "https://unused.blob.core.windows.net",
+            IndexName = indexName,
+        };
+
+        var puller = new AzureSearchSnapshotPuller(options);
+        Console.WriteLine($"Pulling domain={domain} version={version} status={status} from {options.SearchEndpoint}/{indexName} ...");
+        var result = await puller.PullAsync(domain, version, outPath, status: status);
+
+        Console.WriteLine($"Rules:     {result.RuleCount}");
+        Console.WriteLine($"Out:       {result.OutputPath}");
+        Console.WriteLine($"SHA-256:   {result.ContentHash}");
         return 0;
     }
 

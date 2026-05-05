@@ -1,0 +1,222 @@
+{
+  "name": "lambda-rag-rules",
+  "fields": [
+    {
+      "name": "ruleId",
+      "type": "Edm.String",
+      "key": true,
+      "filterable": true,
+      "retrievable": true,
+      "searchable": false,
+      "sortable": true
+    },
+    {
+      "name": "domain",
+      "type": "Edm.String",
+      "filterable": true,
+      "facetable": true,
+      "retrievable": true,
+      "searchable": false
+    },
+    {
+      "name": "version",
+      "type": "Edm.String",
+      "filterable": true,
+      "facetable": true,
+      "retrievable": true,
+      "searchable": false
+    },
+    {
+      "name": "status",
+      "type": "Edm.String",
+      "filterable": true,
+      "facetable": true,
+      "retrievable": true,
+      "searchable": false
+    },
+    {
+      "name": "naturalLanguage",
+      "type": "Edm.String",
+      "searchable": true,
+      "retrievable": true,
+      "analyzer": "en.microsoft"
+    },
+    {
+      "name": "predicate",
+      "type": "Edm.String",
+      "searchable": false,
+      "retrievable": true
+    },
+    {
+      "name": "lambda",
+      "type": "Edm.String",
+      "searchable": false,
+      "retrievable": true
+    },
+    {
+      "name": "concepts",
+      "type": "Collection(Edm.String)",
+      "searchable": true,
+      "filterable": true,
+      "retrievable": true,
+      "analyzer": "en.microsoft"
+    },
+    {
+      "name": "conceptsVector",
+      "type": "Collection(Edm.Single)",
+      "searchable": true,
+      "retrievable": false,
+      "dimensions": 3072,
+      "vectorSearchProfile": "default-vector-profile"
+    },
+    {
+      "name": "severity",
+      "type": "Edm.String",
+      "filterable": true,
+      "facetable": true,
+      "retrievable": true,
+      "searchable": false
+    },
+    {
+      "name": "applicability",
+      "type": "Edm.String",
+      "filterable": true,
+      "facetable": true,
+      "retrievable": true,
+      "searchable": false
+    },
+    {
+      "name": "remediation",
+      "type": "Edm.String",
+      "searchable": true,
+      "retrievable": true,
+      "analyzer": "en.microsoft"
+    },
+    {
+      "name": "evidenceQuote",
+      "type": "Edm.String",
+      "searchable": true,
+      "retrievable": true,
+      "analyzer": "en.microsoft"
+    },
+    {
+      "name": "sourceSpan",
+      "type": "Edm.ComplexType",
+      "fields": [
+        { "name": "documentId", "type": "Edm.String", "filterable": true, "retrievable": true },
+        { "name": "headingPath", "type": "Edm.String", "searchable": true, "retrievable": true, "analyzer": "en.microsoft" },
+        { "name": "pageNumber", "type": "Edm.Int32", "filterable": true, "retrievable": true },
+        { "name": "charStart", "type": "Edm.Int32", "retrievable": true },
+        { "name": "charLength", "type": "Edm.Int32", "retrievable": true }
+      ]
+    },
+    {
+      "name": "examples",
+      "type": "Edm.ComplexType",
+      "fields": [
+        { "name": "positive", "type": "Collection(Edm.String)", "searchable": true, "retrievable": true, "analyzer": "en.microsoft" },
+        { "name": "negative", "type": "Collection(Edm.String)", "searchable": true, "retrievable": true, "analyzer": "en.microsoft" }
+      ]
+    },
+    {
+      "name": "metadata",
+      "type": "Edm.ComplexType",
+      "fields": [
+        { "name": "sourcePolicy", "type": "Edm.String", "searchable": true, "filterable": true, "retrievable": true, "analyzer": "en.microsoft" },
+        { "name": "category", "type": "Edm.String", "filterable": true, "facetable": true, "retrievable": true },
+        { "name": "mandatory", "type": "Edm.String", "filterable": true, "facetable": true, "retrievable": true },
+        { "name": "reviewer", "type": "Edm.String", "filterable": true, "facetable": true, "retrievable": true }
+      ]
+    },
+    {
+      "name": "contentHash",
+      "type": "Edm.String",
+      "filterable": true,
+      "retrievable": true,
+      "searchable": false
+    },
+    {
+      "name": "ingestedAt",
+      "type": "Edm.DateTimeOffset",
+      "filterable": true,
+      "sortable": true,
+      "retrievable": true
+    }
+  ],
+  "vectorSearch": {
+    "algorithms": [
+      {
+        "name": "default-hnsw",
+        "kind": "hnsw",
+        "hnswParameters": {
+          "m": 4,
+          "efConstruction": 400,
+          "efSearch": 500,
+          "metric": "cosine"
+        }
+      }
+    ],
+    "profiles": [
+      {
+        "name": "default-vector-profile",
+        "algorithm": "default-hnsw",
+        "vectorizer": "default-vectorizer"
+      }
+    ],
+    "vectorizers": [
+      {
+        "name": "default-vectorizer",
+        "kind": "azureOpenAI",
+        "azureOpenAIParameters": {
+          "resourceUri": "{{AZURE_OPENAI_ENDPOINT}}",
+          "deploymentId": "{{EMBEDDING_DEPLOYMENT}}",
+          "modelName": "text-embedding-3-large",
+          "authIdentity": null
+        }
+      }
+    ]
+  },
+  "semantic": {
+    "configurations": [
+      {
+        "name": "default-semantic",
+        "prioritizedFields": {
+          "titleField": { "fieldName": "naturalLanguage" },
+          "prioritizedContentFields": [
+            { "fieldName": "remediation" },
+            { "fieldName": "evidenceQuote" }
+          ],
+          "prioritizedKeywordsFields": [
+            { "fieldName": "concepts" }
+          ]
+        }
+      }
+    ]
+  },
+  "scoringProfiles": [
+    {
+      "name": "boost-mandatory",
+      "functions": [
+        {
+          "type": "tag",
+          "fieldName": "metadata/mandatory",
+          "boost": 2.0,
+          "tag": { "tagsParameter": "mandatoryTag" }
+        }
+      ],
+      "functionAggregation": "sum",
+      "text": {
+        "weights": {
+          "naturalLanguage": 3,
+          "concepts": 5,
+          "remediation": 1,
+          "evidenceQuote": 1
+        }
+      }
+    }
+  ],
+  "corsOptions": {
+    "allowedOrigins": ["*"],
+    "maxAgeInSeconds": 60
+  }
+}
