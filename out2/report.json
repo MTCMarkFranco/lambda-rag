@@ -1,0 +1,97 @@
+{
+  "documentId": {
+    "value": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb"
+  },
+  "ruleSetId": "rs_sample_contracts",
+  "ruleSetVersion": "1.0.0",
+  "ruleSetFingerprint": {
+    "value": "lr1:e76b414b1e680b0ff525cf568a4338105e8463ab2014709edfd3f3af7cb42da7"
+  },
+  "projectorId": "contract",
+  "projectorVersion": "1.0.0",
+  "score": 0.6666666666666666,
+  "totalRules": 3,
+  "passed": 2,
+  "failed": 1,
+  "notApplicable": 0,
+  "errored": 0,
+  "verdicts": [
+    {
+      "id": "lr1:b69816a0ba20621f595ee00779e2e1e7e4359f50bc2eedbb41e0d3f488277533",
+      "ruleId": "DPA-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"ISO 27001\") || input1.text.Contains(\"SOC 2\") || input1.text.Contains(\"NIST\")",
+      "evaluatedInput": {
+        "id": "s_00000005",
+        "heading": "5. Data Protection",
+        "heading_path": "/Master Services Agreement/5. Data Protection",
+        "category": "privacy",
+        "text": "Vendor shall process Customer Personal Data only as instructed and shall implement security measures consistent with ISO 27001. Sub-processors require Customer's prior written consent."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb",
+        "charStart": 774,
+        "charLength": 21,
+        "headingPath": "/Master Services Agreement/5. Data Protection",
+        "charEnd": 795
+      },
+      "evidenceQuotes": [
+        "security measures consistent with ISO 27001"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00"
+    },
+    {
+      "id": "lr1:1efde3c29dad359938ad7a104b0223fb69a8d9efb0d06db0b80302079717a9cd",
+      "ruleId": "GOV-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"United States\") || input1.text.Contains(\"Delaware\") || input1.text.Contains(\"New York\") || input1.text.Contains(\"California\")",
+      "evaluatedInput": {
+        "id": "s_00000008",
+        "heading": "8. Governing Law",
+        "heading_path": "/Master Services Agreement/8. Governing Law",
+        "category": "governing_law",
+        "text": "This Agreement is governed by the laws of the State of Delaware, without regard to conflicts of law principles. The exclusive venue is Wilmington, Delaware."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb",
+        "charStart": 1332,
+        "charLength": 19,
+        "headingPath": "/Master Services Agreement/8. Governing Law",
+        "charEnd": 1351
+      },
+      "evidenceQuotes": [
+        "governed by the laws of the State of Delaware"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00"
+    },
+    {
+      "id": "lr1:de9eff9e583c67987b782b54507566d07aeeecc024918a3a80aa65a4380d3c31",
+      "ruleId": "PAY-001",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"30 days\") || input1.text.Contains(\"15 days\") || input1.text.Contains(\"net 30\") || input1.text.Contains(\"Net 30\")",
+      "evaluatedInput": {
+        "id": "s_00000003",
+        "heading": "3. Payment Terms",
+        "heading_path": "/Master Services Agreement/3. Payment Terms",
+        "category": "payment_terms",
+        "text": "Customer shall pay all undisputed invoices within 45 days of receipt. Late payments accrue interest at 1.5% per month. All fees are stated in USD."
+      },
+      "sourceSpan": {
+        "documentId": "lr1:276020276da7b9024991e9116244c54b885ca90bf40a6030fd9803c2597295eb",
+        "charStart": 388,
+        "charLength": 19,
+        "headingPath": "/Master Services Agreement/3. Payment Terms",
+        "charEnd": 407
+      },
+      "errorMessage": "Rule 'PAY-001' failed: Payment terms must be 30 days or fewer.",
+      "evidenceQuotes": [
+        "Customer shall pay all undisputed invoices within 45 days"
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00"
+    }
+  ],
+  "generatedAt": "2000-01-01T00:00:00+00:00"
+}
