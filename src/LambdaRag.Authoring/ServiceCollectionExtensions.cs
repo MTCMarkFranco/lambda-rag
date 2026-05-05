@@ -11,7 +11,13 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddLambdaRagAuthoring(this IServiceCollection services)
     {
-        services.AddSingleton<IRuleEmbedder, DeterministicHashEmbedder>();
+        // Prefer a real Azure Foundry embedder when LAMBDA_RAG_FOUNDRY_*
+        // environment variables are set; otherwise fall back to the
+        // deterministic hash embedder so unit tests + offline replays still
+        // work without any cloud credentials.
+        services.AddSingleton<IRuleEmbedder>(_ =>
+            (IRuleEmbedder?)Embeddings.FoundryEmbedderFactory.TryCreateFromEnvironment()
+                ?? new DeterministicHashEmbedder());
         services.AddSingleton<IRuleAuthoringAgent, DeterministicMockAuthoringAgent>();
         return services;
     }
