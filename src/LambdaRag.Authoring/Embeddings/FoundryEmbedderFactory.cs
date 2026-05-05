@@ -2,24 +2,30 @@ using Azure;
 using Azure.AI.OpenAI;
 using Azure.Identity;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Configuration;
 
 namespace LambdaRag.Authoring.Embeddings;
 
 /// <summary>
-/// Builds an <see cref="AzureFoundryEmbeddingProvider"/> from environment
-/// variables. Returns <c>null</c> when the required variables are missing —
-/// the caller can then fall back to <see cref="DeterministicHashEmbedder"/>
-/// for offline / unit-test runs.
+/// Builds an <see cref="AzureFoundryEmbeddingProvider"/> from
+/// <see cref="IConfiguration"/> (e.g. <c>dotnet user-secrets</c> or
+/// <c>appsettings.json</c>) with environment-variable fallback. Returns
+/// <c>null</c> when the required values are missing — the caller can then
+/// fall back to <see cref="DeterministicHashEmbedder"/> for offline /
+/// unit-test runs.
 ///
-/// Required:
-///   • <c>LAMBDA_RAG_FOUNDRY_ENDPOINT</c>     — e.g. https://&lt;project&gt;.openai.azure.com/
-///   • <c>LAMBDA_RAG_FOUNDRY_DEPLOYMENT</c>   — Azure deployment name for the embedding model
+/// Configuration keys (preferred — set via <c>dotnet user-secrets</c>):
+///   • <c>LambdaRag:Foundry:Endpoint</c>     — e.g. https://&lt;project&gt;.openai.azure.com/openai/v1
+///   • <c>LambdaRag:Foundry:Deployment</c>   — Azure deployment name for the embedding model
+///   • <c>LambdaRag:Foundry:Model</c>        — defaults to "text-embedding-3-large"
+///   • <c>LambdaRag:Foundry:Dimensions</c>   — defaults per model (3072 for 3-large)
+///   • <c>LambdaRag:Foundry:ApiKey</c>       — when set, uses key auth; otherwise DefaultAzureCredential (Entra ID)
+///   • <c>LambdaRag:EmbeddingCache</c>       — directory for the file-backed cache; defaults to <c>out/embedding-cache</c>
 ///
-/// Optional:
-///   • <c>LAMBDA_RAG_FOUNDRY_MODEL</c>        — defaults to "text-embedding-3-large"
-///   • <c>LAMBDA_RAG_FOUNDRY_DIMENSIONS</c>   — defaults to 3072 for `3-large`, 1536 for `3-small`, 1536 for `ada-002`
-///   • <c>LAMBDA_RAG_FOUNDRY_API_KEY</c>      — when set, uses key auth; otherwise DefaultAzureCredential (Entra ID)
-///   • <c>LAMBDA_RAG_EMBEDDING_CACHE</c>      — directory for the file-backed cache; defaults to <c>out/embedding-cache</c>
+/// Environment-variable fallback (legacy / CI):
+///   • <c>LAMBDA_RAG_FOUNDRY_ENDPOINT</c>, <c>LAMBDA_RAG_FOUNDRY_DEPLOYMENT</c>,
+///     <c>LAMBDA_RAG_FOUNDRY_MODEL</c>, <c>LAMBDA_RAG_FOUNDRY_DIMENSIONS</c>,
+///     <c>LAMBDA_RAG_FOUNDRY_API_KEY</c>, <c>LAMBDA_RAG_EMBEDDING_CACHE</c>
 ///
 /// All embeddings flow through a <see cref="FileBackedEmbeddingCache"/> so
 /// repeat runs (and CI replays) are 100% offline once the cache is warm.
@@ -33,17 +39,30 @@ public static class FoundryEmbedderFactory
     public const string ApiKeyVar = "LAMBDA_RAG_FOUNDRY_API_KEY";
     public const string CacheDirVar = "LAMBDA_RAG_EMBEDDING_CACHE";
 
-    public static AzureFoundryEmbeddingProvider? TryCreateFromEnvironment()
+    public const string EndpointKey = "LambdaRag:Foundry:Endpoint";
+    public const string DeploymentKey = "LambdaRag:Foundry:Deployment";
+    public const string ModelKey = "LambdaRag:Foundry:Model";
+    public const string DimensionsKey = "LambdaRag:Foundry:Dimensions";
+    public const string ApiKeyKey = "LambdaRag:Foundry:ApiKey";
+    public const string CacheDirKey = "LambdaRag:EmbeddingCache";
+
+    /// <summary>
+    /// Reads Foundry settings from <paramref name="configuration"/> first,
+    /// then falls back to environment variables. Pass a configuration root
+    /// built with <c>AddUserSecrets()</c> + <c>AddEnvironmentVariables()</c>
+    /// to honour both <c>dotnet user-secrets</c> and legacy CI vars.
+    /// </summary>
+    public static AzureFoundryEmbeddingProvider? TryCreate(IConfiguration? configuration)
     {
-        var endpoint = Environment.GetEnvironmentVariable(EndpointVar);
-        var deployment = Environment.GetEnvironmentVariable(DeploymentVar);
+        var endpoint = Resolve(configuration, EndpointKey, EndpointVar);
+        var deployment = Resolve(configuration, DeploymentKey, DeploymentVar);
         if (string.IsNullOrWhiteSpace(endpoint) || string.IsNullOrWhiteSpace(deployment))
             return null;
 
-        var modelId = Environment.GetEnvironmentVariable(ModelVar) ?? "text-embedding-3-large";
-        var dimensions = ResolveDimensions(modelId);
+        var modelId = Resolve(configuration, ModelKey, ModelVar) ?? "text-embedding-3-large";
+        var dimensions = ResolveDimensions(configuration, modelId);
 
-        var apiKey = Environment.GetEnvironmentVariable(ApiKeyVar);
+        var apiKey = Resolve(configuration, ApiKeyKey, ApiKeyVar);
         var azureClient = string.IsNullOrWhiteSpace(apiKey)
             ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
             : new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(apiKey));
@@ -51,16 +70,32 @@ public static class FoundryEmbedderFactory
         IEmbeddingGenerator<string, Embedding<float>> generator =
             azureClient.GetEmbeddingClient(deployment).AsIEmbeddingGenerator();
 
-        var cacheDir = Environment.GetEnvironmentVariable(CacheDirVar)
+        var cacheDir = Resolve(configuration, CacheDirKey, CacheDirVar)
             ?? Path.Combine("out", "embedding-cache");
         var cache = new FileBackedEmbeddingCache(cacheDir, modelId, dimensions);
 
         return new AzureFoundryEmbeddingProvider(generator, modelId, dimensions, cache);
     }
 
-    private static int ResolveDimensions(string modelId)
+    /// <summary>
+    /// Backwards-compatible wrapper that reads only from environment variables.
+    /// New callers should prefer <see cref="TryCreate(IConfiguration?)"/>.
+    /// </summary>
+    public static AzureFoundryEmbeddingProvider? TryCreateFromEnvironment()
+        => TryCreate(configuration: null);
+
+    private static string? Resolve(IConfiguration? configuration, string key, string envVar)
     {
-        var explicitDims = Environment.GetEnvironmentVariable(DimensionsVar);
+        var fromConfig = configuration?[key];
+        if (!string.IsNullOrWhiteSpace(fromConfig))
+            return fromConfig;
+        var fromEnv = Environment.GetEnvironmentVariable(envVar);
+        return string.IsNullOrWhiteSpace(fromEnv) ? null : fromEnv;
+    }
+
+    private static int ResolveDimensions(IConfiguration? configuration, string modelId)
+    {
+        var explicitDims = Resolve(configuration, DimensionsKey, DimensionsVar);
         if (!string.IsNullOrWhiteSpace(explicitDims) && int.TryParse(explicitDims, out var d) && d > 0)
             return d;
         return modelId switch

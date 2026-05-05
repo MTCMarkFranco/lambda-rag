@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LambdaRag.Authoring;
@@ -5,18 +6,20 @@ namespace LambdaRag.Authoring;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers the deterministic mock authoring agent + hash embedder.
-    /// Production hosts should replace these with LLM-backed implementations
-    /// behind the same interfaces.
+    /// Registers the deterministic mock authoring agent + an
+    /// <see cref="IRuleEmbedder"/>. When <paramref name="configuration"/>
+    /// supplies <c>LambdaRag:Foundry:*</c> values (or the legacy
+    /// <c>LAMBDA_RAG_FOUNDRY_*</c> env vars are set) a real Azure Foundry
+    /// embedder is wired up; otherwise the deterministic hash embedder is
+    /// used so unit tests + offline replays still work without any cloud
+    /// credentials.
     /// </summary>
-    public static IServiceCollection AddLambdaRagAuthoring(this IServiceCollection services)
+    public static IServiceCollection AddLambdaRagAuthoring(
+        this IServiceCollection services,
+        IConfiguration? configuration = null)
     {
-        // Prefer a real Azure Foundry embedder when LAMBDA_RAG_FOUNDRY_*
-        // environment variables are set; otherwise fall back to the
-        // deterministic hash embedder so unit tests + offline replays still
-        // work without any cloud credentials.
         services.AddSingleton<IRuleEmbedder>(_ =>
-            (IRuleEmbedder?)Embeddings.FoundryEmbedderFactory.TryCreateFromEnvironment()
+            (IRuleEmbedder?)Embeddings.FoundryEmbedderFactory.TryCreate(configuration)
                 ?? new DeterministicHashEmbedder());
         services.AddSingleton<IRuleAuthoringAgent, DeterministicMockAuthoringAgent>();
         return services;

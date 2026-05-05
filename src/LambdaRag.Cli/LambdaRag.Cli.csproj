@@ -3,6 +3,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>LambdaRag.Cli</RootNamespace>
     <AssemblyName>lambda-rag</AssemblyName>
+    <UserSecretsId>lambda-rag-cli-3f1e7b8c-9c2a-4f6e-bf2a-2c5b9c6d4e10</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\LambdaRag.Core\LambdaRag.Core.csproj" />
@@ -18,6 +19,9 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.AI" />
     <PackageReference Include="Microsoft.Extensions.AI.OpenAI" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
     <PackageReference Include="Azure.AI.OpenAI" />
     <PackageReference Include="Azure.Identity" />
   </ItemGroup>
