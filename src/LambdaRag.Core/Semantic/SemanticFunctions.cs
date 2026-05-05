@@ -19,6 +19,15 @@ namespace LambdaRag.Core.Semantic;
 public static class SemanticFunctions
 {
     /// <summary>
+    /// Marker prefix on every <see cref="InvalidOperationException"/> raised
+    /// from inside this class. The evaluator recognises this prefix and
+    /// surfaces such failures as <c>VerdictOutcome.Error</c> instead of
+    /// <c>Fail</c> — missing vectors must never masquerade as a "rule said
+    /// false" outcome.
+    /// </summary>
+    public const string ErrorMarker = "lambda-rag.semantic:";
+
+    /// <summary>
     /// Registered as <c>ContainsMeaning(sectionId, concept, threshold)</c>.
     /// Returns true iff <c>cosine(sectionVec, conceptVec) &gt;= threshold</c>.
     /// Throws when either vector is missing — replay must be loud.
@@ -27,9 +36,9 @@ public static class SemanticFunctions
     {
         var store = VectorStoreAccessor.RequireCurrent();
         if (!store.TryGetSection(sectionId, out var sectionVec))
-            throw new InvalidOperationException($"No precomputed vector for section '{sectionId}'.");
+            throw new InvalidOperationException($"{ErrorMarker} no precomputed vector for section '{sectionId}'.");
         if (!store.TryGetConcept(concept, out var conceptVec))
-            throw new InvalidOperationException($"No precomputed vector for concept '{concept}'.");
+            throw new InvalidOperationException($"{ErrorMarker} no precomputed vector for concept '{concept}'.");
         return Cosine(sectionVec, conceptVec) >= threshold;
     }
 
@@ -42,12 +51,12 @@ public static class SemanticFunctions
     {
         var store = VectorStoreAccessor.RequireCurrent();
         if (!store.TryGetSection(sectionId, out var sectionVec))
-            throw new InvalidOperationException($"No precomputed vector for section '{sectionId}'.");
+            throw new InvalidOperationException($"{ErrorMarker} no precomputed vector for section '{sectionId}'.");
 
         foreach (var concept in pipeDelimitedConcepts.Split('|', StringSplitOptions.RemoveEmptyEntries))
         {
             if (!store.TryGetConcept(concept, out var conceptVec))
-                throw new InvalidOperationException($"No precomputed vector for concept '{concept}'.");
+                throw new InvalidOperationException($"{ErrorMarker} no precomputed vector for concept '{concept}'.");
             if (Cosine(sectionVec, conceptVec) >= threshold)
                 return true;
         }
