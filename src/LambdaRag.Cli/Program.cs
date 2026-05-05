@@ -209,6 +209,17 @@ static class CliEntry
             var projEmbedder = new ProjectionEmbedder(ruleEmbedder);
             store = await projEmbedder.EmbedSectionsAsync(projected, store);
 
+            // Wrap the populated store with a JIT-embed decorator (see #69).
+            // Sections that the projector skipped — e.g. heading-only nodes
+            // with no body text in the upstream graph — would otherwise raise
+            // "no precomputed vector for section ..." at evaluation time.
+            // The decorator carries the (id -> text) map so any miss falls
+            // back to the same IRuleEmbedder + cache used at projection time;
+            // determinism is preserved because the embedder is itself
+            // deterministic and hash-cached.
+            var jitStore = new JitEmbeddingSemanticVectorStore(store, ruleEmbedder);
+            jitStore.RegisterSectionTexts(projected);
+
             // Build a fresh evaluator with the populated store. We pull every
             // collaborator off DI so candidate filters and the time provider
             // are still honoured.
@@ -217,7 +228,7 @@ static class CliEntry
                 sp.GetRequiredService<ILogger<EvaluationService>>(),
                 sp.GetService<TimeProvider>(),
                 sp.GetService<ICandidateRuleFilter>(),
-                store);
+                jitStore);
             Console.WriteLine($"Vectors:   embedder={ruleEmbedder.EmbedderId} dims={ruleEmbedder.Dimensions}");
         }
 
