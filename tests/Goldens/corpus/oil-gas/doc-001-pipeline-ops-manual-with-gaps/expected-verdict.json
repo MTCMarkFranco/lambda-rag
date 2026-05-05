@@ -1,6 +1,6 @@
 {
   "documentId": {
-    "value": "lr1:f339cdf4db518f2aae3fb978e2bfb6589bf45b3199c566f569df940eda7120d2"
+    "value": "lr1:4d0a0fe4f2df1f88001d5ca597fb2dc4b2b7551e25bf95aaa9d15463854a89eb"
   },
   "ruleSetId": "rs_can_oil_gas_v1",
   "ruleSetVersion": "1.0.0",
@@ -17,7 +17,7 @@
   "errored": 0,
   "verdicts": [
     {
-      "id": "lr1:7743a403a9b2332961db7a64f2402b723da2a44f0b1e318c7d74236c58cafaf3",
+      "id": "lr1:37714deb461223fb5e62fba5a2744b602d660ef708c1b8fc339183f634f8df2c",
       "ruleId": "OG-DECOM-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -38,6 +38,7 @@
         },
         "topic_density": 8,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -52,6 +53,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -65,7 +68,7 @@
         "text_char_start": 1210
       },
       "sourceSpan": {
-        "documentId": "lr1:f339cdf4db518f2aae3fb978e2bfb6589bf45b3199c566f569df940eda7120d2",
+        "documentId": "lr1:4d0a0fe4f2df1f88001d5ca597fb2dc4b2b7551e25bf95aaa9d15463854a89eb",
         "charStart": 1190,
         "charLength": 18,
         "headingPath": "/Operations Manual — Acme Pipeline Co. NPS 24 Crude Oil System/Decommissioning",
@@ -79,7 +82,7 @@
       "predicateText": "input1.category == \"decommissioning\""
     },
     {
-      "id": "lr1:1da92e63b93ad6f6fa23bebcb09340d29168c857160d72b7f908bf8c943f2d95",
+      "id": "lr1:4779b2f5a567db9d5284dcb85a9f41aec7a1fa2a335b033167de8cbf96d8c75e",
       "ruleId": "OG-EMERGENCY-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -98,6 +101,7 @@
         },
         "topic_density": 12.5,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -112,6 +116,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -125,7 +131,7 @@
         "text_char_start": 783
       },
       "sourceSpan": {
-        "documentId": "lr1:f339cdf4db518f2aae3fb978e2bfb6589bf45b3199c566f569df940eda7120d2",
+        "documentId": "lr1:4d0a0fe4f2df1f88001d5ca597fb2dc4b2b7551e25bf95aaa9d15463854a89eb",
         "charStart": 755,
         "charLength": 26,
         "headingPath": "/Operations Manual — Acme Pipeline Co. NPS 24 Crude Oil System/Emergency Response Plan",
@@ -183,7 +189,7 @@
       "predicateText": "input1.category == \"methane_management\""
     },
     {
-      "id": "lr1:fe24754c6ab7f4291441e379b99b41d0b627e396f32d8190512733da101f6deb",
+      "id": "lr1:6501a85adce12c701900b786abbcb438324907905be1c71cc6b5ca93e5748c00",
       "ruleId": "OG-PIM-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -202,6 +208,7 @@
         },
         "topic_density": 9.6154,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -216,6 +223,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -229,7 +238,7 @@
         "text_char_start": 305
       },
       "sourceSpan": {
-        "documentId": "lr1:f339cdf4db518f2aae3fb978e2bfb6589bf45b3199c566f569df940eda7120d2",
+        "documentId": "lr1:4d0a0fe4f2df1f88001d5ca597fb2dc4b2b7551e25bf95aaa9d15463854a89eb",
         "charStart": 263,
         "charLength": 40,
         "headingPath": "/Operations Manual — Acme Pipeline Co. NPS 24 Crude Oil System/Pipeline Integrity Management Program",

@@ -290,10 +290,52 @@ public sealed class ReviewedDocxIdempotency
             using var s = entry.Open();
             using var ms = new MemoryStream();
             s.CopyTo(ms);
-            var sha = SHA256.HashData(ms.ToArray());
+            var bytes = ms.ToArray();
+
+            // For XML parts, canonicalise before hashing so the OOXML SDK's
+            // OS-specific whitespace and attribute-ordering quirks don't make
+            // the golden hash unstable across Windows and Linux runners. We
+            // care that the *semantic* content is reproducible; raw bytes can
+            // legitimately drift between SDK runtimes.
+            if (entry.FullName.EndsWith(".xml", StringComparison.OrdinalIgnoreCase) ||
+                entry.FullName.EndsWith(".rels", StringComparison.OrdinalIgnoreCase))
+            {
+                bytes = CanonicaliseXml(bytes);
+            }
+
+            var sha = SHA256.HashData(bytes);
             result[entry.FullName] = Convert.ToHexString(sha).ToLowerInvariant();
         }
         return result;
+    }
+
+    private static byte[] CanonicaliseXml(byte[] bytes)
+    {
+        try
+        {
+            var doc = System.Xml.Linq.XDocument.Parse(
+                System.Text.Encoding.UTF8.GetString(bytes),
+                System.Xml.Linq.LoadOptions.PreserveWhitespace);
+            using var sw = new StringWriter(CultureInfo.InvariantCulture);
+            using (var xw = System.Xml.XmlWriter.Create(sw, new System.Xml.XmlWriterSettings
+            {
+                OmitXmlDeclaration = false,
+                Indent = false,
+                NewLineHandling = System.Xml.NewLineHandling.Replace,
+                NewLineChars = "\n",
+                Encoding = new System.Text.UTF8Encoding(false),
+            }))
+            {
+                doc.Save(xw);
+            }
+            return System.Text.Encoding.UTF8.GetBytes(sw.ToString());
+        }
+        catch (System.Xml.XmlException)
+        {
+            // Not parseable as XML (shouldn't happen for .xml/.rels parts) —
+            // fall back to raw bytes so we still hash something.
+            return bytes;
+        }
     }
 
     private sealed class TempDir : IDisposable

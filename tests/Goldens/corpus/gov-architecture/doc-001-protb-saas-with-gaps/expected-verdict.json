@@ -1,6 +1,6 @@
 {
   "documentId": {
-    "value": "lr1:fa5dd1b669e27b605a83c307913324e4bfc35f4b166219cf66dec5e933be13a8"
+    "value": "lr1:0e84ec02a44f39abddf1efb2116bb1203f7dca6c25e40129f79c633b80aee5d8"
   },
   "ruleSetId": "rs_gc_cloud_guardrails_v2",
   "ruleSetVersion": "1.0.0",
@@ -17,7 +17,7 @@
   "errored": 0,
   "verdicts": [
     {
-      "id": "lr1:b59af2305753806bee5290df5864cf265f5fbe6353101233ae075d5938bfa1eb",
+      "id": "lr1:0dca36d18718ed3b95d0825e2fa86815bc80db7b8b6a7b82019b9f87fb5d0c09",
       "ruleId": "GC-CG-01-MFA",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -40,6 +40,7 @@
         },
         "topic_density": 0,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -54,6 +55,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -67,7 +70,7 @@
         "text_char_start": 830
       },
       "sourceSpan": {
-        "documentId": "lr1:fa5dd1b669e27b605a83c307913324e4bfc35f4b166219cf66dec5e933be13a8",
+        "documentId": "lr1:0e84ec02a44f39abddf1efb2116bb1203f7dca6c25e40129f79c633b80aee5d8",
         "charStart": 961,
         "charLength": 18,
         "headingPath": "/Solution Architecture — ACME-Canada Citizen Engagement Portal (Protected B SaaS)/2. Phishing-Resistant MFA",
@@ -105,7 +108,7 @@
       "predicateText": "input1.category == \"data_residency_canada\""
     },
     {
-      "id": "lr1:f098e685674c7c777daf01bf4d1868fccd03abe97f2a75832a5a3b512a97a8be",
+      "id": "lr1:7df51d3f230920eb1ce82b8f85eed537ed99cb9e956f5a0c878d4b75731f6f95",
       "ruleId": "GC-CG-06-EncryptionAtRest",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -128,6 +131,7 @@
         },
         "topic_density": 0,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -142,6 +146,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -155,7 +161,7 @@
         "text_char_start": 1492
       },
       "sourceSpan": {
-        "documentId": "lr1:fa5dd1b669e27b605a83c307913324e4bfc35f4b166219cf66dec5e933be13a8",
+        "documentId": "lr1:0e84ec02a44f39abddf1efb2116bb1203f7dca6c25e40129f79c633b80aee5d8",
         "charStart": 1466,
         "charLength": 24,
         "headingPath": "/Solution Architecture — ACME-Canada Citizen Engagement Portal (Protected B SaaS)/3. Encryption at Rest",
@@ -193,7 +199,7 @@
       "predicateText": "input1.category == \"encryption_in_transit\""
     },
     {
-      "id": "lr1:8f5bde14b7d17b985e0b5da9cc593f258cbb1c993cfa0a192dfa27c0015a0b7d",
+      "id": "lr1:68a4454cd037f78776c507fbaeead9fbe948c1bab8a8f0f5cad3031e7b182dd2",
       "ruleId": "GC-CG-11-AuditLogging",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -216,6 +222,7 @@
         },
         "topic_density": 3.2258,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -230,6 +237,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -243,7 +252,7 @@
         "text_char_start": 2520
       },
       "sourceSpan": {
-        "documentId": "lr1:fa5dd1b669e27b605a83c307913324e4bfc35f4b166219cf66dec5e933be13a8",
+        "documentId": "lr1:0e84ec02a44f39abddf1efb2116bb1203f7dca6c25e40129f79c633b80aee5d8",
         "charStart": 2529,
         "charLength": 9,
         "headingPath": "/Solution Architecture — ACME-Canada Citizen Engagement Portal (Protected B SaaS)/5. Audit Log Retention",

@@ -1,6 +1,6 @@
 {
   "documentId": {
-    "value": "lr1:cc4b686cc4d65b30c353c56b0bae9f6b86c5b7de3a77ebb13d5dcc09a8631d3b"
+    "value": "lr1:38741365ce07b15823fb3faf67ae917863dcc5eda3604fe5f372a7b746180c54"
   },
   "ruleSetId": "rs_gc_cloud_guardrails_v2",
   "ruleSetVersion": "1.0.0",
@@ -17,7 +17,7 @@
   "errored": 0,
   "verdicts": [
     {
-      "id": "lr1:b382a56dca9d4edd6f53261e1210373c2ef65cf030414a285933ddd1f80d94e2",
+      "id": "lr1:8c2182d668f7517bd33e760e32c7bd3e2bc581933586bafc6a134f1ecf129680",
       "ruleId": "GC-CG-01-MFA",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -46,6 +46,7 @@
         },
         "topic_density": 7.6923,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -60,6 +61,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -73,7 +76,7 @@
         "text_char_start": 581
       },
       "sourceSpan": {
-        "documentId": "lr1:cc4b686cc4d65b30c353c56b0bae9f6b86c5b7de3a77ebb13d5dcc09a8631d3b",
+        "documentId": "lr1:38741365ce07b15823fb3faf67ae917863dcc5eda3604fe5f372a7b746180c54",
         "charStart": 551,
         "charLength": 28,
         "headingPath": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/2. Phishing-Resistant MFA",
@@ -87,7 +90,7 @@
       "predicateText": "input1.category == \"phishing_resistant_mfa\""
     },
     {
-      "id": "lr1:b1f2b827898745ff82b4fc8e3d361c19370e7c2554100f6f64fb19d4a77d68fd",
+      "id": "lr1:bd0d305060f2cf540256ba2fa421f9a4561b6214c683f9fb9873516f38109759",
       "ruleId": "GC-CG-05-DataResidency",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -110,6 +113,7 @@
         },
         "topic_density": 0,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -124,6 +128,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -137,7 +143,7 @@
         "text_char_start": 951
       },
       "sourceSpan": {
-        "documentId": "lr1:cc4b686cc4d65b30c353c56b0bae9f6b86c5b7de3a77ebb13d5dcc09a8631d3b",
+        "documentId": "lr1:38741365ce07b15823fb3faf67ae917863dcc5eda3604fe5f372a7b746180c54",
         "charStart": 913,
         "charLength": 36,
         "headingPath": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/3. Canadian Data Centre Selection",
@@ -151,7 +157,7 @@
       "predicateText": "input1.category == \"data_residency_canada\""
     },
     {
-      "id": "lr1:e67f8aa54f15a26239db907aee9f61d4f198201348850c753df0d1fcf918de90",
+      "id": "lr1:ae7b0081a0c9c4ee06715977f321d6285f5ffbe5cdae27a63d059977b3bdded7",
       "ruleId": "GC-CG-06-EncryptionAtRest",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -176,6 +182,7 @@
         },
         "topic_density": 3.0303,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -190,6 +197,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -203,7 +212,7 @@
         "text_char_start": 1303
       },
       "sourceSpan": {
-        "documentId": "lr1:cc4b686cc4d65b30c353c56b0bae9f6b86c5b7de3a77ebb13d5dcc09a8631d3b",
+        "documentId": "lr1:38741365ce07b15823fb3faf67ae917863dcc5eda3604fe5f372a7b746180c54",
         "charStart": 1352,
         "charLength": 7,
         "headingPath": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/4. Encryption at Rest",
@@ -219,7 +228,7 @@
       "predicateText": "input1.category == \"encryption_at_rest\""
     },
     {
-      "id": "lr1:2d61d1c4fc354bc31e78c94583aa0743624b289903523566eade34e038352f59",
+      "id": "lr1:61864030b66c7f265fed20c5585325590d3f1ecfcf029f63e14624be13a2c448",
       "ruleId": "GC-CG-07-TLS",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -244,6 +253,7 @@
         },
         "topic_density": 6.0606,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -258,6 +268,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -271,7 +283,7 @@
         "text_char_start": 1584
       },
       "sourceSpan": {
-        "documentId": "lr1:cc4b686cc4d65b30c353c56b0bae9f6b86c5b7de3a77ebb13d5dcc09a8631d3b",
+        "documentId": "lr1:38741365ce07b15823fb3faf67ae917863dcc5eda3604fe5f372a7b746180c54",
         "charStart": 1655,
         "charLength": 7,
         "headingPath": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/5. TLS 1.2 Configuration",
@@ -287,7 +299,7 @@
       "predicateText": "input1.category == \"encryption_in_transit\""
     },
     {
-      "id": "lr1:81aeefc8b4a1bc684049227864d4a3c985ec971143d457d5cd725dfc2385473d",
+      "id": "lr1:a4c00f014a6df8ab01645ff4d4f32cafe4bc4737b3ddb930ca128dc84ead385c",
       "ruleId": "GC-CG-11-AuditLogging",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -314,6 +326,7 @@
         },
         "topic_density": 2.1277,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [
             365
@@ -332,6 +345,8 @@
           "year_count_max": 7,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -345,7 +360,7 @@
         "text_char_start": 1834
       },
       "sourceSpan": {
-        "documentId": "lr1:cc4b686cc4d65b30c353c56b0bae9f6b86c5b7de3a77ebb13d5dcc09a8631d3b",
+        "documentId": "lr1:38741365ce07b15823fb3faf67ae917863dcc5eda3604fe5f372a7b746180c54",
         "charStart": 1808,
         "charLength": 24,
         "headingPath": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/6. Audit Log Strategy",
