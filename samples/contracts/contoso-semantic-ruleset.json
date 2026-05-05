@@ -167,7 +167,7 @@
       "appliesToSchema": { "type": "object" },
       "selector": { "kind": "path", "path": "$.sections[*]" },
       "severity": "Critical",
-      "gateThreshold": 0.55,
+      "gateThreshold": 0.45,
       "sourceSpan": { "documentId": "contoso-policy", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
       "evidenceQuote": "Works-made-for-hire",
       "anchor": "intellectual property[^\\n]*",
