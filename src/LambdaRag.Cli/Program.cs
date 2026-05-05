@@ -2,6 +2,7 @@ using System.Text.Json;
 using LambdaRag.Authoring;
 using LambdaRag.Authoring.AISearch;
 using LambdaRag.Authoring.Embeddings;
+using LambdaRag.Authoring.Validation;
 using LambdaRag.Cli;
 using LambdaRag.Core.Semantic;
 using LambdaRag.Core;
@@ -485,8 +486,11 @@ static class CliEntry
         if (args.Length == 0 || args[0] == "-h" || args[0] == "--help")
         {
             Console.WriteLine("""
-                lambda-rag ruleset pull --search-service <name> --domain <d> --version <v> --out <path>
-                                        [--status approved] [--index lambda-rag-rules]
+                lambda-rag ruleset pull     --search-service <name> --domain <d> --version <v> --out <path>
+                                            [--status approved] [--index lambda-rag-rules]
+                                            [--no-validate] [--epsilon 0.05] [--apply]
+                lambda-rag ruleset validate --in <ruleset.json> [--out <report.json>]
+                                            [--epsilon 0.05] [--apply] [--embedder foundry|deterministic]
                 """);
             return 0;
         }
@@ -494,6 +498,7 @@ static class CliEntry
         return args[0] switch
         {
             "pull" => await RulesetPullAsync(args.Skip(1).ToArray()),
+            "validate" => await RulesetValidateAsync(args.Skip(1).ToArray()),
             _ => UnknownCommand($"ruleset {args[0]}"),
         };
     }
@@ -523,6 +528,90 @@ static class CliEntry
         Console.WriteLine($"Rules:     {result.RuleCount}");
         Console.WriteLine($"Out:       {result.OutputPath}");
         Console.WriteLine($"SHA-256:   {result.ContentHash}");
+
+        // Phase B (#73): self-validate the pulled ruleset unless caller opts out.
+        // Validator only inspects rules that carry positive/negative examples;
+        // pre-Phase-B rulesets sail through unchanged. A rejection fails the
+        // pull so unsafe rules can't slip into production.
+        var skipValidate = f.ContainsKey("no-validate");
+        if (!skipValidate)
+        {
+            var epsilon = ParseEpsilon(f);
+            var apply = f.ContainsKey("apply");
+            var rc = await RunValidateAsync(outPath, reportOut: null, epsilon, apply, embedderPref: null);
+            if (rc != 0) return rc;
+        }
+        return 0;
+    }
+
+    /// <summary>
+    /// Phase B (#73): self-validate every rule that carries positive/negative
+    /// examples and (optionally) bake calibrated thresholds back into the
+    /// ruleset. Returns non-zero when any rule is rejected so CI can fail
+    /// loudly instead of publishing an unvetted ruleset.
+    /// </summary>
+    static async Task<int> RulesetValidateAsync(string[] args)
+    {
+        var f = ParseFlags(args);
+        var inPath = f.GetValueOrDefault("in") ?? throw new ArgumentException("--in required");
+        var outPath = f.GetValueOrDefault("out");
+        var epsilon = ParseEpsilon(f);
+        var apply = f.ContainsKey("apply");
+        var embedderPref = f.GetValueOrDefault("embedder");
+        return await RunValidateAsync(inPath, outPath, epsilon, apply, embedderPref);
+    }
+
+    static double ParseEpsilon(IReadOnlyDictionary<string, string> flags)
+    {
+        if (!flags.TryGetValue("epsilon", out var raw)) return RuleSelfValidator.DefaultEpsilon;
+        if (!double.TryParse(raw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var eps))
+            throw new ArgumentException($"--epsilon '{raw}' is not a valid number.");
+        return eps;
+    }
+
+    static async Task<int> RunValidateAsync(string rulesetPath, string? reportOut, double epsilon, bool apply, string? embedderPref)
+    {
+        var ruleset = RuleSetIO.Load(rulesetPath);
+
+        IRuleEmbedder embedder;
+        if (string.Equals(embedderPref, "deterministic", StringComparison.OrdinalIgnoreCase))
+        {
+            embedder = new DeterministicHashEmbedder();
+        }
+        else
+        {
+            var foundry = FoundryEmbedderFactory.TryCreate(BuildConfiguration());
+            embedder = foundry is null ? new DeterministicHashEmbedder() : foundry;
+        }
+        Console.WriteLine($"Validating {rulesetPath} with embedder={embedder.EmbedderId} epsilon={epsilon:F4} ...");
+
+        var validator = new RuleSetSelfValidator(embedder, epsilon);
+        var report = await validator.ValidateAsync(ruleset);
+
+        var writer = new AuthoringReportWriter();
+        var reportPath = reportOut ?? Path.Combine("out", "authoring", $"{ruleset.Id}-{ruleset.Version}.json");
+        await writer.WriteAsync(report, reportPath);
+
+        Console.WriteLine($"Examined: {report.RuleCount} rules with examples ({ruleset.Rules.Count} total in ruleset)");
+        Console.WriteLine($"Accepted: {report.AcceptedCount}");
+        Console.WriteLine($"Rejected: {report.RejectedCount}");
+        Console.WriteLine($"Report:   {reportPath}");
+
+        foreach (var r in report.Results.Where(r => !r.Accepted))
+            Console.WriteLine($"  REJECT {r.RuleId}: {r.RejectionReason}");
+
+        if (!report.AllAccepted)
+        {
+            Console.Error.WriteLine("validate: ruleset has rejected rules — aborting.");
+            return 2;
+        }
+
+        if (apply)
+        {
+            var calibrated = RuleSetSelfValidator.ApplyCalibratedThresholds(ruleset, report);
+            RuleSetIO.Save(calibrated, rulesetPath);
+            Console.WriteLine($"Applied calibrated thresholds to {report.AcceptedCount} rule(s) in {rulesetPath}.");
+        }
         return 0;
     }
 

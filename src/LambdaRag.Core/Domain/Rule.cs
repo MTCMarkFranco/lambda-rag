@@ -125,7 +125,19 @@ public sealed record Rule(
      /// </summary>
      public double GateThreshold { get; init; }
 
-     /// <summary>SHA-256 of the predicate expression. Changes if the gate changes.</summary>
+    /// <summary>
+    /// Optional self-validation example corpus used by the Phase B authoring
+    /// gate (#73). Three positives the rule MUST match and three negatives
+    /// the rule MUST NOT match. Embedded once at authoring time so the
+    /// authoring driver can score them, reject misbehaving rules, and bake
+    /// the calibrated <see cref="GateThreshold"/> into the published artifact.
+    ///
+    /// Null on rules authored before Phase B — backward compatible and not
+    /// folded into <see cref="Fingerprint"/> when absent.
+    /// </summary>
+    public RuleExamples? Examples { get; init; }
+
+    /// <summary>SHA-256 of the predicate expression. Changes if the gate changes.</summary>
      public ContentHash PredicateHash() => ContentHash.OfString(Predicate);
 
     /// <summary>SHA-256 of the lambda expression. Changes if the determination changes.</summary>
@@ -160,6 +172,13 @@ public sealed record Rule(
         if (GateThreshold > 0)
         {
             parts.Add("gate:" + GateThreshold.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+        }
+        // Examples participate in the fingerprint only when present so
+        // pre-Phase-B rulesets keep their existing identity.
+        if (Examples is not null)
+        {
+            parts.Add("examples.positive:" + string.Join("\u001f", Examples.Positive));
+            parts.Add("examples.negative:" + string.Join("\u001f", Examples.Negative));
         }
         return ContentHash.Compose(parts.ToArray());
     }
