@@ -42,6 +42,7 @@
         },
         "topic_density": 8.5106,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -56,6 +57,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -106,6 +109,7 @@
         },
         "topic_density": 3.1746,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -120,6 +124,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -168,6 +174,7 @@
         },
         "topic_density": 3.6585,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -182,6 +189,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -232,6 +241,7 @@
         },
         "topic_density": 7.7922,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [
             30
@@ -248,6 +258,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -296,6 +308,7 @@
         },
         "topic_density": 7.2727,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -310,6 +323,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
