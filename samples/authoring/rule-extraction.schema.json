@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lambda-rag.example/schemas/rule-extraction.v1.json",
+  "title": "ExtractedRule",
+  "description": "Strict JSON shape that the Azure AI Search GenAI prompt skill (or any equivalent LLM authoring caller) must emit for a single rule extracted from a policy chunk. The contract is enforced both at authoring time (output validation) and at indexer projection time (snapshot pull). All fields are required unless explicitly noted.",
+  "type": "object",
+  "required": [
+    "ruleId",
+    "naturalLanguage",
+    "predicate",
+    "lambda",
+    "concepts",
+    "severity",
+    "applicability",
+    "remediation",
+    "evidenceQuote",
+    "sourceSpan",
+    "examples",
+    "metadata"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "ruleId": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_-]{2,80}$",
+      "description": "Stable, human-readable rule id. SCREAMING-KEBAB or SCREAMING_SNAKE. Must be unique within a domain. Re-extracting the same chunk MUST yield the same id (deterministic from chunk + version)."
+    },
+    "naturalLanguage": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 240,
+      "description": "Single-sentence statement of the rule, suitable for a reviewer."
+    },
+    "predicate": {
+      "type": "string",
+      "description": "Microsoft RulesEngine bool LambdaExpression — applicability gate. Default 'true' = always applies to selector matches. Use to scope a rule to a category or document kind."
+    },
+    "lambda": {
+      "type": "string",
+      "description": "Microsoft RulesEngine bool LambdaExpression — pass/fail determination. For semantic rules, MUST be of the form: SemanticFunctions.MatchesAnyMeaning(input1.id, \"<concept1>|<concept2>|...\", <threshold>). The threshold is a placeholder (0.55) at extraction time and is replaced with the calibrated value during Phase B (issue #73)."
+    },
+    "concepts": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 8,
+      "items": {
+        "type": "string",
+        "minLength": 3,
+        "maxLength": 80
+      },
+      "description": "Paraphrase concepts that express the rule. Pipe-joined into the lambda. Each concept is independently embedded by integrated vectorization. Must cover ≥3 distinct phrasings, including at least one terse phrase and one CSP/architecture-vocabulary phrase."
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["Violation", "Warning", "Info"],
+      "description": "Maps to LambdaRag.Core.Domain.RuleSeverity. Mandatory ARB controls = Violation."
+    },
+    "applicability": {
+      "type": "string",
+      "enum": ["Mandatory", "Optional"],
+      "description": "Mandatory rules surface silent gaps when no section matches. Optional rules don't."
+    },
+    "remediation": {
+      "type": "string",
+      "minLength": 16,
+      "maxLength": 800,
+      "description": "Reviewer-facing guidance rendered when the rule fails. Must explain WHAT to add and WHY it matters. May reference the source policy."
+    },
+    "evidenceQuote": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Short canonical phrase that anchors the rule in the source text — used by the markup overlay and by reviewers as a sanity check."
+    },
+    "sourceSpan": {
+      "type": "object",
+      "required": ["documentId"],
+      "additionalProperties": false,
+      "properties": {
+        "documentId": { "type": "string" },
+        "headingPath": { "type": ["string", "null"] },
+        "pageNumber": { "type": ["integer", "null"], "minimum": 1 },
+        "charStart":  { "type": ["integer", "null"], "minimum": 0 },
+        "charLength": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+    "examples": {
+      "type": "object",
+      "required": ["positive", "negative"],
+      "additionalProperties": false,
+      "description": "Self-validation corpus consumed by Phase B (#73). Three positives, three negatives — ranker scores must separate. Required at extraction time so the validation gate has something to score.",
+      "properties": {
+        "positive": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": { "type": "string", "minLength": 16, "maxLength": 600 }
+        },
+        "negative": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": { "type": "string", "minLength": 16, "maxLength": 600 }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Free-form key/value metadata carried into Rule.Metadata. Recommended keys: sourcePolicy, category, mandatory, reviewer.",
+      "additionalProperties": { "type": "string" }
+    }
+  }
+}
