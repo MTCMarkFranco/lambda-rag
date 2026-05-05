@@ -240,9 +240,12 @@ public sealed class EvaluationService
         if (string.IsNullOrEmpty(exceptionMessage)) return false;
         // RulesEngine wraps parse / type-binding errors with a recognizable
         // prefix. Anything matching this shape is engine-side, not a
-        // legitimate "rule said false".
+        // legitimate "rule said false". The semantic-functions marker is
+        // also surfaced here so missing-vector lookups fail loud rather
+        // than masquerading as Fail.
         return exceptionMessage.StartsWith("Exception while parsing expression", StringComparison.Ordinal)
-            || exceptionMessage.Contains("RuleException", StringComparison.Ordinal);
+            || exceptionMessage.Contains("RuleException", StringComparison.Ordinal)
+            || exceptionMessage.Contains(LambdaRag.Core.Semantic.SemanticFunctions.ErrorMarker, StringComparison.Ordinal);
     }
 
     /// <summary>
