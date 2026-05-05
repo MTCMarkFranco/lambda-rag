@@ -112,8 +112,21 @@ public sealed record Rule(
     /// </summary>
     public IReadOnlyList<float>? SourceEmbedding { get; init; }
 
-    /// <summary>SHA-256 of the predicate expression. Changes if the gate changes.</summary>
-    public ContentHash PredicateHash() => ContentHash.OfString(Predicate);
+    /// <summary>
+     /// Optional cosine-similarity threshold used as an *applicability gate*
+     /// when both the rule's natural-language description and the candidate
+     /// section have precomputed vectors in the active
+     /// <see cref="ISemanticVectorStore"/>. The evaluator skips a section
+     /// before running its predicate when
+     /// <c>cosine(rule.descriptionVector, section.vector) &lt; GateThreshold</c>.
+     /// Default <c>0.0</c> = gate is off (every selector match is evaluated,
+     /// preserving the pre-semantic behaviour). Typical "on" values for
+     /// <c>text-embedding-3-large</c> live in the 0.55–0.70 band.
+     /// </summary>
+     public double GateThreshold { get; init; }
+
+     /// <summary>SHA-256 of the predicate expression. Changes if the gate changes.</summary>
+     public ContentHash PredicateHash() => ContentHash.OfString(Predicate);
 
     /// <summary>SHA-256 of the lambda expression. Changes if the determination changes.</summary>
     public ContentHash LambdaHash() => ContentHash.OfString(Lambda);
@@ -126,16 +139,30 @@ public sealed record Rule(
     /// with the same Id but different predicates have different fingerprints,
     /// so a predicate-only change forces a new rule version downstream.
     /// </summary>
-    public ContentHash Fingerprint() => ContentHash.Compose(
-        Id,
-        Version,
-        Predicate,
-        Lambda,
-        Remediation ?? string.Empty,
-        Anchor ?? string.Empty,
-        AppliesToSchema.ToJsonString(),
-        Severity.ToString(),
-        Applicability.ToString());
+    public ContentHash Fingerprint()
+    {
+        var parts = new List<string>
+        {
+            Id,
+            Version,
+            Predicate,
+            Lambda,
+            Remediation ?? string.Empty,
+            Anchor ?? string.Empty,
+            AppliesToSchema.ToJsonString(),
+            Severity.ToString(),
+            Applicability.ToString(),
+        };
+        // Only fold the gate threshold into the fingerprint when it is
+        // actively in use — keeps existing rulesets binary-compatible with
+        // pre-semantic verdict ids while still ensuring a non-zero gate is
+        // a meaningful change.
+        if (GateThreshold > 0)
+        {
+            parts.Add("gate:" + GateThreshold.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+        }
+        return ContentHash.Compose(parts.ToArray());
+    }
 }
 
 /// <summary>

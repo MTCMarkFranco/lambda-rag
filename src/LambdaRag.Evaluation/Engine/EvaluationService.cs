@@ -89,6 +89,21 @@ public sealed class EvaluationService
                     continue;
                 }
 
+                // Semantic applicability gate. When the rule has a positive
+                // GateThreshold and both vectors exist in the active store,
+                // a section whose cosine to the rule description is below
+                // the threshold is treated as "this rule does not apply
+                // here" — we skip the predicate entirely. This is the
+                // semantic equivalent of the predicate's compiled gate, but
+                // resilient to paraphrase. Missing vectors fall through
+                // (gate disabled) so determinism is preserved when the
+                // store has not been populated for this rule/section pair.
+                if (rule.GateThreshold > 0 &&
+                    !PassesApplicabilityGate(rule, section))
+                {
+                    continue;
+                }
+
                 var (predicateApplies, predicateError) = await EvaluatePredicateAsync(rule, section).ConfigureAwait(false);
                 if (predicateError is not null)
                 {
@@ -233,6 +248,32 @@ public sealed class EvaluationService
                 error: ex.Message,
                 remediationText: null);
         }
+    }
+
+    private bool PassesApplicabilityGate(Rule rule, MatchedSection section)
+    {
+        if (_vectorStore is NotConfiguredSemanticVectorStore) return true;
+        if (section.Node is not JsonObject obj) return true;
+        if (obj["id"] is not JsonValue idVal || !idVal.TryGetValue<string>(out var sectionId))
+            return true;
+
+        IReadOnlyList<float>? sectionVec = null;
+        IReadOnlyList<float>? ruleVec = null;
+        try
+        {
+            if (!_vectorStore.TryGetSection(sectionId, out sectionVec!)) return true;
+            var ruleKey = $"rule:{rule.Id}";
+            if (!_vectorStore.TryGetConcept(ruleKey, out ruleVec!)) return true;
+        }
+        catch (InvalidOperationException)
+        {
+            // NotConfigured / store-shape mismatch — fall back to "gate off"
+            // rather than producing an Error verdict for every section.
+            return true;
+        }
+
+        var cosine = SemanticFunctions.Cosine(ruleVec!, sectionVec!);
+        return cosine >= rule.GateThreshold;
     }
 
     private static bool IsRuntimeException(string? exceptionMessage)
