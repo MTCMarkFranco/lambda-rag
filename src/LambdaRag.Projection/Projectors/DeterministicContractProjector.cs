@@ -143,6 +143,16 @@ public sealed class DeterministicContractProjector : IDocumentProjector
 
             var classification = Classify(heading, resolvedBodyText, processed);
 
+            // Country-supplement detection (#65 cluster 2): a section is a
+            // country supplement if its heading matches a heading-pattern of
+            // any "jurisdiction"-style axis in the topic map. The flag lets
+            // rule authors guard predicates with `&& !is_country_supplement`
+            // so master-clause rules don't misfire on per-country annexes
+            // that mention warranty / liability / indemnification verbatim.
+            // Keeps the body-derived multi-label topic vector intact for any
+            // future rule that does want to inspect supplements.
+            var isCountrySupplement = IsCountrySupplement(heading);
+
             var topicsArr = new JsonArray();
             var scoresObj = new JsonObject();
             foreach (var (topic, score) in classification.Topics
@@ -167,6 +177,7 @@ public sealed class DeterministicContractProjector : IDocumentProjector
                 ["topic_scores"] = scoresObj,
                 ["topic_density"] = density,
                 ["is_operative_for_topic"] = false,
+                ["is_country_supplement"] = isCountrySupplement,
                 ["text_features"] = TextFeatureExtractor.Extract(resolvedBodyText),
                 ["text"] = resolvedBodyText,
                 // Original (non-alias-resolved) body text — kept so callers
@@ -196,6 +207,14 @@ public sealed class DeterministicContractProjector : IDocumentProjector
             index++;
         }
 
+        // Pre-pass before operative selection: split "wrapper" sections (e.g.
+        // §11 Miscellaneous) into synthetic child sections per inline
+        // subheading. Lets predicates targeting category=="payment_terms" /
+        // "privacy" / "governing_law" find sub-clauses that would otherwise
+        // be buried under the wrapper's primary topic. Children participate
+        // in operative-selection alongside top-level sections.
+        ExpandWrapperSections(sections, sectionNodesById, categories, densityByTopicByScn, unknown);
+
         // Post-pass: for each non-"unknown" primary topic that has more than
         // one matched section, flag the section with the highest body
         // vocabulary density as operative. This is the projector-side fix for
@@ -206,6 +225,9 @@ public sealed class DeterministicContractProjector : IDocumentProjector
         // instead of binding to whichever section happens to match first.
         // Tie-breaker: lowest section id (earliest occurrence) wins, so the
         // selection is fully deterministic.
+        // Country supplements are excluded from operative selection (#65) so
+        // master clauses always win even when a per-country annex has higher
+        // local keyword density (e.g. Albania's liability supplement).
         foreach (var (topic, idArr) in categories)
         {
             if (topic == "unknown") continue;
@@ -214,6 +236,12 @@ public sealed class DeterministicContractProjector : IDocumentProjector
             foreach (var node in idArr)
             {
                 var id = node!.GetValue<string>();
+                if (sectionNodesById.TryGetValue(id, out var n) &&
+                    n["is_country_supplement"] is JsonValue jv &&
+                    jv.TryGetValue<bool>(out var isSupp) && isSupp)
+                {
+                    continue; // master clauses only
+                }
                 var d = densityByTopicByScn.GetValueOrDefault(id, 0.0);
                 if (d > bestDensity || (d == bestDensity && bestId is not null && string.CompareOrdinal(id, bestId) < 0))
                 {
@@ -221,6 +249,8 @@ public sealed class DeterministicContractProjector : IDocumentProjector
                     bestId = id;
                 }
             }
+            // Fallback: if every section for this topic was a country
+            // supplement (no master clause), don't flag anything as operative.
             if (bestId is not null && sectionNodesById.TryGetValue(bestId, out var operativeNode))
                 operativeNode["is_operative_for_topic"] = true;
         }
@@ -404,6 +434,206 @@ public sealed class DeterministicContractProjector : IDocumentProjector
 
         if (heading is not null || body.Count > 0)
             yield return new HeadingGroup(heading, body.ToList(), headingPath);
+    }
+
+    /// <summary>
+    /// True iff the heading text matches any heading-pattern declared on a
+    /// "jurisdiction"-style axis in the topic map. Used to flag per-country
+    /// annex sections so master-clause rules can guard with
+    /// <c>!is_country_supplement</c>. Pure case-insensitive substring match
+    /// — same routine used inside <see cref="Classify"/> for axis tagging,
+    /// kept consistent so the flag and the topic vector never disagree.
+    /// </summary>
+    private bool IsCountrySupplement(string heading)
+    {
+        if (string.IsNullOrEmpty(heading)) return false;
+        var lower = heading.ToLowerInvariant();
+        foreach (var (axisName, axisDef) in _topicMap.Axes)
+        {
+            // Only treat axes named like "jurisdiction" / "country" /
+            // "region" as supplement markers. New non-geographic axes (e.g.
+            // a future "product_line") should NOT flip the supplement flag.
+            if (!IsJurisdictionLikeAxis(axisName)) continue;
+            foreach (var pat in axisDef.HeadingPatterns)
+            {
+                if (lower.Contains(pat, StringComparison.Ordinal)) return true;
+            }
+        }
+        return false;
+    }
+
+    private static bool IsJurisdictionLikeAxis(string axisName) =>
+        axisName.Equals("jurisdiction", StringComparison.OrdinalIgnoreCase) ||
+        axisName.Equals("country", StringComparison.OrdinalIgnoreCase) ||
+        axisName.Equals("region", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Inline-subheading detector for wrapper sections. Matches a short
+    /// label-like phrase at line-start, ending with a period, followed by
+    /// whitespace and a capitalized continuation (the body of the
+    /// sub-clause). Internal periods are accepted to handle labels like
+    /// "U.S. Export." which would otherwise be cut on the first dot.
+    /// Non-greedy quantifier keeps the captured label as short as possible.
+    /// </summary>
+    private static readonly Regex InlineSubheadingRx = new(
+        @"(?m)^[ \t]*([A-Z][A-Za-z][A-Za-z0-9\s,.&'\-/]{1,58}?)\.\s+(?=[A-Z])",
+        RegexOptions.Compiled);
+
+    /// <summary>
+    /// Topics whose sections are treated as "wrapper" containers — their
+    /// body is scanned for inline subheading markers and split into
+    /// synthetic child sections. Configurable here so domains can opt
+    /// additional wrappers in (e.g. an "annexes" topic) without code change.
+    /// </summary>
+    private static readonly HashSet<string> WrapperTopics = new(StringComparer.Ordinal)
+    {
+        "miscellaneous",
+    };
+
+    /// <summary>
+    /// Splits each wrapper section (primary_topic in <see cref="WrapperTopics"/>)
+    /// into synthetic child sections, one per inline subheading detected in
+    /// its body. Children are appended to the sections array and registered
+    /// in the categories map, sectionNodesById, and density table so that
+    /// operative-selection sees them. Parent wrapper section is retained
+    /// unchanged so existing rules / golden hashes that target the wrapper
+    /// directly still resolve.
+    /// </summary>
+    private void ExpandWrapperSections(
+        JsonArray sections,
+        Dictionary<string, JsonObject> sectionNodesById,
+        Dictionary<string, JsonArray> categories,
+        Dictionary<string, double> densityByTopicByScn,
+        JsonArray unknown)
+    {
+        // Snapshot wrapper parents first; we mutate `sections` while iterating.
+        var parents = new List<JsonObject>();
+        foreach (var node in sections)
+        {
+            if (node is not JsonObject obj) continue;
+            var primary = obj["primary_topic"]?.GetValue<string>();
+            if (primary is null) continue;
+            if (WrapperTopics.Contains(primary)) parents.Add(obj);
+        }
+
+        foreach (var parent in parents)
+        {
+            var parentId = parent["id"]!.GetValue<string>();
+            var parentText = parent["text"]?.GetValue<string>() ?? string.Empty;
+            if (parentText.Length < 200) continue;
+
+            var matches = InlineSubheadingRx.Matches(parentText);
+            // Need at least 2 inline subheadings to consider a split worthwhile;
+            // a single match is more likely a false positive (mid-paragraph
+            // sentence start) than a real section structure.
+            if (matches.Count < 2) continue;
+
+            // Filter implausible labels: too many words → likely a sentence
+            // start, not a label. Real subheadings in MS-style contracts are
+            // 1-7 words.
+            var validMatches = new List<Match>();
+            foreach (Match m in matches)
+            {
+                var label = m.Groups[1].Value.Trim();
+                var wordCount = label.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length;
+                if (wordCount < 1 || wordCount > 7) continue;
+                // Reject obvious non-labels that begin with common sentence
+                // openers — these phrases are sentence-shaped, not labels.
+                if (label.StartsWith("This ", StringComparison.Ordinal) ||
+                    label.StartsWith("If ", StringComparison.Ordinal) ||
+                    label.StartsWith("The ", StringComparison.Ordinal) ||
+                    label.StartsWith("By ", StringComparison.Ordinal) ||
+                    label.StartsWith("In ", StringComparison.Ordinal) ||
+                    label.StartsWith("For ", StringComparison.Ordinal))
+                    continue;
+                validMatches.Add(m);
+            }
+            if (validMatches.Count < 2) continue;
+
+            var parentIsSupplement = parent["is_country_supplement"] is JsonValue jv &&
+                                     jv.TryGetValue<bool>(out var b) && b;
+            var parentHeadingPath = parent["heading_path"]?.GetValue<string>() ?? "/";
+            var parentTextCharStart = parent["text_char_start"]?.GetValue<int>() ?? 0;
+
+            var letterIdx = 0;
+            for (int i = 0; i < validMatches.Count; i++)
+            {
+                var m = validMatches[i];
+                var label = m.Groups[1].Value.Trim();
+                var bodyStart = m.Index + m.Length;
+                var bodyEnd = (i + 1 < validMatches.Count) ? validMatches[i + 1].Index : parentText.Length;
+                var body = parentText.Substring(bodyStart, bodyEnd - bodyStart).Trim();
+                if (body.Length == 0) continue;
+
+                var childId = $"{parentId}_{LetterFor(letterIdx++)}";
+
+                // Reclassify using the captured label as heading. Pass an
+                // empty `processed` list — amendment cross-references rarely
+                // appear inside wrapper sub-clauses and would only confuse
+                // the resolver here.
+                var classification = Classify(label, body, Array.Empty<(string, string, string)>());
+
+                var topicsArr = new JsonArray();
+                var scoresObj = new JsonObject();
+                foreach (var (topic, score) in classification.Topics
+                             .OrderByDescending(t => t.Score)
+                             .ThenBy(t => t.Topic, StringComparer.Ordinal))
+                {
+                    topicsArr.Add(topic);
+                    scoresObj[topic] = score;
+                }
+
+                var primary = classification.PrimaryTopic ?? "unknown";
+                var density = ComputeDensity(primary, body);
+
+                var childNode = new JsonObject
+                {
+                    ["id"] = childId,
+                    ["heading"] = label,
+                    ["heading_path"] = parentHeadingPath + "/" + label,
+                    ["category"] = primary,
+                    ["primary_topic"] = primary,
+                    ["topics"] = topicsArr,
+                    ["topic_scores"] = scoresObj,
+                    ["topic_density"] = density,
+                    ["is_operative_for_topic"] = false,
+                    ["is_country_supplement"] = parentIsSupplement,
+                    ["text_features"] = TextFeatureExtractor.Extract(body),
+                    ["text"] = body,
+                    ["text_raw"] = body,
+                    ["text_char_start"] = parentTextCharStart + bodyStart,
+                    ["parent_section"] = parentId,
+                };
+
+                sections.Add(childNode);
+                sectionNodesById[childId] = childNode;
+                densityByTopicByScn[childId] = density;
+
+                if (!categories.TryGetValue(primary, out var ids))
+                    categories[primary] = ids = new JsonArray();
+                ids.Add(childId);
+
+                if (classification.PrimaryTopic is null)
+                    unknown.Add(childId);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Generate a stable child suffix ("a", "b", ..., "z", "aa", "ab", ...).
+    /// Letters are easier to read than numeric indexes when child sections
+    /// appear in reports and reviewer columns.
+    /// </summary>
+    private static string LetterFor(int index)
+    {
+        if (index < 0) index = 0;
+        var sb = new System.Text.StringBuilder();
+        do
+        {
+            sb.Insert(0, (char)('a' + index % 26));
+            index = (index / 26) - 1;
+        } while (index >= 0);
+        return sb.ToString();
     }
 
     private record HeadingGroup(ContentBlock? Heading, List<ContentBlock> Body, string HeadingPath);

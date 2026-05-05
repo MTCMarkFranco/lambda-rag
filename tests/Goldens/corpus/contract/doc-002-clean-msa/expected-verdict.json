@@ -1,6 +1,6 @@
 {
   "documentId": {
-    "value": "lr1:2599bd02b2435eda9583942c03272342cab08fc7c6a882a36a243c96471581e6"
+    "value": "lr1:ec3d1eadd2f4a0d2d851676e1491d49f7df2ee101d48f79d59e01b1f9ae033c1"
   },
   "ruleSetId": "rs_canadian_commercial_contract",
   "ruleSetVersion": "1.0.0",
@@ -17,7 +17,7 @@
   "errored": 0,
   "verdicts": [
     {
-      "id": "lr1:e84d5a96c9539429a60c6b06e15e7c63b9acc9545ab2f074cdbaab67d10437f2",
+      "id": "lr1:7eb88be34deccd7764bcc7bbe1f16b552808bc2b89ecc64879548dc7a5109d86",
       "ruleId": "CAN-CONTRACT-GOV-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -36,6 +36,7 @@
         },
         "topic_density": 3.4483,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -50,6 +51,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -63,7 +66,7 @@
         "text_char_start": 1753
       },
       "sourceSpan": {
-        "documentId": "lr1:2599bd02b2435eda9583942c03272342cab08fc7c6a882a36a243c96471581e6",
+        "documentId": "lr1:ec3d1eadd2f4a0d2d851676e1491d49f7df2ee101d48f79d59e01b1f9ae033c1",
         "charStart": 1732,
         "charLength": 19,
         "headingPath": "/Master Services Agreement — Canadian Commercial Customer - Canadian-Law Vendor/7. Governing Law",
@@ -77,7 +80,7 @@
       "predicateText": "input1.category == \"governing_law\""
     },
     {
-      "id": "lr1:d78606fd5be320f1c01fec3d42a4f0742dfa229a51e8a4c1c952c082f91d8805",
+      "id": "lr1:b731c50150a5500b9cb26735d28cfb32ceb4d898accacd9f2dc1f6261f753abd",
       "ruleId": "CAN-CONTRACT-LIAB-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -100,6 +103,7 @@
         },
         "topic_density": 2.439,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -114,6 +118,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -127,7 +133,7 @@
         "text_char_start": 1256
       },
       "sourceSpan": {
-        "documentId": "lr1:2599bd02b2435eda9583942c03272342cab08fc7c6a882a36a243c96471581e6",
+        "documentId": "lr1:ec3d1eadd2f4a0d2d851676e1491d49f7df2ee101d48f79d59e01b1f9ae033c1",
         "charStart": 1239,
         "charLength": 15,
         "headingPath": "/Master Services Agreement — Canadian Commercial Customer - Canadian-Law Vendor/5. Liability",
@@ -141,7 +147,7 @@
       "predicateText": "input1.category == \"liability\""
     },
     {
-      "id": "lr1:133d40feef854adc098112567d56adfa2d0d81086a2ea9f172c44d40da31ccd4",
+      "id": "lr1:eb5d6bec137fa516363d0099ad34ff79273c232ecf208b694b302bb3582b27c8",
       "ruleId": "CAN-CONTRACT-PAY-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -160,6 +166,7 @@
         },
         "topic_density": 8.5714,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -176,6 +183,8 @@
           "year_count_max": 0,
           "percent_min": 1,
           "percent_max": 1,
+          "percent_max_per_month": 0.0833,
+          "percent_min_per_month": 0.0833,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -189,7 +198,7 @@
         "text_char_start": 680
       },
       "sourceSpan": {
-        "documentId": "lr1:2599bd02b2435eda9583942c03272342cab08fc7c6a882a36a243c96471581e6",
+        "documentId": "lr1:ec3d1eadd2f4a0d2d851676e1491d49f7df2ee101d48f79d59e01b1f9ae033c1",
         "charStart": 648,
         "charLength": 30,
         "headingPath": "/Master Services Agreement — Canadian Commercial Customer - Canadian-Law Vendor/3. Payment and Compensation",
@@ -203,7 +212,7 @@
       "predicateText": "input1.category == \"payment_terms\""
     },
     {
-      "id": "lr1:d83c6c09dea0f2f5757e26718db0cba43dc198247b473607575d1f5b2220d6ff",
+      "id": "lr1:7db99a09bf2e6f536771e54576284b8eaa6e41eb14b3a295e143b2acc6dbb150",
       "ruleId": "CAN-CONTRACT-PRIVACY-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
@@ -224,6 +233,7 @@
         },
         "topic_density": 2.439,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -238,6 +248,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -251,7 +263,7 @@
         "text_char_start": 916
       },
       "sourceSpan": {
-        "documentId": "lr1:2599bd02b2435eda9583942c03272342cab08fc7c6a882a36a243c96471581e6",
+        "documentId": "lr1:ec3d1eadd2f4a0d2d851676e1491d49f7df2ee101d48f79d59e01b1f9ae033c1",
         "charStart": 881,
         "charLength": 33,
         "headingPath": "/Master Services Agreement — Canadian Commercial Customer - Canadian-Law Vendor/4. Privacy and Data Processing",
@@ -265,7 +277,7 @@
       "predicateText": "input1.category == \"privacy\""
     },
     {
-      "id": "lr1:76a73fe63fc037e3f198eb442171514aa9e7df89459a5cc6daa194d85ebbf8ac",
+      "id": "lr1:a8a6ae927decfdb37da674564fbc0519a322e466865038b067778ce929a69cb0",
       "ruleId": "CAN-CONTRACT-TERM-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -288,6 +300,7 @@
         },
         "topic_density": 0,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -302,6 +315,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -315,7 +330,7 @@
         "text_char_start": 1533
       },
       "sourceSpan": {
-        "documentId": "lr1:2599bd02b2435eda9583942c03272342cab08fc7c6a882a36a243c96471581e6",
+        "documentId": "lr1:ec3d1eadd2f4a0d2d851676e1491d49f7df2ee101d48f79d59e01b1f9ae033c1",
         "charStart": 1699,
         "charLength": 11,
         "headingPath": "/Master Services Agreement — Canadian Commercial Customer - Canadian-Law Vendor/6. Termination",

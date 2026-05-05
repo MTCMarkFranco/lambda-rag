@@ -1,6 +1,6 @@
 {
   "documentId": {
-    "value": "lr1:e0c17a2ba04ae8b895c7382a5e319822b11303100f5aa48e8dc0af8ec2840f2f"
+    "value": "lr1:24fcc4fa49136a1aafbc3840470d8779cac6246dc2ffa9fb4db20809d13c6f69"
   },
   "ruleSetId": "rs_canadian_commercial_contract",
   "ruleSetVersion": "1.0.0",
@@ -17,7 +17,7 @@
   "errored": 0,
   "verdicts": [
     {
-      "id": "lr1:3d08574e04618217049548f602d1b3caa205a641898f6e5b2ba9c177a6b0a98a",
+      "id": "lr1:edb569462cac48aef061cc68df8de32ead6d02c8175e02100173e41924dac9bc",
       "ruleId": "CAN-CONTRACT-GOV-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -36,6 +36,7 @@
         },
         "topic_density": 3.4483,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -50,6 +51,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -63,7 +66,7 @@
         "text_char_start": 1434
       },
       "sourceSpan": {
-        "documentId": "lr1:e0c17a2ba04ae8b895c7382a5e319822b11303100f5aa48e8dc0af8ec2840f2f",
+        "documentId": "lr1:24fcc4fa49136a1aafbc3840470d8779cac6246dc2ffa9fb4db20809d13c6f69",
         "charStart": 1413,
         "charLength": 19,
         "headingPath": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/7. Governing Law",
@@ -79,7 +82,7 @@
       "predicateText": "input1.category == \"governing_law\""
     },
     {
-      "id": "lr1:8694f05bf4f7340a417b2f4dd9f682b0b763a6c1d4315d502936f8919080bbd4",
+      "id": "lr1:4ca81da145ac0d835780770204ea90da4e1d02501472e18b0b098a52ad76b309",
       "ruleId": "CAN-CONTRACT-LIAB-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -102,6 +105,7 @@
         },
         "topic_density": 4.1667,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -116,6 +120,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -129,7 +135,7 @@
         "text_char_start": 980
       },
       "sourceSpan": {
-        "documentId": "lr1:e0c17a2ba04ae8b895c7382a5e319822b11303100f5aa48e8dc0af8ec2840f2f",
+        "documentId": "lr1:24fcc4fa49136a1aafbc3840470d8779cac6246dc2ffa9fb4db20809d13c6f69",
         "charStart": 963,
         "charLength": 15,
         "headingPath": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/5. Liability",
@@ -145,7 +151,7 @@
       "predicateText": "input1.category == \"liability\""
     },
     {
-      "id": "lr1:3dd38284997085f118f324aadb6e2cbd2319833721d2524960d2c5d0aac513db",
+      "id": "lr1:129a4747a8992815118460fbcfb672718fd3cb373913dda24c7d65313ae950d9",
       "ruleId": "CAN-CONTRACT-PAY-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -164,6 +170,7 @@
         },
         "topic_density": 11.5385,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -180,6 +187,8 @@
           "year_count_max": 0,
           "percent_min": 1.5,
           "percent_max": 1.5,
+          "percent_max_per_month": 1.5,
+          "percent_min_per_month": 1.5,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -193,7 +202,7 @@
         "text_char_start": 558
       },
       "sourceSpan": {
-        "documentId": "lr1:e0c17a2ba04ae8b895c7382a5e319822b11303100f5aa48e8dc0af8ec2840f2f",
+        "documentId": "lr1:24fcc4fa49136a1aafbc3840470d8779cac6246dc2ffa9fb4db20809d13c6f69",
         "charStart": 526,
         "charLength": 30,
         "headingPath": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/3. Payment and Compensation",
@@ -209,7 +218,7 @@
       "predicateText": "input1.category == \"payment_terms\""
     },
     {
-      "id": "lr1:4b31fc5d98929fdb6f21c804150736dd07b43abe57e46d2452d8a80311c7f126",
+      "id": "lr1:b9855751b72d05f6d35c274c62c605a01acb7c379ba038b4b6a9cf717f30436f",
       "ruleId": "CAN-CONTRACT-PRIVACY-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -230,6 +239,7 @@
         },
         "topic_density": 12,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -244,6 +254,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -257,7 +269,7 @@
         "text_char_start": 754
       },
       "sourceSpan": {
-        "documentId": "lr1:e0c17a2ba04ae8b895c7382a5e319822b11303100f5aa48e8dc0af8ec2840f2f",
+        "documentId": "lr1:24fcc4fa49136a1aafbc3840470d8779cac6246dc2ffa9fb4db20809d13c6f69",
         "charStart": 719,
         "charLength": 33,
         "headingPath": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/4. Privacy and Data Processing",
@@ -273,7 +285,7 @@
       "predicateText": "input1.category == \"privacy\""
     },
     {
-      "id": "lr1:9aaa9615a5b1bd1cf6224e33bb31b3edc45e5062673890fcaf7d9345d65adf96",
+      "id": "lr1:591d8e8c4c20ab92a5bd2127cc92b9956b5e1164f63cff549017805acc8d6089",
       "ruleId": "CAN-CONTRACT-TERM-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -298,6 +310,7 @@
         },
         "topic_density": 0,
         "is_operative_for_topic": true,
+        "is_country_supplement": false,
         "text_features": {
           "day_counts": [],
           "month_counts": [],
@@ -312,6 +325,8 @@
           "year_count_max": 0,
           "percent_min": 0,
           "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
           "dollar_min": 0,
           "dollar_max": 0,
           "dollar_for_cyber": 0,
@@ -325,7 +340,7 @@
         "text_char_start": 1179
       },
       "sourceSpan": {
-        "documentId": "lr1:e0c17a2ba04ae8b895c7382a5e319822b11303100f5aa48e8dc0af8ec2840f2f",
+        "documentId": "lr1:24fcc4fa49136a1aafbc3840470d8779cac6246dc2ffa9fb4db20809d13c6f69",
         "charStart": 1265,
         "charLength": 4,
         "headingPath": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/6. Termination",
