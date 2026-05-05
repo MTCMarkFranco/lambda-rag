@@ -1,4 +1,5 @@
 using LambdaRag.Core.Domain;
+using LambdaRag.Core.Semantic;
 using RE = RulesEngine.Models;
 
 namespace LambdaRag.Evaluation.Workflow;
@@ -46,6 +47,22 @@ public static class WorkflowFactory
                     ErrorMessage = $"Rule '{rule.Id}' failed: {rule.NaturalLanguage}",
                 },
             },
+        };
+    }
+
+    /// <summary>
+    /// Builds the <see cref="RE.ReSettings"/> the engine should be constructed
+    /// with so that <c>SemanticFunctions.ContainsMeaning(...)</c> and
+    /// <c>SemanticFunctions.MatchesAnyMeaning(...)</c> resolve inside lambda
+    /// expressions. The function bodies themselves resolve the ambient
+    /// <see cref="ISemanticVectorStore"/> via
+    /// <see cref="VectorStoreAccessor"/>.
+    /// </summary>
+    public static RE.ReSettings CreateReSettings()
+    {
+        return new RE.ReSettings
+        {
+            CustomTypes = new[] { typeof(SemanticFunctions) },
         };
     }
 

@@ -1,4 +1,4 @@
-namespace LambdaRag.Authoring.Semantic;
+namespace LambdaRag.Core.Semantic;
 
 /// <summary>
 /// Static functions registered with RulesEngine via <c>ReSettings.CustomTypes</c>

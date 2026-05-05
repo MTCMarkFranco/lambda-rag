@@ -1,4 +1,4 @@
-namespace LambdaRag.Authoring.Semantic;
+namespace LambdaRag.Core.Semantic;
 
 /// <summary>
 /// Read-only lookup for precomputed embedding vectors keyed by a stable

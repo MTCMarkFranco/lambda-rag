@@ -3,6 +3,7 @@ using LambdaRag.Core;
 using LambdaRag.Core.Abstractions;
 using LambdaRag.Core.Domain;
 using LambdaRag.Core.Hashing;
+using LambdaRag.Core.Semantic;
 using LambdaRag.Evaluation.Workflow;
 using Microsoft.Extensions.Logging;
 using RE = RulesEngine;
@@ -34,17 +35,20 @@ public sealed class EvaluationService
     private readonly ILogger<EvaluationService> _logger;
     private readonly TimeProvider _time;
     private readonly ICandidateRuleFilter? _candidateFilter;
+    private readonly ISemanticVectorStore _vectorStore;
 
     public EvaluationService(
         ISelectorMatcher matcher,
         ILogger<EvaluationService> logger,
         TimeProvider? time = null,
-        ICandidateRuleFilter? candidateFilter = null)
+        ICandidateRuleFilter? candidateFilter = null,
+        ISemanticVectorStore? vectorStore = null)
     {
         _matcher = matcher;
         _logger = logger;
         _time = time ?? TimeProvider.System;
         _candidateFilter = candidateFilter;
+        _vectorStore = vectorStore ?? new NotConfiguredSemanticVectorStore();
     }
 
     public async Task<ComplianceReport> EvaluateAsync(
@@ -153,7 +157,8 @@ public sealed class EvaluationService
         {
             var input = JsonToExpando.Convert(section.Node);
             var workflow = WorkflowFactory.ForPredicate(rule);
-            var engine = new RE.RulesEngine([workflow]);
+            var engine = new RE.RulesEngine([workflow], WorkflowFactory.CreateReSettings());
+            using var _ = VectorStoreAccessor.Push(_vectorStore);
             var results = await engine
                 .ExecuteAllRulesAsync(WorkflowFactory.PredicateWorkflowName, input!)
                 .ConfigureAwait(false);
@@ -177,7 +182,8 @@ public sealed class EvaluationService
         {
             var input = JsonToExpando.Convert(section.Node);
             var workflow = WorkflowFactory.ForRule(rule);
-            var engine = new RE.RulesEngine([workflow]);
+            var engine = new RE.RulesEngine([workflow], WorkflowFactory.CreateReSettings());
+            using var _ = VectorStoreAccessor.Push(_vectorStore);
             var results = await engine.ExecuteAllRulesAsync(WorkflowFactory.WorkflowName, input!).ConfigureAwait(false);
             var result = results.Single();
 
