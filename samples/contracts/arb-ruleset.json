@@ -6,7 +6,7 @@
   "metadata": {
     "topicMap": "architecture-review.v1",
     "source": "Derived from architecture-review-board policies.json (Cloud Security Directive, 20 policies)",
-    "note": "Each rule uses SemanticFunctions.MatchesAnyMeaning at threshold 0.62 with gateThreshold 0.45 to fully exercise the embedding-backed semantic predicates introduced in #67/#68."
+    "note": "Each rule uses SemanticFunctions.MatchesAnyMeaning at threshold 0.55 with gateThreshold 0.45 to fully exercise the embedding-backed semantic predicates introduced in #67/#68."
   },
   "rules": [
     {
@@ -14,7 +14,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: Shared Responsibility Model",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"shared responsibility|CSP responsibilities|cloud consumer accountability|security obligations split|provider versus customer security\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"shared responsibility|CSP responsibilities|cloud consumer accountability|security obligations split|provider versus customer security\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -46,7 +46,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: Governance",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"cloud governance|steering committee|architecture review board|approval workflow|cloud strategy|onboarding governance\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"cloud governance|steering committee|architecture review board|approval workflow|cloud strategy|onboarding governance\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -78,7 +78,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: Roles and Accountabilities",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"RACI matrix|roles and responsibilities|accountable owner|DRI|operations accountability|security accountability\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"RACI matrix|roles and responsibilities|accountable owner|DRI|operations accountability|security accountability\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -110,7 +110,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: Asset Management in the Cloud",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"cloud asset inventory|tagging strategy|resource tagging|asset register|data classification labels|CMDB\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"cloud asset inventory|tagging strategy|resource tagging|asset register|data classification labels|CMDB\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -142,7 +142,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: Access Control",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"least privilege|just-in-time access|role-based access control|conditional access|privileged identity management|Entra ID groups|zero trust\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"least privilege|just-in-time access|role-based access control|conditional access|privileged identity management|Entra ID groups|zero trust\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -174,7 +174,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: Cryptography",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"encryption at rest|encryption in transit|TLS 1.2|customer-managed keys|key vault|Key Vault|HSM|key rotation\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"encryption at rest|encryption in transit|TLS 1.2|customer-managed keys|key vault|Key Vault|HSM|key rotation\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -206,7 +206,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: Operations Security",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"patch management|vulnerability scanning|Defender for Cloud|SIEM integration|incident response|Sentinel|anti-malware\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"patch management|vulnerability scanning|Defender for Cloud|SIEM integration|incident response|Sentinel|anti-malware\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -238,7 +238,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: Security Requirements for Cloud Service Providers",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"CSP attestation|SOC 2|ISO 27001|FedRAMP|third-party risk|vendor security review|data processing agreement|PCI\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"CSP attestation|SOC 2|ISO 27001|FedRAMP|third-party risk|vendor security review|data processing agreement|PCI\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -270,7 +270,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: Compliance Monitoring",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"continuous compliance|Azure Policy|compliance dashboard|drift detection|audit logs|activity log|control monitoring\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"continuous compliance|Azure Policy|compliance dashboard|drift detection|audit logs|activity log|control monitoring\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -302,7 +302,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: Security Exceptions",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"security exception process|risk acceptance|compensating control|exception register|time-bound waiver\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"security exception process|risk acceptance|compensating control|exception register|time-bound waiver\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -334,7 +334,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: Implementation",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"change management|release approval|deployment pipeline|rollback plan|blue-green deployment|change advisory board\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"change management|release approval|deployment pipeline|rollback plan|blue-green deployment|change advisory board\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -366,7 +366,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: Architect for Stability and Resiliency by design",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"high availability|fault tolerance|resiliency|availability zones|multi-region|RTO|RPO|disaster recovery|graceful degradation\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"high availability|fault tolerance|resiliency|availability zones|multi-region|RTO|RPO|disaster recovery|graceful degradation\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -398,7 +398,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: Compliance by design",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"compliance by design|privacy by design|regulatory mapping|GDPR|HIPAA|FINTRAC|data residency\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"compliance by design|privacy by design|regulatory mapping|GDPR|HIPAA|FINTRAC|data residency\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -430,7 +430,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: Security by design",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"security by design|threat model|STRIDE|attack surface|secure SDLC|SAST DAST|penetration testing\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"security by design|threat model|STRIDE|attack surface|secure SDLC|SAST DAST|penetration testing\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -462,7 +462,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: Cloud First design",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"cloud-first|PaaS-first|managed services|serverless|platform-as-a-service|cloud-native\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"cloud-first|PaaS-first|managed services|serverless|platform-as-a-service|cloud-native\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -494,7 +494,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: API First design",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"API-first|OpenAPI|REST contract|API gateway|contract-driven|Swagger\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"API-first|OpenAPI|REST contract|API gateway|contract-driven|Swagger\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -526,7 +526,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: DevOps Automation",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"DevOps|CI/CD|continuous integration|continuous deployment|Azure DevOps|GitHub Actions|pipeline automation|infrastructure as code\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"DevOps|CI/CD|continuous integration|continuous deployment|Azure DevOps|GitHub Actions|pipeline automation|infrastructure as code\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -558,7 +558,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: Scalabilty and Reusability",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"horizontal scaling|auto-scaling|reusable component|stateless service|scale-out|load balancer|elasticity\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"horizontal scaling|auto-scaling|reusable component|stateless service|scale-out|load balancer|elasticity\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -590,7 +590,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: Modularize",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"modular design|microservices|loosely coupled|bounded context|separation of concerns|service decomposition\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"modular design|microservices|loosely coupled|bounded context|separation of concerns|service decomposition\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
@@ -622,7 +622,7 @@
       "version": "1.0.0-semantic",
       "naturalLanguage": "Architecture must address: Maximize value",
       "predicate": "true",
-      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"cost optimization|FinOps|reserved instances|right-sizing|cost governance|spending alerts|value realization|TCO\", 0.62)",
+      "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"cost optimization|FinOps|reserved instances|right-sizing|cost governance|spending alerts|value realization|TCO\", 0.55)",
       "appliesToSchema": {
         "type": "object"
       },
