@@ -1,6 +1,8 @@
 using System.Text.Json;
 using LambdaRag.Authoring;
+using LambdaRag.Authoring.Embeddings;
 using LambdaRag.Cli;
+using LambdaRag.Core.Semantic;
 using LambdaRag.Core;
 using LambdaRag.Core.Abstractions;
 using LambdaRag.Core.Domain;
@@ -150,6 +152,7 @@ static class CliEntry
         var evaluator = sp.GetRequiredService<EvaluationService>();
         var sigIndex = sp.GetRequiredService<IRuleSignatureIndex>();
         var markup = sp.GetRequiredService<OpenXmlMarkupService>();
+        var ruleEmbedder = sp.GetRequiredService<IRuleEmbedder>();
 
         var ruleset = RuleSetIO.Load(rulesetPath);
         OverlayApplied? overlayAudit = null;
@@ -171,7 +174,39 @@ static class CliEntry
             ? projector
             : new LambdaRag.Projection.Projectors.DeterministicContractProjector(TopicMapRegistry.Load(topicMapSpec));
         var projected = await effectiveProjector.ProjectAsync(parsed);
-        var report = await evaluator.EvaluateAsync(ruleset, projected);
+
+        // If any rule in the (possibly overlay-modified) ruleset declares a
+        // positive applicability gate or uses a semantic predicate, build a
+        // vector store via the active IRuleEmbedder. The store is also
+        // snapshotted next to the report so a follow-up replay can hydrate
+        // without any cloud calls. When no rule needs vectors, we skip the
+        // embedder work entirely and use the DI-resolved evaluator — which
+        // preserves the byte-identical behaviour of pre-semantic rulesets.
+        var needsVectors = ruleset.Rules.Any(r =>
+            r.GateThreshold > 0 ||
+            r.Lambda.Contains("SemanticFunctions.", StringComparison.Ordinal));
+        var effectiveEvaluator = evaluator;
+        InMemorySemanticVectorStore? store = null;
+        if (needsVectors)
+        {
+            var ruleSetEmbedder = new RuleSetEmbedder(ruleEmbedder);
+            store = await ruleSetEmbedder.EmbedAsync(ruleset);
+            var projEmbedder = new ProjectionEmbedder(ruleEmbedder);
+            store = await projEmbedder.EmbedSectionsAsync(projected, store);
+
+            // Build a fresh evaluator with the populated store. We pull every
+            // collaborator off DI so candidate filters and the time provider
+            // are still honoured.
+            effectiveEvaluator = new EvaluationService(
+                sp.GetRequiredService<ISelectorMatcher>(),
+                sp.GetRequiredService<ILogger<EvaluationService>>(),
+                sp.GetService<TimeProvider>(),
+                sp.GetService<ICandidateRuleFilter>(),
+                store);
+            Console.WriteLine($"Vectors:   embedder={ruleEmbedder.EmbedderId} dims={ruleEmbedder.Dimensions}");
+        }
+
+        var report = await effectiveEvaluator.EvaluateAsync(ruleset, projected);
         if (overlayAudit is not null)
             report = report with { OverlayApplied = overlayAudit };
 
