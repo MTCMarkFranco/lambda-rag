@@ -113,3 +113,66 @@ Emit either:
 
 Schema is enforced by post-validation. Output that fails validation will
 be discarded.
+
+## Example output (canonical)
+
+For a chunk under heading `"Shared Responsibility Model"` (domain
+`architecture-review`, documentId `arb-cloud-security-directive`,
+chunkOrdinal `0`), emit exactly this shape — the field names, casing,
+and nesting are mandatory:
+
+```json
+{
+  "ruleId": "ARB-01-SHARED-RESPONSIBILITY-MODEL",
+  "naturalLanguage": "Architecture must define the shared-responsibility split between the organization and the cloud service provider.",
+  "predicate": "true",
+  "lambda": "SemanticFunctions.MatchesAnyMeaning(input1.id, \"shared responsibility|CSP responsibilities|provider versus customer security obligations|cloud consumer accountability\", 0.55)",
+  "concepts": [
+    "shared responsibility",
+    "CSP responsibilities",
+    "provider versus customer security obligations",
+    "cloud consumer accountability"
+  ],
+  "severity": "Violation",
+  "applicability": "Mandatory",
+  "remediation": "Add a section that defines which security controls are owned by the cloud provider versus the customer across IaaS, PaaS, and SaaS. Reference the source policy.",
+  "evidenceQuote": "Shared Responsibility Model",
+  "sourceSpan": {
+    "documentId": "arb-cloud-security-directive",
+    "headingPath": "Shared Responsibility Model",
+    "pageNumber": null,
+    "charStart": null,
+    "charLength": null
+  },
+  "examples": {
+    "positive": [
+      "Section 3 documents that the cloud provider owns physical security and the organization owns OS hardening, application security, and identity management for IaaS workloads.",
+      "Our cloud workloads follow a shared-responsibility split: the CSP is responsible for the security of the cloud, and the organization is responsible for security in the cloud.",
+      "For each workload, the design document specifies whether the CSP, the platform team, or the application team owns the relevant security control."
+    ],
+    "negative": [
+      "The shared responsibility model is an industry-developed concept that helps define accountability in cloud computing.",
+      "Refer to Appendix B for a glossary of cloud security terms including shared responsibility.",
+      "The country supplement notes that local data residency rules may modify CSP obligations in some regions."
+    ]
+  },
+  "metadata": {
+    "sourcePolicy": "Shared Responsibility Model",
+    "category": "Support",
+    "mandatory": "False",
+    "reviewer": "arb"
+  }
+}
+```
+
+Notes:
+- `ruleId` follows the **`<DOMAIN-PREFIX>-<NN>-<SLUG>`** convention,
+  where `<DOMAIN-PREFIX>` is an UPPER-CASE short code (for the
+  architecture-review-board domain, use `ARB`), `<NN>` is the
+  zero-padded chunk ordinal **plus one** (so chunk `0` becomes `01`), and
+  `<SLUG>` is the chunk heading uppercased with non-alphanumerics
+  replaced by `-`.
+- `examples` is **always nested** (`examples.positive`, `examples.negative`).
+  Do not flatten to top-level `positiveExamples` / `negativeExamples`.
+- `mandatory` in `metadata` is the **string** `"True"` or `"False"` to
+  match the existing ARB ruleset shape.
