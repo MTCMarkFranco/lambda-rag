@@ -21,6 +21,9 @@ public static class CanonicalJson
     private static JsonSerializerOptions Build(bool indented) => new()
     {
         WriteIndented = indented,
+        // Force LF newlines so indented JSON is byte-identical on Windows
+        // and Linux. STJ defaults this to Environment.NewLine.
+        NewLine = "\n",
         PropertyNameCaseInsensitive = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
