@@ -14,6 +14,7 @@ using LambdaRag.Markup;
 using LambdaRag.Parsing;
 using LambdaRag.Projection;
 using LambdaRag.Selectors;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -90,8 +91,10 @@ static class CliEntry
 
     static IServiceProvider BuildServices()
     {
+        var configuration = BuildConfiguration();
         var services = new ServiceCollection();
         services.AddLogging(b => b.SetMinimumLevel(LogLevel.Warning).AddSimpleConsole());
+        services.AddSingleton<IConfiguration>(configuration);
         services.AddSingleton<TimeProvider>(new FrozenTimeProvider(
             new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero)));
         services
@@ -99,12 +102,24 @@ static class CliEntry
             .AddLambdaRagProjection()
             .AddLambdaRagSelectors()
             .AddLambdaRagEvaluation()
-            .AddLambdaRagAuthoring()
+            .AddLambdaRagAuthoring(configuration)
             .AddLambdaRagIndexing()
             .AddLambdaRagMarkup();
         services.AddSingleton<CoverageService>();
         return services.BuildServiceProvider();
     }
+
+    /// <summary>
+    /// Builds the CLI's <see cref="IConfiguration"/> from
+    /// <c>dotnet user-secrets</c> (preferred for local dev) plus environment
+    /// variables (legacy / CI). Configure secrets via:
+    ///   <c>dotnet user-secrets --project src/LambdaRag.Cli set "LambdaRag:Foundry:Endpoint" "https://..."</c>
+    /// </summary>
+    static IConfiguration BuildConfiguration()
+        => new ConfigurationBuilder()
+            .AddUserSecrets(typeof(CliEntry).Assembly, optional: true)
+            .AddEnvironmentVariables()
+            .Build();
 
     static Dictionary<string, string> ParseFlags(string[] args)
     {

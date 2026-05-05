@@ -1,15 +1,25 @@
 using System.Text.Json.Nodes;
 using LambdaRag.Authoring.Embeddings;
 using LambdaRag.Core.Semantic;
+using Microsoft.Extensions.Configuration;
 
-var endpoint = Environment.GetEnvironmentVariable("LAMBDA_RAG_FOUNDRY_ENDPOINT");
+var configuration = new ConfigurationBuilder()
+    .AddUserSecrets("lambda-rag-cli-3f1e7b8c-9c2a-4f6e-bf2a-2c5b9c6d4e10")
+    .AddEnvironmentVariables()
+    .Build();
+
+var endpoint = configuration[FoundryEmbedderFactory.EndpointKey]
+    ?? Environment.GetEnvironmentVariable(FoundryEmbedderFactory.EndpointVar);
 if (string.IsNullOrEmpty(endpoint))
 {
-    Console.Error.WriteLine("Set LAMBDA_RAG_FOUNDRY_ENDPOINT first.");
+    Console.Error.WriteLine(
+        "Set Foundry endpoint first. Either:\n" +
+        "  dotnet user-secrets --project src/LambdaRag.Cli set \"LambdaRag:Foundry:Endpoint\" \"https://...\"\n" +
+        "  (or) set LAMBDA_RAG_FOUNDRY_ENDPOINT");
     return 1;
 }
-var embedder = FoundryEmbedderFactory.TryCreateFromEnvironment()
-    ?? throw new InvalidOperationException("Foundry env vars missing.");
+var embedder = FoundryEmbedderFactory.TryCreate(configuration)
+    ?? throw new InvalidOperationException("Foundry settings missing (endpoint + deployment).");
 
 var ruleNl = "Deliverables must vest in Contoso as works made for hire (or be irrevocably assigned).";
 var concepts = new[]
