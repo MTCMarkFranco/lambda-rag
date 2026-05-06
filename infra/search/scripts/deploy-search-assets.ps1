@@ -10,6 +10,11 @@
     DefaultAzureCredential bearer token (the search service has
     `disableLocalAuth=true`).
 
+    The skillset uses a Web API custom skill that points at the extract-rule
+    Azure Function (issue #79). The Function holds the system prompt + schema
+    and calls Foundry with its own managed identity. This script must therefore
+    receive the Function URI + a function key via parameters.
+
     HARD BOUNDARY: this is AUTHORING-TIME tooling. The runtime evaluation path
     must never call the search service — Phase C guardrails enforce that.
 
@@ -28,16 +33,24 @@
 .PARAMETER OpenAiEndpoint
     Azure OpenAI / Foundry endpoint, e.g. https://rg-openai-hub.services.ai.azure.com
 
-.PARAMETER ChatDeployment
-    Chat deployment name used by the GenAI prompt skill (e.g. "gpt-4o-mini").
-
 .PARAMETER EmbeddingDeployment
     Embedding deployment name used by the embedding skill + index vectorizer
     (e.g. "text-embedding-3-large").
 
+.PARAMETER FunctionAppName
+    Name of the extract-rule Function App (e.g. "func-lambdarag-extract-dev").
+    The script resolves the default hostname and a function key from the app.
+
+.PARAMETER FunctionUri
+    Optional explicit URI to the extract-rule endpoint. When omitted, derived
+    from FunctionAppName as https://<app>.azurewebsites.net/api/extract-rule.
+
+.PARAMETER FunctionKey
+    Optional explicit function key. When omitted, fetched via
+    `az functionapp keys list` for the FunctionAppName + ResourceGroup.
+
 .PARAMETER ApiVersion
-    Search REST API version (default 2024-11-01-preview to get the GenAI
-    prompt skill + integrated vectorization).
+    Search REST API version (default 2024-11-01-preview).
 
 .EXAMPLE
     .\deploy-search-assets.ps1 `
@@ -46,8 +59,8 @@
         -ResourceGroup rg-lambdarag-dev `
         -StorageAccount lambdaragauthdev `
         -OpenAiEndpoint https://rg-openai-hub.services.ai.azure.com `
-        -ChatDeployment gpt-4o-mini `
-        -EmbeddingDeployment text-embedding-3-large
+        -EmbeddingDeployment text-embedding-3-large `
+        -FunctionAppName func-lambdarag-extract-dev
 #>
 [CmdletBinding()]
 param(
@@ -56,8 +69,10 @@ param(
     [Parameter(Mandatory)] [string] $ResourceGroup,
     [Parameter(Mandatory)] [string] $StorageAccount,
     [Parameter(Mandatory)] [string] $OpenAiEndpoint,
-    [Parameter(Mandatory)] [string] $ChatDeployment,
     [Parameter(Mandatory)] [string] $EmbeddingDeployment,
+    [Parameter(Mandatory)] [string] $FunctionAppName,
+    [string] $FunctionUri,
+    [string] $FunctionKey,
     [string] $ApiVersion = '2024-11-01-preview'
 )
 
@@ -65,13 +80,7 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $here    = Split-Path -Parent $MyInvocation.MyCommand.Path
-$repoDir = Resolve-Path (Join-Path $here '..\..\..')
 $restDir = Resolve-Path (Join-Path $here '..\rest')
-$promptPath = Join-Path $repoDir 'samples\authoring\rule-extraction.system-prompt.md'
-
-if (-not (Test-Path $promptPath)) {
-    throw "Missing system prompt at $promptPath"
-}
 
 # 1. Acquire a bearer token for the search REST API (RBAC-only mode).
 Write-Host '🔐 Acquiring bearer token for https://search.azure.com ...'
@@ -84,21 +93,36 @@ $headers = @{
 
 $searchUri = "https://$SearchServiceName.search.windows.net"
 
-# 2. Read + substitute placeholders.
-$systemPromptRaw = Get-Content -Raw -Encoding UTF8 $promptPath
-# JSON-escape the prompt: it'll be placed inside a "content" string.
-$systemPromptJson = ($systemPromptRaw | ConvertTo-Json -Compress -Depth 1).Trim('"')
+# 2. Resolve Function URI + key if not supplied.
+if (-not $FunctionUri) {
+    Write-Host "🔎 Resolving default hostname for Function App '$FunctionAppName' ..."
+    $hostName = (az functionapp show -g $ResourceGroup -n $FunctionAppName --query 'defaultHostName' -o tsv)
+    if (-not $hostName) { throw "Could not resolve defaultHostName for $FunctionAppName" }
+    $FunctionUri = "https://$hostName/api/extract-rule"
+}
+Write-Host "🔗 Extract-rule endpoint: $FunctionUri"
+
+if (-not $FunctionKey) {
+    Write-Host "🔑 Fetching function key for '$FunctionAppName' ..."
+    $FunctionKey = (az functionapp keys list -g $ResourceGroup -n $FunctionAppName --query 'functionKeys.default' -o tsv)
+    if (-not $FunctionKey) {
+        $FunctionKey = (az functionapp keys list -g $ResourceGroup -n $FunctionAppName --query 'masterKey' -o tsv)
+    }
+    if (-not $FunctionKey) {
+        throw "Could not fetch a function key for $FunctionAppName. Ensure the Function App has been deployed at least once."
+    }
+}
 
 function Expand-Tokens {
     param([string] $Path)
     $body = Get-Content -Raw -Encoding UTF8 $Path
     $body = $body.Replace('{{AZURE_OPENAI_ENDPOINT}}', $OpenAiEndpoint)
-    $body = $body.Replace('{{CHAT_DEPLOYMENT}}',       $ChatDeployment)
     $body = $body.Replace('{{EMBEDDING_DEPLOYMENT}}',  $EmbeddingDeployment)
     $body = $body.Replace('{{SUBSCRIPTION_ID}}',       $SubscriptionId)
     $body = $body.Replace('{{RESOURCE_GROUP}}',        $ResourceGroup)
     $body = $body.Replace('{{STORAGE_ACCOUNT}}',       $StorageAccount)
-    $body = $body.Replace('{{SYSTEM_PROMPT}}',         $systemPromptJson)
+    $body = $body.Replace('{{FUNCTION_URI}}',          $FunctionUri)
+    $body = $body.Replace('{{FUNCTION_KEY}}',          $FunctionKey)
     return $body
 }
 

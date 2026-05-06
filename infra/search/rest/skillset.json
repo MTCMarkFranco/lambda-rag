@@ -1,6 +1,6 @@
 {
   "name": "lambda-rag-rules-skillset",
-  "description": "Layout → Split → GenAI prompt (rule extraction) → Embedding(concepts).",
+  "description": "Layout → Split → WebApiSkill (extract-rule Function) → Embedding(concepts).",
   "skills": [
     {
       "@odata.type": "#Microsoft.Skills.Util.DocumentIntelligenceLayoutSkill",
@@ -33,31 +33,24 @@
       ]
     },
     {
-      "@odata.type": "#Microsoft.Skills.Util.GenerativeContentSkill",
+      "@odata.type": "#Microsoft.Skills.Custom.WebApiSkill",
       "name": "extractRule",
-      "description": "GenAI prompt skill — converts each chunk into an ExtractedRule JSON.",
+      "description": "Calls the extract-rule Azure Function. Each input record is a chunk and the function returns a validated ExtractedRule object.",
       "context": "/document/layoutMarkdown/*/chunks/*",
-      "uri": "{{AZURE_OPENAI_ENDPOINT}}/openai/deployments/{{CHAT_DEPLOYMENT}}/chat/completions?api-version=2024-10-21",
+      "uri": "{{FUNCTION_URI}}",
+      "httpMethod": "POST",
       "timeout": "PT60S",
-      "responseFormat": "json_object",
-      "authIdentity": null,
-      "modelParameters": {
-        "temperature": 0,
-        "max_tokens": 1500
+      "batchSize": 1,
+      "degreeOfParallelism": 4,
+      "httpHeaders": {
+        "x-functions-key": "{{FUNCTION_KEY}}"
       },
-      "messages": [
-        {
-          "role": "system",
-          "content": "{{SYSTEM_PROMPT}}"
-        },
-        {
-          "role": "user",
-          "content": "DOMAIN: architecture-review\nDOCUMENT_ID: $(/document/metadata_storage_name)\nCHUNK_ORDINAL: $(/document/layoutMarkdown/*/chunks/*/$ordinal)\n\n--- CHUNK ---\n$(/document/layoutMarkdown/*/chunks/*)\n--- END CHUNK ---"
-        }
+      "inputs": [
+        { "name": "chunk",       "source": "/document/layoutMarkdown/*/chunks/*" },
+        { "name": "documentId",  "source": "/document/metadata_storage_name" }
       ],
-      "inputs": [],
       "outputs": [
-        { "name": "response", "targetName": "extractedRule" }
+        { "name": "extractedRule", "targetName": "extractedRule" }
       ]
     },
     {
