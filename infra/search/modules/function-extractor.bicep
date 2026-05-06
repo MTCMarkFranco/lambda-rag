@@ -136,7 +136,6 @@ resource appSettings 'Microsoft.Web/sites/config@2024-04-01' = {
     {
       AzureWebJobsStorage__accountName: deploymentStorageAccountName
       AzureWebJobsStorage__credential: 'managedidentity'
-      FUNCTIONS_WORKER_RUNTIME: 'dotnet-isolated'
       AZURE_OPENAI_ENDPOINT: azureOpenAiEndpoint
       AZURE_OPENAI_CHAT_DEPLOYMENT: azureOpenAiChatDeployment
     },
