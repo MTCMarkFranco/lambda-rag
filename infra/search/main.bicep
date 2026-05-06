@@ -47,6 +47,9 @@ param openAiAccountResourceId string
 @description('Object IDs of the human authors (Entra ID) who should be able to push to the index from their machine.')
 param authorObjectIds array = []
 
+@description('System-assigned principal IDs of cloud services (function apps, container apps, etc.) that need to QUERY the index. They will be granted Search Index Data Reader. The extract function does NOT need this — it is a WebApiSkill called by the indexer, not a query consumer.')
+param indexReaderPrincipalIds array = []
+
 @description('Function App name for the extract-rule Web API skill (issue #79). Must be globally unique.')
 param extractFunctionAppName string = 'func-${workload}-extract-${environment}'
 
@@ -92,6 +95,7 @@ module rbac 'modules/rbac.bicep' = {
     searchPrincipalId: search.outputs.principalId
     openAiAccountResourceId: openAiAccountResourceId
     authorObjectIds: authorObjectIds
+    indexReaderPrincipalIds: indexReaderPrincipalIds
   }
 }
 
