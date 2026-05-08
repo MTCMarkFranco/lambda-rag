@@ -490,3 +490,9 @@ _reference/
 
 
 out/
+
+# Build/deploy artifacts (ignore by default)
+infra/**/main.json
+infra/**/deploy-params*.json
+!infra/**/deploy-params.example.json
+
