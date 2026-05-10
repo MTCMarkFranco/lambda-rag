@@ -42,9 +42,7 @@
       "timeout": "PT60S",
       "batchSize": 1,
       "degreeOfParallelism": 4,
-      "httpHeaders": {
-        "x-functions-key": "{{FUNCTION_KEY}}"
-      },
+      "authResourceId": "{{AUTH_RESOURCE_ID}}",
       "inputs": [
         { "name": "chunk",       "source": "/document/layoutMarkdown/*/chunks/*" },
         { "name": "documentId",  "source": "/document/metadata_storage_name" }

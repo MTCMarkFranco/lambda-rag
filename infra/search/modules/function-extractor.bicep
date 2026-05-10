@@ -54,6 +54,15 @@ param alwaysReadyInstanceCount int = 0
 ])
 param instanceMemoryMB int = 2048
 
+@description('Entra app registration clientId used as the AAD audience for Easy Auth (issue #82). Bootstrap once with `az ad app create --display-name <name>` and pass the resulting appId.')
+param authClientId string
+
+@description('Tenant ID used for the AAD issuer.')
+param authTenantId string = subscription().tenantId
+
+@description('Application (client) IDs allowed to call the function. Typically the AI Search service system-assigned MI appId. Empty array disables the check (audience-only).')
+param allowedAppIds array = []
+
 var roleIds = {
   storageBlobDataOwner: 'b7e6dc6d-f1e8-4753-8033-0f276bb0955b'
   storageBlobDataContributor: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
@@ -156,7 +165,62 @@ resource fnDeploymentAccess 'Microsoft.Authorization/roleAssignments@2022-04-01'
   }
 }
 
+// Easy Auth (App Service Authentication v2) — Microsoft identity provider.
+// Gates the function so only callers presenting a valid AAD token whose
+// audience == api://<authClientId> AND whose appid is in allowedAppIds (the AI
+// Search service system-assigned MI) get through. No shared keys; the function
+// trigger is AuthorizationLevel.Anonymous because Easy Auth runs first.
+resource authSettings 'Microsoft.Web/sites/config@2024-04-01' = {
+  parent: functionApp
+  name: 'authsettingsV2'
+  properties: {
+    platform: {
+      enabled: true
+      runtimeVersion: '~1'
+    }
+    globalValidation: {
+      requireAuthentication: true
+      unauthenticatedClientAction: 'Return401'
+    }
+    httpSettings: {
+      requireHttps: true
+      forwardProxy: {
+        convention: 'NoProxy'
+      }
+      routes: {
+        apiPrefix: '/.auth'
+      }
+    }
+    identityProviders: {
+      azureActiveDirectory: {
+        enabled: true
+        registration: {
+          clientId: authClientId
+          openIdIssuer: 'https://login.microsoftonline.com/${authTenantId}/v2.0'
+        }
+        login: {
+          disableWWWAuthenticate: false
+        }
+        validation: {
+          allowedAudiences: [
+            'api://${authClientId}'
+          ]
+          defaultAuthorizationPolicy: {
+            allowedApplications: allowedAppIds
+          }
+        }
+      }
+    }
+    login: {
+      tokenStore: {
+        enabled: false
+      }
+    }
+  }
+}
+
 output functionAppName string = functionApp.name
 output defaultHostName string = functionApp.properties.defaultHostName
 output principalId string = functionApp.identity.principalId
 output extractRuleEndpoint string = 'https://${functionApp.properties.defaultHostName}/api/extract-rule'
+output authResourceId string = 'api://${authClientId}'

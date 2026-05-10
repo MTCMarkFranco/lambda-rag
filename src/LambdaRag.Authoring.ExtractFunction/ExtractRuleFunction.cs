@@ -11,10 +11,12 @@ namespace LambdaRag.Authoring.ExtractFunction;
 /// batch contract. The indexer POSTs a list of records (chunks) and we
 /// return one ExtractedRule per record.
 ///
-/// Auth model: function-level key. The AI Search WebApiSkill passes the key
-/// in an `x-functions-key` header; deploy-search-assets.ps1 fetches the key
-/// from the Function App via `az functionapp keys list` and substitutes it
-/// into the skillset JSON before PUTting it to the search service.
+/// Auth model: Easy Auth (App Service Authentication v2) gates the request
+/// using the Microsoft identity provider (issue #82). The function trigger
+/// itself is `Anonymous` because Easy Auth runs before the trigger and rejects
+/// callers that don't present a valid AAD token whose `aud` matches the
+/// function's app registration and whose `appid` matches an allowedApplications
+/// entry (the AI Search service's system-assigned MI). No shared keys.
 /// </summary>
 public sealed class ExtractRuleFunction
 {
@@ -31,7 +33,7 @@ public sealed class ExtractRuleFunction
 
     [Function("extract-rule")]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "extract-rule")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "extract-rule")]
         HttpRequest req,
         CancellationToken ct)
     {

@@ -59,6 +59,12 @@ param chatDeploymentName string = 'gpt-4o-mini'
 @description('Optional Application Insights connection string for the extract-rule function. Empty disables AI.')
 param appInsightsConnectionString string = ''
 
+@description('Entra app registration clientId used as the AAD audience for the extract-rule function (issue #82). Bootstrap once with az ad app create --display-name lambdarag-extract-<env>-api.')
+param extractFunctionAuthClientId string
+
+@description('Application IDs allowed to call the extract-rule function via Easy Auth. Typically just the AI Search service system-assigned MI appId. Empty array = audience-only check.')
+param extractFunctionAllowedAppIds array = []
+
 var tags = {
   workload: workload
   environment: environment
@@ -120,6 +126,8 @@ module extractFunction 'modules/function-extractor.bicep' = {
     azureOpenAiEndpoint: openAiAcct.properties.endpoint
     azureOpenAiChatDeployment: chatDeploymentName
     appInsightsConnectionString: appInsightsConnectionString
+    authClientId: extractFunctionAuthClientId
+    allowedAppIds: extractFunctionAllowedAppIds
   }
 }
 
@@ -142,3 +150,4 @@ output sourceContainerName string = storage.outputs.sourceContainerName
 output searchPrincipalId string = search.outputs.principalId
 output extractFunctionAppName string = extractFunction.outputs.functionAppName
 output extractRuleEndpoint string = extractFunction.outputs.extractRuleEndpoint
+output extractFunctionAuthResourceId string = extractFunction.outputs.authResourceId
