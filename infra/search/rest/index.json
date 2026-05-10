@@ -2,9 +2,18 @@
   "name": "lambda-rag-rules",
   "fields": [
     {
-      "name": "ruleId",
+      "name": "id",
       "type": "Edm.String",
       "key": true,
+      "filterable": true,
+      "retrievable": true,
+      "searchable": true,
+      "sortable": true,
+      "analyzer": "keyword"
+    },
+    {
+      "name": "ruleId",
+      "type": "Edm.String",
       "filterable": true,
       "retrievable": true,
       "searchable": false,
