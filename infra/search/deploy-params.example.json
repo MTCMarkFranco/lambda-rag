@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "openAiAccountResourceId": {
+      "value": "/subscriptions/<your-sub-id>/resourceGroups/RG-OpenAI/providers/Microsoft.CognitiveServices/accounts/rg-openai-hub"
+    },
+    "authorObjectIds": {
+      "value": [
+        "<your-entra-object-id>"
+      ]
+    },
+    "environment": {
+      "value": "dev"
+    },
+    "workload": {
+      "value": "lambdarag"
+    }
+  }
+}

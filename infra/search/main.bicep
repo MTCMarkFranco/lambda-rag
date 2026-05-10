@@ -47,6 +47,24 @@ param openAiAccountResourceId string
 @description('Object IDs of the human authors (Entra ID) who should be able to push to the index from their machine.')
 param authorObjectIds array = []
 
+@description('System-assigned principal IDs of cloud services (function apps, container apps, etc.) that need to QUERY the index. They will be granted Search Index Data Reader. The extract function does NOT need this — it is a WebApiSkill called by the indexer, not a query consumer.')
+param indexReaderPrincipalIds array = []
+
+@description('Function App name for the extract-rule Web API skill (issue #79). Must be globally unique.')
+param extractFunctionAppName string = 'func-${workload}-extract-${environment}'
+
+@description('Foundry chat deployment name used by the extract-rule function.')
+param chatDeploymentName string = 'gpt-4o-mini'
+
+@description('Optional Application Insights connection string for the extract-rule function. Empty disables AI.')
+param appInsightsConnectionString string = ''
+
+@description('Entra app registration clientId used as the AAD audience for the extract-rule function (issue #82). Bootstrap once with az ad app create --display-name lambdarag-extract-<env>-api.')
+param extractFunctionAuthClientId string
+
+@description('Application IDs allowed to call the extract-rule function via Easy Auth. Typically just the AI Search service system-assigned MI appId. Empty array = audience-only check.')
+param extractFunctionAllowedAppIds array = []
+
 var tags = {
   workload: workload
   environment: environment
@@ -83,6 +101,45 @@ module rbac 'modules/rbac.bicep' = {
     searchPrincipalId: search.outputs.principalId
     openAiAccountResourceId: openAiAccountResourceId
     authorObjectIds: authorObjectIds
+    indexReaderPrincipalIds: indexReaderPrincipalIds
+  }
+}
+
+// Derive the OpenAI endpoint URL from the account resource ID (passed to the function).
+var openAiAccountParts = split(openAiAccountResourceId, '/')
+var openAiSubId = openAiAccountParts[2]
+var openAiRgName = openAiAccountParts[4]
+var openAiAcctName = openAiAccountParts[8]
+
+resource openAiAcct 'Microsoft.CognitiveServices/accounts@2024-10-01' existing = {
+  name: openAiAcctName
+  scope: resourceGroup(openAiSubId, openAiRgName)
+}
+
+module extractFunction 'modules/function-extractor.bicep' = {
+  name: 'extract-fn'
+  params: {
+    functionAppName: extractFunctionAppName
+    location: location
+    tags: tags
+    deploymentStorageAccountName: storage.outputs.name
+    azureOpenAiEndpoint: openAiAcct.properties.endpoint
+    azureOpenAiChatDeployment: chatDeploymentName
+    appInsightsConnectionString: appInsightsConnectionString
+    authClientId: extractFunctionAuthClientId
+    allowedAppIds: extractFunctionAllowedAppIds
+  }
+}
+
+// Grant the Function MI Cognitive Services OpenAI User on the Foundry account
+// (cross-RG, same pattern as the search service identity).
+module extractFunctionOpenAiAccess 'modules/rbac-openai.bicep' = {
+  name: 'rbac-openai-fn'
+  scope: resourceGroup(openAiSubId, openAiRgName)
+  params: {
+    accountName: openAiAcctName
+    principalId: extractFunction.outputs.principalId
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
   }
 }
 
@@ -91,3 +148,6 @@ output searchEndpoint string = search.outputs.endpoint
 output storageAccountName string = storage.outputs.name
 output sourceContainerName string = storage.outputs.sourceContainerName
 output searchPrincipalId string = search.outputs.principalId
+output extractFunctionAppName string = extractFunction.outputs.functionAppName
+output extractRuleEndpoint string = extractFunction.outputs.extractRuleEndpoint
+output extractFunctionAuthResourceId string = extractFunction.outputs.authResourceId
