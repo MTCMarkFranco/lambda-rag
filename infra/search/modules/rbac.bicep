@@ -17,10 +17,14 @@ param openAiAccountResourceId string
 @description('Object IDs of human authors who should manage the index from their machine.')
 param authorObjectIds array = []
 
+@description('System-assigned principal IDs of services that need read access to the index (Search Index Data Reader). These should be cloud service identities (e.g. function apps, container apps) — not human authors.')
+param indexReaderPrincipalIds array = []
+
 var roleIds = {
   storageBlobDataReader: '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1'
   cognitiveServicesOpenAIUser: '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd'
   searchIndexDataContributor: '8ebe5a00-799e-43f5-93ac-243d3dce84a7'
+  searchIndexDataReader: '1407120a-92aa-4202-b7e9-c0e197c71c8f'
   searchServiceContributor: '7ca78c08-252a-4471-8644-bb5ff32d4ba0'
 }
 
@@ -77,5 +81,17 @@ resource authorServiceAccess 'Microsoft.Authorization/roleAssignments@2022-04-01
     principalId: oid
     principalType: 'User'
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleIds.searchServiceContributor)
+  }
+}]
+
+// Service identities (system-assigned MI) that query the index get Search Index Data Reader.
+// Authors above already have Index Data Contributor, which subsumes read.
+resource serviceIndexReadAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (pid, i) in indexReaderPrincipalIds: {
+  scope: search
+  name: guid(search.id, pid, roleIds.searchIndexDataReader)
+  properties: {
+    principalId: pid
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleIds.searchIndexDataReader)
   }
 }]
