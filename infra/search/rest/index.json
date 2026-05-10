@@ -11,6 +11,14 @@
       "sortable": true
     },
     {
+      "name": "documentId",
+      "type": "Edm.String",
+      "filterable": true,
+      "retrievable": true,
+      "searchable": false,
+      "sortable": true
+    },
+    {
       "name": "domain",
       "type": "Edm.String",
       "filterable": true,
