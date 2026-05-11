@@ -189,6 +189,81 @@ public sealed class OpenXmlMarkupServiceAnchoringTests
         }
     }
 
+    [Fact]
+    public void Replace_with_ClauseSpan_strikes_through_every_covered_paragraph_and_inserts_once()
+    {
+        // Issue #87 — when a verdict carries a ClauseSpan that crosses
+        // paragraph boundaries the markup engine must strike through
+        // the full clause (both paragraphs) and emit the rewrite
+        // exactly once, immediately after the comment range end.
+        var docxPath = BuildSampleDoc();
+        try
+        {
+            // Narrow evidence: the word "Liability" in paragraph #1.
+            const int p1Start = 30;                   // Paragraphs[0].Length + 1
+            const int liabilityOffsetInP1 = 11;       // "Section 2. ".Length
+            const int liabilityLen = 9;               // "Liability".Length
+
+            // Clause: from "Liability" in paragraph #1 through the end
+            // of paragraph #2 ("Cyber-liability coverage.").
+            var clauseStart = p1Start + liabilityOffsetInP1;
+            var clauseEnd = 65 + Paragraphs[2].Length;   // end of paragraph #2
+            var clauseLen = clauseEnd - clauseStart;
+
+            var replace = new Annotation(
+                Id: "replace-multi-1",
+                Kind: AnnotationKind.Replace,
+                Span: new SourceSpan(DocumentId, clauseStart, liabilityLen, null, null),
+                Author: "🕵 - Legal guidance",
+                Text: "Tighten the liability and cyber clauses.",
+                Replacement: "Liability, indemnity, and cyber-liability coverage are governed by Schedule A.")
+            {
+                ClauseSpan = new SourceSpan(DocumentId, clauseStart, clauseLen, null, null),
+            };
+
+            var svc = new OpenXmlMarkupService(NullLogger<OpenXmlMarkupService>.Instance);
+            svc.Apply(docxPath, docxPath, new[] { replace });
+
+            using var doc = WordprocessingDocument.Open(docxPath, isEditable: false);
+            var body = doc.MainDocumentPart!.Document!.Body!;
+            var paras = body.Descendants<Paragraph>().ToList();
+
+            // CommentRangeStart in paragraph #1, CommentRangeEnd in
+            // paragraph #2 — covering the whole clause.
+            paras[1].Descendants<CommentRangeStart>().Should().HaveCount(1,
+                "the comment range must START in the paragraph containing the clause start");
+            paras[2].Descendants<CommentRangeEnd>().Should().HaveCount(1,
+                "the comment range must END in the paragraph containing the clause end");
+
+            // Strike-through must reach BOTH paragraphs — that's the
+            // whole point of clause widening. Pre-#87 only paragraph #1
+            // would be struck through.
+            paras[1].Descendants<DeletedRun>().Should().NotBeEmpty(
+                "paragraph #1 must contain a tracked-change deletion for the clause-start portion");
+            paras[2].Descendants<DeletedRun>().Should().NotBeEmpty(
+                "paragraph #2 must contain a tracked-change deletion for the clause-end portion");
+
+            // The InsertedRun must appear EXACTLY ONCE across the whole
+            // body — duplicating it per paragraph would render the
+            // replacement multiple times in Word.
+            var insertedRuns = body.Descendants<InsertedRun>().ToList();
+            insertedRuns.Should().HaveCount(1,
+                "the rewrite is a single replacement for the whole clause, not per paragraph");
+            insertedRuns[0].Descendants<Text>()
+                .Select(t => t.Text)
+                .Should().Contain("Liability, indemnity, and cyber-liability coverage are governed by Schedule A.");
+
+            // And it must sit in paragraph #2 (where the clause ends),
+            // not paragraph #1 (where the comment range started).
+            paras[2].Descendants<InsertedRun>().Should().HaveCount(1,
+                "the rewrite must appear after the CommentRangeEnd in the LAST clause paragraph");
+        }
+        finally
+        {
+            File.Delete(docxPath);
+        }
+    }
+
     /// <summary>
     /// Builds a 3-paragraph .docx whose paragraph text matches
     /// <see cref="Paragraphs"/>. Each paragraph contains a single run

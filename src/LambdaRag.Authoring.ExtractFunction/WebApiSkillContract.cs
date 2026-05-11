@@ -36,6 +36,9 @@ public static class WebApiSkillContract
         [JsonPropertyName("documentId")]
         public string? DocumentId { get; set; }
 
+        [JsonPropertyName("parentDocumentId")]
+        public string? ParentDocumentId { get; set; }
+
         [JsonPropertyName("headingPath")]
         public string? HeadingPath { get; set; }
 

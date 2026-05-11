@@ -19,11 +19,11 @@
     {
       "@odata.type": "#Microsoft.Skills.Text.SplitSkill",
       "name": "split",
-      "description": "Section-aware split keeping headings with content.",
+      "description": "Section-aware split keeping headings with content. Widened page length to 8000 chars (and overlap to 400) to keep multi-paragraph clauses inside a single chunk — the markup pipeline relies on full-clause evidence to redline correctly.",
       "context": "/document/layoutMarkdown/*",
       "textSplitMode": "pages",
-      "maximumPageLength": 3500,
-      "pageOverlapLength": 200,
+      "maximumPageLength": 8000,
+      "pageOverlapLength": 400,
       "unit": "characters",
       "inputs": [
         { "name": "text", "source": "/document/layoutMarkdown/*/content" }
@@ -35,7 +35,7 @@
     {
       "@odata.type": "#Microsoft.Skills.Custom.WebApiSkill",
       "name": "extractRule",
-      "description": "Calls the extract-rule Azure Function. Each input record is a chunk and the function returns a validated ExtractedRule object.",
+      "description": "Calls the extract-rule Azure Function. Each input record is a chunk and the function returns a validated ExtractedRule object. headingPath + parentDocumentId travel with the chunk so downstream consumers can group sibling chunks of the same section and reassemble multi-chunk clauses.",
       "context": "/document/layoutMarkdown/*/chunks/*",
       "uri": "{{FUNCTION_URI}}",
       "httpMethod": "POST",
@@ -44,8 +44,9 @@
       "degreeOfParallelism": 4,
       "authResourceId": "{{AUTH_RESOURCE_ID}}",
       "inputs": [
-        { "name": "chunk",       "source": "/document/layoutMarkdown/*/chunks/*" },
-        { "name": "documentId",  "source": "/document/metadata_storage_name" }
+        { "name": "chunk",            "source": "/document/layoutMarkdown/*/chunks/*" },
+        { "name": "documentId",       "source": "/document/metadata_storage_name" },
+        { "name": "parentDocumentId", "source": "/document/metadata_storage_name" }
       ],
       "outputs": [
         { "name": "extractedRule", "targetName": "extractedRule" }
@@ -79,6 +80,8 @@
           { "name": "domain",          "source": "='architecture-review'" },
           { "name": "version",         "source": "/document/version" },
           { "name": "status",          "source": "='draft'" },
+          { "name": "parentDocumentId","source": "/document/layoutMarkdown/*/chunks/*/extractedRule/parentDocumentId" },
+          { "name": "sectionId",       "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/sectionId" },
           { "name": "naturalLanguage", "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/naturalLanguage" },
           { "name": "predicate",       "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/predicate" },
           { "name": "lambda",          "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/lambda" },

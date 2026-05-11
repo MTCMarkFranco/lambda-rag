@@ -8,7 +8,7 @@
     "value": "lr1:21c578c23044d212b4d998147ba3daf1973df84e5fbee41894a6ece68f1ccfe4"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.4.0",
+  "projectorVersion": "1.5.0",
   "score": 0.6,
   "totalRules": 5,
   "passed": 3,
@@ -65,7 +65,13 @@
         },
         "text": "End-of-life decommissioning will be addressed at retirement under afuture abandonment plan to be filed with the regulator. The currentoperations manual does not address financial assurance.",
         "text_raw": "End-of-life decommissioning will be addressed at retirement under afuture abandonment plan to be filed with the regulator. The currentoperations manual does not address financial assurance.",
-        "text_char_start": 1210
+        "text_char_start": 1210,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 189
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:4d0a0fe4f2df1f88001d5ca597fb2dc4b2b7551e25bf95aaa9d15463854a89eb",
@@ -128,7 +134,13 @@
         },
         "text": "The emergency response plan (ERP) is maintained in accordance with CEROPR s. 32 and reviewed annually. ICS structure, notification matrix,and tier-1/2/3 spill response are documented in the ERP and exercisedtwice per year.",
         "text_raw": "The emergency response plan (ERP) is maintained in accordance with CEROPR s. 32 and reviewed annually. ICS structure, notification matrix,and tier-1/2/3 spill response are documented in the ERP and exercisedtwice per year.",
-        "text_char_start": 783
+        "text_char_start": 783,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 222
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:4d0a0fe4f2df1f88001d5ca597fb2dc4b2b7551e25bf95aaa9d15463854a89eb",
@@ -235,7 +247,29 @@
         },
         "text": "Acme operates a pipeline integrity management program (PIM) consistentwith CSA Z662 and CER OPR. The program covers:\nthreat identification (external corrosion, internal corrosion,geohazards, third-party damage, manufacturing defects)\nILI scheduling on a five-year cadence\nmonitoring via cathodic protection surveys, close-interval surveys,and pressure cycling analysis\ncorrective-action triggers tied to API 1163 ILI tool tolerance.",
         "text_raw": "Acme operates a pipeline integrity management program (PIM) consistentwith CSA Z662 and CER OPR. The program covers:\nthreat identification (external corrosion, internal corrosion,geohazards, third-party damage, manufacturing defects)\nILI scheduling on a five-year cadence\nmonitoring via cathodic protection surveys, close-interval surveys,and pressure cycling analysis\ncorrective-action triggers tied to API 1163 ILI tool tolerance.",
-        "text_char_start": 305
+        "text_char_start": 305,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 116
+          },
+          {
+            "char_start": 117,
+            "char_length": 116
+          },
+          {
+            "char_start": 234,
+            "char_length": 37
+          },
+          {
+            "char_start": 272,
+            "char_length": 96
+          },
+          {
+            "char_start": 369,
+            "char_length": 63
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:4d0a0fe4f2df1f88001d5ca597fb2dc4b2b7551e25bf95aaa9d15463854a89eb",

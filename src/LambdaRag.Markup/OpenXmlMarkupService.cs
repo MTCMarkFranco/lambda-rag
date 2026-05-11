@@ -1,6 +1,7 @@
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using LambdaRag.Core.Domain;
 using Microsoft.Extensions.Logging;
 
 namespace LambdaRag.Markup;
@@ -156,9 +157,27 @@ public sealed class OpenXmlMarkupService
             return;
         }
 
+        var hasDelete = a.Kind is AnnotationKind.Delete or AnnotationKind.Replace;
+        var hasInsert = a.Kind is AnnotationKind.Insert or AnnotationKind.Replace
+                        && a.Replacement is { Length: > 0 };
+
+        // Clause widening (issue #87) only applies to tracked-change
+        // deletions / replacements — Comment kinds always stay anchored
+        // to the narrow evidence span so Word's review pane highlights
+        // the offending substring, not the whole clause.
+        var useClauseSpan = a.ClauseSpan is not null
+                            && a.Kind is AnnotationKind.Delete or AnnotationKind.Replace;
+
+        if (useClauseSpan)
+        {
+            ApplyMultiParagraph(a, a.ClauseSpan!, commentId, paragraphs, comments, hasDelete, hasInsert);
+            return;
+        }
+
         // Clamp the comment range to this paragraph. Multi-paragraph
-        // spans still anchor the comment to the paragraph the span
-        // *starts* in — Word's review pane is paragraph-centric anyway.
+        // spans (without a ClauseSpan widening) still anchor the comment
+        // to the paragraph the span *starts* in — Word's review pane is
+        // paragraph-centric anyway.
         var endOffsetInParagraph = Math.Clamp(
             startOffsetInParagraph + Math.Max(a.Span.CharLength, 0),
             startOffsetInParagraph,
@@ -194,10 +213,6 @@ public sealed class OpenXmlMarkupService
         // convert their Text elements to DeletedText so Word shows
         // the strike-through. With zero-length spans (e.g. the gaps
         // summary anchored at char 0) we have nothing to delete.
-        var hasDelete  = a.Kind is AnnotationKind.Delete or AnnotationKind.Replace;
-        var hasInsert  = a.Kind is AnnotationKind.Insert or AnnotationKind.Replace
-                         && a.Replacement is { Length: > 0 };
-
         if (hasDelete && endOffsetInParagraph > startOffsetInParagraph)
         {
             WrapSpanInDeletedRun(rangeStart, rangeEnd, commentId, a.Author);
@@ -215,6 +230,268 @@ public sealed class OpenXmlMarkupService
                 Author = a.Author,
                 Date = DeterministicTimestamp,
             });
+        }
+    }
+
+    /// <summary>
+    /// Apply a tracked-change deletion (and optional replacement) that
+    /// spans multiple paragraphs (issue #87). When the verdict's
+    /// <see cref="Annotation.ClauseSpan"/> covers a clause crossing
+    /// paragraph boundaries we widen the strike-through to every covered
+    /// paragraph so the redline shows the whole clause as removed —
+    /// rather than partially struck through with the replacement awkwardly
+    /// jammed mid-paragraph.
+    ///
+    /// Layout:
+    ///   • <c>CommentRangeStart</c> goes into the first paragraph at the
+    ///     widened start offset.
+    ///   • <c>CommentRangeEnd</c> goes into the last paragraph at the
+    ///     widened end offset, immediately followed by
+    ///     <c>CommentReference</c> and (when present) the <c>InsertedRun</c>.
+    ///   • Every covered paragraph's runs inside the comment range are
+    ///     wrapped in a per-paragraph <c>DeletedRun</c> with stable id
+    ///     and author so two runs over the same inputs stay byte-identical.
+    /// </summary>
+    private void ApplyMultiParagraph(
+        Annotation a,
+        SourceSpan clause,
+        string commentId,
+        IReadOnlyList<ParagraphIndexEntry> paragraphs,
+        Comments comments,
+        bool hasDelete,
+        bool hasInsert)
+    {
+        var (startPara, startOffInPara, _) = LocateParagraph(clause.CharStart, paragraphs);
+        if (startPara is null)
+        {
+            _logger.LogWarning(
+                "Annotation {AnnotationId} clauseSpan [{Start},{End}) does not match any paragraph; skipping",
+                a.Id, clause.CharStart, clause.CharEnd);
+            return;
+        }
+
+        // Clamp end so we never run past the document. Map endChar back to
+        // an (endParagraph, endOffsetInEndParagraph) pair. If endChar lands
+        // exactly on a paragraph boundary, prefer the *previous* paragraph
+        // (offset = its full length) so the strike-through doesn't bleed
+        // into the next clause.
+        var endChar = clause.CharStart + Math.Max(clause.CharLength, 0);
+        var (endPara, endOffInEnd) = LocateClauseEnd(endChar, paragraphs);
+        if (endPara is null)
+        {
+            // Clause extends past doc end — clamp to last paragraph.
+            var last = paragraphs[^1];
+            endPara = last.Paragraph;
+            endOffInEnd = last.Length;
+        }
+
+        // Index lookup so we can iterate paragraphs in document order
+        // between start and end.
+        int startIdx = -1, endIdx = -1;
+        for (int i = 0; i < paragraphs.Count; i++)
+        {
+            if (ReferenceEquals(paragraphs[i].Paragraph, startPara)) startIdx = i;
+            if (ReferenceEquals(paragraphs[i].Paragraph, endPara)) endIdx = i;
+        }
+        if (startIdx < 0 || endIdx < 0 || endIdx < startIdx)
+        {
+            _logger.LogWarning(
+                "Annotation {AnnotationId} clauseSpan paragraph index lookup failed; skipping",
+                a.Id);
+            return;
+        }
+
+        // Same-paragraph clause widening collapses to the single-paragraph
+        // path with the wider offsets — keeps the byte layout identical to
+        // pre-#87 single-paragraph deletes when the clause already fit in
+        // one paragraph.
+        if (startIdx == endIdx)
+        {
+            var widenedEnd = Math.Clamp(endOffInEnd, startOffInPara, paragraphs[startIdx].Length);
+            ApplySingleParagraphAtOffsets(
+                a, commentId, paragraphs[startIdx], startOffInPara, widenedEnd,
+                comments, hasDelete, hasInsert);
+            return;
+        }
+
+        // Append the comment definition (single comment for the whole range).
+        comments.AppendChild(new Comment(
+            new Paragraph(new Run(new Text(a.Text) { Space = SpaceProcessingModeValues.Preserve })))
+        {
+            Id = commentId,
+            Author = a.Author,
+            Date = DeterministicTimestamp,
+            Initials = ResolveInitials(a.Author),
+        });
+
+        var startAnchor = SplitParagraphAtOffset(startPara, startOffInPara);
+        var endAnchor   = SplitParagraphAtOffset(endPara, endOffInEnd);
+
+        var rangeStart = new CommentRangeStart { Id = commentId };
+        var rangeEnd   = new CommentRangeEnd   { Id = commentId };
+        InsertAtBoundary(startPara, startAnchor, rangeStart);
+        InsertAtBoundary(endPara,   endAnchor,   rangeEnd);
+        rangeEnd.InsertAfterSelf(new Run(new CommentReference { Id = commentId }));
+
+        if (hasDelete)
+        {
+            // Wrap runs in the *start* paragraph from CommentRangeStart to
+            // the paragraph's end.
+            WrapRunsBetweenInParagraph(
+                startPara,
+                fromExclusive: rangeStart,
+                toExclusive: null,
+                commentId, a.Author);
+
+            // Wrap every full paragraph between start and end.
+            for (int i = startIdx + 1; i < endIdx; i++)
+            {
+                WrapRunsBetweenInParagraph(
+                    paragraphs[i].Paragraph,
+                    fromExclusive: null,
+                    toExclusive: null,
+                    commentId, a.Author);
+            }
+
+            // Wrap runs in the *end* paragraph from paragraph start to
+            // CommentRangeEnd.
+            WrapRunsBetweenInParagraph(
+                endPara,
+                fromExclusive: null,
+                toExclusive: rangeEnd,
+                commentId, a.Author);
+        }
+
+        if (hasInsert)
+        {
+            rangeEnd.InsertAfterSelf(new InsertedRun(
+                new Run(new Text(a.Replacement!) { Space = SpaceProcessingModeValues.Preserve }))
+            {
+                Id = commentId,
+                Author = a.Author,
+                Date = DeterministicTimestamp,
+            });
+        }
+    }
+
+    /// <summary>
+    /// Single-paragraph variant of <see cref="ApplyOne"/> with explicit
+    /// start/end offsets — used by <see cref="ApplyMultiParagraph"/> when
+    /// a widened ClauseSpan turns out to fit inside one paragraph after
+    /// all. Keeps the multi-paragraph code path from special-casing the
+    /// degenerate case.
+    /// </summary>
+    private void ApplySingleParagraphAtOffsets(
+        Annotation a,
+        string commentId,
+        ParagraphIndexEntry entry,
+        int startOff,
+        int endOff,
+        Comments comments,
+        bool hasDelete,
+        bool hasInsert)
+    {
+        comments.AppendChild(new Comment(
+            new Paragraph(new Run(new Text(a.Text) { Space = SpaceProcessingModeValues.Preserve })))
+        {
+            Id = commentId,
+            Author = a.Author,
+            Date = DeterministicTimestamp,
+            Initials = ResolveInitials(a.Author),
+        });
+
+        var startAnchor = SplitParagraphAtOffset(entry.Paragraph, startOff);
+        var endAnchor   = SplitParagraphAtOffset(entry.Paragraph, endOff);
+
+        var rangeStart = new CommentRangeStart { Id = commentId };
+        var rangeEnd   = new CommentRangeEnd   { Id = commentId };
+        InsertAtBoundary(entry.Paragraph, startAnchor, rangeStart);
+        InsertAtBoundary(entry.Paragraph, endAnchor, rangeEnd);
+        rangeEnd.InsertAfterSelf(new Run(new CommentReference { Id = commentId }));
+
+        if (hasDelete && endOff > startOff)
+        {
+            WrapSpanInDeletedRun(rangeStart, rangeEnd, commentId, a.Author);
+        }
+        if (hasInsert)
+        {
+            rangeEnd.InsertAfterSelf(new InsertedRun(
+                new Run(new Text(a.Replacement!) { Space = SpaceProcessingModeValues.Preserve }))
+            {
+                Id = commentId,
+                Author = a.Author,
+                Date = DeterministicTimestamp,
+            });
+        }
+    }
+
+    /// <summary>
+    /// Locate the paragraph containing the *end* of a clause span.
+    /// Differs from <see cref="LocateParagraph"/> only in tie-breaking:
+    /// when <paramref name="endChar"/> sits exactly on a paragraph
+    /// boundary, we attribute it to the *previous* paragraph so a clause
+    /// that ends at a paragraph break doesn't bleed into the next clause.
+    /// </summary>
+    private static (Paragraph? Paragraph, int Offset) LocateClauseEnd(
+        int endChar, IReadOnlyList<ParagraphIndexEntry> paragraphs)
+    {
+        for (int i = 0; i < paragraphs.Count; i++)
+        {
+            var p = paragraphs[i];
+            // Hit when endChar falls inside [start, start+length].
+            if (endChar > p.Offset && endChar <= p.Offset + p.Length)
+                return (p.Paragraph, endChar - p.Offset);
+            // Boundary tie at paragraph start of the next entry → prefer
+            // the previous paragraph at its full length.
+            if (endChar == p.Offset && i > 0)
+                return (paragraphs[i - 1].Paragraph, paragraphs[i - 1].Length);
+        }
+        return (null, 0);
+    }
+
+    /// <summary>
+    /// Wrap every <c>Run</c> child of <paramref name="paragraph"/> that
+    /// lies between <paramref name="fromExclusive"/> and
+    /// <paramref name="toExclusive"/> (either or both may be
+    /// <c>null</c> to mean "paragraph start" / "paragraph end") in a
+    /// single <see cref="DeletedRun"/>. Converts each <c>w:t</c> to
+    /// <c>w:delText</c> so Word renders the strike-through. No-op if
+    /// no runs are in the range.
+    /// </summary>
+    private static void WrapRunsBetweenInParagraph(
+        Paragraph paragraph,
+        OpenXmlElement? fromExclusive,
+        OpenXmlElement? toExclusive,
+        string commentId, string author)
+    {
+        var elements = new List<Run>();
+        OpenXmlElement? cursor = fromExclusive is null
+            ? paragraph.FirstChild
+            : fromExclusive.NextSibling();
+        while (cursor is not null && cursor != toExclusive)
+        {
+            var next = cursor.NextSibling();
+            if (cursor is Run r) elements.Add(r);
+            cursor = next;
+        }
+        if (elements.Count == 0) return;
+
+        var del = new DeletedRun
+        {
+            Id = commentId,
+            Author = author,
+            Date = DeterministicTimestamp,
+        };
+        elements[0].InsertBeforeSelf(del);
+        foreach (var r in elements)
+        {
+            r.Remove();
+            foreach (var t in r.Descendants<Text>().ToList())
+            {
+                var dt = new DeletedText(t.Text ?? string.Empty) { Space = SpaceProcessingModeValues.Preserve };
+                t.Parent?.ReplaceChild(dt, t);
+            }
+            del.AppendChild(r);
         }
     }
 

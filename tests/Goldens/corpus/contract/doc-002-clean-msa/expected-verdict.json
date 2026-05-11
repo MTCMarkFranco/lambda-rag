@@ -8,7 +8,7 @@
     "value": "lr1:2f541ac2024e20889677c0ff2e16188e1cb936daf685f953c3d67a8178e92d03"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.4.0",
+  "projectorVersion": "1.5.0",
   "score": 0.8,
   "totalRules": 5,
   "passed": 4,
@@ -63,7 +63,13 @@
         },
         "text": "This Agreement is governed by the laws of the Province of Ontario andthe federal laws of Canada applicable therein. The exclusive venue forany dispute is the courts of Ontario.",
         "text_raw": "This Agreement is governed by the laws of the Province of Ontario andthe federal laws of Canada applicable therein. The exclusive venue forany dispute is the courts of Ontario.",
-        "text_char_start": 1753
+        "text_char_start": 1753,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 176
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:ec3d1eadd2f4a0d2d851676e1491d49f7df2ee101d48f79d59e01b1f9ae033c1",
@@ -130,7 +136,13 @@
         },
         "text": "Each party's aggregate liability under this Agreement shall not exceedthe fees paid by North BayManufacturing Ltd. to Cedarwood Technologies Inc. in the twelve (12) monthspreceding the event giving rise to the claim. Neither party is liablefor indirect, incidental, or consequential damages.",
         "text_raw": "Each party's aggregate liability under this Agreement shall not exceedthe fees paid by Customer to Provider in the twelve (12) monthspreceding the event giving rise to the claim. Neither party is liablefor indirect, incidental, or consequential damages.",
-        "text_char_start": 1256
+        "text_char_start": 1256,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 291
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:ec3d1eadd2f4a0d2d851676e1491d49f7df2ee101d48f79d59e01b1f9ae033c1",
@@ -195,7 +207,13 @@
         },
         "text": "North BayManufacturing Ltd. shall pay all undisputed invoices within thirty (30) days(net 30) of receipt of a valid invoice. Late payments accrue interestat the rate published by the Bank of Canada plus 1% per annum.",
         "text_raw": "Customer shall pay all undisputed invoices within thirty (30) days(net 30) of receipt of a valid invoice. Late payments accrue interestat the rate published by the Bank of Canada plus 1% per annum.",
-        "text_char_start": 680
+        "text_char_start": 680,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 216
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:ec3d1eadd2f4a0d2d851676e1491d49f7df2ee101d48f79d59e01b1f9ae033c1",
@@ -260,7 +278,13 @@
         },
         "text": "Cedarwood Technologies Inc. shall process Personal Information only as required to deliverthe Services and in compliance with the Personal InformationProtection and Electronic Documents Act (PIPEDA) and any substantiallysimilar provincial privacy legislation applicable to the data subjects,including Quebec's Law 25 where applicable.",
         "text_raw": "Provider shall process Personal Information only as required to deliverthe Services and in compliance with the Personal InformationProtection and Electronic Documents Act (PIPEDA) and any substantiallysimilar provincial privacy legislation applicable to the data subjects,including Quebec's Law 25 where applicable.",
-        "text_char_start": 916
+        "text_char_start": 916,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 334
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:ec3d1eadd2f4a0d2d851676e1491d49f7df2ee101d48f79d59e01b1f9ae033c1",
@@ -277,7 +301,7 @@
       "predicateText": "input1.category == \"privacy\""
     },
     {
-      "id": "lr1:a8a6ae927decfdb37da674564fbc0519a322e466865038b067778ce929a69cb0",
+      "id": "lr1:d64c792bb523a690fac51c6b47513e3bfa1b10155194f45e54b86c4abc7f0d97",
       "ruleId": "CAN-CONTRACT-TERM-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -327,7 +351,13 @@
         },
         "text": "Either party may terminate this Agreement for material uncured breachon thirty (30) days' written notice. North BayManufacturing Ltd. may terminate thisAgreement for convenience on ninety (90) days' written notice.",
         "text_raw": "Either party may terminate this Agreement for material uncured breachon thirty (30) days' written notice. Customer may terminate thisAgreement for convenience on ninety (90) days' written notice.",
-        "text_char_start": 1533
+        "text_char_start": 1533,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 214
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:ec3d1eadd2f4a0d2d851676e1491d49f7df2ee101d48f79d59e01b1f9ae033c1",
@@ -343,7 +373,14 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000006",
       "remediationText": "Update 6. Termination to include both: (a) termination for material uncured breach on stated notice; and (b) termination for convenience by Customer on a defined notice period (typically 30–90 days), per SACC general-conditions baselines.",
-      "predicateText": "input1.category == \"termination\""
+      "predicateText": "input1.category == \"termination\"",
+      "clauseSpan": {
+        "documentId": "lr1:ec3d1eadd2f4a0d2d851676e1491d49f7df2ee101d48f79d59e01b1f9ae033c1",
+        "charStart": 1533,
+        "charLength": 214,
+        "headingPath": "/Master Services Agreement — Canadian Commercial Customer - Canadian-Law Vendor/6. Termination",
+        "charEnd": 1747
+      }
     }
   ],
   "generatedAt": "2000-01-01T00:00:00+00:00",
