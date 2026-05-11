@@ -57,30 +57,108 @@ public static class AnnotationFactory
         foreach (var v in report.Verdicts)
         {
             if (v.Outcome is not VerdictOutcome.Fail and not VerdictOutcome.Error) continue;
+            yield return BuildCommentAnnotation(v, rules.GetValueOrDefault(v.RuleId));
+        }
+    }
+
+    /// <summary>
+    /// Same shape as <see cref="FromReport"/> but consults an
+    /// <see cref="IClauseRewriter"/> per Fail verdict. When the rewriter
+    /// returns non-null, the annotation is upgraded to
+    /// <see cref="AnnotationKind.Replace"/> (tracked-change rewrite)
+    /// with the LLM's text in <see cref="Annotation.Replacement"/>; the
+    /// comment body still carries the rule guidance so reviewers see
+    /// both the rationale and the proposed wording in Word's pane.
+    ///
+    /// <paramref name="clauseTextResolver"/> turns a verdict's
+    /// <see cref="SourceSpan"/> into the original clause text (so the
+    /// rewriter knows what to rewrite). Pass <c>null</c> to fall back
+    /// to <see cref="Verdict.MatchedText"/>.
+    ///
+    /// Error verdicts and verdicts the rewriter declines for (returns
+    /// null) keep the historical Comment-only behavior so the offline
+    /// path stays byte-identical.
+    /// </summary>
+    public static async IAsyncEnumerable<Annotation> FromReportWithRewritesAsync(
+        ComplianceReport report,
+        IReadOnlyDictionary<string, Rule> rules,
+        IClauseRewriter rewriter,
+        Func<Verdict, string>? clauseTextResolver = null,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(rewriter);
+        foreach (var v in report.Verdicts)
+        {
+            if (v.Outcome is not VerdictOutcome.Fail and not VerdictOutcome.Error) continue;
             var rule = rules.GetValueOrDefault(v.RuleId);
-            string author;
-            string text;
-            if (rule is null)
+            var comment = BuildCommentAnnotation(v, rule);
+
+            if (v.Outcome != VerdictOutcome.Fail)
             {
-                author = Author;
-                text = $"{CommentFormatting.ErrorBanner}\n\nRule {v.RuleId} reported {v.Outcome}.";
-                if (v.ErrorMessage is { Length: > 0 })
-                    text += $"\n\nDetail: {v.ErrorMessage}";
+                yield return comment;
+                continue;
             }
-            else
+
+            var clauseText = clauseTextResolver?.Invoke(v)
+                ?? (v.EvidenceQuotes.Count > 0 ? v.EvidenceQuotes[0] : string.Empty);
+            string? rewrite;
+            try
             {
-                author = CommentFormatting.BuildAuthor(rule);
-                text = CommentFormatting.BuildBody(rule, v);
+                rewrite = await rewriter
+                    .RewriteAsync(v, clauseText, rule, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch
+            {
+                // Rewriter failures degrade to a plain comment — never
+                // block the markup pipeline because the LLM tripped.
+                rewrite = null;
+            }
+
+            if (string.IsNullOrWhiteSpace(rewrite))
+            {
+                yield return comment;
+                continue;
             }
 
             yield return new Annotation(
-                Id: ContentHash.Compose("annot", v.Id, "comment").Value,
-                Kind: AnnotationKind.Comment,
+                Id: ContentHash.Compose("annot", v.Id, "replace").Value,
+                Kind: AnnotationKind.Replace,
                 Span: v.SourceSpan,
-                Author: author,
-                Text: text,
-                Replacement: null);
+                Author: comment.Author,
+                Text: comment.Text,
+                Replacement: rewrite);
         }
+    }
+
+    private static Annotation BuildCommentAnnotation(Verdict v, Rule? rule)
+    {
+        string author;
+        string text;
+        if (rule is null)
+        {
+            author = Author;
+            text = $"{CommentFormatting.ErrorBanner}\n\nRule {v.RuleId} reported {v.Outcome}.";
+            if (v.ErrorMessage is { Length: > 0 })
+                text += $"\n\nDetail: {v.ErrorMessage}";
+        }
+        else
+        {
+            author = CommentFormatting.BuildAuthor(rule);
+            text = CommentFormatting.BuildBody(rule, v);
+        }
+
+        return new Annotation(
+            Id: ContentHash.Compose("annot", v.Id, "comment").Value,
+            Kind: AnnotationKind.Comment,
+            Span: v.SourceSpan,
+            Author: author,
+            Text: text,
+            Replacement: null);
     }
 
     /// <summary>
