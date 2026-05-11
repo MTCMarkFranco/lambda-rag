@@ -124,17 +124,91 @@ public sealed class OpenXmlMarkupService
 
     private static List<ParagraphIndexEntry> BuildParagraphIndex(Body body)
     {
+        // CRITICAL: this index must produce char offsets that match the
+        // canonical text produced by LambdaRag.Parsing.DocxParser exactly —
+        // otherwise SourceSpan offsets coming back from evaluation/projection
+        // will land on the wrong paragraph in the markup engine. The parser:
+        //   • walks BODY's TOP-LEVEL elements only (not Descendants — so
+        //     paragraphs nested in tables don't double-count);
+        //   • for each Paragraph: takes para.InnerText (which includes
+        //     <w:instrText> field-code content like TOC field codes — NOT
+        //     just <w:t>), normalizes whitespace, and skips blank ones;
+        //   • for each Table: walks rows -> cells in order, flattening each
+        //     cell's full InnerText into a single canonical paragraph and
+        //     skipping blank cells.
+        //   • Each emitted block appends "<text>\n" to canonical text, so the
+        //     offset advances by normalized.Length + 1 per non-blank block.
         var list = new List<ParagraphIndexEntry>();
         var offset = 0;
-        foreach (var p in body.Descendants<Paragraph>())
+
+        foreach (var element in body.Elements<OpenXmlElement>())
         {
-            var text = string.Concat(p.Descendants<Text>().Select(t => t.Text));
-            list.Add(new ParagraphIndexEntry(p, offset, text.Length));
-            // Mirrors the canonical-text contract of our parsers: paragraphs
-            // are joined by a single LF.
-            offset += text.Length + 1;
+            if (element is Paragraph para)
+            {
+                var normalized = NormalizeInlineParagraph(para.InnerText);
+                if (normalized.Length == 0) continue;
+                list.Add(new ParagraphIndexEntry(para, offset, normalized.Length));
+                offset += normalized.Length + 1;
+            }
+            else if (element is Table table)
+            {
+                foreach (var row in table.Elements<TableRow>())
+                {
+                    foreach (var cell in row.Elements<TableCell>())
+                    {
+                        var cellNormalized = NormalizeInlineParagraph(cell.InnerText);
+                        if (cellNormalized.Length == 0) continue;
+                        // Anchor markup edits to the cell's first inner
+                        // paragraph — table cells contain 1+ <w:p>, but the
+                        // parser flattens them all into one canonical block,
+                        // so there is no clean per-inner-p mapping. The first
+                        // paragraph is the most stable choice for offset 0
+                        // within the cell.
+                        var anchor = cell.Elements<Paragraph>().FirstOrDefault();
+                        if (anchor is null) continue;
+                        list.Add(new ParagraphIndexEntry(anchor, offset, cellNormalized.Length));
+                        offset += cellNormalized.Length + 1;
+                    }
+                }
+            }
         }
+
         return list;
+    }
+
+    /// <summary>
+    /// Mirrors <c>LambdaRag.Parsing.ParsingHelpers.NormalizeInlineParagraph</c>
+    /// — collapses horizontal whitespace runs to a single space and trims.
+    /// Duplicated here (instead of taking a project reference to
+    /// LambdaRag.Parsing) so the markup engine stays free of parser
+    /// dependencies. Any change to the parser's normalization MUST be
+    /// mirrored here, or paragraph offsets will diverge and comments will
+    /// anchor on the wrong paragraph.
+    /// </summary>
+    private static string NormalizeInlineParagraph(string text)
+    {
+        var noNewlines = text
+            .Replace("\r\n", " ")
+            .Replace('\r', ' ')
+            .Replace('\n', ' ');
+        // Collapse runs of [space|tab] to a single space, then trim.
+        var sb = new System.Text.StringBuilder(noNewlines.Length);
+        var prevSpace = false;
+        foreach (var ch in noNewlines)
+        {
+            var isSpace = ch == ' ' || ch == '\t';
+            if (isSpace)
+            {
+                if (!prevSpace) sb.Append(' ');
+                prevSpace = true;
+            }
+            else
+            {
+                sb.Append(ch);
+                prevSpace = false;
+            }
+        }
+        return sb.ToString().Trim();
     }
 
     private void ApplyOne(
