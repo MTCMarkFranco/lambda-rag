@@ -257,6 +257,21 @@ public sealed class OpenXmlMarkupServiceAnchoringTests
             // not paragraph #1 (where the comment range started).
             paras[2].Descendants<InsertedRun>().Should().HaveCount(1,
                 "the rewrite must appear after the CommentRangeEnd in the LAST clause paragraph");
+
+            // Issue #87 bullet-deletion follow-up: paragraph marks of every
+            // paragraph strictly *inside* the clause must be marked deleted
+            // so Word merges them on accept (taking any bullet/numbering
+            // with them). The LAST clause paragraph's mark must NOT be
+            // deleted — that would merge clause content into the next
+            // unrelated paragraph.
+            paras[1].Descendants<ParagraphMarkRunProperties>()
+                .SelectMany(r => r.Descendants<Deleted>())
+                .Should().HaveCount(1,
+                    "paragraph #1's mark must be deleted so its bullet/numbering vanishes on accept");
+            paras[2].Descendants<ParagraphMarkRunProperties>()
+                .SelectMany(r => r.Descendants<Deleted>())
+                .Should().BeEmpty(
+                    "paragraph #2 is the LAST clause paragraph — deleting its mark would merge into unrelated content");
         }
         finally
         {

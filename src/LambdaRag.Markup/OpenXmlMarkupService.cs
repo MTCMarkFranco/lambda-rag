@@ -434,6 +434,22 @@ public sealed class OpenXmlMarkupService
                 fromExclusive: null,
                 toExclusive: rangeEnd,
                 commentId, a.Author);
+
+            // Issue #87 follow-up: also mark the *paragraph marks* of every
+            // paragraph strictly inside the clause as deleted. Without this,
+            // bulleted/numbered paragraphs whose content is wholly struck
+            // through still keep their `<w:pPr><w:numPr>` and Word leaves an
+            // empty bullet visible after the user accepts the deletion. A
+            // paragraph-mark `<w:del>` tells Word "this paragraph mark is
+            // deleted" — on accept, the paragraph merges into the following
+            // one, taking its bullet/numbering with it. We do NOT delete the
+            // end paragraph's mark: that would also swallow the paragraph
+            // break between this clause and the next, merging unrelated
+            // content together.
+            for (int i = startIdx; i < endIdx; i++)
+            {
+                MarkParagraphMarkDeleted(paragraphs[i].Paragraph, commentId, a.Author);
+            }
         }
 
         if (hasInsert)
@@ -521,6 +537,37 @@ public sealed class OpenXmlMarkupService
                 return (paragraphs[i - 1].Paragraph, paragraphs[i - 1].Length);
         }
         return (null, 0);
+    }
+
+    /// <summary>
+    /// Mark a paragraph's paragraph-mark (the implicit "pilcrow" at end of
+    /// the paragraph) as deleted by inserting <c>&lt;w:del/&gt;</c> inside
+    /// <c>w:pPr/w:rPr</c>. On accept, Word merges this paragraph with the
+    /// following one, taking its bullet/numbering with it.
+    /// </summary>
+    private static void MarkParagraphMarkDeleted(Paragraph p, string commentId, string author)
+    {
+        var pPr = p.GetFirstChild<ParagraphProperties>();
+        if (pPr is null)
+        {
+            pPr = new ParagraphProperties();
+            p.InsertAt(pPr, 0);
+        }
+        var rPr = pPr.GetFirstChild<ParagraphMarkRunProperties>();
+        if (rPr is null)
+        {
+            rPr = new ParagraphMarkRunProperties();
+            pPr.AppendChild(rPr);
+        }
+        // Idempotency: if already marked deleted (re-run / replay scenario),
+        // don't stack multiple <w:del/> elements.
+        if (rPr.GetFirstChild<Deleted>() is not null) return;
+        rPr.AppendChild(new Deleted
+        {
+            Id = commentId,
+            Author = author,
+            Date = DeterministicTimestamp,
+        });
     }
 
     /// <summary>
