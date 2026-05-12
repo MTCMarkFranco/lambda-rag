@@ -6,6 +6,7 @@
     <ProjectReference Include="..\LambdaRag.Selectors\LambdaRag.Selectors.csproj" />
     <ProjectReference Include="..\LambdaRag.Evaluation\LambdaRag.Evaluation.csproj" />
     <ProjectReference Include="..\LambdaRag.Persistence\LambdaRag.Persistence.csproj" />
+    <ProjectReference Include="..\LambdaRag.Markup\LambdaRag.Markup.csproj" />
     <PackageReference Include="Microsoft.Extensions.AI" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
     <PackageReference Include="Microsoft.Agents.AI" />

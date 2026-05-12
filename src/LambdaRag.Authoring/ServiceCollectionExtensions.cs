@@ -1,3 +1,4 @@
+using LambdaRag.Markup;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,6 +23,15 @@ public static class ServiceCollectionExtensions
             (IRuleEmbedder?)Embeddings.FoundryEmbedderFactory.TryCreate(configuration)
                 ?? new DeterministicHashEmbedder());
         services.AddSingleton<IRuleAuthoringAgent, DeterministicMockAuthoringAgent>();
+
+        // Bind IClauseRewriter: real Responses-API ComplianceEditor when
+        // LambdaRag:Foundry:Edit:* is configured, deterministic mock
+        // otherwise. Same offline-by-default story as the embedder.
+#pragma warning disable OPENAI001
+        services.AddSingleton<IClauseRewriter>(_ =>
+            Editing.ComplianceEditorFactory.TryCreate(configuration)
+                ?? new Editing.DeterministicMockClauseRewriter());
+#pragma warning restore OPENAI001
         return services;
     }
 }

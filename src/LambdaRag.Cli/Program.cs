@@ -69,7 +69,7 @@ static class CliEntry
             lambda-rag — deterministic rules-over-documents
 
             Usage:
-              lambda-rag review   --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>] [--annotate-pass]
+              lambda-rag review   --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>] [--annotate-pass] [--rewrite]
               lambda-rag project  --document <path> --out <path>
               lambda-rag parse    --document <path> --out <path>
               lambda-rag coverage --document <path> --ruleset <path> --out <path>
@@ -166,6 +166,7 @@ static class CliEntry
         if (mode is not ("report" or "markup" or "both"))
             throw new ArgumentException("--mode must be one of: report, markup, both");
         var annotatePass = HasFlag(args, "annotate-pass");
+        var enableRewrite = HasFlag(args, "rewrite");
         Directory.CreateDirectory(outDir);
 
         await using var sp = (ServiceProvider)BuildServices();
@@ -268,7 +269,23 @@ static class CliEntry
             {
                 markupPath = Path.Combine(outDir, "reviewed.docx");
                 var ruleLookup = ruleset.Rules.ToDictionary(r => r.Id, r => r, StringComparer.Ordinal);
-                var annotations = AnnotationFactory.FromReport(report, ruleLookup).ToList();
+                List<Annotation> annotations;
+                if (enableRewrite)
+                {
+                    var rewriter = sp.GetRequiredService<IClauseRewriter>();
+                    annotations = new List<Annotation>();
+                    await foreach (var ann in AnnotationFactory.FromReportWithRewritesAsync(
+                        report, ruleLookup, rewriter, clauseTextResolver: null, cancellationToken: default))
+                    {
+                        annotations.Add(ann);
+                    }
+                    var replaceCount = annotations.Count(a => a.Kind == AnnotationKind.Replace);
+                    Console.WriteLine($"Rewrite:   {replaceCount} clause rewrite(s) emitted by {rewriter.GetType().Name}");
+                }
+                else
+                {
+                    annotations = AnnotationFactory.FromReport(report, ruleLookup).ToList();
+                }
                 if (annotatePass)
                     annotations.AddRange(AnnotationFactory.BuildPassAnnotations(report, ruleLookup));
                 var gapsSummary = AnnotationFactory.BuildGapsSummary(report, ruleLookup);
