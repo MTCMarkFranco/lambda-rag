@@ -26,7 +26,7 @@ param(
     [Parameter(Mandatory)][string]$RulesetVersion,
     [string]$SearchEndpoint = "https://srch-lambdarag-dev.search.windows.net",
     [string]$IndexName = "lambda-rag-rules",
-    [string]$ApiVersion = "2024-11-01-preview"
+    [string]$ApiVersion = "2025-11-01-preview"
 )
 
 Set-StrictMode -Version Latest
