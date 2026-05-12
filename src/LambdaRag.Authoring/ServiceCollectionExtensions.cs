@@ -25,12 +25,17 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IRuleAuthoringAgent, DeterministicMockAuthoringAgent>();
 
         // Bind IClauseRewriter: real Responses-API ComplianceEditor when
-        // LambdaRag:Foundry:Edit:* is configured, deterministic mock
-        // otherwise. Same offline-by-default story as the embedder.
+        // LambdaRag:Foundry:Edit:* is configured, Noop otherwise. We do
+        // NOT fall back to DeterministicMockClauseRewriter here — that
+        // mock returns the rule's remediation text verbatim as the new
+        // clause body, which would inject rule guidance into the
+        // document. Noop returns null so the markup pipeline keeps the
+        // historical Comment-only behavior when no real LLM editor is
+        // configured (see issue #90).
 #pragma warning disable OPENAI001
         services.AddSingleton<IClauseRewriter>(_ =>
             Editing.ComplianceEditorFactory.TryCreate(configuration)
-                ?? new Editing.DeterministicMockClauseRewriter());
+                ?? (IClauseRewriter)NoopClauseRewriter.Instance);
 #pragma warning restore OPENAI001
         return services;
     }
