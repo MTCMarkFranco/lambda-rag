@@ -72,44 +72,98 @@ dotnet run --project src/LambdaRag.Cli -- topic-map list
 
 ## 🚀 Try it on the bundled sample
 
+Rules are now served from Azure AI Search — no local ruleset file needed.
+Pin a ruleset name + version in `lambdarag.config.json` (or pass them on the CLI):
+
+```json
+{
+  "defaults": {
+    "rulesetName": "architecture-review",
+    "rulesetVersion": "2026.05-seed"
+  }
+}
+```
+
+Set your search endpoint once (per machine):
+```pwsh
+dotnet user-secrets set "LambdaRag:Search:Endpoint" "https://srch-lambdarag-dev.search.windows.net" --project src/LambdaRag.Cli
+dotnet user-secrets set "LambdaRag:Search:IndexName" "lambda-rag-rules" --project src/LambdaRag.Cli
+```
+
+Then run:
+
 ```pwsh
 dotnet build
-dotnet test    # 115 unit + 15 idempotency proofs
+dotnet test    # 266 unit + 34 idempotency proofs
 
-# Review the bundled sample contract → JSON report
-dotnet run --project src/LambdaRag.Cli -- review `
-  --document samples/contracts/contract.md `
-  --ruleset  samples/contracts/ruleset.json `
-  --out      out/sample `
-  --mode     report
-
-# Same review → redlined Word document with tracked changes
-# (Markup mode requires a .docx source — uses the bundled sample contract)
+# Review using config-pinned ruleset name + version
 dotnet run --project src/LambdaRag.Cli -- review `
   --document samples/contracts/contoso-sample-contract.docx `
-  --ruleset  samples/contracts/contoso-demo-ruleset.json `
-  --out      out/sample `
-  --mode     markup
-
-# Add positive-confirmation ✓ comments for Pass verdicts (full coverage proof)
-dotnet run --project src/LambdaRag.Cli -- review `
-  --document samples/contracts/contoso-sample-contract.docx `
-  --ruleset  samples/contracts/contoso-demo-ruleset.json `
-  --out      out/sample `
-  --mode     markup `
-  --annotate-pass
-
-# Both at once
-dotnet run --project src/LambdaRag.Cli -- review `
-  --document samples/contracts/contoso-sample-contract.docx `
-  --ruleset  samples/contracts/contoso-demo-ruleset.json `
   --out      out/sample `
   --mode     both
+
+# Override ruleset on the CLI (takes precedence over config file)
+dotnet run --project src/LambdaRag.Cli -- review `
+  --document       samples/contracts/contoso-sample-contract.docx `
+  --ruleset-name   architecture-review `
+  --ruleset-version 2026.05-seed `
+  --out            out/sample `
+  --mode           both
+
+# Discover available versions (exits with code 2 listing options)
+dotnet run --project src/LambdaRag.Cli -- review `
+  --document      samples/contracts/contoso-sample-contract.docx `
+  --ruleset-name  architecture-review `
+  --out           out/sample
 ```
 
 Outputs land in `out/sample/`:
-- `report.json` — verdict, score, per-rule outcome, remediation, full provenance
+- `report.json` — verdict, score, per-rule outcome, remediation, and a `provenance` block:
+  ```json
+  "provenance": {
+    "rulesetName": "architecture-review",
+    "rulesetVersion": "2026.05-seed",
+    "indexEndpoint": "https://srch-lambdarag-dev.search.windows.net",
+    "ruleSnapshotHash": "<sha256-of-rules-retrieved>",
+    "runAtUtc": "...",
+    "documentSha256": "<sha256-of-input-doc>"
+  }
+  ```
 - `reviewed.docx` — original document with tracked changes + comments + gap-analysis summary
+
+## 🔖 Versioning rulesets
+
+Rules live in the `lambda-rag-rules` Azure AI Search index tagged with `rulesetName` and `rulesetVersion`.
+
+To publish a new policy revision:
+
+1. Upload new policy documents to the `policies` blob container with metadata:
+   - `rulesetName=<name>` (e.g. `architecture-review`)
+   - `rulesetVersion=<version>` (e.g. `2026.06`)
+2. Re-run the indexers (`lambda-rag-rules-indexer` / `lambda-rag-rules-indexer-md`)
+3. Update `lambdarag.config.json` → `defaults.rulesetVersion` to the new value
+
+Old versions remain queryable. Use `--ruleset-version` on the CLI or update the config to pin.
+
+Alternatively, seed rules directly from a JSON file:
+```pwsh
+.\infra\search\scripts\seed-ruleset-from-json.ps1 `
+    -RulesetPath "path/to/my-rules.json" `
+    -RulesetName "architecture-review" `
+    -RulesetVersion "2026.06"
+```
+
+## 🎨 Curation UI
+
+A lightweight SPA for reviewing and toggling rule statuses lives in `src/LambdaRag.Ui/`.
+
+- Filter by `rulesetName` / `rulesetVersion`
+- Toggle `status`: `approved` ↔ `disabled` per rule
+- Saves via Azure Search merge API using delegated MSAL tokens
+- Direct RBAC: users need `Search Index Data Contributor` on `srch-lambdarag-dev`
+
+**Static site URL:** `https://lambdaragauthdev.z13.web.core.windows.net/`
+(App registration + `config.js` setup required — see `src/LambdaRag.Ui/README.md`)
 
 ## 📥 How do I plug in a new ruleset?
 

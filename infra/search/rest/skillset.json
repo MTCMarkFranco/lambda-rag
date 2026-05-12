@@ -10,10 +10,16 @@
       "outputMode": "oneToMany",
       "markdownHeaderDepth": "h3",
       "inputs": [
-        { "name": "file_data", "source": "/document/file_data" }
+        {
+          "name": "file_data",
+          "source": "/document/file_data"
+        }
       ],
       "outputs": [
-        { "name": "markdown_document", "targetName": "layoutMarkdown" }
+        {
+          "name": "markdown_document",
+          "targetName": "layoutMarkdown"
+        }
       ]
     },
     {
@@ -26,10 +32,16 @@
       "pageOverlapLength": 400,
       "unit": "characters",
       "inputs": [
-        { "name": "text", "source": "/document/layoutMarkdown/*/content" }
+        {
+          "name": "text",
+          "source": "/document/layoutMarkdown/*/content"
+        }
       ],
       "outputs": [
-        { "name": "textItems", "targetName": "chunks" }
+        {
+          "name": "textItems",
+          "targetName": "chunks"
+        }
       ]
     },
     {
@@ -44,12 +56,24 @@
       "degreeOfParallelism": 4,
       "authResourceId": "{{AUTH_RESOURCE_ID}}",
       "inputs": [
-        { "name": "chunk",            "source": "/document/layoutMarkdown/*/chunks/*" },
-        { "name": "documentId",       "source": "/document/metadata_storage_name" },
-        { "name": "parentDocumentId", "source": "/document/metadata_storage_name" }
+        {
+          "name": "chunk",
+          "source": "/document/layoutMarkdown/*/chunks/*"
+        },
+        {
+          "name": "documentId",
+          "source": "/document/metadata_storage_name"
+        },
+        {
+          "name": "parentDocumentId",
+          "source": "/document/metadata_storage_name"
+        }
       ],
       "outputs": [
-        { "name": "extractedRule", "targetName": "extractedRule" }
+        {
+          "name": "extractedRule",
+          "targetName": "extractedRule"
+        }
       ]
     },
     {
@@ -62,10 +86,16 @@
       "modelName": "text-embedding-3-large",
       "authIdentity": null,
       "inputs": [
-        { "name": "text", "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/concepts" }
+        {
+          "name": "text",
+          "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/concepts"
+        }
       ],
       "outputs": [
-        { "name": "embedding", "targetName": "conceptsVector" }
+        {
+          "name": "embedding",
+          "targetName": "conceptsVector"
+        }
       ]
     }
   ],
@@ -76,21 +106,90 @@
         "parentKeyFieldName": "documentId",
         "sourceContext": "/document/layoutMarkdown/*/chunks/*",
         "mappings": [
-          { "name": "ruleId",          "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/ruleId" },
-          { "name": "parentDocumentId","source": "/document/layoutMarkdown/*/chunks/*/extractedRule/parentDocumentId" },
-          { "name": "sectionId",       "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/sectionId" },
-          { "name": "naturalLanguage", "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/naturalLanguage" },
-          { "name": "predicate",       "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/predicate" },
-          { "name": "lambda",          "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/lambda" },
-          { "name": "concepts",        "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/concepts" },
-          { "name": "conceptsVector",  "source": "/document/layoutMarkdown/*/chunks/*/conceptsVector" },
-          { "name": "severity",        "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/severity" },
-          { "name": "applicability",   "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/applicability" },
-          { "name": "remediation",     "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/remediation" },
-          { "name": "evidenceQuote",   "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/evidenceQuote" },
-          { "name": "sourceSpan",      "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/sourceSpan" },
-          { "name": "examples",        "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/examples" },
-          { "name": "metadata",        "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/metadata" }
+          {
+            "name": "ruleId",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/ruleId"
+          },
+          {
+            "name": "parentDocumentId",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/parentDocumentId"
+          },
+          {
+            "name": "sectionId",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/sectionId"
+          },
+          {
+            "name": "naturalLanguage",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/naturalLanguage"
+          },
+          {
+            "name": "predicate",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/predicate"
+          },
+          {
+            "name": "lambda",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/lambda"
+          },
+          {
+            "name": "concepts",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/concepts"
+          },
+          {
+            "name": "conceptsVector",
+            "source": "/document/layoutMarkdown/*/chunks/*/conceptsVector"
+          },
+          {
+            "name": "severity",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/severity"
+          },
+          {
+            "name": "applicability",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/applicability"
+          },
+          {
+            "name": "remediation",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/remediation"
+          },
+          {
+            "name": "evidenceQuote",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/evidenceQuote"
+          },
+          {
+            "name": "sourceSpan",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/sourceSpan"
+          },
+          {
+            "name": "examples",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/examples"
+          },
+          {
+            "name": "metadata",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/metadata"
+          },
+          {
+            "name": "status",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/status"
+          },
+          {
+            "name": "rulesetName",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/rulesetName"
+          },
+          {
+            "name": "rulesetVersion",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/rulesetVersion"
+          },
+          {
+            "name": "contentHash",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/contentHash"
+          },
+          {
+            "name": "approvedAtUtc",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/approvedAtUtc"
+          },
+          {
+            "name": "approvedBy",
+            "source": "/document/layoutMarkdown/*/chunks/*/extractedRule/approvedBy"
+          }
         ]
       }
     ],

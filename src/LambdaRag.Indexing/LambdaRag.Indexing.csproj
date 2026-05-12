@@ -8,5 +8,6 @@
     <PackageReference Include="Microsoft.Data.Sqlite" />
     <PackageReference Include="Dapper" />
     <PackageReference Include="Azure.Search.Documents" />
+    <PackageReference Include="Azure.Identity" />
   </ItemGroup>
 </Project>

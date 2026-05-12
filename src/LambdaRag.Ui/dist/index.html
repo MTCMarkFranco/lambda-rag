@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lambda-RAG Rule Curation</title>
+  <!-- MSAL.js 3.x browser bundle -->
+  <script src="https://alcdn.msauth.net/browser/3.7.3/js/msal-browser.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; color: #1a1a1a; }
+
+    header {
+      background: #0078d4; color: white; padding: 12px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    header h1 { font-size: 1.1rem; font-weight: 600; }
+    #user-info { font-size: 0.85rem; opacity: 0.9; }
+    #sign-in-btn, #sign-out-btn {
+      background: white; color: #0078d4; border: none; padding: 6px 14px;
+      border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 600;
+    }
+    main { max-width: 1200px; margin: 24px auto; padding: 0 16px; }
+    .filter-bar {
+      background: white; border-radius: 8px; padding: 16px;
+      display: flex; gap: 12px; align-items: center; margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    .filter-bar label { font-size: 0.85rem; font-weight: 500; }
+    .filter-bar select {
+      padding: 6px 10px; border-radius: 4px; border: 1px solid #d0d0d0;
+      font-size: 0.85rem; min-width: 160px;
+    }
+    #load-btn, #save-btn {
+      padding: 7px 18px; border-radius: 4px; border: none; cursor: pointer;
+      font-size: 0.85rem; font-weight: 600;
+    }
+    #load-btn { background: #0078d4; color: white; }
+    #save-btn { background: #107c10; color: white; margin-left: auto; }
+    #load-btn:disabled, #save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .card {
+      background: white; border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08); overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th {
+      background: #f7f8fa; padding: 10px 12px; text-align: left;
+      font-weight: 600; border-bottom: 1px solid #e0e0e0; position: sticky; top: 0;
+    }
+    td { padding: 9px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
+    .rule-id { font-family: monospace; font-size: 0.78rem; color: #555; }
+    .lambda-cell {
+      font-family: monospace; font-size: 0.78rem; color: #333;
+      max-width: 340px; word-break: break-word; white-space: pre-wrap;
+    }
+    .status-select { padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 0.82rem; }
+    .severity-badge {
+      display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: 0.75rem; font-weight: 600;
+    }
+    .sev-violation { background: #fed7d7; color: #c53030; }
+    .sev-deviation { background: #feebc8; color: #c05621; }
+    .sev-suggestion { background: #bee3f8; color: #2b6cb0; }
+    .sev-critical { background: #c53030; color: white; }
+    #status-bar {
+      margin-top: 12px; padding: 10px 16px; border-radius: 6px; font-size: 0.85rem;
+      display: none;
+    }
+    #status-bar.info { background: #ebf8ff; color: #2b6cb0; display: block; }
+    #status-bar.success { background: #f0fff4; color: #276749; display: block; }
+    #status-bar.error { background: #fff5f5; color: #c53030; display: block; }
+    .empty-state { padding: 40px; text-align: center; color: #888; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🔒 Lambda-RAG Rule Curation</h1>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span id="user-info"></span>
+    <button id="sign-in-btn">Sign in</button>
+    <button id="sign-out-btn" style="display:none">Sign out</button>
+  </div>
+</header>
+
+<main>
+  <div class="filter-bar">
+    <label for="ruleset-name-sel">Ruleset</label>
+    <select id="ruleset-name-sel" disabled><option value="">— loading —</option></select>
+    <label for="ruleset-ver-sel">Version</label>
+    <select id="ruleset-ver-sel" disabled><option value="">— select ruleset first —</option></select>
+    <button id="load-btn" disabled>Load rules</button>
+    <button id="save-btn" disabled>Save changes</button>
+  </div>
+
+  <div class="card">
+    <table id="rules-table">
+      <thead>
+        <tr>
+          <th>Rule ID</th>
+          <th>Natural Language</th>
+          <th>Lambda</th>
+          <th>Severity</th>
+          <th>Ruleset</th>
+          <th>Version</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="rules-body">
+        <tr><td colspan="7" class="empty-state">Sign in and select a ruleset to view rules.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div id="status-bar"></div>
+</main>
+
+<script>
+// ---------------------------------------------------------------------------
+// Config — loaded from config.js (injected at deploy time)
+// ---------------------------------------------------------------------------
+const cfg = window.lambdaRagConfig || {};
+const SEARCH_ENDPOINT = cfg.searchEndpoint || "https://srch-lambdarag-dev.search.windows.net";
+const INDEX_NAME       = cfg.indexName     || "lambda-rag-rules";
+const CLIENT_ID        = cfg.clientId      || "";
+const TENANT_ID        = cfg.tenantId      || "";
+const API_VERSION      = "2024-11-01-preview";
+
+// ---------------------------------------------------------------------------
+// MSAL
+// ---------------------------------------------------------------------------
+const msalConfig = {
+  auth: {
+    clientId: CLIENT_ID,
+    authority: `https://login.microsoftonline.com/${TENANT_ID}`,
+    redirectUri: window.location.origin + window.location.pathname,
+  },
+  cache: { cacheLocation: "sessionStorage" },
+};
+
+let msalInstance = null;
+let currentAccount = null;
+
+async function initMsal() {
+  if (!CLIENT_ID) {
+    showStatus("config.js not found or clientId not set — edit config.js and refresh.", "error");
+    return;
+  }
+  msalInstance = new msal.PublicClientApplication(msalConfig);
+  await msalInstance.initialize();
+  const resp = await msalInstance.handleRedirectPromise();
+  if (resp?.account) msalInstance.setActiveAccount(resp.account);
+  const accounts = msalInstance.getAllAccounts();
+  if (accounts.length > 0) {
+    currentAccount = accounts[0];
+    onSignedIn();
+  }
+}
+
+async function signIn() {
+  await msalInstance.loginRedirect({ scopes: ["https://search.azure.com/.default"] });
+}
+
+async function signOut() {
+  msalInstance.logoutRedirect({ account: currentAccount });
+}
+
+async function getToken() {
+  const result = await msalInstance.acquireTokenSilent({
+    scopes: ["https://search.azure.com/.default"],
+    account: currentAccount,
+  }).catch(() => msalInstance.acquireTokenRedirect({
+    scopes: ["https://search.azure.com/.default"],
+  }));
+  return result?.accessToken;
+}
+
+function onSignedIn() {
+  document.getElementById("user-info").textContent = currentAccount?.username || "";
+  document.getElementById("sign-in-btn").style.display = "none";
+  document.getElementById("sign-out-btn").style.display = "";
+  loadRulesetNames();
+}
+
+// ---------------------------------------------------------------------------
+// Azure Search helpers
+// ---------------------------------------------------------------------------
+async function searchRequest(path, method = "GET", body = null) {
+  const token = await getToken();
+  const opts = {
+    method,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      "api-version": API_VERSION,
+    },
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(`${SEARCH_ENDPOINT}/indexes/${INDEX_NAME}${path}?api-version=${API_VERSION}`, opts);
+  if (!res.ok) throw new Error(`Search API error ${res.status}: ${await res.text()}`);
+  return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// Load facets for ruleset names
+// ---------------------------------------------------------------------------
+async function loadRulesetNames() {
+  try {
+    const data = await searchRequest("/docs", "POST", {
+      search: "*",
+      filter: "status eq 'approved'",
+      facets: ["rulesetName,count:100"],
+      top: 0,
+    });
+    const names = (data["@search.facets"]?.rulesetName || []).map(f => f.value).filter(Boolean);
+    const sel = document.getElementById("ruleset-name-sel");
+    sel.innerHTML = '<option value="">— select ruleset —</option>' +
+      names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+    sel.disabled = false;
+    sel.onchange = loadVersions;
+  } catch (e) { showStatus("Failed to load ruleset names: " + e.message, "error"); }
+}
+
+async function loadVersions() {
+  const rulesetName = document.getElementById("ruleset-name-sel").value;
+  const verSel = document.getElementById("ruleset-ver-sel");
+  document.getElementById("load-btn").disabled = true;
+  if (!rulesetName) { verSel.innerHTML = '<option value="">— select ruleset first —</option>'; verSel.disabled = true; return; }
+  try {
+    const data = await searchRequest("/docs", "POST", {
+      search: "*",
+      filter: `status eq 'approved' and rulesetName eq '${escapeOdata(rulesetName)}'`,
+      facets: ["rulesetVersion,count:100"],
+      top: 0,
+    });
+    const versions = (data["@search.facets"]?.rulesetVersion || []).map(f => f.value).filter(Boolean);
+    verSel.innerHTML = '<option value="">— select version —</option>' +
+      versions.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("");
+    verSel.disabled = false;
+    verSel.onchange = () => { document.getElementById("load-btn").disabled = !verSel.value; };
+  } catch (e) { showStatus("Failed to load versions: " + e.message, "error"); }
+}
+
+// ---------------------------------------------------------------------------
+// Load and render rules
+// ---------------------------------------------------------------------------
+let loadedRules = [];
+
+async function loadRules() {
+  const rulesetName    = document.getElementById("ruleset-name-sel").value;
+  const rulesetVersion = document.getElementById("ruleset-ver-sel").value;
+  if (!rulesetName || !rulesetVersion) return;
+
+  showStatus("Loading rules…", "info");
+  document.getElementById("load-btn").disabled = true;
+
+  try {
+    let rules = [];
+    let skip = 0;
+    const top = 100;
+    while (true) {
+      const data = await searchRequest("/docs", "POST", {
+        search: "*",
+        filter: `status eq 'approved' and rulesetName eq '${escapeOdata(rulesetName)}' and rulesetVersion eq '${escapeOdata(rulesetVersion)}'`,
+        select: "id,ruleId,naturalLanguage,lambda,severity,rulesetName,rulesetVersion,status",
+        orderby: "ruleId asc",
+        top, skip,
+      });
+      rules = rules.concat(data.value || []);
+      if (!data["@odata.nextLink"] && (data.value || []).length < top) break;
+      skip += top;
+    }
+    loadedRules = rules;
+    renderRules(rules);
+    document.getElementById("save-btn").disabled = false;
+    showStatus(`Loaded ${rules.length} rule(s).`, "success");
+  } catch (e) {
+    showStatus("Failed to load rules: " + e.message, "error");
+  } finally {
+    document.getElementById("load-btn").disabled = false;
+  }
+}
+
+function renderRules(rules) {
+  const tbody = document.getElementById("rules-body");
+  if (!rules.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No rules found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rules.map(r => `
+    <tr data-id="${esc(r.id)}">
+      <td class="rule-id">${esc(r.ruleId || r.id)}</td>
+      <td style="max-width:260px;word-break:break-word">${esc(r.naturalLanguage || "")}</td>
+      <td class="lambda-cell">${esc(r.lambda || "")}</td>
+      <td><span class="severity-badge sev-${(r.severity||"").toLowerCase()}">${esc(r.severity || "")}</span></td>
+      <td>${esc(r.rulesetName || "")}</td>
+      <td>${esc(r.rulesetVersion || "")}</td>
+      <td>
+        <select class="status-select" data-id="${esc(r.id)}" data-original="${esc(r.status)}">
+          <option value="approved" ${r.status === "approved" ? "selected" : ""}>approved</option>
+          <option value="disabled" ${r.status === "disabled" ? "selected" : ""}>disabled</option>
+        </select>
+      </td>
+    </tr>
+  `).join("");
+}
+
+// ---------------------------------------------------------------------------
+// Save changed statuses
+// ---------------------------------------------------------------------------
+async function saveChanges() {
+  const selects = Array.from(document.querySelectorAll(".status-select"));
+  const changed = selects.filter(s => s.value !== s.dataset.original);
+
+  if (!changed.length) { showStatus("No changes to save.", "info"); return; }
+
+  document.getElementById("save-btn").disabled = true;
+  showStatus(`Saving ${changed.length} change(s)…`, "info");
+
+  const upn = currentAccount?.username || "ui-user";
+  const now  = new Date().toISOString();
+
+  const actions = changed.map(s => ({
+    "@search.action": "merge",
+    id: s.dataset.id,
+    status: s.value,
+    approvedAtUtc: now,
+    approvedBy: upn,
+  }));
+
+  try {
+    await searchRequest("/docs/index", "POST", { value: actions });
+    changed.forEach(s => { s.dataset.original = s.value; });
+    showStatus(`Saved ${changed.length} change(s) successfully.`, "success");
+  } catch (e) {
+    showStatus("Save failed: " + e.message, "error");
+  } finally {
+    document.getElementById("save-btn").disabled = false;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Utilities
+// ---------------------------------------------------------------------------
+function esc(s) {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+function escapeOdata(s) { return String(s ?? "").replace(/'/g, "''"); }
+function showStatus(msg, type) {
+  const el = document.getElementById("status-bar");
+  el.textContent = msg;
+  el.className = type;
+}
+
+// ---------------------------------------------------------------------------
+// Wire up
+// ---------------------------------------------------------------------------
+document.getElementById("sign-in-btn").onclick = signIn;
+document.getElementById("sign-out-btn").onclick = signOut;
+document.getElementById("load-btn").onclick = loadRules;
+document.getElementById("save-btn").onclick = saveChanges;
+
+initMsal();
+</script>
+</body>
+</html>

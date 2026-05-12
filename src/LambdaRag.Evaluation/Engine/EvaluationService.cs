@@ -145,6 +145,35 @@ public sealed class EvaluationService
     }
 
     /// <summary>
+    /// Evaluate a document against rules retrieved from an <see cref="IRuleStore"/>.
+    /// Loads all approved rules for the specified ruleset name/version and delegates
+    /// to the standard evaluation pipeline. Returns both the compliance report and
+    /// the resolved ruleset metadata (for provenance stamping).
+    /// </summary>
+    public async Task<(ComplianceReport Report, RulesetMetadata Metadata)> EvaluateAsync(
+        IRuleStore ruleStore,
+        string rulesetName,
+        string rulesetVersion,
+        ProjectedDocument document,
+        CancellationToken ct = default)
+    {
+        // Load all approved rules for this ruleset
+        var result = await ruleStore.RetrieveAllAsync(rulesetName, rulesetVersion, ct);
+        
+        // Build a RuleSet for the existing evaluation logic
+        var ruleSet = new RuleSet(
+            Id: rulesetName,
+            Version: rulesetVersion,
+            Domain: rulesetName,
+            PublishedAt: DateTimeOffset.UtcNow,
+            Rules: result.Rules,
+            Metadata: new Dictionary<string, string>());
+        
+        var report = await EvaluateAsync(ruleSet, document, ct);
+        return (report, result.Metadata);
+    }
+
+    /// <summary>
     /// Decide what to emit when no section matched the rule's selector or
     /// passed the predicate: a Mandatory rule produces a <c>Gap</c>
     /// (the document silently failed to address it); Conditional /

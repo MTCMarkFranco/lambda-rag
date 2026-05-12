@@ -69,10 +69,10 @@ static class CliEntry
             lambda-rag — deterministic rules-over-documents
 
             Usage:
-              lambda-rag review   --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>] [--annotate-pass] [--rewrite]
+              lambda-rag review   --document <path> --ruleset-name <name> --ruleset-version <ver> --out <dir> [--mode report|markup|both] [--overlay <path>] [--annotate-pass] [--rewrite]
               lambda-rag project  --document <path> --out <path>
               lambda-rag parse    --document <path> --out <path>
-              lambda-rag coverage --document <path> --ruleset <path> --out <path>
+              lambda-rag coverage --document <path> --ruleset-name <name> --ruleset-version <ver> --out <path>
               lambda-rag author   --chunk <path> --domain <name> --prefix <id-prefix> --out <path>
               lambda-rag author   --source <pdf-or-dir> --search-service <name> --storage-url <blob-url>
                                   [--container policies] [--indexer lambda-rag-rules-indexer]
@@ -92,6 +92,10 @@ static class CliEntry
               lambda-rag rules annotate --ruleset <path> --overlay <path> --rule <id> --note "..." [--by <name>]
 
             Common flags:
+              --ruleset-name <name>      Ruleset identifier (e.g., "architecture-review").
+                                         Defaults from lambdarag.config.json if present.
+              --ruleset-version <ver>    Ruleset version (e.g., "2026.05-seed").
+                                         Defaults from lambdarag.config.json if present.
               --topic-map <id-or-path>   Override default contract.v1 topic map.
                                          Try `lambda-rag topic-map list` for ids.
             """);
@@ -114,6 +118,20 @@ static class CliEntry
             .AddLambdaRagIndexing()
             .AddLambdaRagMarkup();
         services.AddSingleton<CoverageService>();
+        
+        // Register IRuleStore
+        var searchEndpoint = configuration["LambdaRag:Search:Endpoint"];
+        if (!string.IsNullOrEmpty(searchEndpoint))
+        {
+            var indexName = configuration["LambdaRag:Search:IndexName"] ?? "lambda-rag-rules";
+            services.AddSingleton<IRuleStore>(sp => new LambdaRag.Indexing.AzureSearch.AzureSearchRuleStore(searchEndpoint, indexName));
+        }
+        else
+        {
+            // Fallback for dev: register InMemoryRuleStore with empty fixture
+            services.AddSingleton<IRuleStore>(new InMemoryRuleStore(Array.Empty<RuleDocument>()));
+        }
+        
         return services.BuildServiceProvider();
     }
 
@@ -156,11 +174,25 @@ static class CliEntry
         return args.Any(a => string.Equals(a, token, StringComparison.Ordinal));
     }
 
+    record LambdaRagConfig(LambdaRagDefaults? Defaults);
+    record LambdaRagDefaults(string? RulesetName, string? RulesetVersion);
+
+    static LambdaRagConfig? LoadLocalConfig()
+    {
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "lambdarag.config.json");
+        if (!File.Exists(path)) return null;
+        try
+        {
+            return JsonSerializer.Deserialize<LambdaRagConfig>(File.ReadAllText(path),
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        catch { return null; }
+    }
+
     static async Task<int> ReviewAsync(string[] args)
     {
         var f = ParseFlags(args);
         var documentPath = f.GetValueOrDefault("document") ?? throw new ArgumentException("--document required");
-        var rulesetPath = f.GetValueOrDefault("ruleset") ?? throw new ArgumentException("--ruleset required");
         var outDir = f.GetValueOrDefault("out") ?? "out";
         var mode = (f.GetValueOrDefault("mode") ?? "report").ToLowerInvariant();
         if (mode is not ("report" or "markup" or "both"))
@@ -177,11 +209,46 @@ static class CliEntry
         var sigIndex = sp.GetRequiredService<IRuleSignatureIndex>();
         var markup = sp.GetRequiredService<OpenXmlMarkupService>();
         var ruleEmbedder = sp.GetRequiredService<IRuleEmbedder>();
+        var ruleStore = sp.GetRequiredService<IRuleStore>();
 
-        var ruleset = RuleSetIO.Load(rulesetPath);
+        // Resolve ruleset name and version from flags or config
+        var localConfig = LoadLocalConfig();
+        var rulesetName = f.GetValueOrDefault("ruleset-name")
+            ?? localConfig?.Defaults?.RulesetName
+            ?? throw new ArgumentException("--ruleset-name required (or set defaults.rulesetName in lambdarag.config.json)");
+
+        var rulesetVersion = f.GetValueOrDefault("ruleset-version")
+            ?? localConfig?.Defaults?.RulesetVersion;
+
+        if (rulesetVersion is null)
+        {
+            // Query available versions and exit
+            var versions = await ruleStore.GetAvailableVersionsAsync(rulesetName);
+            if (versions.Count == 0)
+            {
+                Console.Error.WriteLine($"No approved versions found for ruleset '{rulesetName}'.");
+                return 2;
+            }
+            Console.Error.WriteLine($"Pin a version with --ruleset-version or in lambdarag.config.json. Available versions: {string.Join(", ", versions)}.");
+            return 2;
+        }
+
+        // Load rules from IRuleStore
+        var queryResult = await ruleStore.RetrieveAllAsync(rulesetName, rulesetVersion);
+        var rulesetMetadata = queryResult.Metadata;
+        
+        // Build a RuleSet for overlay and vector handling
+        var ruleset = new RuleSet(
+            Id: rulesetName,
+            Version: rulesetVersion,
+            Domain: rulesetName,
+            PublishedAt: DateTimeOffset.UtcNow,
+            Rules: queryResult.Rules,
+            Metadata: new Dictionary<string, string>());
+
         OverlayApplied? overlayAudit = null;
         var overlayPath = f.GetValueOrDefault("overlay");
-        if (overlayPath is not null)
+        if (overlayPath is not null && File.Exists(overlayPath))
         {
             var overlay = OverlayIO.Load(overlayPath);
             var applied = OverlayApplier.Apply(ruleset, overlay);
@@ -244,6 +311,20 @@ static class CliEntry
         var report = await effectiveEvaluator.EvaluateAsync(ruleset, projected);
         if (overlayAudit is not null)
             report = report with { OverlayApplied = overlayAudit };
+
+        // Stamp provenance (Phase 5)
+        var docBytes = File.ReadAllBytes(documentPath);
+        var docHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(docBytes)).ToLowerInvariant();
+        report = report with
+        {
+            Provenance = new ReportProvenance(
+                rulesetName,
+                rulesetVersion,
+                rulesetMetadata.IndexEndpoint,
+                rulesetMetadata.SnapshotHash,
+                DateTimeOffset.UtcNow.ToString("o"),
+                docHash)
+        };
 
         var emitReport = mode is "report" or "both";
         var emitMarkup = mode is "markup" or "both";

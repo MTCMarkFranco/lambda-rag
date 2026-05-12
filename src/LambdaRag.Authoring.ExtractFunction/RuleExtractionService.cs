@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Azure.AI.OpenAI;
@@ -23,6 +25,8 @@ public sealed class RuleExtractionService
     private readonly IChatClient _chat;
     private readonly JsonSchema _schema;
     private readonly string _systemPrompt;
+    private readonly string _defaultRulesetName;
+    private readonly string _defaultRulesetVersion;
 
     public RuleExtractionService(ILogger<RuleExtractionService> log)
     {
@@ -32,6 +36,11 @@ public sealed class RuleExtractionService
             ?? throw new InvalidOperationException("AZURE_OPENAI_ENDPOINT is required");
         var deployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_CHAT_DEPLOYMENT")
             ?? "gpt-4o-mini";
+
+        _defaultRulesetName = Environment.GetEnvironmentVariable("LambdaRag__Authoring__DefaultRulesetName")
+            ?? "architecture-review";
+        _defaultRulesetVersion = Environment.GetEnvironmentVariable("LambdaRag__Authoring__DefaultRulesetVersion")
+            ?? "2026.05";
 
         var promptDir = Path.Combine(AppContext.BaseDirectory, "prompts");
         var promptPath = Path.Combine(promptDir, "rule-extraction.system-prompt.md");
@@ -50,8 +59,8 @@ public sealed class RuleExtractionService
             .AsIChatClient();
 
         _log.LogInformation(
-            "RuleExtractionService ready. endpoint={Endpoint} deployment={Deployment} promptBytes={Bytes}",
-            endpoint, deployment, _systemPrompt.Length);
+            "RuleExtractionService ready. endpoint={Endpoint} deployment={Deployment} promptBytes={Bytes} defaultRuleset={RulesetName}@{RulesetVersion}",
+            endpoint, deployment, _systemPrompt.Length, _defaultRulesetName, _defaultRulesetVersion);
     }
 
     public async Task<ExtractionOutcome> ExtractAsync(
@@ -154,6 +163,21 @@ public sealed class RuleExtractionService
                 input.ParentDocumentId ?? input.DocumentId ?? "unknown";
             firstObj["sectionId"] = sectionId;
 
+            // Add new index fields per issue #98
+            firstObj["status"] = "approved";
+            firstObj["rulesetName"] = _defaultRulesetName;
+            firstObj["rulesetVersion"] = _defaultRulesetVersion;
+            firstObj["approvedAtUtc"] = DateTime.UtcNow.ToString("o");
+            firstObj["approvedBy"] = "system";
+
+            // Compute content hash: sha256 over concatenation of field-prefixed values
+            var naturalLanguage = firstObj["naturalLanguage"]?.ToString() ?? "";
+            var lambda = firstObj["lambda"]?.ToString() ?? "";
+            var predicate = firstObj["predicate"]?.ToString() ?? "";
+            var hashInput = $"naturalLanguage:{naturalLanguage}|lambda:{lambda}|predicate:{predicate}";
+            var hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(hashInput));
+            firstObj["contentHash"] = Convert.ToHexString(hashBytes).ToLowerInvariant();
+
             return ExtractionOutcome.Ok(firstObj);
         }
         catch (Exception ex)
@@ -198,8 +222,7 @@ public sealed class RuleExtractionService
             return (string.Empty, "section:no-heading");
         }
         var scoped = (parentScope ?? "") + "\u001f" + heading;
-        var bytes = System.Security.Cryptography.SHA256.HashData(
-            System.Text.Encoding.UTF8.GetBytes(scoped));
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(scoped));
         var hex = Convert.ToHexString(bytes, 0, 8).ToLowerInvariant();
         return (heading, $"section:{hex}");
     }
@@ -221,14 +244,14 @@ public sealed class RuleExtractionService
     {
         if (string.IsNullOrWhiteSpace(raw)) return null;
         var trimmed = raw.Trim();
-        if (trimmed.StartsWith("```", StringComparison.Ordinal))
+        if (trimmed.StartsWith("`", StringComparison.Ordinal))
         {
             var firstNewline = trimmed.IndexOf('\n');
             if (firstNewline > 0)
             {
                 trimmed = trimmed[(firstNewline + 1)..];
             }
-            var lastFence = trimmed.LastIndexOf("```", StringComparison.Ordinal);
+            var lastFence = trimmed.LastIndexOf("`", StringComparison.Ordinal);
             if (lastFence > 0) trimmed = trimmed[..lastFence];
             trimmed = trimmed.Trim();
         }
@@ -273,3 +296,4 @@ public enum ExtractionStatus
     Skipped,
     Failed,
 }
+

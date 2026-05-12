@@ -56,12 +56,40 @@ PDF/DOCX in blob ─► Document Layout skill  (markdown + heading hierarchy)
             ─► Index projection   (same lambda-rag-rules index)
 ```
 
-The CLI consumes the index two ways:
+The CLI consumes the index at **runtime** via `IRuleStore`:
 
-| Verb | Operation | Why filter-based pull |
-|------|-----------|-----------------------|
-| `lambda-rag author --source <pdf>` | Drops PDFs in the blob container, kicks the indexer, polls completion. | Lets reviewers re-trigger an indexer run without local LLM creds. |
-| `lambda-rag ruleset pull --domain <d> --version <v>` | `$filter=domain eq 'd' and version eq 'v' and status eq 'approved'`, paged + ordered, hashed to a frozen snapshot file. | Replay-safe: the runtime only ever loads the on-disk snapshot, never hits the index. |
+| CLI flag | Description |
+|----------|-------------|
+| `--ruleset-name <name>` | Target ruleset (e.g. `architecture-review`). Reads from `lambdarag.config.json` if not specified. |
+| `--ruleset-version <ver>` | Version tag (e.g. `2026.05-seed`). Must be pinned — CLI exits with code 2 listing available versions if omitted. |
+
+## Index schema — fields added in issue #98
+
+In addition to the original extraction fields, the `lambda-rag-rules` index carries six governance fields:
+
+| Field | Type | Filterable | Facetable | Notes |
+|-------|------|-----------|-----------|-------|
+| `status` | `Edm.String` | ✅ | ✅ | `approved` (default) or `disabled` |
+| `rulesetName` | `Edm.String` | ✅ | ✅ | e.g. `architecture-review` |
+| `rulesetVersion` | `Edm.String` | ✅ | ✅ | e.g. `2026.05-seed` |
+| `contentHash` | `Edm.String` | ✅ | — | SHA-256 of `naturalLanguage+lambda+predicate` |
+| `approvedAtUtc` | `Edm.DateTimeOffset` | ✅ | — | UTC timestamp of last status change |
+| `approvedBy` | `Edm.String` | ✅ | — | UPN or `"system"` / `"seed"` |
+
+**All runtime queries filter `status eq 'approved'`** — the CLI never serves disabled rules.
+
+## Seed script
+
+To seed rules from a `*.ruleset.json` file directly into the index:
+
+```pwsh
+.\infra\search\scripts\seed-ruleset-from-json.ps1 `
+    -RulesetPath "samples/contracts/contoso-demo-ruleset.json" `
+    -RulesetName "architecture-review" `
+    -RulesetVersion "2026.05-seed"
+```
+
+Uses `DefaultAzureCredential`. Computes `contentHash` per the Function's algorithm.
 
 ## Deployment
 

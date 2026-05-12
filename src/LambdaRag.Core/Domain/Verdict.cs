@@ -4,6 +4,19 @@ using LambdaRag.Core.Hashing;
 namespace LambdaRag.Core.Domain;
 
 /// <summary>
+/// Provenance metadata for a compliance report, tracking which exact ruleset
+/// snapshot was used and the document identity. Enables audit trails and
+/// deterministic replay.
+/// </summary>
+public sealed record ReportProvenance(
+    string RulesetName,
+    string RulesetVersion,
+    string IndexEndpoint,
+    string RuleSnapshotHash,
+    string RunAtUtc,
+    string DocumentSha256);
+
+/// <summary>
 /// Per-rule outcome of a single document review.
 /// • <c>Pass</c> / <c>Fail</c>: a section matched and the lambda evaluated.
 /// • <c>NotApplicable</c>: the rule did not apply (Optional or Conditional
@@ -100,4 +113,11 @@ public sealed record ComplianceReport(
     /// governance decision, not silent rule editing.
     /// </summary>
     public OverlayApplied? OverlayApplied { get; init; }
+
+    /// <summary>
+    /// Provenance metadata: which ruleset snapshot was used, from which index,
+    /// and when. Enables audit trail and deterministic replay. Populated by
+    /// the CLI after evaluation (#98).
+    /// </summary>
+    public ReportProvenance? Provenance { get; init; }
 }
