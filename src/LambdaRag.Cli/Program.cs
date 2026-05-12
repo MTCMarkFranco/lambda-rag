@@ -274,8 +274,27 @@ static class CliEntry
                 {
                     var rewriter = sp.GetRequiredService<IClauseRewriter>();
                     annotations = new List<Annotation>();
+                    // Resolve clause text from the parsed document's canonical
+                    // text so the rewriter sees the *full* clause (including
+                    // bullet/numbered structure separated by '\n'), not just
+                    // the first evidence quote. Without this, multi-paragraph
+                    // clauses (e.g. a bulleted Insurance section) collapse to
+                    // a one-sentence rewrite that loses the list. Falls back
+                    // to evidence on out-of-range / empty spans.
+                    string ResolveClauseText(Verdict v)
+                    {
+                        var span = v.ClauseSpan ?? v.SourceSpan;
+                        var canonical = parsed.CanonicalText;
+                        if (span is null || span.CharLength <= 0
+                            || span.CharStart < 0
+                            || span.CharStart + span.CharLength > canonical.Length)
+                        {
+                            return v.EvidenceQuotes.Count > 0 ? v.EvidenceQuotes[0] : string.Empty;
+                        }
+                        return canonical.Substring(span.CharStart, span.CharLength);
+                    }
                     await foreach (var ann in AnnotationFactory.FromReportWithRewritesAsync(
-                        report, ruleLookup, rewriter, clauseTextResolver: null, cancellationToken: default))
+                        report, ruleLookup, rewriter, clauseTextResolver: ResolveClauseText, cancellationToken: default))
                     {
                         annotations.Add(ann);
                     }

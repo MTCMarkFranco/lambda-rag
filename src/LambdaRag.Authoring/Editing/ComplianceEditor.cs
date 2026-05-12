@@ -40,15 +40,28 @@ public sealed class ComplianceEditor : IClauseRewriter
         You will receive:
         - RULE: the compliance rule the clause currently violates.
         - REMEDIATION: optional drafting hint from the rule author.
-        - CLAUSE: the original clause text from the document.
+        - CLAUSE: the original clause text from the document. The CLAUSE
+          may span multiple paragraphs — newline characters ('\n') in the
+          input separate paragraphs. Each line frequently corresponds to
+          a bullet point, a numbered item, or a section heading in the
+          source document.
 
         Output ONLY the rewritten clause text. No preamble, no markdown,
         no quotes, no JSON, no "Here is...". Preserve the original tone
         and structure of the clause; change only what is needed to make
-        the clause comply. Keep length proportional to the original; do
-        not exceed 1000 characters. If you cannot confidently rewrite
-        the clause (e.g. the input is too short to be a clause, or the
-        rule guidance is ambiguous), output the single token NO_REWRITE.
+        the clause comply.
+
+        STRUCTURE PRESERVATION (critical): if the CLAUSE contains '\n',
+        your output MUST use '\n' to preserve the same paragraph / list
+        structure. Keep the same number of lines unless the rule
+        genuinely requires merging or expanding items. Do not collapse a
+        bulleted list into a single paragraph and do not output markdown
+        bullet markers — emit raw line text separated by '\n'.
+
+        Keep total length proportional to the original; do not exceed
+        1000 characters. If you cannot confidently rewrite the clause
+        (e.g. the input is too short to be a clause, or the rule
+        guidance is ambiguous), output the single token NO_REWRITE.
         """;
 
     private readonly AIAgent _agent;

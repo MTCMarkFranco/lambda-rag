@@ -63,12 +63,26 @@ public sealed class RuleExtractionService
             return ExtractionOutcome.Skipped("empty chunk");
         }
 
+        // Derive a section identity from the first markdown heading in the
+        // chunk content. Two sibling chunks from the same source section
+        // share a heading line (Document Intelligence's layout output
+        // injects headings at section boundaries), so this gives us a
+        // stable group key for reassembly without needing the skillset to
+        // expose ordinal information. parentDocumentId provides the
+        // outer scope so two policies that happen to use the same heading
+        // never collide.
+        var (sectionHeading, sectionId) = DeriveSectionIdentity(
+            input.HeadingPath, input.Chunk, input.ParentDocumentId ?? input.DocumentId);
+
         var userPayload = JsonSerializer.Serialize(new
         {
             domain = "architecture-review",
             documentId = input.DocumentId ?? "unknown",
+            parentDocumentId = input.ParentDocumentId ?? input.DocumentId ?? "unknown",
+            sectionId,
+            sectionHeading,
             chunkOrdinal = input.ChunkOrdinal ?? 0,
-            headingPath = input.HeadingPath ?? string.Empty,
+            headingPath = input.HeadingPath ?? sectionHeading,
             chunk = input.Chunk,
         }, new JsonSerializerOptions { WriteIndented = true });
 
@@ -131,6 +145,15 @@ public sealed class RuleExtractionService
                 return ExtractionOutcome.Failed("response did not contain a rule object");
             }
 
+            // Stamp the section identity onto the extracted rule so the
+            // index ingests parentDocumentId + sectionId. Downstream
+            // consumers (AzureSearchRuleSemanticIndex.ReassembleAsync)
+            // group by these to merge sibling chunks of the same source
+            // clause into a single canonical Rule.
+            firstObj["parentDocumentId"] =
+                input.ParentDocumentId ?? input.DocumentId ?? "unknown";
+            firstObj["sectionId"] = sectionId;
+
             return ExtractionOutcome.Ok(firstObj);
         }
         catch (Exception ex)
@@ -138,6 +161,47 @@ public sealed class RuleExtractionService
             _log.LogError(ex, "Foundry call failed");
             return ExtractionOutcome.Failed($"{ex.GetType().Name}: {ex.Message}");
         }
+    }
+
+    private static (string Heading, string SectionId) DeriveSectionIdentity(
+        string? explicitHeadingPath,
+        string chunkText,
+        string? parentScope)
+    {
+        // Prefer an explicit heading path when the skillset supplied one.
+        // Otherwise, scan the chunk for its first markdown heading
+        // (lines starting with one or more '#'). Two sibling chunks of
+        // the same Document-Intelligence section share the same heading
+        // because layoutMarkdown injects the heading at the top of each
+        // emitted page.
+        var heading = explicitHeadingPath;
+        if (string.IsNullOrWhiteSpace(heading))
+        {
+            foreach (var rawLine in chunkText.Split('\n'))
+            {
+                var line = rawLine.TrimStart('\uFEFF', ' ', '\t');
+                if (line.StartsWith('#'))
+                {
+                    heading = line.TrimStart('#').Trim();
+                    if (heading.Length > 0) break;
+                }
+            }
+        }
+        heading ??= string.Empty;
+
+        // SectionId = SHA-256 of (parent || heading). Short hex prefix is
+        // human-tolerable for logs while still globally unique. Empty
+        // heading yields the empty-scope sentinel so we never claim two
+        // unrelated chunks belong to the same section.
+        if (heading.Length == 0)
+        {
+            return (string.Empty, "section:no-heading");
+        }
+        var scoped = (parentScope ?? "") + "\u001f" + heading;
+        var bytes = System.Security.Cryptography.SHA256.HashData(
+            System.Text.Encoding.UTF8.GetBytes(scoped));
+        var hex = Convert.ToHexString(bytes, 0, 8).ToLowerInvariant();
+        return (heading, $"section:{hex}");
     }
 
     private static IEnumerable<JsonNode> EnumerateObjects(JsonNode node)

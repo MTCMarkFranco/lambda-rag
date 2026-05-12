@@ -222,9 +222,18 @@ public sealed class EvaluationService
             }
 
             var outcome = result.IsSuccess ? VerdictOutcome.Pass : VerdictOutcome.Fail;
-            var span = outcome == VerdictOutcome.Fail
-                ? RefineAnchor(rule, section)
-                : section.Span;
+            SourceSpan span;
+            SourceSpan? clauseSpan = null;
+            if (outcome == VerdictOutcome.Fail)
+            {
+                var (narrow, clause) = RefineSpans(rule, section);
+                span = narrow;
+                clauseSpan = clause;
+            }
+            else
+            {
+                span = section.Span;
+            }
             var remediationText = outcome == VerdictOutcome.Fail
                 ? RemediationRenderer.Render(rule.Remediation, rule, section)
                 : null;
@@ -234,7 +243,8 @@ public sealed class EvaluationService
                 input: inputJson,
                 span: span,
                 error: result.IsSuccess ? null : result.ExceptionMessage,
-                remediationText: remediationText);
+                remediationText: remediationText,
+                clauseSpan: clauseSpan);
         }
         catch (Exception ex)
         {
@@ -306,9 +316,27 @@ public sealed class EvaluationService
     /// </summary>
     private static SourceSpan RefineAnchor(Rule rule, MatchedSection section)
     {
-        if (section.Node is not JsonObject obj) return section.Span;
+        var (narrow, _) = RefineSpans(rule, section);
+        return narrow;
+    }
+
+    /// <summary>
+    /// Compute the pair of spans the markup pipeline needs for issue #87:
+    ///   • <c>Narrow</c> — substring-precise evidence anchor (used for the
+    ///     reviewer comment marker, unchanged from pre-#87 behaviour).
+    ///   • <c>Clause</c> — paragraph-aligned widening of the same hit,
+    ///     used for tracked-change deletions / replacements so a clause
+    ///     that crosses paragraph boundaries is fully struck through.
+    /// Reads the section's <c>paragraphs[]</c> array (emitted by the
+    /// contract projector v1.5.0). Returns <c>Clause=null</c> when the
+    /// section has no paragraph metadata, so older cached projections
+    /// degrade gracefully to the pre-#87 single-paragraph behaviour.
+    /// </summary>
+    private static (SourceSpan Narrow, SourceSpan? Clause) RefineSpans(Rule rule, MatchedSection section)
+    {
+        if (section.Node is not JsonObject obj) return (section.Span, null);
         var text = obj["text"]?.GetValue<string>() ?? string.Empty;
-        if (text.Length == 0) return section.Span;
+        if (text.Length == 0) return (section.Span, null);
         long bodyStart = section.Span.CharStart;
         var bodyStartNode = obj["text_char_start"];
         if (bodyStartNode is JsonValue bv)
@@ -349,14 +377,64 @@ public sealed class EvaluationService
             }
         }
 
-        if (hit is null) return section.Span;
+        if (hit is null) return (section.Span, WidenToParagraph(section.Span, obj, bodyStart, 0, text.Length));
 
-        return new SourceSpan(
+        var narrow = new SourceSpan(
             section.Span.DocumentId,
             CharStart: (int)(bodyStart + hit.Value.Index),
             CharLength: hit.Value.Length,
             PageNumber: section.Span.PageNumber,
             HeadingPath: section.Span.HeadingPath);
+
+        var clause = WidenToParagraph(
+            section.Span, obj, bodyStart,
+            hit.Value.Index, hit.Value.Index + hit.Value.Length);
+        return (narrow, clause);
+    }
+
+    /// <summary>
+    /// Widen a hit (offsets relative to <paramref name="bodyText"/>) to
+    /// the paragraph(s) that fully contain it, using the section's
+    /// <c>paragraphs[]</c> projection metadata. Returns null when the
+    /// section has no paragraph metadata (older cached projection).
+    /// </summary>
+    private static SourceSpan? WidenToParagraph(
+        SourceSpan baseSpan,
+        JsonObject sectionObj,
+        long bodyStart,
+        int hitStartInBody,
+        int hitEndInBody)
+    {
+        if (sectionObj["paragraphs"] is not JsonArray paragraphs || paragraphs.Count == 0)
+            return null;
+
+        int firstStart = -1;
+        int lastEnd = -1;
+        foreach (var node in paragraphs)
+        {
+            if (node is not JsonObject p) continue;
+            var pStart = p["char_start"]?.GetValue<int>() ?? 0;
+            var pLen = p["char_length"]?.GetValue<int>() ?? 0;
+            var pEnd = pStart + pLen;
+            // Paragraph overlaps the hit if it contains either endpoint
+            // or the hit spans across it. Empty paragraphs at the hit's
+            // boundary do not extend the clause.
+            if (pLen == 0) continue;
+            if (pEnd <= hitStartInBody) continue;
+            if (pStart >= hitEndInBody) break;
+            if (firstStart < 0) firstStart = pStart;
+            lastEnd = pEnd;
+        }
+
+        if (firstStart < 0 || lastEnd <= firstStart)
+            return null;
+
+        return new SourceSpan(
+            baseSpan.DocumentId,
+            CharStart: (int)(bodyStart + firstStart),
+            CharLength: lastEnd - firstStart,
+            PageNumber: baseSpan.PageNumber,
+            HeadingPath: baseSpan.HeadingPath);
     }
 
     private static readonly System.Text.RegularExpressions.Regex ContainsLiteralRx = new(
@@ -387,12 +465,17 @@ public sealed class EvaluationService
         JsonObject input,
         SourceSpan span,
         string? error,
-        string? remediationText)
+        string? remediationText,
+        SourceSpan? clauseSpan = null)
     {
         // Stable verdict id derived from rule + ruleset + predicate + span.
         // Predicate hash is folded in so a predicate-only change creates a
         // different verdict id even if every other input is identical.
-        var id = ContentHash.Compose(
+        // ClauseSpan participates only when set (mirrors the GateThreshold
+        // pattern in Rule.Fingerprint) so existing byte-identity replay
+        // fixtures stay green when the projection has no paragraph metadata.
+        var idParts = new List<string>
+        {
             "verdict",
             rule.Id,
             rule.Version,
@@ -402,7 +485,14 @@ public sealed class EvaluationService
             span.DocumentId,
             span.CharStart.ToString(System.Globalization.CultureInfo.InvariantCulture),
             span.CharLength.ToString(System.Globalization.CultureInfo.InvariantCulture),
-            outcome.ToString()).Value;
+            outcome.ToString(),
+        };
+        if (clauseSpan is not null)
+        {
+            idParts.Add("clause:" + clauseSpan.CharStart.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            idParts.Add("clauseLen:" + clauseSpan.CharLength.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+        var id = ContentHash.Compose(idParts.ToArray()).Value;
 
         var matchedSectionId = section?.Node is JsonObject obj && obj["id"] is JsonNode idNode
             ? idNode.GetValue<string>()
@@ -427,6 +517,7 @@ public sealed class EvaluationService
             MatchedSectionId = matchedSectionId,
             RemediationText = remediationText,
             PredicateText = predicateText,
+            ClauseSpan = clauseSpan,
         };
     }
 

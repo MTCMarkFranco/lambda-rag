@@ -8,7 +8,7 @@
     "value": "lr1:59ab8307c1e8ccba9a533ed18bb9033ee230695669c26d21d4bb8dd7e80d193f"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.4.0",
+  "projectorVersion": "1.5.0",
   "score": 0.6,
   "totalRules": 5,
   "passed": 3,
@@ -73,7 +73,13 @@
         },
         "text": "All administrative entry to the workbench requires phishing-resistantMFA enforced at the cloud tenant identity provider. The approvedauthenticators are FIDO2 hardware security keys (YubiKey 5 series) forhuman administrators, and PIV-derived credentials for federated PSPCcontractors. Username/password and SMS-based factors are explicitlydisabled in tenant policy. Two named global administrators areregistered, with break-glass credentials sealed in the departmentalvault.",
         "text_raw": "All administrative entry to the workbench requires phishing-resistantMFA enforced at the cloud tenant identity provider. The approvedauthenticators are FIDO2 hardware security keys (YubiKey 5 series) forhuman administrators, and PIV-derived credentials for federated PSPCcontractors. Username/password and SMS-based factors are explicitlydisabled in tenant policy. Two named global administrators areregistered, with break-glass credentials sealed in the departmentalvault.",
-        "text_char_start": 534
+        "text_char_start": 534,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 473
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:0794c4cfbc2dd3c1db7daacca0430c6a9d3356a629de2669032cc6ef3066bde3",
@@ -140,7 +146,13 @@
         },
         "text": "All workbench compute, storage, and database services are pinned to theprovider's Canada Central region (Toronto), with paired-region failoverto Canada East (Quebec). No data plane component is permitted to provisionoutside Canada; this is enforced through Azure Policy / AWS SCP / GCPOrganization Policy depending on the underlying CSP. Cross-regionreplication targets are restricted to the Canada Central / Canada Eastpair.",
         "text_raw": "All workbench compute, storage, and database services are pinned to theprovider's Canada Central region (Toronto), with paired-region failoverto Canada East (Quebec). No data plane component is permitted to provisionoutside Canada; this is enforced through Azure Policy / AWS SCP / GCPOrganization Policy depending on the underlying CSP. Cross-regionreplication targets are restricted to the Canada Central / Canada Eastpair.",
-        "text_char_start": 1054
+        "text_char_start": 1054,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 425
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:0794c4cfbc2dd3c1db7daacca0430c6a9d3356a629de2669032cc6ef3066bde3",
@@ -209,7 +221,13 @@
         },
         "text": "All persistent storage volumes, blob containers, and managed-disk typesare encrypted at rest with AES-256 using FIPS 140-2 validatedcryptographic modules provisioned by the platform key vault. Customer-managed keys are rotated annually. The key vault is bound to the sameCanadian region as the data and is HSM-backed.",
         "text_raw": "All persistent storage volumes, blob containers, and managed-disk typesare encrypted at rest with AES-256 using FIPS 140-2 validatedcryptographic modules provisioned by the platform key vault. Customer-managed keys are rotated annually. The key vault is bound to the sameCanadian region as the data and is HSM-backed.",
-        "text_char_start": 1513
+        "text_char_start": 1513,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 317
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:0794c4cfbc2dd3c1db7daacca0430c6a9d3356a629de2669032cc6ef3066bde3",
@@ -226,7 +244,7 @@
       "predicateText": "input1.category == \"encryption_at_rest\""
     },
     {
-      "id": "lr1:90008478232505921ee60c40b450d46e7865c6c57b17423be2c640fbf7e92b2d",
+      "id": "lr1:9cd1deff9ebf123d581b1ae5f0e1bdf5131edbcbbc71ff01d8a50376d59dbc21",
       "ruleId": "GC-CG-07-TLS",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -278,7 +296,13 @@
         },
         "text": "All public-facing endpoints terminate TLS at the platform-managed loadbalancer with a minimum TLS version of TLS 1.2. TLS 1.3 is preferredwhere supported by the client. TLS 1.0 and TLS 1.1 are disabled inlistener policy. Cipher suites are restricted to the CSE-approved subsetdocumented in ITSP.40.062.",
         "text_raw": "All public-facing endpoints terminate TLS at the platform-managed loadbalancer with a minimum TLS version of TLS 1.2. TLS 1.3 is preferredwhere supported by the client. TLS 1.0 and TLS 1.1 are disabled inlistener policy. Cipher suites are restricted to the CSE-approved subsetdocumented in ITSP.40.062.",
-        "text_char_start": 1865
+        "text_char_start": 1865,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 302
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:0794c4cfbc2dd3c1db7daacca0430c6a9d3356a629de2669032cc6ef3066bde3",
@@ -294,10 +318,17 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000005",
       "remediationText": "Update 5. TLS 1.2 Configuration to require TLS 1.2 or TLS 1.3 for all in-transit traffic and explicitly disable TLS 1.0 / 1.1, per GC Cloud Guardrail 07 and the GC Web Sites and Services Management Configuration Requirements.",
-      "predicateText": "input1.category == \"encryption_in_transit\""
+      "predicateText": "input1.category == \"encryption_in_transit\"",
+      "clauseSpan": {
+        "documentId": "lr1:0794c4cfbc2dd3c1db7daacca0430c6a9d3356a629de2669032cc6ef3066bde3",
+        "charStart": 1865,
+        "charLength": 302,
+        "headingPath": "/Solution Architecture — Departmental Modelling Workbench (Protected B IaaS)/5. TLS 1.2 Configuration",
+        "charEnd": 2167
+      }
     },
     {
-      "id": "lr1:357009f3b52fcecd47fc07575d39d5f6745a9b12811801fe93414989e2194be9",
+      "id": "lr1:1cf8efdab0a63b202b836da073e0e82ab016938c09541e2c057179eb631e7c16",
       "ruleId": "GC-CG-11-AuditLogging",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -349,7 +380,13 @@
         },
         "text": "Platform-level audit logs are streamed to a central log analyticsworkspace. The pipeline ingests sign-in records, role-assignment changes,and resource-provisioning activities. Detailed retention requirementsare still under review by the departmental records-management office;the workbench team has reserved capacity for whatever retention periodis ultimately mandated.",
         "text_raw": "Platform-level audit logs are streamed to a central log analyticsworkspace. The pipeline ingests sign-in records, role-assignment changes,and resource-provisioning activities. Detailed retention requirementsare still under review by the departmental records-management office;the workbench team has reserved capacity for whatever retention periodis ultimately mandated.",
-        "text_char_start": 2199
+        "text_char_start": 2199,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 369
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:0794c4cfbc2dd3c1db7daacca0430c6a9d3356a629de2669032cc6ef3066bde3",
@@ -365,7 +402,14 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000006",
       "remediationText": "Update 6. Audit Log Strategy to commit to a defined retention period (e.g., 365 days minimum) and to capture sign-in, configuration-change, and resource-provisioning events, per GC Cloud Guardrail 11 and the GC Event Logging Guidance.",
-      "predicateText": "input1.category == \"audit_logging\""
+      "predicateText": "input1.category == \"audit_logging\"",
+      "clauseSpan": {
+        "documentId": "lr1:0794c4cfbc2dd3c1db7daacca0430c6a9d3356a629de2669032cc6ef3066bde3",
+        "charStart": 2199,
+        "charLength": 369,
+        "headingPath": "/Solution Architecture — Departmental Modelling Workbench (Protected B IaaS)/6. Audit Log Strategy",
+        "charEnd": 2568
+      }
     }
   ],
   "generatedAt": "2000-01-01T00:00:00+00:00",
