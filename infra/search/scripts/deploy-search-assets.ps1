@@ -127,16 +127,20 @@ function Put-Asset {
     Invoke-RestMethod -Method Put -Uri $url -Headers $headers -Body $Body | Out-Null
 }
 
-$indexBody     = Expand-Tokens (Join-Path $restDir 'index.json')
-$dsBody        = Expand-Tokens (Join-Path $restDir 'datasource.json')
-$skillsetBody  = Expand-Tokens (Join-Path $restDir 'skillset.json')
-$indexerBody   = Expand-Tokens (Join-Path $restDir 'indexer.json')
+$indexBody      = Expand-Tokens (Join-Path $restDir 'index.json')
+$dsBody         = Expand-Tokens (Join-Path $restDir 'datasource.json')
+$skillsetBody   = Expand-Tokens (Join-Path $restDir 'skillset.json')
+$indexerBody    = Expand-Tokens (Join-Path $restDir 'indexer.json')
+$skillsetMdBody = Expand-Tokens (Join-Path $restDir 'skillset-md.json')
+$indexerMdBody  = Expand-Tokens (Join-Path $restDir 'indexer-md.json')
 
-# Order matters: index → datasource → skillset → indexer.
-Put-Asset -Kind 'indexes'      -Name 'lambda-rag-rules'           -Body $indexBody
-Put-Asset -Kind 'datasources'  -Name 'lambda-rag-policies-ds'     -Body $dsBody
-Put-Asset -Kind 'skillsets'    -Name 'lambda-rag-rules-skillset'  -Body $skillsetBody
-Put-Asset -Kind 'indexers'     -Name 'lambda-rag-rules-indexer'   -Body $indexerBody
+# Order matters: index → datasource → skillset → skillset-md → indexer → indexer-md.
+Put-Asset -Kind 'indexes'      -Name 'lambda-rag-rules'              -Body $indexBody
+Put-Asset -Kind 'datasources'  -Name 'lambda-rag-policies-ds'        -Body $dsBody
+Put-Asset -Kind 'skillsets'    -Name 'lambda-rag-rules-skillset'     -Body $skillsetBody
+Put-Asset -Kind 'skillsets'    -Name 'lambda-rag-rules-skillset-md'  -Body $skillsetMdBody
+Put-Asset -Kind 'indexers'     -Name 'lambda-rag-rules-indexer'      -Body $indexerBody
+Put-Asset -Kind 'indexers'     -Name 'lambda-rag-rules-indexer-md'   -Body $indexerMdBody
 
 Write-Host '✅ All authoring assets deployed.'
 Write-Host "   Index endpoint: $searchUri/indexes('lambda-rag-rules')?api-version=$ApiVersion"

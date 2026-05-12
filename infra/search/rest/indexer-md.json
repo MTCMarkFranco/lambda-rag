@@ -1,7 +1,7 @@
 {
-  "name": "lambda-rag-rules-indexer",
+  "name": "lambda-rag-rules-indexer-md",
   "dataSourceName": "lambda-rag-policies-ds",
-  "skillsetName": "lambda-rag-rules-skillset",
+  "skillsetName": "lambda-rag-rules-skillset-md",
   "targetIndexName": "lambda-rag-rules",
   "schedule": null,
   "parameters": {
@@ -11,8 +11,8 @@
     "configuration": {
       "dataToExtract": "contentAndMetadata",
       "parsingMode": "default",
-      "allowSkillsetToReadFileData": true,
-      "indexedFileNameExtensions": ".pdf,.docx"
+      "allowSkillsetToReadFileData": false,
+      "indexedFileNameExtensions": ".md"
     }
   },
   "fieldMappings": [

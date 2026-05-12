@@ -15,8 +15,10 @@ infra/search/
 ├── rest/
 │   ├── index.json                  # ExtractedRule + vector field schema
 │   ├── datasource.json             # blob datasource
-│   ├── skillset.json               # Layout → Split → GenAI prompt → Embedding
-│   └── indexer.json                # links datasource → skillset → index
+│   ├── skillset.json               # Layout → Split → extractRule → Embedding  (PDF/DOCX path)
+│   ├── skillset-md.json            # Split → extractRule → Embedding            (Markdown path)
+│   ├── indexer.json                # links datasource → skillset → index        (PDF/DOCX)
+│   └── indexer-md.json             # links datasource → skillset-md → index     (Markdown)
 ├── scripts/
 │   └── deploy-search-assets.ps1    # PUTs the REST objects via az+REST
 └── README.md
@@ -24,13 +26,34 @@ infra/search/
 
 ## Architecture
 
+### Dual-indexer pattern (issue #84)
+
+Drop **PDF, DOCX, or Markdown** files into the `policies` blob container — no local preprocessing needed.
+
+| File type | Indexer | Skillset | Notes |
+|---|---|---|---|
+| `.pdf`, `.docx` | `lambda-rag-rules-indexer` | Layout → Split → extractRule → embedConcepts | DI Layout converts binary to Markdown first |
+| `.md` | `lambda-rag-rules-indexer-md` | Split → extractRule → embedConcepts | Already text; skips DI Layout entirely |
+
+Both indexers project into the same `lambda-rag-rules` index via `indexProjections.selectors`.
+
+### Binary path (PDF / DOCX)
+
 ```
-PDF in blob   ─► Document Layout skill     (markdown + heading hierarchy)
-              ─► Text Split skill          (~3500 char section chunks)
-              ─► GenAI Prompt skill        (system prompt = samples/authoring/rule-extraction.system-prompt.md)
-              ─► JSON-schema-validated ExtractedRule
-              ─► Embedding skill           (concepts → 3072-d vector)
-              ─► Index projection          (one-document-per-rule into lambda-rag-rules)
+PDF/DOCX in blob ─► Document Layout skill  (markdown + heading hierarchy)
+                 ─► Text Split skill        (8000 char chunks / 400 overlap)
+                 ─► extract-rule Function   (returns validated ExtractedRule)
+                 ─► Embedding skill         (concepts → 3072-d vector)
+                 ─► Index projection        (one-document-per-rule → lambda-rag-rules)
+```
+
+### Markdown path
+
+```
+.md in blob ─► Text Split skill   (8000 char chunks / 400 overlap, on /document/content)
+            ─► extract-rule Function
+            ─► Embedding skill
+            ─► Index projection   (same lambda-rag-rules index)
 ```
 
 The CLI consumes the index two ways:
