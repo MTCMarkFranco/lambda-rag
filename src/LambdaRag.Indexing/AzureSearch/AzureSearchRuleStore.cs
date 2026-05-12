@@ -186,7 +186,11 @@ public sealed class AzureSearchRuleStore : IRuleStore
         if (doc.ContainsKey("domain"))
             metadata["domain"] = doc["domain"]?.ToString() ?? "";
 
-        var selector = new PathSelector("$.clauses[*]");
+        // Must match the projection emitted by IDocumentProjector ($.sections[*]).
+        // A mismatched selector causes the evaluator to match zero sections, turning
+        // every rule into a Gap verdict with no anchor span — which strips all
+        // per-clause comments / track-changes from the redlined docx (see issue #100).
+        var selector = new PathSelector("$.sections[*]");
 
         return new Rule(
             Id: id,
