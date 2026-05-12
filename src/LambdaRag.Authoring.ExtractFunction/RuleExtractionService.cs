@@ -123,7 +123,38 @@ public sealed class RuleExtractionService
                 return ExtractionOutcome.Failed("response JSON did not parse to a node");
             }
 
-            // Validate every rule object in the response (object or array).
+            // The model occasionally wraps the result as { "rules": [...] }
+            // or { "rule": {...} } despite the prompt asking for a bare
+            // object/array. Unwrap so downstream code sees just the rule(s).
+            if (node is JsonObject wrapper)
+            {
+                if (wrapper["rules"] is JsonArray wrappedRules)
+                {
+                    node = wrappedRules.DeepClone();
+                }
+                else if (wrapper["rule"] is JsonObject wrappedRule)
+                {
+                    node = wrappedRule.DeepClone();
+                }
+            }
+
+            // The skillset projection is wired to consume a single object —
+            // if the model returned an array, we project the first element.
+            var firstObj = node is JsonArray arr
+                ? arr.OfType<JsonObject>().FirstOrDefault()
+                : node as JsonObject;
+
+            if (firstObj is null)
+            {
+                return ExtractionOutcome.Failed("response did not contain a rule object");
+            }
+
+            // Validate the raw LLM output BEFORE stamping any server-side
+            // annotations. The schema describes the LLM's contract; system
+            // fields (parentDocumentId, sectionId, status, rulesetName,
+            // rulesetVersion, contentHash, approvedAtUtc, approvedBy) are
+            // stamped afterwards and would trip additionalProperties=false
+            // if they were already present.
             var errors = new List<string>();
             foreach (var obj in EnumerateObjects(node))
             {
@@ -143,17 +174,6 @@ public sealed class RuleExtractionService
                 return ExtractionOutcome.Failed(string.Join("; ", errors.Take(3)));
             }
 
-            // The skillset projection is wired to consume a single object —
-            // if the model returned an array, we project the first element.
-            var firstObj = node is JsonArray arr
-                ? arr.OfType<JsonObject>().FirstOrDefault()
-                : node as JsonObject;
-
-            if (firstObj is null)
-            {
-                return ExtractionOutcome.Failed("response did not contain a rule object");
-            }
-
             // Stamp the section identity onto the extracted rule so the
             // index ingests parentDocumentId + sectionId. Downstream
             // consumers (AzureSearchRuleSemanticIndex.ReassembleAsync)
@@ -163,7 +183,10 @@ public sealed class RuleExtractionService
                 input.ParentDocumentId ?? input.DocumentId ?? "unknown";
             firstObj["sectionId"] = sectionId;
 
-            // Add new index fields per issue #98
+            // Add system-stamped fields per issue #98 (status defaults to
+            // "approved" per #102 design; UI can flip to "draft" / "disabled"
+            // afterwards). These are intentionally NOT in the schema —
+            // they are server-side annotations applied after validation.
             firstObj["status"] = "approved";
             firstObj["rulesetName"] = _defaultRulesetName;
             firstObj["rulesetVersion"] = _defaultRulesetVersion;

@@ -16,13 +16,7 @@
     "evidenceQuote",
     "sourceSpan",
     "examples",
-    "metadata",
-    "status",
-    "rulesetName",
-    "rulesetVersion",
-    "contentHash",
-    "approvedAtUtc",
-    "approvedBy"
+    "metadata"
   ],
   "additionalProperties": false,
   "properties": {
@@ -34,7 +28,7 @@
     "naturalLanguage": {
       "type": "string",
       "minLength": 8,
-      "maxLength": 240,
+      "maxLength": 400,
       "description": "Single-sentence statement of the rule, suitable for a reviewer."
     },
     "predicate": {
@@ -52,7 +46,7 @@
       "items": {
         "type": "string",
         "minLength": 3,
-        "maxLength": 80
+        "maxLength": 160
       },
       "description": "Paraphrase concepts that express the rule. Pipe-joined into the lambda. Each concept is independently embedded by integrated vectorization. Must cover ≥3 distinct phrasings, including at least one terse phrase and one CSP/architecture-vocabulary phrase."
     },
@@ -82,7 +76,7 @@
     "evidenceQuote": {
       "type": "string",
       "minLength": 1,
-      "maxLength": 200,
+      "maxLength": 400,
       "description": "Short canonical phrase that anchors the rule in the source text — used by the markup overlay and by reviewers as a sanity check."
     },
     "sourceSpan": {
