@@ -296,15 +296,14 @@ public sealed class OpenXmlMarkupService
         {
             // Place the inserted (rewritten) text immediately after
             // the deleted span so Word renders the tracked change inline
-            // — not appended at the paragraph tail.
-            rangeEnd.InsertAfterSelf(new InsertedRun(
-                new Run(new Text(a.Replacement!) { Space = SpaceProcessingModeValues.Preserve }))
-            {
-                Id = commentId,
-                Author = a.Author,
-                Date = DeterministicTimestamp,
-            });
+            // — not appended at the paragraph tail. Multi-line rewrites
+            // are expanded into multiple paragraphs cloning the source
+            // paragraph's bullet / numbering pPr (see EmitInsertedParagraphs).
+            EmitInsertedParagraphs(
+                a.Replacement!, rangeEnd, paragraph, commentId, a.Author);
         }
+
+        EnsureBoundarySentenceSpacing(rangeStart, rangeEnd, hasInsert ? a.Replacement : null, commentId, a.Author);
     }
 
     /// <summary>
@@ -454,14 +453,16 @@ public sealed class OpenXmlMarkupService
 
         if (hasInsert)
         {
-            rangeEnd.InsertAfterSelf(new InsertedRun(
-                new Run(new Text(a.Replacement!) { Space = SpaceProcessingModeValues.Preserve }))
-            {
-                Id = commentId,
-                Author = a.Author,
-                Date = DeterministicTimestamp,
-            });
+            // Multi-paragraph rewrite preservation: when the rewriter
+            // returns text with '\n' separators, expand line 2..N into
+            // their own paragraphs cloning the *start* paragraph's pPr
+            // so bullet / numbering survives the redline. Line 1 stays
+            // inside the end paragraph as before.
+            EmitInsertedParagraphs(
+                a.Replacement!, rangeEnd, startPara, commentId, a.Author);
         }
+
+        EnsureBoundarySentenceSpacing(rangeStart, rangeEnd, hasInsert ? a.Replacement : null, commentId, a.Author);
     }
 
     /// <summary>
@@ -505,14 +506,11 @@ public sealed class OpenXmlMarkupService
         }
         if (hasInsert)
         {
-            rangeEnd.InsertAfterSelf(new InsertedRun(
-                new Run(new Text(a.Replacement!) { Space = SpaceProcessingModeValues.Preserve }))
-            {
-                Id = commentId,
-                Author = a.Author,
-                Date = DeterministicTimestamp,
-            });
+            EmitInsertedParagraphs(
+                a.Replacement!, rangeEnd, entry.Paragraph, commentId, a.Author);
         }
+
+        EnsureBoundarySentenceSpacing(rangeStart, rangeEnd, hasInsert ? a.Replacement : null, commentId, a.Author);
     }
 
     /// <summary>
@@ -780,6 +778,298 @@ public sealed class OpenXmlMarkupService
             }
             del.AppendChild(r);
         }
+    }
+
+    /// <summary>
+    /// Emit the rewriter's replacement text as one or more inserted
+    /// paragraphs in tracked-change form. Single-line replacements (no
+    /// <c>\n</c>) collapse to the historical behaviour: a single
+    /// <c>InsertedRun</c> placed immediately after
+    /// <paramref name="anchor"/>. Multi-line replacements expand into:
+    /// <list type="bullet">
+    ///   <item><description>line 1: <c>InsertedRun</c> after
+    ///   <paramref name="anchor"/> (sits inside the end paragraph of the
+    ///   deleted range, which collapsed into one paragraph on accept of
+    ///   the paragraph-mark deletions).</description></item>
+    ///   <item><description>lines 2..N: brand-new <c>w:p</c> siblings
+    ///   appended after that end paragraph, each cloning
+    ///   <paramref name="pPrSource"/>'s <c>pPr</c> (so bullet /
+    ///   numbering survives), with the paragraph mark itself marked as
+    ///   inserted (<c>pPr/rPr/w:ins</c>) and the run wrapped in
+    ///   <c>w:ins</c>. On reject every new paragraph vanishes
+    ///   completely; on accept N bulleted paragraphs replace the
+    ///   deleted clause.</description></item>
+    /// </list>
+    /// </summary>
+    private static void EmitInsertedParagraphs(
+        string replacement,
+        OpenXmlElement anchor,
+        Paragraph pPrSource,
+        string commentId,
+        string author)
+    {
+        var lines = SplitReplacementLines(replacement);
+        if (lines.Count == 0) return;
+
+        // Line 1 goes after the anchor (CommentRangeEnd or the following
+        // CommentReference run) inside the existing end paragraph.
+        anchor.InsertAfterSelf(new InsertedRun(
+            new Run(new Text(lines[0]) { Space = SpaceProcessingModeValues.Preserve }))
+        {
+            Id = commentId,
+            Author = author,
+            Date = DeterministicTimestamp,
+        });
+
+        if (lines.Count == 1) return;
+
+        // Find the paragraph that owns `anchor` so we can append siblings.
+        var endParagraph = anchor.Ancestors<Paragraph>().FirstOrDefault();
+        if (endParagraph is null) return;
+
+        OpenXmlElement insertAfter = endParagraph;
+        for (int i = 1; i < lines.Count; i++)
+        {
+            var newPara = BuildInsertedParagraph(lines[i], pPrSource, commentId, author);
+            insertAfter.InsertAfterSelf(newPara);
+            insertAfter = newPara;
+        }
+    }
+
+    /// <summary>
+    /// Split the rewriter's output on <c>\n</c>, normalising stray <c>\r</c>
+    /// and dropping any blank lines so empty paragraphs are not emitted.
+    /// A single-line rewrite returns a one-element list (preserves the
+    /// historical single-paragraph behaviour byte-for-byte).
+    /// </summary>
+    private static List<string> SplitReplacementLines(string replacement)
+    {
+        var lines = new List<string>();
+        foreach (var raw in replacement.Split('\n'))
+        {
+            var trimmed = raw.TrimEnd('\r');
+            if (!string.IsNullOrWhiteSpace(trimmed)) lines.Add(trimmed);
+        }
+        return lines;
+    }
+
+    /// <summary>
+    /// Build a brand-new <c>w:p</c> carrying a single tracked-inserted
+    /// run. The paragraph's <c>pPr</c> is cloned from
+    /// <paramref name="pPrSource"/> so bullet / numbering / style refs
+    /// survive, and the paragraph mark is marked as inserted (via
+    /// <c>pPr/rPr/w:ins</c>) so rejecting the change removes the entire
+    /// paragraph.
+    /// </summary>
+    private static Paragraph BuildInsertedParagraph(
+        string text,
+        Paragraph pPrSource,
+        string commentId,
+        string author)
+    {
+        var newPara = new Paragraph();
+        var srcPPr = pPrSource.GetFirstChild<ParagraphProperties>();
+        var pPr = srcPPr is not null
+            ? (ParagraphProperties)srcPPr.CloneNode(true)
+            : new ParagraphProperties();
+
+        // Strip any deletion marker that may have been cloned from a
+        // source paragraph whose paragraph mark was tagged as deleted
+        // earlier in this same Apply call — we are creating a brand-new
+        // paragraph, not deleting one.
+        var existingMarkRPr = pPr.GetFirstChild<ParagraphMarkRunProperties>();
+        existingMarkRPr?.Elements<Deleted>().ToList().ForEach(d => d.Remove());
+
+        var markRPr = pPr.GetFirstChild<ParagraphMarkRunProperties>();
+        if (markRPr is null)
+        {
+            markRPr = new ParagraphMarkRunProperties();
+            pPr.AppendChild(markRPr);
+        }
+        if (markRPr.GetFirstChild<Inserted>() is null)
+        {
+            markRPr.AppendChild(new Inserted
+            {
+                Id = commentId,
+                Author = author,
+                Date = DeterministicTimestamp,
+            });
+        }
+        newPara.AppendChild(pPr);
+
+        newPara.AppendChild(new InsertedRun(
+            new Run(new Text(text) { Space = SpaceProcessingModeValues.Preserve }))
+        {
+            Id = commentId,
+            Author = author,
+            Date = DeterministicTimestamp,
+        });
+        return newPara;
+    }
+
+    /// <summary>
+    /// Sentence-spacing safeguard at the redline boundaries: if accepting
+    /// the change would visibly concatenate a sentence-ending punctuation
+    /// (<c>.</c>, <c>!</c>, <c>?</c>) directly against a letter or digit
+    /// — i.e., the change collapses two sentences into one with no space
+    /// between them — emit a tracked-inserted single space at that
+    /// boundary so the post-accept text reads naturally.
+    ///
+    /// The space is placed inside its own <c>w:ins</c> so rejecting the
+    /// surrounding change also removes the safeguard space (avoids
+    /// "phantom" whitespace surviving a reject).
+    ///
+    /// Two boundaries are checked:
+    /// <list type="bullet">
+    ///   <item><description>Start boundary — the last visible char in the
+    ///   start paragraph before <c>CommentRangeStart</c> meeting the first
+    ///   char of the inserted text (or, on pure delete, the first visible
+    ///   char following <c>CommentRangeEnd</c>).</description></item>
+    ///   <item><description>End boundary — the last char of the inserted
+    ///   text (or, on pure delete, the same left-side char as the start
+    ///   boundary) meeting the first visible char following the inserted
+    ///   run / <c>CommentRangeEnd</c>.</description></item>
+    /// </list>
+    /// Multi-line inserts skip the end boundary check because the
+    /// trailing line lives in a new paragraph — there is no inline
+    /// concatenation to worry about.
+    /// </summary>
+    private static void EnsureBoundarySentenceSpacing(
+        CommentRangeStart rangeStart,
+        CommentRangeEnd rangeEnd,
+        string? replacement,
+        string commentId,
+        string author)
+    {
+        var hasInsert = !string.IsNullOrEmpty(replacement);
+        var multiLine = hasInsert && replacement!.Contains('\n');
+
+        // ----- Start boundary -----
+        var leftStart = LastVisibleCharBeforeAccept(rangeStart);
+        char? rightStart;
+        if (hasInsert)
+        {
+            rightStart = replacement!.Length > 0 ? replacement![0] : null;
+        }
+        else if (ReferenceEquals(rangeStart.Parent, rangeEnd.Parent))
+        {
+            // Pure delete in a single paragraph — the deleted region
+            // collapses, so the start and end boundaries coincide.
+            rightStart = FirstVisibleCharAfterAccept(rangeEnd, skipInsertedRuns: false);
+        }
+        else
+        {
+            // Cross-paragraph pure delete: paragraph break separates the
+            // two visible halves post-accept, so no inline concatenation.
+            rightStart = null;
+        }
+        if (NeedsSentenceSpace(leftStart, rightStart))
+        {
+            rangeStart.InsertBeforeSelf(BuildInsertedSpaceRun(commentId, author));
+        }
+
+        // ----- End boundary -----
+        if (multiLine) return;
+
+        char? leftEnd;
+        if (hasInsert)
+        {
+            leftEnd = replacement!.Length > 0 ? replacement![^1] : null;
+        }
+        else
+        {
+            // Pure delete — the visible left-of-end is the same as
+            // left-of-start (deleted region is invisible post-accept).
+            leftEnd = leftStart;
+        }
+        var rightEnd = FirstVisibleCharAfterAccept(rangeEnd, skipInsertedRuns: hasInsert);
+        if (NeedsSentenceSpace(leftEnd, rightEnd))
+        {
+            // Anchor the space after the last InsertedRun that follows
+            // rangeEnd in this paragraph (single-line insert case puts
+            // exactly one there). For pure deletes the anchor stays at
+            // rangeEnd, which sits before the CommentReference run — the
+            // post-accept order is unchanged because CommentReference
+            // contributes no visible text.
+            OpenXmlElement anchor = rangeEnd;
+            for (var n = rangeEnd.NextSibling(); n is InsertedRun; n = n.NextSibling())
+            {
+                anchor = n;
+            }
+            anchor.InsertAfterSelf(BuildInsertedSpaceRun(commentId, author));
+        }
+    }
+
+    private static bool NeedsSentenceSpace(char? left, char? right)
+    {
+        if (left is null || right is null) return false;
+        if (char.IsWhiteSpace(left.Value) || char.IsWhiteSpace(right.Value)) return false;
+        return (left.Value is '.' or '!' or '?') && char.IsLetterOrDigit(right.Value);
+    }
+
+    /// <summary>
+    /// Walk backward through <paramref name="element"/>'s siblings and
+    /// return the last character of the first sibling that contributes
+    /// visible text after the change is accepted. <see cref="DeletedRun"/>
+    /// elements are skipped because they vanish on accept.
+    /// </summary>
+    private static char? LastVisibleCharBeforeAccept(OpenXmlElement element)
+    {
+        for (var prev = element.PreviousSibling(); prev is not null; prev = prev.PreviousSibling())
+        {
+            if (prev is DeletedRun) continue;
+            var text = CollectVisibleText(prev);
+            if (text.Length == 0) continue;
+            return text[^1];
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Forward analogue of <see cref="LastVisibleCharBeforeAccept"/>.
+    /// When <paramref name="skipInsertedRuns"/> is true the walker steps
+    /// over <see cref="InsertedRun"/> elements — used when the inserted
+    /// text is already accounted for as the "left" side of the boundary.
+    /// </summary>
+    private static char? FirstVisibleCharAfterAccept(OpenXmlElement element, bool skipInsertedRuns)
+    {
+        for (var next = element.NextSibling(); next is not null; next = next.NextSibling())
+        {
+            if (next is DeletedRun) continue;
+            if (skipInsertedRuns && next is InsertedRun) continue;
+            var text = CollectVisibleText(next);
+            if (text.Length == 0) continue;
+            return text[0];
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Collect text from a sibling element that will be visible after the
+    /// tracked changes are accepted. Plain <see cref="Run"/> and
+    /// <see cref="InsertedRun"/> contribute their <c>w:t</c> descendants;
+    /// other element kinds (range markers, comment references, paragraph
+    /// properties) contribute nothing.
+    /// </summary>
+    private static string CollectVisibleText(OpenXmlElement element)
+    {
+        return element switch
+        {
+            InsertedRun ir => string.Concat(ir.Descendants<Text>().Select(t => t.Text)),
+            Run r => string.Concat(r.Descendants<Text>().Select(t => t.Text)),
+            _ => string.Empty,
+        };
+    }
+
+    private static InsertedRun BuildInsertedSpaceRun(string commentId, string author)
+    {
+        return new InsertedRun(
+            new Run(new Text(" ") { Space = SpaceProcessingModeValues.Preserve }))
+        {
+            Id = commentId,
+            Author = author,
+            Date = DeterministicTimestamp,
+        };
     }
 
     /// <summary>

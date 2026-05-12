@@ -279,6 +279,238 @@ public sealed class OpenXmlMarkupServiceAnchoringTests
         }
     }
 
+    [Fact]
+    public void Replace_with_multiline_replacement_emits_one_paragraph_per_line_with_cloned_pPr()
+    {
+        // Option A list preservation: when the rewriter returns text with
+        // '\n' separators, the markup engine must emit each line as its
+        // own paragraph, cloning bullet/numbering pPr from the clause's
+        // start paragraph, so the redline keeps the original list
+        // structure instead of collapsing into a single paragraph.
+        var docxPath = BuildBulletedSampleDoc();
+        try
+        {
+            // Three bullets, joined by single LF in canonical text.
+            // BulletParagraphs[i].Length each, separated by '\n'.
+            var b0Len = BulletParagraphs[0].Length;
+            var b1Len = BulletParagraphs[1].Length;
+            var b2Len = BulletParagraphs[2].Length;
+            var clauseStart = 0;
+            var clauseLen = b0Len + 1 + b1Len + 1 + b2Len;
+
+            var replace = new Annotation(
+                Id: "multiline-bullet-1",
+                Kind: AnnotationKind.Replace,
+                Span: new SourceSpan(DocumentId, 0, b0Len, null, null),
+                Author: "🕵 - Insurance guidance",
+                Text: "Restate the insurance minimums as three explicit lines.",
+                Replacement: "Commercial general liability: $5M per occurrence.\nProfessional liability: $5M per claim.\nCyber liability: $10M per claim.")
+            {
+                ClauseSpan = new SourceSpan(DocumentId, clauseStart, clauseLen, null, null),
+            };
+
+            var svc = new OpenXmlMarkupService(NullLogger<OpenXmlMarkupService>.Instance);
+            svc.Apply(docxPath, docxPath, new[] { replace });
+
+            using var doc = WordprocessingDocument.Open(docxPath, isEditable: false);
+            var body = doc.MainDocumentPart!.Document!.Body!;
+            var insertedRuns = body.Descendants<InsertedRun>().ToList();
+            insertedRuns.Should().HaveCount(3,
+                "a 3-line replacement must emit exactly 3 inserted runs " +
+                "(one per paragraph) — collapsing to one is the bug.");
+
+            // The first inserted run sits inside the end clause paragraph
+            // (existing behaviour). The remaining two must live in brand-
+            // new <w:p> siblings that follow the end paragraph.
+            var paras = body.Elements<Paragraph>().ToList();
+            paras.Count.Should().BeGreaterOrEqualTo(BulletParagraphs.Length + 2,
+                "two brand-new paragraphs must be appended for lines 2 and 3");
+
+            // The two new paragraphs must clone the start paragraph's
+            // numPr (bullet) so accept preserves the list structure.
+            var startNumPr = paras[0].GetFirstChild<ParagraphProperties>()
+                ?.GetFirstChild<NumberingProperties>();
+            startNumPr.Should().NotBeNull("fixture: bullet sample has numPr on every paragraph");
+
+            // Locate the two inserted-paragraph siblings — they are the
+            // ones that contain an InsertedRun AND were not in the
+            // original fixture (i.e. their pPr's rPr carries a w:ins).
+            var insertedParas = paras
+                .Where(p =>
+                    p.GetFirstChild<ParagraphProperties>()
+                     ?.GetFirstChild<ParagraphMarkRunProperties>()
+                     ?.GetFirstChild<Inserted>() is not null)
+                .ToList();
+            insertedParas.Should().HaveCount(2,
+                "lines 2 and 3 must be emitted as tracked-inserted paragraphs " +
+                "(pPr/rPr/w:ins so reject removes the whole paragraph)");
+
+            foreach (var ip in insertedParas)
+            {
+                ip.GetFirstChild<ParagraphProperties>()
+                  ?.GetFirstChild<NumberingProperties>()
+                  .Should().NotBeNull(
+                    "every inserted paragraph must clone numPr from the " +
+                    "start paragraph so the bullet survives accept");
+                ip.Descendants<InsertedRun>().Should().HaveCount(1);
+            }
+        }
+        finally
+        {
+            File.Delete(docxPath);
+        }
+    }
+
+    [Fact]
+    public void Replace_inserts_safeguard_space_when_replacement_ends_with_period_against_following_letter()
+    {
+        // Sentence-spacing safeguard: when the inserted text ends with a
+        // sentence-ending punctuation and the very next visible char post-
+        // accept would be a letter or digit, the markup engine must emit
+        // a tracked-inserted single space at the boundary so the post-
+        // accept text reads as two sentences, not one run-together blob.
+        const string fixtureParagraph = "Alpha bravo charlie.";
+        var docxPath = BuildCustomSampleDoc(new[] { fixtureParagraph });
+        try
+        {
+            const int bravoOffset = 6;          // "Alpha ".Length
+            const int bravoWithSpaceLen = 6;    // "bravo " — include the trailing
+                                                // space so post-accept would be
+                                                // "Alpha BRAVO.charlie." (run-together)
+                                                // without the safeguard.
+
+            var replace = new Annotation(
+                Id: "spacing-end-1",
+                Kind: AnnotationKind.Replace,
+                Span: new SourceSpan(DocumentId, bravoOffset, bravoWithSpaceLen, null, null),
+                Author: "🕵 - Style guidance",
+                Text: "Rewrite mid-sentence so it ends a sentence.",
+                Replacement: "BRAVO.");
+
+            var svc = new OpenXmlMarkupService(NullLogger<OpenXmlMarkupService>.Instance);
+            svc.Apply(docxPath, docxPath, new[] { replace });
+
+            using var doc = WordprocessingDocument.Open(docxPath, isEditable: false);
+            var p = doc.MainDocumentPart!.Document!.Body!.Descendants<Paragraph>().Single();
+
+            // Two InsertedRuns: the rewrite "BRAVO." and the safeguard " ".
+            var insertedRuns = p.Descendants<InsertedRun>().ToList();
+            insertedRuns.Should().HaveCount(2,
+                "the rewrite plus a sentence-spacing safeguard space must produce 2 inserted runs");
+
+            var insertedTexts = insertedRuns
+                .Select(ir => string.Concat(ir.Descendants<Text>().Select(t => t.Text)))
+                .ToList();
+            insertedTexts.Should().BeEquivalentTo(new[] { "BRAVO.", " " },
+                "the safeguard space must be exactly one ASCII space");
+
+            // The safeguard space sits AFTER the rewrite InsertedRun so
+            // the post-accept paragraph reads "Alpha BRAVO. charlie." not
+            // "Alpha  BRAVO.charlie.".
+            var rewriteIr = insertedRuns.Single(ir =>
+                ir.Descendants<Text>().Any(t => t.Text == "BRAVO."));
+            var followingIr = rewriteIr.ElementsAfter().OfType<InsertedRun>().FirstOrDefault();
+            followingIr.Should().NotBeNull(
+                "the safeguard space must follow the rewrite, not precede it");
+            string.Concat(followingIr!.Descendants<Text>().Select(t => t.Text))
+                .Should().Be(" ");
+        }
+        finally
+        {
+            File.Delete(docxPath);
+        }
+    }
+
+    [Fact]
+    public void Replace_does_not_insert_safeguard_space_when_following_text_already_starts_with_space()
+    {
+        // Negative case: when the post-accept boundary is already
+        // separated (next char is whitespace, or replacement ends in
+        // whitespace), no safeguard space is added.
+        const string fixtureParagraph = "Alpha bravo charlie.";
+        var docxPath = BuildCustomSampleDoc(new[] { fixtureParagraph });
+        try
+        {
+            const int bravoOffset = 6;
+            const int bravoLen = 5;
+
+            var replace = new Annotation(
+                Id: "spacing-end-noop-1",
+                Kind: AnnotationKind.Replace,
+                Span: new SourceSpan(DocumentId, bravoOffset, bravoLen, null, null),
+                Author: "🕵 - Style guidance",
+                Text: "Rewrite without trailing period.",
+                Replacement: "BRAVO");   // no trailing period → no run-together
+
+            var svc = new OpenXmlMarkupService(NullLogger<OpenXmlMarkupService>.Instance);
+            svc.Apply(docxPath, docxPath, new[] { replace });
+
+            using var doc = WordprocessingDocument.Open(docxPath, isEditable: false);
+            var p = doc.MainDocumentPart!.Document!.Body!.Descendants<Paragraph>().Single();
+            p.Descendants<InsertedRun>().Should().HaveCount(1,
+                "without a sentence-end-against-letter collision, only the rewrite InsertedRun must be emitted");
+        }
+        finally
+        {
+            File.Delete(docxPath);
+        }
+    }
+
+    private static string BuildCustomSampleDoc(IReadOnlyList<string> paragraphTexts)
+    {
+        var path = Path.Combine(Path.GetTempPath(),
+            "lambda-rag-anchor-custom-" + Guid.NewGuid().ToString("N")[..12] + ".docx");
+        using var doc = WordprocessingDocument.Create(path, WordprocessingDocumentType.Document);
+        var main = doc.AddMainDocumentPart();
+        var body = new Body();
+        main.Document = new Document(body);
+        foreach (var text in paragraphTexts)
+        {
+            body.AppendChild(new Paragraph(new Run(new Text(text)
+            {
+                Space = SpaceProcessingModeValues.Preserve,
+            })));
+        }
+        main.Document.Save();
+        return path;
+    }
+
+    // Three bulleted paragraphs joined by '\n' in canonical text. Each
+    // paragraph carries a <w:numPr> so the fixture mirrors a real
+    // bulleted list (the Insurance section bug repro).
+    private static readonly string[] BulletParagraphs =
+    {
+        "Commercial general liability coverage.",
+        "Professional liability coverage.",
+        "Cyber liability coverage.",
+    };
+
+    private static string BuildBulletedSampleDoc()
+    {
+        var path = Path.Combine(Path.GetTempPath(),
+            "lambda-rag-anchor-bullets-" + Guid.NewGuid().ToString("N")[..12] + ".docx");
+        using var doc = WordprocessingDocument.Create(path, WordprocessingDocumentType.Document);
+        var main = doc.AddMainDocumentPart();
+        var body = new Body();
+        main.Document = new Document(body);
+        foreach (var text in BulletParagraphs)
+        {
+            var p = new Paragraph();
+            var pPr = new ParagraphProperties(
+                new NumberingProperties(
+                    new NumberingLevelReference { Val = 0 },
+                    new NumberingId { Val = 1 }));
+            p.AppendChild(pPr);
+            p.AppendChild(new Run(new Text(text)
+            {
+                Space = SpaceProcessingModeValues.Preserve,
+            }));
+            body.AppendChild(p);
+        }
+        main.Document.Save();
+        return path;
+    }
+
     /// <summary>
     /// Builds a 3-paragraph .docx whose paragraph text matches
     /// <see cref="Paragraphs"/>. Each paragraph contains a single run
