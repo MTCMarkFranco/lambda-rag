@@ -99,10 +99,27 @@ $searchUri = "https://$SearchServiceName.search.windows.net"
 
 # 2. Resolve Function URI + key if not supplied.
 if (-not $FunctionUri) {
-    Write-Host "🔎 Resolving default hostname for Function App '$FunctionAppName' ..."
-    $hostName = (az functionapp show -g $ResourceGroup -n $FunctionAppName --query 'defaultHostName' -o tsv)
-    if (-not $hostName) { throw "Could not resolve defaultHostName for $FunctionAppName" }
-    $FunctionUri = "https://$hostName/api/extract-rule"
+    # Prefer a Front Door endpoint when one exists in the resource group: the dev
+    # Function App is fronted by AFD and locks down direct *.azurewebsites.net
+    # traffic with App Service IP restrictions, so calling the raw hostname yields
+    # a 403 from the AFD-only allow rule. Auto-discover the AFD Standard/Premium
+    # profile and use its endpoint as the WebApiSkill target.
+    Write-Host "🔎 Looking for an Azure Front Door profile in '$ResourceGroup' ..."
+    $afdProfile = (az afd profile list -g $ResourceGroup --query "[?starts_with(sku.name, 'Standard_AzureFrontDoor') || starts_with(sku.name, 'Premium_AzureFrontDoor')] | [0].name" -o tsv 2>$null)
+    if ($afdProfile) {
+        $afdHost = (az afd endpoint list -g $ResourceGroup --profile-name $afdProfile --query "[0].hostName" -o tsv 2>$null)
+        if ($afdHost) {
+            $FunctionUri = "https://$afdHost/api/extract-rule"
+            Write-Host "🚪 Routing extract-rule through Front Door: $afdProfile ($afdHost)"
+        }
+    }
+
+    if (-not $FunctionUri) {
+        Write-Host "🔎 No AFD profile found; resolving default hostname for Function App '$FunctionAppName' ..."
+        $hostName = (az functionapp show -g $ResourceGroup -n $FunctionAppName --query 'defaultHostName' -o tsv)
+        if (-not $hostName) { throw "Could not resolve defaultHostName for $FunctionAppName" }
+        $FunctionUri = "https://$hostName/api/extract-rule"
+    }
 }
 Write-Host "🔗 Extract-rule endpoint: $FunctionUri"
 Write-Host "🛡  Auth resource (AAD audience): $AuthResourceId"
