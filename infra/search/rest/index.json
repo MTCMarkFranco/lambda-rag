@@ -136,29 +136,90 @@
       "name": "sourceSpan",
       "type": "Edm.ComplexType",
       "fields": [
-        { "name": "documentId", "type": "Edm.String", "filterable": true, "retrievable": true },
-        { "name": "headingPath", "type": "Edm.String", "searchable": true, "retrievable": true, "analyzer": "en.microsoft" },
-        { "name": "pageNumber", "type": "Edm.Int32", "filterable": true, "retrievable": true },
-        { "name": "charStart", "type": "Edm.Int32", "retrievable": true },
-        { "name": "charLength", "type": "Edm.Int32", "retrievable": true }
+        {
+          "name": "documentId",
+          "type": "Edm.String",
+          "filterable": true,
+          "retrievable": true
+        },
+        {
+          "name": "headingPath",
+          "type": "Edm.String",
+          "searchable": true,
+          "retrievable": true,
+          "analyzer": "en.microsoft"
+        },
+        {
+          "name": "pageNumber",
+          "type": "Edm.Int32",
+          "filterable": true,
+          "retrievable": true
+        },
+        {
+          "name": "charStart",
+          "type": "Edm.Int32",
+          "retrievable": true
+        },
+        {
+          "name": "charLength",
+          "type": "Edm.Int32",
+          "retrievable": true
+        }
       ]
     },
     {
       "name": "examples",
       "type": "Edm.ComplexType",
       "fields": [
-        { "name": "positive", "type": "Collection(Edm.String)", "searchable": true, "retrievable": true, "analyzer": "en.microsoft" },
-        { "name": "negative", "type": "Collection(Edm.String)", "searchable": true, "retrievable": true, "analyzer": "en.microsoft" }
+        {
+          "name": "positive",
+          "type": "Collection(Edm.String)",
+          "searchable": true,
+          "retrievable": true,
+          "analyzer": "en.microsoft"
+        },
+        {
+          "name": "negative",
+          "type": "Collection(Edm.String)",
+          "searchable": true,
+          "retrievable": true,
+          "analyzer": "en.microsoft"
+        }
       ]
     },
     {
       "name": "metadata",
       "type": "Edm.ComplexType",
       "fields": [
-        { "name": "sourcePolicy", "type": "Edm.String", "searchable": true, "filterable": true, "retrievable": true, "analyzer": "en.microsoft" },
-        { "name": "category", "type": "Edm.String", "filterable": true, "facetable": true, "retrievable": true },
-        { "name": "mandatory", "type": "Edm.String", "filterable": true, "facetable": true, "retrievable": true },
-        { "name": "reviewer", "type": "Edm.String", "filterable": true, "facetable": true, "retrievable": true }
+        {
+          "name": "sourcePolicy",
+          "type": "Edm.String",
+          "searchable": true,
+          "filterable": true,
+          "retrievable": true,
+          "analyzer": "en.microsoft"
+        },
+        {
+          "name": "category",
+          "type": "Edm.String",
+          "filterable": true,
+          "facetable": true,
+          "retrievable": true
+        },
+        {
+          "name": "mandatory",
+          "type": "Edm.String",
+          "filterable": true,
+          "facetable": true,
+          "retrievable": true
+        },
+        {
+          "name": "reviewer",
+          "type": "Edm.String",
+          "filterable": true,
+          "facetable": true,
+          "retrievable": true
+        }
       ]
     },
     {
@@ -174,6 +235,38 @@
       "filterable": true,
       "sortable": true,
       "retrievable": true
+    },
+    {
+      "name": "rulesetName",
+      "type": "Edm.String",
+      "filterable": true,
+      "facetable": true,
+      "sortable": true,
+      "retrievable": true,
+      "searchable": false
+    },
+    {
+      "name": "rulesetVersion",
+      "type": "Edm.String",
+      "filterable": true,
+      "facetable": true,
+      "sortable": true,
+      "retrievable": true,
+      "searchable": false
+    },
+    {
+      "name": "approvedAtUtc",
+      "type": "Edm.DateTimeOffset",
+      "filterable": true,
+      "sortable": true,
+      "retrievable": true
+    },
+    {
+      "name": "approvedBy",
+      "type": "Edm.String",
+      "filterable": true,
+      "retrievable": true,
+      "searchable": false
     }
   ],
   "vectorSearch": {
@@ -214,13 +307,21 @@
       {
         "name": "default-semantic",
         "prioritizedFields": {
-          "titleField": { "fieldName": "naturalLanguage" },
+          "titleField": {
+            "fieldName": "naturalLanguage"
+          },
           "prioritizedContentFields": [
-            { "fieldName": "remediation" },
-            { "fieldName": "evidenceQuote" }
+            {
+              "fieldName": "remediation"
+            },
+            {
+              "fieldName": "evidenceQuote"
+            }
           ],
           "prioritizedKeywordsFields": [
-            { "fieldName": "concepts" }
+            {
+              "fieldName": "concepts"
+            }
           ]
         }
       }
@@ -234,7 +335,9 @@
           "type": "tag",
           "fieldName": "metadata/mandatory",
           "boost": 2.0,
-          "tag": { "tagsParameter": "mandatoryTag" }
+          "tag": {
+            "tagsParameter": "mandatoryTag"
+          }
         }
       ],
       "functionAggregation": "sum",
@@ -249,7 +352,9 @@
     }
   ],
   "corsOptions": {
-    "allowedOrigins": ["*"],
+    "allowedOrigins": [
+      "*"
+    ],
     "maxAgeInSeconds": 60
   }
 }
