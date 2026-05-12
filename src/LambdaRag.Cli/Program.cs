@@ -273,6 +273,16 @@ static class CliEntry
                 if (enableRewrite)
                 {
                     var rewriter = sp.GetRequiredService<IClauseRewriter>();
+                    if (rewriter is NoopClauseRewriter)
+                    {
+                        Console.WriteLine(
+                            "Rewrite:   --rewrite requested but no LLM editor agent is configured. "
+                          + "No tracked-change replacements will be emitted; fail verdicts will appear as comments only.");
+                        Console.WriteLine(
+                            "           Set LAMBDA_RAG_FOUNDRY_EDIT_ENDPOINT, LAMBDA_RAG_FOUNDRY_EDIT_DEPLOYMENT, "
+                          + "and LAMBDA_RAG_FOUNDRY_EDIT_API_KEY (or the matching LambdaRag:Foundry:Edit:* config keys) "
+                          + "to enable the ComplianceEditor agent.");
+                    }
                     annotations = new List<Annotation>();
                     // Resolve clause text from the parsed document's canonical
                     // text so the rewriter sees the *full* clause (including
