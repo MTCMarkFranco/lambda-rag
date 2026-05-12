@@ -1,9 +1,9 @@
 # Implementation Status: Issue #98 Index-as-Source-of-Truth Runtime
 
 Branch: feat/98-index-source-of-truth
-Status: PARTIAL IMPLEMENTATION (Phases 1-6 complete, runtime integration functional, infra deployment pending)
+Status: PARTIAL IMPLEMENTATION (foundation complete, runtime integration incomplete)
 
-## Completed Work (Phases 1-6)
+## Completed Work (Phases 1-2)
 
 ### ✅ Phase 1: Index Schema and Function Changes
 
@@ -59,147 +59,11 @@ Status: PARTIAL IMPLEMENTATION (Phases 1-6 complete, runtime integration functio
   - RuleQueryResult(Rules, Metadata)
   - RulesetMetadata(RulesetName, RulesetVersion, IndexEndpoint, SnapshotHash)
 
-## Completed Work (Phases 1-6)
-
-### ✅ Phase 1: Index Schema and Function Changes
-
-**Completed:**
-- Added 4 new fields to index schema (infra/search/rest/index.json):
-  - rulesetName (Edm.String, filterable, facetable, sortable)
-  - rulesetVersion (Edm.String, filterable, facetable, sortable)
-  - approvedAtUtc (Edm.DateTimeOffset, filterable, sortable)
-  - approvedBy (Edm.String, filterable)
-  - NOTE: status and contentHash already existed in the schema
-
-- Updated extraction schema (samples/authoring/rule-extraction.schema.json):
-  - Added status, rulesetName, rulesetVersion, contentHash, approvedAtUtc, approvedBy to required fields
-  - Added field definitions with validation patterns
-
-- Modified ExtractRuleFunction (src/LambdaRag.Authoring.ExtractFunction/RuleExtractionService.cs):
-  - Reads LambdaRag__Authoring__DefaultRulesetName and LambdaRag__Authoring__DefaultRulesetVersion env vars
-  - Defaults: architecture-review @ 2026.05
-  - Populates status="approved", approvedBy="system", approvedAtUtc=now
-  - Computes contentHash as sha256(naturalLanguage:{nl}|lambda:{lambda}|predicate:{pred})
-
-- Updated skillset projections (infra/search/rest/skillset.json and skillset-md.json):
-  - Added mappings for all 6 new fields
-  - Binary path: /document/layoutMarkdown/*/chunks/*/extractedRule/<field>
-  - MD path: /document/chunks/*/extractedRule/<field>
-
-**NOT deployed:**
-- Index schema changes not pushed to srch-lambdarag-dev (needs deploy-search-assets.ps1 with full params)
-- Function code not published to func-lambdarag-extract-dev
-- App settings (LambdaRag__Authoring__DefaultRulesetName/Version) not configured
-
-### ✅ Phase 2: IRuleStore Abstraction
-
-**Completed:**
-- Created IRuleStore interface (src/LambdaRag.Core/Abstractions/IRuleStore.cs):
-  - GetAvailableVersionsAsync(rulesetName) → distinct versions via facets
-  - RetrieveAsync(RuleQuery) → hybrid BM25+vector retrieval with topK
-  - RetrieveAllAsync(rulesetName, rulesetVersion) → full ruleset
-
-- Implemented AzureSearchRuleStore (src/LambdaRag.Indexing/AzureSearch/AzureSearchRuleStore.cs):
-  - Uses DefaultAzureCredential
-  - Always filters: status eq 'approved' and rulesetName eq '<name>' and rulesetVersion eq '<ver>'
-  - Hybrid query: BM25 over naturalLanguage/concepts/predicate + vector over conceptsVector
-  - Computes snapshot hash: sha256 over sorted [{ruleId, contentHash}] JSON
-
-- Implemented InMemoryRuleStore (src/LambdaRag.Core/InMemoryRuleStore.cs):
-  - Fixture-backed, deterministic retrieval
-  - Simple BM25-like token overlap + cosine similarity scoring
-  - Same snapshot hash algorithm as Azure implementation
-
-- Added supporting types:
-  - RuleQuery(RulesetName, RulesetVersion, QueryText, QueryVector, TopK)
-  - RuleQueryResult(Rules, Metadata)
-  - RulesetMetadata(RulesetName, RulesetVersion, IndexEndpoint, SnapshotHash)
-
 **Solution builds successfully.**
 
-### ✅ Phase 3: Embedding Helper + Runtime Wiring
+## Remaining Work (Phases 3-11)
 
-**Completed (2026-05-12):**
-- Wired IRuleStore into DI (Program.cs BuildServices):
-  - Reads LambdaRag:Search:Endpoint and :IndexName from config
-  - Binds AzureSearchRuleStore when endpoint configured
-  - Falls back to InMemoryRuleStore (empty fixture) when not configured
-- Added EvaluationService.EvaluateAsync overload:
-  - Accepts IRuleStore + rulesetName + rulesetVersion + document
-  - Calls RetrieveAllAsync to load approved rules
-  - Builds temporary RuleSet for existing evaluation logic
-  - Returns (ComplianceReport, RulesetMetadata) tuple
-- Updated Program.cs ReviewAsync to retrieve IRuleStore from DI
-
-**Tests:** All pass (266 unit + 34 idempotency)
-
-### ✅ Phase 4: CLI Ergonomics
-
-**Completed (2026-05-12):**
-- Created LambdaRagConfig / LambdaRagDefaults records
-- Created LoadLocalConfig() to read lambdarag.config.json
-- Replaced --ruleset flag with --ruleset-name + --ruleset-version
-- Resolution order:
-  1. Explicit --ruleset-version flag
-  2. Config file defaults.rulesetVersion
-  3. If neither: call IRuleStore.GetAvailableVersionsAsync, print list, exit 2
-- Updated ReviewAsync to load rules from IRuleStore:
-  - Calls ruleStore.RetrieveAllAsync(rulesetName, rulesetVersion)
-  - Builds RuleSet from result for overlay + vector handling
-  - Overlay support preserved (optional path check)
-- Updated PrintHelp() with new --ruleset-name and --ruleset-version syntax
-
-**Breaking Changes:**
-- CLI review command now requires --ruleset-name and --ruleset-version
-- Legacy --ruleset flag removed from ReviewAsync (coverage command still uses file-based loading)
-
-### ✅ Phase 5: Output Traceability
-
-**Completed (2026-05-12):**
-- Added ReportProvenance record to Verdict.cs:
-  ```csharp
-  public sealed record ReportProvenance(
-      string RulesetName, string RulesetVersion,
-      string IndexEndpoint, string RuleSnapshotHash,
-      string RunAtUtc, string DocumentSha256);
-  ```
-- Added Provenance property to ComplianceReport (init-only, optional)
-- Stamp provenance in ReviewAsync after evaluation:
-  - Compute documentSha256 from File.ReadAllBytes + SHA256
-  - Populate from rulesetMetadata returned by EvaluateAsync
-  - RunAtUtc = DateTimeOffset.UtcNow.ToString("o")
-- Provenance auto-serialized to report.json via CanonicalJson
-
-**NOT implemented:**
-- Redline docx provenance comment (deferred - requires OpenXml comment API research)
-
-### ✅ Phase 6: Seed Migration + Config
-
-**Completed (2026-05-12):**
-- Created infra/search/scripts/seed-ruleset-from-json.ps1:
-  - Takes RulesetPath, RulesetName, RulesetVersion params
-  - Computes contentHash per rule (same algorithm as Function)
-  - POSTs to /indexes/<index>/docs/index with @search.action: mergeOrUpload
-  - Sets status=approved, approvedBy=seed, approvedAtUtc=now
-  - Batches in groups of 100
-- Created lambdarag.config.json in repo root:
-  ```json
-  {
-    "defaults": {
-      "rulesetName": "architecture-review",
-      "rulesetVersion": "2026.05-seed"
-    }
-  }
-  ```
-
-**NOT completed:**
-- Seed script NOT executed (index schema not deployed to Azure yet)
-- File-based ruleset files NOT deleted (samples/contracts/*.json still present)
-- RuleSetIO.Load() NOT removed (still used by coverage command and tests)
-
-**Reason for deferral:** Index deployment requires deploy-search-assets.ps1 with full parameters (StorageAccount, FunctionUri, OpenAiEndpoint, EmbeddingDeployment). These weren't readily available, so seeding and file removal deferred until infra is deployed.
-
-## Remaining Work (Phases 7-11)
+### Phase 3: Embedding Helper + Runtime Wiring (INCOMPLETE)
 
 **Remaining:**
 - Add query embedding helper that wraps existing IRuleEmbedder for runtime use
