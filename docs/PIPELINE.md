@@ -19,23 +19,62 @@ For every contract we review:
 2. **Project** the parsed document into a typed JSON graph
    (`ProjectedDocument`) — sections classified into a domain shape
    (`payment_terms`, `liability`, `confidentiality`, …).
-3. For **each rule** in the published `RuleSet`:
+3. For **each rule** in the `RuleSet` loaded from `lambda-rag-rules`
+   (filtered to `status='approved'` AND the pinned
+   `(rulesetName, rulesetVersion)`):
    1. **Select** the candidate sections from the graph using the rule's
       JSONPath-style `Selector`.
    2. Run the **predicate** (compiled Microsoft RulesEngine
       `bool LambdaExpression`) against each candidate — the
       *applicability gate*.
    3. Run the **lambda** against each surviving candidate — the
-      pass/fail determination.
+      pass/fail determination. Semantic rules call
+      `SemanticFunctions.MatchesAnyMeaning(input, "<c1>|<c2>|…", threshold)`
+      to compare a clause embedding against the rule's pinned
+      concept embeddings.
    4. Render **remediation** if the lambda returned false.
 4. Aggregate every rule's verdicts into a **`ComplianceReport`** and
    (optionally) materialise OpenXML comments + tracked changes back
-   onto the source `.docx`.
+   onto the source `.docx`. With `--rewrite`, each failed verdict
+   first goes through the **compliance editor** (`LambdaRag.ComplianceEditor`),
+   which calls Azure OpenAI Responses API to produce replacement
+   clause text. The editor's output is rendered as a tracked
+   insertion; the verdict itself is unchanged.
 
-No LLM, no embeddings, no nondeterminism on this path. Same source +
-same `RuleSet` ⇒ byte-identical report.
+No LLM, no embeddings *in the decision path*. The lambda's
+`MatchesAnyMeaning` call uses **pre-computed concept embeddings**
+pinned to the ruleset version, so same source + same
+`(rulesetName, rulesetVersion)` ⇒ byte-identical report. The
+`--rewrite` flag is the **only** runtime non-determinism source,
+and it only affects the redlined `.docx` — not the report or the
+verdict.
 
 ---
+
+## Stage 0 — Load ruleset
+
+**Module:** [`LambdaRag.Indexing`](../src/LambdaRag.Indexing) ·
+**Contract:** `IRuleStore` (in `LambdaRag.Core.Abstractions`).
+
+Before the rule loop runs, the CLI resolves a `RuleSet` from the
+`lambda-rag-rules` Azure AI Search index. The default implementation,
+`AzureSearchRuleStore`, issues a single filtered query:
+
+```
+$filter = status eq 'approved'
+      and rulesetName eq '<name>'
+      and rulesetVersion eq '<version>'
+```
+
+The `(rulesetName, rulesetVersion)` pair comes from
+`lambdarag.config.json` (or the `--ruleset-name` / `--ruleset-version`
+CLI flags). The runtime never sees `draft`-status rules and never
+floats between versions — both gates are query-time, not artifact-time.
+
+> This is the boundary between authoring and runtime. See
+> [`diagrams/authoring-vs-runtime.md`](diagrams/authoring-vs-runtime.md)
+> for how the index is populated (blob → indexer → skillset →
+> WebApiSkill → extract Function → index).
 
 ## Stage 1 — Parse
 
@@ -160,10 +199,12 @@ If a rule had matches but the predicate skipped all of them, the
 service still emits one `Gap`/`NotApplicable` verdict so every rule
 appears in the audit trail.
 
-## Stage 4 — Aggregate & mark up
+## Stage 4 — Aggregate, optional rewrite, and mark up
 
-**Module:** [`LambdaRag.Markup`](../src/LambdaRag.Markup) ·
-**Service:** `OpenXmlMarkupService`.
+**Modules:**
+[`LambdaRag.Authoring/Editing`](../src/LambdaRag.Authoring/Editing) (opt-in) ·
+[`LambdaRag.Markup`](../src/LambdaRag.Markup) ·
+**Services:** `ComplianceEditor` · `OpenXmlMarkupService`.
 
 `EvaluationService` wraps every verdict for the run into a
 `ComplianceReport` (with score = `passed / (passed + failed + gaps)`
@@ -177,10 +218,18 @@ For DOCX inputs, `OpenXmlMarkupService` then:
 2. Walks paragraphs, finds the run that contains each verdict's
    `SourceSpan`, and inserts:
    - a Word **comment** anchored at the span (the verdict text +
-     evidence quote), and
+     evidence quote + rule remediation), and
    - a tracked **insertion** carrying the rendered remediation
      (when present), or a tracked **deletion** for redactions.
-3. Writes a `reviewed.docx` that opens cleanly in Word's review pane.
+3. **If `--rewrite` was passed**, each failing verdict is first
+   sent to the compliance editor *before* markup. The editor
+   receives `(rule.naturalLanguage, rule.remediation, originalClauseText)`
+   and returns proposed replacement text via Azure OpenAI Responses
+   API. The markup stage then emits the original run as a tracked
+   **deletion** and the editor's output as a tracked **insertion**.
+   The verdict object itself is unchanged — the editor's output
+   never influences pass/fail.
+4. Writes a `reviewed.docx` that opens cleanly in Word's review pane.
 
 > ⚠️ Tracked-change anchoring fidelity is a known Phase-2 hardening
 > area — see issues
@@ -210,16 +259,19 @@ flowchart TD
     CACHE -. cache hit .-> PG
     PROJ --> PG
 
-    RS[/RuleSet vN/]:::io
+    RSIDX[(lambda-rag-rules<br/>Azure AI Search index)]:::io
+    LOAD[Stage 0 · Load<br/>AzureSearchRuleStore<br/>filter status='approved'<br/>+ rulesetVersion]:::stage
+    RS[/RuleSet — pinned version/]:::io
     LOOP{{For each Rule<br/>sorted by Id}}:::stage
     SEL[3a · Selector.match<br/>JsonPathSelectorMatcher]:::rule
     NOMATCH{matches > 0?}:::rule
     PRED[3b · Predicate<br/>RulesEngine bool λ]:::rule
     GATE{predicate true?}:::rule
-    LAM[3c · Lambda<br/>RulesEngine bool λ]:::rule
+    LAM[3c · Lambda<br/>RulesEngine bool λ ·<br/>MatchesAnyMeaning]:::rule
     LAMOUT{lambda result}:::rule
     REM[3d · RemediationRenderer]:::rule
 
+    RSIDX --> LOAD --> RS
     PG --> LOOP
     RS --> LOOP
     LOOP --> SEL
@@ -237,8 +289,12 @@ flowchart TD
     LAMOUT -- false --> REM --> VFAIL[Verdict: Fail + remediation]:::verdict
 
     VGAP & VNA & VERR & VPASS & VFAIL --> AGG[Stage 4 · Aggregate<br/>ComplianceReport]:::stage
-    AGG --> MARKUP[OpenXmlMarkupService<br/>comments + tracked changes]:::stage
+    AGG --> REWRITE{--rewrite ?}:::stage
+    REWRITE -- yes --> EDITOR[ComplianceEditor<br/>Responses API<br/>rule + remediation + clause<br/>→ replacement text]:::rule
+    EDITOR --> MARKUP[OpenXmlMarkupService<br/>comments + tracked changes]:::stage
+    REWRITE -- no --> MARKUP
     MARKUP --> OUT[/reviewed.docx + report.json/]:::io
+    AGG --> RPT[/report.json/]:::io
 ```
 
 ---
@@ -247,12 +303,14 @@ flowchart TD
 
 | Property                                | Mechanism                                             |
 | --------------------------------------- | ----------------------------------------------------- |
-| Same source + ruleset ⇒ same report     | No LLM at runtime; `ExecuteAllRulesAsync` is pure     |
+| Same source + ruleset version ⇒ same report | No LLM in the decision loop; `ExecuteAllRulesAsync` is pure; concept embeddings are pinned to the ruleset version |
+| Stable rule set across runs             | `AzureSearchRuleStore` filters by `status='approved'` AND `rulesetVersion=<pinned>`; the index never silently swaps content |
 | Stable verdict ordering                 | Sort rules by `Id`, then by `span.CharStart`          |
 | Stable verdict ids                      | SHA-256 over `(rule, ruleset, predicate, span, outcome)` |
 | Cached projection is byte-identical     | `ProjectedDocument.CacheKey` composes every input     |
 | Predicate change ⇒ new verdict id       | `PredicateHash` is folded into the verdict id         |
-| RuleSet change ⇒ new fingerprint        | `RuleSet.Fingerprint` composes every rule fingerprint |
+| RuleSet change ⇒ new fingerprint        | `RuleSet.Fingerprint` composes every rule's `contentHash` |
+| `--rewrite` does **not** affect determinism of the report | The editor runs *after* `ComplianceReport` is finalized; its output only changes `reviewed.docx`, never `report.json` |
 
 ---
 
@@ -260,12 +318,15 @@ flowchart TD
 
 | Stage                | File                                                                                |
 | -------------------- | ----------------------------------------------------------------------------------- |
+| Load ruleset         | `src/LambdaRag.Indexing/AzureSearch/AzureSearchRuleStore.cs`                        |
 | Parse                | `src/LambdaRag.Parsing/{DocxParser,PdfParser,MarkdownParser}.cs`                    |
 | Project              | `src/LambdaRag.Projection/Projectors/DeterministicContractProjector.cs`             |
 | Select               | `src/LambdaRag.Selectors/JsonPathSelectorMatcher.cs`                                |
 | Predicate + Lambda   | `src/LambdaRag.Evaluation/Engine/EvaluationService.cs`                              |
+| Semantic match       | `src/LambdaRag.Core/Semantic/SemanticFunctions.cs`                                  |
 | Workflow assembly    | `src/LambdaRag.Evaluation/Workflow/WorkflowFactory.cs`                              |
 | Remediation          | `src/LambdaRag.Evaluation/Engine/RemediationRenderer.cs`                            |
+| Rewrite (opt-in)     | `src/LambdaRag.Authoring/Editing/ComplianceEditor.cs`                               |
 | Markup               | `src/LambdaRag.Markup/OpenXmlMarkupService.cs`                                      |
 
 See also: [`ARCHITECTURE.md`](ARCHITECTURE.md),
