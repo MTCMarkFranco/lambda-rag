@@ -1,0 +1,90 @@
+{
+  "name": "lambda-rag-rules-skillset-md",
+  "description": "Markdown intake: Split (on /document/content) → WebApiSkill (extract-rule Function) → Embedding(concepts). Skips DocumentIntelligenceLayoutSkill — Markdown is already text.",
+  "skills": [
+    {
+      "@odata.type": "#Microsoft.Skills.Text.SplitSkill",
+      "name": "split",
+      "description": "Section-aware split on raw Markdown content. Same chunk size (8000 chars / 400 overlap) as the binary path so downstream extractRule sees comparable chunks.",
+      "context": "/document",
+      "textSplitMode": "pages",
+      "maximumPageLength": 8000,
+      "pageOverlapLength": 400,
+      "unit": "characters",
+      "inputs": [
+        { "name": "text", "source": "/document/content" }
+      ],
+      "outputs": [
+        { "name": "textItems", "targetName": "chunks" }
+      ]
+    },
+    {
+      "@odata.type": "#Microsoft.Skills.Custom.WebApiSkill",
+      "name": "extractRule",
+      "description": "Calls the extract-rule Azure Function. Each input record is a chunk and the function returns a validated ExtractedRule object. headingPath + parentDocumentId travel with the chunk so downstream consumers can group sibling chunks of the same section and reassemble multi-chunk clauses.",
+      "context": "/document/chunks/*",
+      "uri": "{{FUNCTION_URI}}",
+      "httpMethod": "POST",
+      "timeout": "PT60S",
+      "batchSize": 1,
+      "degreeOfParallelism": 4,
+      "authResourceId": "{{AUTH_RESOURCE_ID}}",
+      "inputs": [
+        { "name": "chunk",            "source": "/document/chunks/*" },
+        { "name": "documentId",       "source": "/document/metadata_storage_name" },
+        { "name": "parentDocumentId", "source": "/document/metadata_storage_name" }
+      ],
+      "outputs": [
+        { "name": "extractedRule", "targetName": "extractedRule" }
+      ]
+    },
+    {
+      "@odata.type": "#Microsoft.Skills.Text.AzureOpenAIEmbeddingSkill",
+      "name": "embedConcepts",
+      "description": "Vectorize the concept list for hybrid retrieval (Phase B).",
+      "context": "/document/chunks/*",
+      "resourceUri": "{{AZURE_OPENAI_ENDPOINT}}",
+      "deploymentId": "{{EMBEDDING_DEPLOYMENT}}",
+      "modelName": "text-embedding-3-large",
+      "authIdentity": null,
+      "inputs": [
+        { "name": "text", "source": "/document/chunks/*/extractedRule/concepts" }
+      ],
+      "outputs": [
+        { "name": "embedding", "targetName": "conceptsVector" }
+      ]
+    }
+  ],
+  "indexProjections": {
+    "selectors": [
+      {
+        "targetIndexName": "lambda-rag-rules",
+        "parentKeyFieldName": "documentId",
+        "sourceContext": "/document/chunks/*",
+        "mappings": [
+          { "name": "ruleId",          "source": "/document/chunks/*/extractedRule/ruleId" },
+          { "name": "domain",          "source": "='architecture-review'" },
+          { "name": "version",         "source": "/document/version" },
+          { "name": "status",          "source": "='draft'" },
+          { "name": "parentDocumentId","source": "/document/chunks/*/extractedRule/parentDocumentId" },
+          { "name": "sectionId",       "source": "/document/chunks/*/extractedRule/sectionId" },
+          { "name": "naturalLanguage", "source": "/document/chunks/*/extractedRule/naturalLanguage" },
+          { "name": "predicate",       "source": "/document/chunks/*/extractedRule/predicate" },
+          { "name": "lambda",          "source": "/document/chunks/*/extractedRule/lambda" },
+          { "name": "concepts",        "source": "/document/chunks/*/extractedRule/concepts" },
+          { "name": "conceptsVector",  "source": "/document/chunks/*/conceptsVector" },
+          { "name": "severity",        "source": "/document/chunks/*/extractedRule/severity" },
+          { "name": "applicability",   "source": "/document/chunks/*/extractedRule/applicability" },
+          { "name": "remediation",     "source": "/document/chunks/*/extractedRule/remediation" },
+          { "name": "evidenceQuote",   "source": "/document/chunks/*/extractedRule/evidenceQuote" },
+          { "name": "sourceSpan",      "source": "/document/chunks/*/extractedRule/sourceSpan" },
+          { "name": "examples",        "source": "/document/chunks/*/extractedRule/examples" },
+          { "name": "metadata",        "source": "/document/chunks/*/extractedRule/metadata" }
+        ]
+      }
+    ],
+    "parameters": {
+      "projectionMode": "skipIndexingParentDocuments"
+    }
+  }
+}
