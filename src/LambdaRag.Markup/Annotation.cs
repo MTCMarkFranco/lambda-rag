@@ -7,6 +7,15 @@ namespace LambdaRag.Markup;
 /// A single annotation derived from a Verdict that the markup engine knows
 /// how to render. Stable Id (derived from verdict id) means re-running over
 /// the same input produces byte-identical artifacts.
+///
+/// <para>
+/// <see cref="Span"/> is the narrow *evidence* anchor — used for the
+/// reviewer comment marker so the highlight in Word's review pane lands on
+/// the offending substring. <see cref="ClauseSpan"/>, when non-null,
+/// widens tracked-change deletions / replacements to the enclosing
+/// paragraph(s). Issue #87 introduced this split so multi-paragraph
+/// clauses get fully struck through instead of partially.
+/// </para>
 /// </summary>
 public sealed record Annotation(
     string Id,
@@ -14,7 +23,21 @@ public sealed record Annotation(
     SourceSpan Span,
     string Author,
     string Text,
-    string? Replacement);
+    string? Replacement)
+{
+    /// <summary>
+    /// Optional paragraph- or section-aligned span used to widen
+    /// tracked-change deletions / replacements. Null = the markup engine
+    /// clamps the change to the single paragraph that contains
+    /// <see cref="Span"/> (pre-#87 behaviour, preserved for backward
+    /// compatibility). Only meaningful for
+    /// <see cref="AnnotationKind.Delete"/> and
+    /// <see cref="AnnotationKind.Replace"/>; ignored for
+    /// <see cref="AnnotationKind.Comment"/> and
+    /// <see cref="AnnotationKind.Insert"/>.
+    /// </summary>
+    public SourceSpan? ClauseSpan { get; init; }
+}
 
 public enum AnnotationKind
 {
@@ -131,7 +154,14 @@ public static class AnnotationFactory
                 Span: v.SourceSpan,
                 Author: comment.Author,
                 Text: comment.Text,
-                Replacement: rewrite);
+                Replacement: rewrite)
+            {
+                // Carry the verdict's paragraph-aligned widening so the
+                // markup engine can extend the strike-through to the whole
+                // clause (issue #87). Null on pre-#87 verdicts — engine
+                // falls back to single-paragraph clamping.
+                ClauseSpan = v.ClauseSpan,
+            };
         }
     }
 

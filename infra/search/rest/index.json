@@ -28,6 +28,22 @@
       "sortable": true
     },
     {
+      "name": "parentDocumentId",
+      "type": "Edm.String",
+      "filterable": true,
+      "retrievable": true,
+      "searchable": false,
+      "sortable": true
+    },
+    {
+      "name": "sectionId",
+      "type": "Edm.String",
+      "filterable": true,
+      "retrievable": true,
+      "searchable": false,
+      "sortable": true
+    },
+    {
       "name": "domain",
       "type": "Edm.String",
       "filterable": true,

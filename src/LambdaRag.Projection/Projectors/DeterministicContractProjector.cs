@@ -39,7 +39,7 @@ namespace LambdaRag.Projection.Projectors;
 public sealed class DeterministicContractProjector : IDocumentProjector
 {
     public string Id => "contract";
-    public string Version => "1.4.0";
+    public string Version => "1.5.0";
     public string Domain => "contract";
     public JsonObject Schema => SchemaInstance;
 
@@ -185,6 +185,16 @@ public sealed class DeterministicContractProjector : IDocumentProjector
                 // re-parsing the document.
                 ["text_raw"] = bodyText,
                 ["text_char_start"] = bodyCharStart,
+                // Paragraph offsets *relative to the section body text*.
+                // Used by the markup engine (issue #87) to widen tracked-change
+                // deletions to whole-clause boundaries when a narrow evidence
+                // span falls inside a multi-paragraph clause. Paragraphs are
+                // the LF-separated lines of the canonical text — same
+                // contract the markup paragraph index walks on the OOXML
+                // side. Emitted on every section so byte-identity replay
+                // requires a projector-version bump in lock-step (1.4.0
+                // → 1.5.0).
+                ["paragraphs"] = BuildParagraphOffsets(resolvedBodyText),
             };
             if (classification.InheritedFrom is not null)
                 sectionNode["inherited_from"] = classification.InheritedFrom;
@@ -308,6 +318,39 @@ public sealed class DeterministicContractProjector : IDocumentProjector
     }
 
     private record TopicScore(string Topic, double Score);
+
+    /// <summary>
+    /// Build the per-section paragraph offset array consumed by the
+    /// markup engine's clause-widening logic (issue #87). Paragraphs are
+    /// LF-separated lines of the canonical body text — same contract
+    /// <c>OpenXmlMarkupService.BuildParagraphIndex</c> walks on the OOXML
+    /// side. Each entry is an object <c>{ "char_start": N, "char_length": M }</c>
+    /// where offsets are *relative to the section's text* (i.e. relative
+    /// to <c>text_char_start</c>). Empty paragraphs preserve their slot
+    /// so paragraph ordinals line up with the OOXML view.
+    /// </summary>
+    private static JsonArray BuildParagraphOffsets(string body)
+    {
+        var arr = new JsonArray();
+        if (string.IsNullOrEmpty(body)) return arr;
+        var offset = 0;
+        // Split on '\n' (not Environment.NewLine) — the canonical text
+        // contract joins paragraphs with a single LF.
+        var lines = body.Split('\n');
+        for (int i = 0; i < lines.Length; i++)
+        {
+            var len = lines[i].Length;
+            arr.Add(new JsonObject
+            {
+                ["char_start"] = offset,
+                ["char_length"] = len,
+            });
+            // +1 for the LF separator; the final line has no trailing LF
+            // in the canonical text either, so skip the +1 for the tail.
+            offset += len + (i < lines.Length - 1 ? 1 : 0);
+        }
+        return arr;
+    }
     private record Classification(string? PrimaryTopic, IReadOnlyList<TopicScore> Topics, string? InheritedFrom);
 
     private Classification Classify(
@@ -602,6 +645,7 @@ public sealed class DeterministicContractProjector : IDocumentProjector
                     ["text"] = body,
                     ["text_raw"] = body,
                     ["text_char_start"] = parentTextCharStart + bodyStart,
+                    ["paragraphs"] = BuildParagraphOffsets(body),
                     ["parent_section"] = parentId,
                 };
 

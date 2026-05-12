@@ -8,7 +8,7 @@
     "value": "lr1:2f541ac2024e20889677c0ff2e16188e1cb936daf685f953c3d67a8178e92d03"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.4.0",
+  "projectorVersion": "1.5.0",
   "score": 0,
   "totalRules": 5,
   "passed": 0,
@@ -17,7 +17,7 @@
   "errored": 0,
   "verdicts": [
     {
-      "id": "lr1:edb569462cac48aef061cc68df8de32ead6d02c8175e02100173e41924dac9bc",
+      "id": "lr1:a63135e99799d783a90daa03e537940135ceb51d8fffc7057131ef6841624b9b",
       "ruleId": "CAN-CONTRACT-GOV-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -63,7 +63,13 @@
         },
         "text": "This Agreement is governed by the laws of the State of Delaware,without regard to its conflicts-of-law rules. The exclusive venue isthe state and federal courts located in Wilmington, Delaware.",
         "text_raw": "This Agreement is governed by the laws of the State of Delaware,without regard to its conflicts-of-law rules. The exclusive venue isthe state and federal courts located in Wilmington, Delaware.",
-        "text_char_start": 1434
+        "text_char_start": 1434,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 193
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:24fcc4fa49136a1aafbc3840470d8779cac6246dc2ffa9fb4db20809d13c6f69",
@@ -79,10 +85,17 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000007",
       "remediationText": "Replace the 7. Governing Law clause with: \"This Agreement is governed by the laws of the Province of Ontario and the federal laws of Canada applicable therein. The exclusive venue for any dispute is the courts of Ontario.\"",
-      "predicateText": "input1.category == \"governing_law\""
+      "predicateText": "input1.category == \"governing_law\"",
+      "clauseSpan": {
+        "documentId": "lr1:24fcc4fa49136a1aafbc3840470d8779cac6246dc2ffa9fb4db20809d13c6f69",
+        "charStart": 1434,
+        "charLength": 193,
+        "headingPath": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/7. Governing Law",
+        "charEnd": 1627
+      }
     },
     {
-      "id": "lr1:4ca81da145ac0d835780770204ea90da4e1d02501472e18b0b098a52ad76b309",
+      "id": "lr1:f1ae37dfcf364144c85099bfc8f817df93b24231b5b493193d26be0c7852e3e9",
       "ruleId": "CAN-CONTRACT-LIAB-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -132,7 +145,13 @@
         },
         "text": "Each party shall be responsible for damages caused by its own grossnegligence or wilful misconduct. The parties' respective liabilitiesshall be determined under applicable law.",
         "text_raw": "Each party shall be responsible for damages caused by its own grossnegligence or wilful misconduct. The parties' respective liabilitiesshall be determined under applicable law.",
-        "text_char_start": 980
+        "text_char_start": 980,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 176
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:24fcc4fa49136a1aafbc3840470d8779cac6246dc2ffa9fb4db20809d13c6f69",
@@ -148,10 +167,17 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000005",
       "remediationText": "Replace the 5. Liability clause with: \"Each party's aggregate liability under this Agreement shall not exceed the fees paid by Customer to Provider in the twelve (12) months preceding the event giving rise to the claim.\"",
-      "predicateText": "input1.category == \"liability\""
+      "predicateText": "input1.category == \"liability\"",
+      "clauseSpan": {
+        "documentId": "lr1:24fcc4fa49136a1aafbc3840470d8779cac6246dc2ffa9fb4db20809d13c6f69",
+        "charStart": 980,
+        "charLength": 176,
+        "headingPath": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/5. Liability",
+        "charEnd": 1156
+      }
     },
     {
-      "id": "lr1:129a4747a8992815118460fbcfb672718fd3cb373913dda24c7d65313ae950d9",
+      "id": "lr1:6ef7dc8c54541e580217801114729a073e4a4f82be6860b2ed22bec70add432a",
       "ruleId": "CAN-CONTRACT-PAY-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -199,7 +225,13 @@
         },
         "text": "Maple LeafLogistics Inc. shall pay all undisputed invoices within forty-five (45) daysof receipt. Late payments accrue interest at 1.5% per month. All feesare stated in USD.",
         "text_raw": "Customer shall pay all undisputed invoices within forty-five (45) daysof receipt. Late payments accrue interest at 1.5% per month. All feesare stated in USD.",
-        "text_char_start": 558
+        "text_char_start": 558,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 173
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:24fcc4fa49136a1aafbc3840470d8779cac6246dc2ffa9fb4db20809d13c6f69",
@@ -215,10 +247,17 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000003",
       "remediationText": "Replace the 3. Payment and Compensation clause with: \"Customer shall pay all undisputed invoices within thirty (30) days of receipt of a valid invoice.\"",
-      "predicateText": "input1.category == \"payment_terms\""
+      "predicateText": "input1.category == \"payment_terms\"",
+      "clauseSpan": {
+        "documentId": "lr1:24fcc4fa49136a1aafbc3840470d8779cac6246dc2ffa9fb4db20809d13c6f69",
+        "charStart": 558,
+        "charLength": 173,
+        "headingPath": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/3. Payment and Compensation",
+        "charEnd": 731
+      }
     },
     {
-      "id": "lr1:b9855751b72d05f6d35c274c62c605a01acb7c379ba038b4b6a9cf717f30436f",
+      "id": "lr1:f3ca81246ea22148e8e132585df08c188390ff5edbc6a1aa1ae0e4830a21050f",
       "ruleId": "CAN-CONTRACT-PRIVACY-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -266,7 +305,13 @@
         },
         "text": "PinewoodSoftware Holdings LLC shall process Personal Data in accordance with the GeneralData Protection Regulation (GDPR) and shall implement appropriatetechnical and organisational measures consistent with industrystandards.",
         "text_raw": "Provider shall process Personal Data in accordance with the GeneralData Protection Regulation (GDPR) and shall implement appropriatetechnical and organisational measures consistent with industrystandards.",
-        "text_char_start": 754
+        "text_char_start": 754,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 225
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:24fcc4fa49136a1aafbc3840470d8779cac6246dc2ffa9fb4db20809d13c6f69",
@@ -282,10 +327,17 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000004",
       "remediationText": "Add to the 4. Privacy and Data Processing clause: \"Provider shall process Personal Information only as required to deliver the Services and in compliance with the Personal Information Protection and Electronic Documents Act (PIPEDA) and any substantially similar provincial privacy legislation applicable to the data subjects.\"",
-      "predicateText": "input1.category == \"privacy\""
+      "predicateText": "input1.category == \"privacy\"",
+      "clauseSpan": {
+        "documentId": "lr1:24fcc4fa49136a1aafbc3840470d8779cac6246dc2ffa9fb4db20809d13c6f69",
+        "charStart": 754,
+        "charLength": 225,
+        "headingPath": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/4. Privacy and Data Processing",
+        "charEnd": 979
+      }
     },
     {
-      "id": "lr1:591d8e8c4c20ab92a5bd2127cc92b9956b5e1164f63cff549017805acc8d6089",
+      "id": "lr1:834e5f2393fc9ab7700526607346e7f7501219aee688ec0ed27e9b1172216a30",
       "ruleId": "CAN-CONTRACT-TERM-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -337,7 +389,13 @@
         },
         "text": "Either party may terminate this Agreement for material uncured breachupon thirty (30) days' written notice. The PinewoodSoftware Holdings LLC may, at its solediscretion, terminate this Agreement immediately upon non-payment byCustomer of any invoice.",
         "text_raw": "Either party may terminate this Agreement for material uncured breachupon thirty (30) days' written notice. The Provider may, at its solediscretion, terminate this Agreement immediately upon non-payment byCustomer of any invoice.",
-        "text_char_start": 1179
+        "text_char_start": 1179,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 250
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:24fcc4fa49136a1aafbc3840470d8779cac6246dc2ffa9fb4db20809d13c6f69",
@@ -353,7 +411,14 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000006",
       "remediationText": "Update 6. Termination to include both: (a) termination for material uncured breach on stated notice; and (b) termination for convenience by Customer on a defined notice period (typically 30–90 days), per SACC general-conditions baselines.",
-      "predicateText": "input1.category == \"termination\""
+      "predicateText": "input1.category == \"termination\"",
+      "clauseSpan": {
+        "documentId": "lr1:24fcc4fa49136a1aafbc3840470d8779cac6246dc2ffa9fb4db20809d13c6f69",
+        "charStart": 1179,
+        "charLength": 250,
+        "headingPath": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/6. Termination",
+        "charEnd": 1429
+      }
     }
   ],
   "generatedAt": "2000-01-01T00:00:00+00:00",

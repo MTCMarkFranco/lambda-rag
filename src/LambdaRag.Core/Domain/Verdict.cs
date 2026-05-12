@@ -51,6 +51,19 @@ public sealed record Verdict(
     /// default <c>"true"</c>.
     /// </summary>
     public string PredicateText { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Paragraph- or section-aligned span used for tracked-change
+    /// replacements / deletions. The narrow <see cref="SourceSpan"/>
+    /// stays as the *evidence* anchor for reviewer comments; this wider
+    /// span is what the markup engine widens deletions to so a clause
+    /// that crosses paragraph boundaries is fully struck through instead
+    /// of partially. Null on verdicts authored before #87 — the markup
+    /// engine then falls back to single-paragraph clamping. Folded into
+    /// the verdict-id hash only when non-null so existing byte-identity
+    /// replay holds.
+    /// </summary>
+    public SourceSpan? ClauseSpan { get; init; }
 }
 
 /// <summary>

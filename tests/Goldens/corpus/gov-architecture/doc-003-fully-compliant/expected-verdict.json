@@ -8,7 +8,7 @@
     "value": "lr1:59ab8307c1e8ccba9a533ed18bb9033ee230695669c26d21d4bb8dd7e80d193f"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.4.0",
+  "projectorVersion": "1.5.0",
   "score": 0.6,
   "totalRules": 5,
   "passed": 3,
@@ -73,7 +73,13 @@
         },
         "text": "All administrative access — including the two registered globaladministrators — is gated by phishing-resistant MFA. The supportedauthenticators are FIDO2 security keys and PIV-derived smart cardcredentials issued under the departmental PKI. Password-based andSMS-based authentication are disabled in conditional access policy.",
         "text_raw": "All administrative access — including the two registered globaladministrators — is gated by phishing-resistant MFA. The supportedauthenticators are FIDO2 security keys and PIV-derived smart cardcredentials issued under the departmental PKI. Password-based andSMS-based authentication are disabled in conditional access policy.",
-        "text_char_start": 581
+        "text_char_start": 581,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 326
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:38741365ce07b15823fb3faf67ae917863dcc5eda3604fe5f372a7b746180c54",
@@ -140,7 +146,13 @@
         },
         "text": "Every data-plane resource — compute, managed databases, blob storage,key vaults, and log analytics workspaces — is pinned to the provider'sCanada Central region (Toronto), with a designated paired failoverregion of Canada East (Quebec). Provisioning outside Canadian datacentre regions is blocked by tenant-level policy.",
         "text_raw": "Every data-plane resource — compute, managed databases, blob storage,key vaults, and log analytics workspaces — is pinned to the provider'sCanada Central region (Toronto), with a designated paired failoverregion of Canada East (Quebec). Provisioning outside Canadian datacentre regions is blocked by tenant-level policy.",
-        "text_char_start": 951
+        "text_char_start": 951,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 320
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:38741365ce07b15823fb3faf67ae917863dcc5eda3604fe5f372a7b746180c54",
@@ -157,7 +169,7 @@
       "predicateText": "input1.category == \"data_residency_canada\""
     },
     {
-      "id": "lr1:ae7b0081a0c9c4ee06715977f321d6285f5ffbe5cdae27a63d059977b3bdded7",
+      "id": "lr1:484e620fbad0445c3fb263aebc6785cf536f68aad3a5b6c9c861be813438e805",
       "ruleId": "GC-CG-06-EncryptionAtRest",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -209,7 +221,13 @@
         },
         "text": "All persistent storage is encrypted at rest with AES-256 using a FIPS140-2 validated cryptographic module. Customer-managed keys are storedin an HSM-backed key vault in Canada Central with annual key rotationand dual-control administrative access.",
         "text_raw": "All persistent storage is encrypted at rest with AES-256 using a FIPS140-2 validated cryptographic module. Customer-managed keys are storedin an HSM-backed key vault in Canada Central with annual key rotationand dual-control administrative access.",
-        "text_char_start": 1303
+        "text_char_start": 1303,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 247
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:38741365ce07b15823fb3faf67ae917863dcc5eda3604fe5f372a7b746180c54",
@@ -225,10 +243,17 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000004",
       "remediationText": "Update 4. Encryption at Rest to commit to AES-256 encryption with a FIPS 140-2 (or 140-3) validated cryptographic module, aligned with CSE ITSP.40.111 and GC Cloud Guardrail 06.",
-      "predicateText": "input1.category == \"encryption_at_rest\""
+      "predicateText": "input1.category == \"encryption_at_rest\"",
+      "clauseSpan": {
+        "documentId": "lr1:38741365ce07b15823fb3faf67ae917863dcc5eda3604fe5f372a7b746180c54",
+        "charStart": 1303,
+        "charLength": 247,
+        "headingPath": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/4. Encryption at Rest",
+        "charEnd": 1550
+      }
     },
     {
-      "id": "lr1:61864030b66c7f265fed20c5585325590d3f1ecfcf029f63e14624be13a2c448",
+      "id": "lr1:b0bbca2f5f3901cf41d9d6e44530160e6fb1ed425bb20512b49dc20f2aee9114",
       "ruleId": "GC-CG-07-TLS",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -280,7 +305,13 @@
         },
         "text": "All ingress traffic terminates with a minimum negotiated TLS version ofTLS 1.2; TLS 1.3 is preferred and offered first. TLS 1.0 and TLS 1.1 areexplicitly disabled. Cipher suites are restricted to the CSE-approvedsubset.",
         "text_raw": "All ingress traffic terminates with a minimum negotiated TLS version ofTLS 1.2; TLS 1.3 is preferred and offered first. TLS 1.0 and TLS 1.1 areexplicitly disabled. Cipher suites are restricted to the CSE-approvedsubset.",
-        "text_char_start": 1584
+        "text_char_start": 1584,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 219
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:38741365ce07b15823fb3faf67ae917863dcc5eda3604fe5f372a7b746180c54",
@@ -296,7 +327,14 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000005",
       "remediationText": "Update 5. TLS 1.2 Configuration to require TLS 1.2 or TLS 1.3 for all in-transit traffic and explicitly disable TLS 1.0 / 1.1, per GC Cloud Guardrail 07 and the GC Web Sites and Services Management Configuration Requirements.",
-      "predicateText": "input1.category == \"encryption_in_transit\""
+      "predicateText": "input1.category == \"encryption_in_transit\"",
+      "clauseSpan": {
+        "documentId": "lr1:38741365ce07b15823fb3faf67ae917863dcc5eda3604fe5f372a7b746180c54",
+        "charStart": 1584,
+        "charLength": 219,
+        "headingPath": "/Solution Architecture — Reference Compliant Cloud Workload (Protected B PaaS)/5. TLS 1.2 Configuration",
+        "charEnd": 1803
+      }
     },
     {
       "id": "lr1:a4c00f014a6df8ab01645ff4d4f32cafe4bc4737b3ddb930ca128dc84ead385c",
@@ -357,7 +395,13 @@
         },
         "text": "Platform audit logs are streamed to a centralised log analyticsworkspace and retained for 365 days online with a further 7 years intiered immutable storage. The log pipeline captures sign-in events(interactive and non-interactive), configuration changes, and resourceprovisioning activities. Two named information-security personnel areregistered as the platform security contacts.",
         "text_raw": "Platform audit logs are streamed to a centralised log analyticsworkspace and retained for 365 days online with a further 7 years intiered immutable storage. The log pipeline captures sign-in events(interactive and non-interactive), configuration changes, and resourceprovisioning activities. Two named information-security personnel areregistered as the platform security contacts.",
-        "text_char_start": 1834
+        "text_char_start": 1834,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 381
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:38741365ce07b15823fb3faf67ae917863dcc5eda3604fe5f372a7b746180c54",

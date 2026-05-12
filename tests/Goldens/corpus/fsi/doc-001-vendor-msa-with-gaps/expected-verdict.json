@@ -8,7 +8,7 @@
     "value": "lr1:bc40e4051d8695407fb3fcf3b823ef052e96b8ef19ff52c48708545ebb8c9861"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.4.0",
+  "projectorVersion": "1.5.0",
   "score": 0,
   "totalRules": 11,
   "passed": 0,
@@ -17,7 +17,7 @@
   "errored": 0,
   "verdicts": [
     {
-      "id": "lr1:1e2f4fc86bdc5ced8b6a79f1f0ea48c226d4a3a30da577bc1c55fb79eb2e0fe9",
+      "id": "lr1:ba3c40561eb177bdef5c62b4460e2c0cb612bf2094ef3f8ddfbe705335da5b06",
       "ruleId": "OSFI-B10-AuditAccess",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -63,7 +63,13 @@
         },
         "text": "The Bank acknowledges that this Agreement constitutes a third-partyarrangement under applicable Canadian regulatory expectations. The Bankmaintains policies for managing its third-party relationships at anenterprise level.",
         "text_raw": "The Bank acknowledges that this Agreement constitutes a third-partyarrangement under applicable Canadian regulatory expectations. The Bankmaintains policies for managing its third-party relationships at anenterprise level.",
-        "text_char_start": 751
+        "text_char_start": 751,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 222
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
@@ -79,10 +85,17 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000003",
       "remediationText": "Add to 3. Outsourcing — Third-Party Risk Acknowledgement: \"The third party shall provide the FRFI, the FRFI's internal and external auditors, and OSFI with rights of audit, examination, and access to records and personnel relevant to this arrangement.\"",
-      "predicateText": "input1.category == \"third_party_risk\""
+      "predicateText": "input1.category == \"third_party_risk\"",
+      "clauseSpan": {
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
+        "charStart": 751,
+        "charLength": 222,
+        "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./3. Outsourcing — Third-Party Risk Acknowledgement",
+        "charEnd": 973
+      }
     },
     {
-      "id": "lr1:68a1091056b0220b6de517452d40d3bfc6da6da9fb425a46f4410f041c30934c",
+      "id": "lr1:6fca30d1f00a1c7fa5e86ff00a85cb036374df2d30400b8f71b41489be66f62d",
       "ruleId": "OSFI-B10-AuditAccess",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -128,7 +141,13 @@
         },
         "text": "The Provider may subcontract any portion of the Services to anyaffiliate or qualified third party. The Provider remains responsiblefor the performance of its subcontractors. A current list of materialsubcontractors is available on request.",
         "text_raw": "The Provider may subcontract any portion of the Services to anyaffiliate or qualified third party. The Provider remains responsiblefor the performance of its subcontractors. A current list of materialsubcontractors is available on request.",
-        "text_char_start": 1016
+        "text_char_start": 1016,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 239
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
@@ -144,10 +163,17 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000004",
       "remediationText": "Add to 4. Subcontractors and Outsourcing: \"The third party shall provide the FRFI, the FRFI's internal and external auditors, and OSFI with rights of audit, examination, and access to records and personnel relevant to this arrangement.\"",
-      "predicateText": "input1.category == \"third_party_risk\""
+      "predicateText": "input1.category == \"third_party_risk\"",
+      "clauseSpan": {
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
+        "charStart": 1016,
+        "charLength": 239,
+        "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./4. Subcontractors and Outsourcing",
+        "charEnd": 1255
+      }
     },
     {
-      "id": "lr1:22d7f70a533c5822ac078c946ade9628ae31360adf2f060cb15cc111f4887d0f",
+      "id": "lr1:7938cc1d00d4d02da3f549b3a4d9e6bba8d22912145df28f5719175e58dfecae",
       "ruleId": "OSFI-B10-AuditAccess",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -193,7 +219,13 @@
         },
         "text": "Once per calendar year, on at least sixty (60) days' written notice andduring normal business hours, the Bank's internal audit team may inspectthe Provider's records and systems strictly relevant to the Services.Such inspections shall not unreasonably disrupt the Provider'soperations.",
         "text_raw": "Once per calendar year, on at least sixty (60) days' written notice andduring normal business hours, the Bank's internal audit team may inspectthe Provider's records and systems strictly relevant to the Services.Such inspections shall not unreasonably disrupt the Provider'soperations.",
-        "text_char_start": 1304
+        "text_char_start": 1304,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 285
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
@@ -209,10 +241,17 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000005",
       "remediationText": "Add to 5. Audit Rights — Vendor Risk Oversight: \"The third party shall provide the FRFI, the FRFI's internal and external auditors, and OSFI with rights of audit, examination, and access to records and personnel relevant to this arrangement.\"",
-      "predicateText": "input1.category == \"third_party_risk\""
+      "predicateText": "input1.category == \"third_party_risk\"",
+      "clauseSpan": {
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
+        "charStart": 1304,
+        "charLength": 285,
+        "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./5. Audit Rights — Vendor Risk Oversight",
+        "charEnd": 1589
+      }
     },
     {
-      "id": "lr1:6285eab142a1deda64c8dfe1a2557b7ff0663b9297df179df68a835987ffd986",
+      "id": "lr1:d763491cca4b6ae43e48061f00b74205d9596d95f5c51de821214c7e8958b1a3",
       "ruleId": "OSFI-B10-BCP",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -260,7 +299,13 @@
         },
         "text": "The Provider shall maintain a written business continuity plan (\"BCP\")covering the Services. The Provider shall test the BCP annually andshall provide the Bank with a summary of the test results on request.",
         "text_raw": "The Provider shall maintain a written business continuity plan (\"BCP\")covering the Services. The Provider shall test the BCP annually andshall provide the Bank with a summary of the test results on request.",
-        "text_char_start": 1622
+        "text_char_start": 1622,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 206
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
@@ -276,10 +321,17 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000006",
       "remediationText": "Update 6. Business Continuity to require a documented business continuity and disaster recovery plan with explicit Recovery Time Objective (RTO) and Recovery Point Objective (RPO) commitments aligned to the criticality of the outsourced activity, per OSFI Guideline B-10 and E-21.",
-      "predicateText": "input1.category == \"business_continuity\""
+      "predicateText": "input1.category == \"business_continuity\"",
+      "clauseSpan": {
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
+        "charStart": 1622,
+        "charLength": 206,
+        "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./6. Business Continuity",
+        "charEnd": 1828
+      }
     },
     {
-      "id": "lr1:30f520f0f80a5b27a7f8c7fe2c6015ac2a877cf391e2923cdfc25f80eb5d10ab",
+      "id": "lr1:99c537760b6df94a547b7a65ba9fc22676fab337408697e0c54c84e1d40eb062",
       "ruleId": "OSFI-B10-ExitPlan",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -327,7 +379,13 @@
         },
         "text": "The Provider shall maintain a written business continuity plan (\"BCP\")covering the Services. The Provider shall test the BCP annually andshall provide the Bank with a summary of the test results on request.",
         "text_raw": "The Provider shall maintain a written business continuity plan (\"BCP\")covering the Services. The Provider shall test the BCP annually andshall provide the Bank with a summary of the test results on request.",
-        "text_char_start": 1622
+        "text_char_start": 1622,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 206
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
@@ -343,10 +401,17 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000006",
       "remediationText": "Add to 6. Business Continuity: \"The parties shall maintain a documented exit plan, including invocation triggers for both planned (non-stressed) and unplanned (stressed) exit, transition assistance obligations, and the return or certified destruction of FRFI data on termination.\"",
-      "predicateText": "input1.category == \"business_continuity\""
+      "predicateText": "input1.category == \"business_continuity\"",
+      "clauseSpan": {
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
+        "charStart": 1622,
+        "charLength": 206,
+        "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./6. Business Continuity",
+        "charEnd": 1828
+      }
     },
     {
-      "id": "lr1:9ac9feb45bb2814f8cd187de8fe97a785a3fbe78bb22baf6d3e7aab20194daa2",
+      "id": "lr1:ae2524ef27aa6b68b897a410f17951b5d383179fe48f4474d811f07adb8c34d1",
       "ruleId": "OSFI-B10-Subcontracting",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -392,7 +457,13 @@
         },
         "text": "The Bank acknowledges that this Agreement constitutes a third-partyarrangement under applicable Canadian regulatory expectations. The Bankmaintains policies for managing its third-party relationships at anenterprise level.",
         "text_raw": "The Bank acknowledges that this Agreement constitutes a third-partyarrangement under applicable Canadian regulatory expectations. The Bankmaintains policies for managing its third-party relationships at anenterprise level.",
-        "text_char_start": 751
+        "text_char_start": 751,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 222
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
@@ -408,10 +479,17 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000003",
       "remediationText": "Update 3. Outsourcing — Third-Party Risk Acknowledgement to require the third party to obtain the FRFI's prior written consent (or, at a minimum, prior notice) before engaging or replacing any subcontractor that provides services material to the arrangement, per OSFI Guideline B-10.",
-      "predicateText": "input1.category == \"third_party_risk\""
+      "predicateText": "input1.category == \"third_party_risk\"",
+      "clauseSpan": {
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
+        "charStart": 751,
+        "charLength": 222,
+        "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./3. Outsourcing — Third-Party Risk Acknowledgement",
+        "charEnd": 973
+      }
     },
     {
-      "id": "lr1:bc179dbc4ddff4b55af6d1143dee0a66d5847795551d4ef49a272f6839333abc",
+      "id": "lr1:bcfc664c5ad4cc5237aea4f47f8c81198544c249fffa656414df1b22588b0809",
       "ruleId": "OSFI-B10-Subcontracting",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -457,7 +535,13 @@
         },
         "text": "The Provider may subcontract any portion of the Services to anyaffiliate or qualified third party. The Provider remains responsiblefor the performance of its subcontractors. A current list of materialsubcontractors is available on request.",
         "text_raw": "The Provider may subcontract any portion of the Services to anyaffiliate or qualified third party. The Provider remains responsiblefor the performance of its subcontractors. A current list of materialsubcontractors is available on request.",
-        "text_char_start": 1016
+        "text_char_start": 1016,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 239
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
@@ -473,10 +557,17 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000004",
       "remediationText": "Update 4. Subcontractors and Outsourcing to require the third party to obtain the FRFI's prior written consent (or, at a minimum, prior notice) before engaging or replacing any subcontractor that provides services material to the arrangement, per OSFI Guideline B-10.",
-      "predicateText": "input1.category == \"third_party_risk\""
+      "predicateText": "input1.category == \"third_party_risk\"",
+      "clauseSpan": {
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
+        "charStart": 1016,
+        "charLength": 239,
+        "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./4. Subcontractors and Outsourcing",
+        "charEnd": 1255
+      }
     },
     {
-      "id": "lr1:2af0a220eb87e8681ef437ee7503a34bc54a2ab17291a8464bde7050b3c0b67d",
+      "id": "lr1:a0986e1213ab204841dd9e5bc24b6bbffa87d9bad9088c87ad6c2183441ec552",
       "ruleId": "OSFI-B10-Subcontracting",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -522,7 +613,13 @@
         },
         "text": "Once per calendar year, on at least sixty (60) days' written notice andduring normal business hours, the Bank's internal audit team may inspectthe Provider's records and systems strictly relevant to the Services.Such inspections shall not unreasonably disrupt the Provider'soperations.",
         "text_raw": "Once per calendar year, on at least sixty (60) days' written notice andduring normal business hours, the Bank's internal audit team may inspectthe Provider's records and systems strictly relevant to the Services.Such inspections shall not unreasonably disrupt the Provider'soperations.",
-        "text_char_start": 1304
+        "text_char_start": 1304,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 285
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
@@ -538,10 +635,17 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000005",
       "remediationText": "Update 5. Audit Rights — Vendor Risk Oversight to require the third party to obtain the FRFI's prior written consent (or, at a minimum, prior notice) before engaging or replacing any subcontractor that provides services material to the arrangement, per OSFI Guideline B-10.",
-      "predicateText": "input1.category == \"third_party_risk\""
+      "predicateText": "input1.category == \"third_party_risk\"",
+      "clauseSpan": {
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
+        "charStart": 1304,
+        "charLength": 285,
+        "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./5. Audit Rights — Vendor Risk Oversight",
+        "charEnd": 1589
+      }
     },
     {
-      "id": "lr1:0e07f515908a4ad4f8ad8299c76ae1baf8ce0fed0094ccc29aa9e07cf4c17b5f",
+      "id": "lr1:31b14cfec1b3f1771ca31745fa079cbac1c55e04324b14a17bbf11257c507441",
       "ruleId": "OSFI-B10-TPRMF",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -587,7 +691,13 @@
         },
         "text": "The Bank acknowledges that this Agreement constitutes a third-partyarrangement under applicable Canadian regulatory expectations. The Bankmaintains policies for managing its third-party relationships at anenterprise level.",
         "text_raw": "The Bank acknowledges that this Agreement constitutes a third-partyarrangement under applicable Canadian regulatory expectations. The Bankmaintains policies for managing its third-party relationships at anenterprise level.",
-        "text_char_start": 751
+        "text_char_start": 751,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 222
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
@@ -603,10 +713,17 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000003",
       "remediationText": "Add to 3. Outsourcing — Third-Party Risk Acknowledgement: \"This arrangement is governed by the FRFI's enterprise-wide Third-Party Risk Management Framework (TPRMF), under which the arrangement has been risk-tiered and assessed for criticality, per OSFI Guideline B-10 Principle 2.\"",
-      "predicateText": "input1.category == \"third_party_risk\""
+      "predicateText": "input1.category == \"third_party_risk\"",
+      "clauseSpan": {
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
+        "charStart": 751,
+        "charLength": 222,
+        "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./3. Outsourcing — Third-Party Risk Acknowledgement",
+        "charEnd": 973
+      }
     },
     {
-      "id": "lr1:c1e0c8a5f991f0e351e7455b2871e3daddcfe67939158ee1e63489bfe7068ac2",
+      "id": "lr1:392a1cc070e562c9353372cca0be010b29f6a87ff232c62cc57202d510fda678",
       "ruleId": "OSFI-B10-TPRMF",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -652,7 +769,13 @@
         },
         "text": "The Provider may subcontract any portion of the Services to anyaffiliate or qualified third party. The Provider remains responsiblefor the performance of its subcontractors. A current list of materialsubcontractors is available on request.",
         "text_raw": "The Provider may subcontract any portion of the Services to anyaffiliate or qualified third party. The Provider remains responsiblefor the performance of its subcontractors. A current list of materialsubcontractors is available on request.",
-        "text_char_start": 1016
+        "text_char_start": 1016,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 239
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
@@ -668,10 +791,17 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000004",
       "remediationText": "Add to 4. Subcontractors and Outsourcing: \"This arrangement is governed by the FRFI's enterprise-wide Third-Party Risk Management Framework (TPRMF), under which the arrangement has been risk-tiered and assessed for criticality, per OSFI Guideline B-10 Principle 2.\"",
-      "predicateText": "input1.category == \"third_party_risk\""
+      "predicateText": "input1.category == \"third_party_risk\"",
+      "clauseSpan": {
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
+        "charStart": 1016,
+        "charLength": 239,
+        "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./4. Subcontractors and Outsourcing",
+        "charEnd": 1255
+      }
     },
     {
-      "id": "lr1:59918a5adbfaa75bc955030c7f01929af35f2c0a0aee661879705be88d1a3903",
+      "id": "lr1:7d136a51e69b666156c4ab02628674d6c6ea1dac4acd48af81f3d7b20db567bf",
       "ruleId": "OSFI-B10-TPRMF",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -717,7 +847,13 @@
         },
         "text": "Once per calendar year, on at least sixty (60) days' written notice andduring normal business hours, the Bank's internal audit team may inspectthe Provider's records and systems strictly relevant to the Services.Such inspections shall not unreasonably disrupt the Provider'soperations.",
         "text_raw": "Once per calendar year, on at least sixty (60) days' written notice andduring normal business hours, the Bank's internal audit team may inspectthe Provider's records and systems strictly relevant to the Services.Such inspections shall not unreasonably disrupt the Provider'soperations.",
-        "text_char_start": 1304
+        "text_char_start": 1304,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 285
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
@@ -733,7 +869,14 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000005",
       "remediationText": "Add to 5. Audit Rights — Vendor Risk Oversight: \"This arrangement is governed by the FRFI's enterprise-wide Third-Party Risk Management Framework (TPRMF), under which the arrangement has been risk-tiered and assessed for criticality, per OSFI Guideline B-10 Principle 2.\"",
-      "predicateText": "input1.category == \"third_party_risk\""
+      "predicateText": "input1.category == \"third_party_risk\"",
+      "clauseSpan": {
+        "documentId": "lr1:15a80a58d5109af1972f0d1d714f530a5fdaab1a598086d361f9e43660b943c4",
+        "charStart": 1304,
+        "charLength": 285,
+        "headingPath": "/Critical Vendor Master Services Agreement — ACME Bank - GlobalCorePay Inc./5. Audit Rights — Vendor Risk Oversight",
+        "charEnd": 1589
+      }
     }
   ],
   "generatedAt": "2000-01-01T00:00:00+00:00",

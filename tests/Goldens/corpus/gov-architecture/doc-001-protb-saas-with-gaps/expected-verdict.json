@@ -8,7 +8,7 @@
     "value": "lr1:59ab8307c1e8ccba9a533ed18bb9033ee230695669c26d21d4bb8dd7e80d193f"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.4.0",
+  "projectorVersion": "1.5.0",
   "score": 0,
   "totalRules": 5,
   "passed": 0,
@@ -17,7 +17,7 @@
   "errored": 0,
   "verdicts": [
     {
-      "id": "lr1:0dca36d18718ed3b95d0825e2fa86815bc80db7b8b6a7b82019b9f87fb5d0c09",
+      "id": "lr1:0d8effde29b0acec7a3c519dd56b47bea4ad6404a102abc5b732dd1d111237db",
       "ruleId": "GC-CG-01-MFA",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -67,7 +67,17 @@
         },
         "text": "All administrative access to the portal control plane is gated bymulti-factor authentication. The MFA solution has been designated\"phishing-resistant\" by the vendor in marketing literature. Time-basedone-time passwords (TOTP) delivered via the vendor's mobile authenticatorapp are the standard second factor for all administrators. SMS-based MFAremains available as a backup for administrators travelling withouttheir primary device.\nThe vendor confirms that all MFA methods are \"modern and secure\" but thespecific cryptographic protocol bound to the authenticator has not beendocumented in this revision of the architecture.",
         "text_raw": "All administrative access to the portal control plane is gated bymulti-factor authentication. The MFA solution has been designated\"phishing-resistant\" by the vendor in marketing literature. Time-basedone-time passwords (TOTP) delivered via the vendor's mobile authenticatorapp are the standard second factor for all administrators. SMS-based MFAremains available as a backup for administrators travelling withouttheir primary device.\nThe vendor confirms that all MFA methods are \"modern and secure\" but thespecific cryptographic protocol bound to the authenticator has not beendocumented in this revision of the architecture.",
-        "text_char_start": 830
+        "text_char_start": 830,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 433
+          },
+          {
+            "char_start": 434,
+            "char_length": 191
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:0e84ec02a44f39abddf1efb2116bb1203f7dca6c25e40129f79c633b80aee5d8",
@@ -83,7 +93,14 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000002",
       "remediationText": "Update 2. Phishing-Resistant MFA to explicitly identify a phishing-resistant MFA mechanism (e.g., FIDO2 security keys, PIV-derived credentials, or smart-card MFA) for all administrative accounts, per GC Cloud Guardrail 01.",
-      "predicateText": "input1.category == \"phishing_resistant_mfa\""
+      "predicateText": "input1.category == \"phishing_resistant_mfa\"",
+      "clauseSpan": {
+        "documentId": "lr1:0e84ec02a44f39abddf1efb2116bb1203f7dca6c25e40129f79c633b80aee5d8",
+        "charStart": 830,
+        "charLength": 433,
+        "headingPath": "/Solution Architecture — ACME-Canada Citizen Engagement Portal (Protected B SaaS)/2. Phishing-Resistant MFA",
+        "charEnd": 1263
+      }
     },
     {
       "id": "lr1:7a196554cab2a1332985484d71e7032f367f0f06861377d53b972d5be5ba374f",
@@ -108,7 +125,7 @@
       "predicateText": "input1.category == \"data_residency_canada\""
     },
     {
-      "id": "lr1:7df51d3f230920eb1ce82b8f85eed537ed99cb9e956f5a0c878d4b75731f6f95",
+      "id": "lr1:474a08024c71a39f8812104ed81293dbe87d9898dc734fe7b5ffe0383d3b45be",
       "ruleId": "GC-CG-06-EncryptionAtRest",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -158,7 +175,17 @@
         },
         "text": "Customer data is encrypted at rest using the cloud provider'splatform-default storage encryption. The provider documentationindicates that \"industry-standard encryption\" is applied to all blobs,queues, and managed disks. The exact algorithm and key length aremanaged entirely by the platform and are not customer-configurable inthis tier.\nA future revision of this architecture will evaluate customer-managedkeys; for the initial launch we accept the platform-default posture.",
         "text_raw": "Customer data is encrypted at rest using the cloud provider'splatform-default storage encryption. The provider documentationindicates that \"industry-standard encryption\" is applied to all blobs,queues, and managed disks. The exact algorithm and key length aremanaged entirely by the platform and are not customer-configurable inthis tier.\nA future revision of this architecture will evaluate customer-managedkeys; for the initial launch we accept the platform-default posture.",
-        "text_char_start": 1492
+        "text_char_start": 1492,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 338
+          },
+          {
+            "char_start": 339,
+            "char_length": 137
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:0e84ec02a44f39abddf1efb2116bb1203f7dca6c25e40129f79c633b80aee5d8",
@@ -174,7 +201,14 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000003",
       "remediationText": "Update 3. Encryption at Rest to commit to AES-256 encryption with a FIPS 140-2 (or 140-3) validated cryptographic module, aligned with CSE ITSP.40.111 and GC Cloud Guardrail 06.",
-      "predicateText": "input1.category == \"encryption_at_rest\""
+      "predicateText": "input1.category == \"encryption_at_rest\"",
+      "clauseSpan": {
+        "documentId": "lr1:0e84ec02a44f39abddf1efb2116bb1203f7dca6c25e40129f79c633b80aee5d8",
+        "charStart": 1492,
+        "charLength": 476,
+        "headingPath": "/Solution Architecture — ACME-Canada Citizen Engagement Portal (Protected B SaaS)/3. Encryption at Rest",
+        "charEnd": 1968
+      }
     },
     {
       "id": "lr1:c658dc326c0e601e36d77e194bec1c6cf5103ebdb107b491ab80df2df3bd3e62",
@@ -199,7 +233,7 @@
       "predicateText": "input1.category == \"encryption_in_transit\""
     },
     {
-      "id": "lr1:68a4454cd037f78776c507fbaeead9fbe948c1bab8a8f0f5cad3031e7b182dd2",
+      "id": "lr1:e39c320d560a655df0ab0b4cee3df7ee6225174bbac3817b9482ba2fc335a247",
       "ruleId": "GC-CG-11-AuditLogging",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -249,7 +283,13 @@
         },
         "text": "Platform audit log streams are enabled by default. Operations staff havevisibility into administrative activity through the cloud provider'sconsole. Logs are retained \"for the lifetime of the workload\" per theprovider's standard offering.",
         "text_raw": "Platform audit log streams are enabled by default. Operations staff havevisibility into administrative activity through the cloud provider'sconsole. Logs are retained \"for the lifetime of the workload\" per theprovider's standard offering.",
-        "text_char_start": 2520
+        "text_char_start": 2520,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 238
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:0e84ec02a44f39abddf1efb2116bb1203f7dca6c25e40129f79c633b80aee5d8",
@@ -265,7 +305,14 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000005",
       "remediationText": "Update 5. Audit Log Retention to commit to a defined retention period (e.g., 365 days minimum) and to capture sign-in, configuration-change, and resource-provisioning events, per GC Cloud Guardrail 11 and the GC Event Logging Guidance.",
-      "predicateText": "input1.category == \"audit_logging\""
+      "predicateText": "input1.category == \"audit_logging\"",
+      "clauseSpan": {
+        "documentId": "lr1:0e84ec02a44f39abddf1efb2116bb1203f7dca6c25e40129f79c633b80aee5d8",
+        "charStart": 2520,
+        "charLength": 238,
+        "headingPath": "/Solution Architecture — ACME-Canada Citizen Engagement Portal (Protected B SaaS)/5. Audit Log Retention",
+        "charEnd": 2758
+      }
     }
   ],
   "generatedAt": "2000-01-01T00:00:00+00:00",

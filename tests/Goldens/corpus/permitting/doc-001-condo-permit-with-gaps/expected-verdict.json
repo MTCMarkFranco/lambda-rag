@@ -8,7 +8,7 @@
     "value": "lr1:d3e4f1fd62da6b02c9771dc1537bc45a196f93ae9cca5866c69eed1983eaa755"
   },
   "projectorId": "contract",
-  "projectorVersion": "1.4.0",
+  "projectorVersion": "1.5.0",
   "score": 0.2,
   "totalRules": 5,
   "passed": 1,
@@ -107,7 +107,13 @@
         },
         "text": "Two scissor stairs provide independent means of egress from each floor.The travel distance from the most remote point on each floor to thenearest exit door is 24.0 m. The building is fully sprinklered.",
         "text_raw": "Two scissor stairs provide independent means of egress from each floor.The travel distance from the most remote point on each floor to thenearest exit door is 24.0 m. The building is fully sprinklered.",
-        "text_char_start": 1196
+        "text_char_start": 1196,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 201
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:0b2f9f8f83e5362b92375771d71c28a3b6126d721154acc481b0a82e81020478",
@@ -124,7 +130,7 @@
       "predicateText": "input1.category == \"fire_egress\""
     },
     {
-      "id": "lr1:0e4c1627464af168b0031d75a952cba38cfb5565f0726dace73f17357e0cb213",
+      "id": "lr1:f7c052347ee55fd5d4b329ed30edca25a5c26fdde9572604acd22ee0b776da19",
       "ruleId": "PERMIT-FIRE-SPRINK-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
@@ -170,7 +176,13 @@
         },
         "text": "A wet-pipe sprinkler system is provided throughout the building.Standpipes are provided in each exit stair. The fire alarm system istwo-stage, supervised by a ULC-listed monitoring service.",
         "text_raw": "A wet-pipe sprinkler system is provided throughout the building.Standpipes are provided in each exit stair. The fire alarm system istwo-stage, supervised by a ULC-listed monitoring service.",
-        "text_char_start": 1441
+        "text_char_start": 1441,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 189
+          }
+        ]
       },
       "sourceSpan": {
         "documentId": "lr1:0b2f9f8f83e5362b92375771d71c28a3b6126d721154acc481b0a82e81020478",
@@ -186,7 +198,14 @@
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000006",
       "remediationText": "Add to Fire Suppression — Sprinkler System: confirm fully-sprinklered design per OBC 3.2.2 and reference NFPA 13.",
-      "predicateText": "input1.category == \"fire_suppression\""
+      "predicateText": "input1.category == \"fire_suppression\"",
+      "clauseSpan": {
+        "documentId": "lr1:0b2f9f8f83e5362b92375771d71c28a3b6126d721154acc481b0a82e81020478",
+        "charStart": 1441,
+        "charLength": 189,
+        "headingPath": "/Building Permit Application — 245 Bay Tower, Toronto, ON/Fire Suppression — Sprinkler System",
+        "charEnd": 1630
+      }
     },
     {
       "id": "lr1:4fe5aeaff029d7df3eee5e26687a814c35b2f54234fb46e50198374dfa78c0e0",
