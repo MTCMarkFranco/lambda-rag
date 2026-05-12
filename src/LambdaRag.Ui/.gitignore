@@ -1,0 +1,3 @@
+# Populated at deploy time from pipeline secrets or Key Vault reference.
+# Do NOT commit this file.
+dist/config.js

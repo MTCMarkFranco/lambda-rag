@@ -1,0 +1,11 @@
+// Lambda-RAG Curation UI Configuration
+// Copy this file to config.js and fill in your values.
+// config.js is .gitignored — do NOT commit it.
+window.lambdaRagConfig = {
+  // Azure AD app registration for this SPA (MSAL)
+  clientId: "<YOUR-APP-REGISTRATION-CLIENT-ID>",
+  tenantId: "<YOUR-TENANT-ID>",
+  // Azure AI Search
+  searchEndpoint: "https://srch-lambdarag-dev.search.windows.net",
+  indexName: "lambda-rag-rules"
+};

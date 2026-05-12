@@ -63,8 +63,12 @@ foreach ($rule in $rules) {
     $predicate = if ($rule.predicate) { $rule.predicate } else { "true" }
     $contentHash = Get-ContentHash -naturalLanguage $naturalLanguage -lambda $lambda -predicate $predicate
     
+    # The index key is 'id'; for seeded docs use "<rulesetName>_<rulesetVersion>_<ruleId>"
+    # so seeds from different versions don't collide with indexer-ingested docs.
+    $docId = "$($RulesetName)_$($RulesetVersion)_$($rule.id)" -replace "[^a-zA-Z0-9_\-]", "_"
     $doc = [ordered]@{
         "@search.action" = "mergeOrUpload"
+        "id"             = $docId
         "ruleId"         = $rule.id
         "naturalLanguage"= $naturalLanguage
         "lambda"         = $lambda
