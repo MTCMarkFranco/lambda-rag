@@ -48,7 +48,7 @@ public sealed class AzureSearchRuleStore : IRuleStore
         {
             Filter = filter,
             Facets = { "rulesetVersion,count:1000" },
-            Size = 0,  // We only need facets, not documents
+            Size = 0,
         };
 
         var response = await _client.SearchAsync<SearchDocument>("*", options, ct);
@@ -77,7 +77,6 @@ public sealed class AzureSearchRuleStore : IRuleStore
             Size = query.TopK,
         };
 
-        // Hybrid query: BM25 over text fields + vector
         options.SearchFields.Add("naturalLanguage");
         options.SearchFields.Add("concepts");
         options.SearchFields.Add("predicate");
@@ -110,7 +109,6 @@ public sealed class AzureSearchRuleStore : IRuleStore
             contentHashes.Add((rule.Id, contentHash));
         }
 
-        // Compute snapshot hash: sha256 over sorted {ruleId, contentHash} pairs
         var snapshotHash = ComputeSnapshotHash(contentHashes);
 
         var metadata = new RulesetMetadata(
@@ -132,7 +130,7 @@ public sealed class AzureSearchRuleStore : IRuleStore
         var options = new SearchOptions
         {
             Filter = filter,
-            Size = 1000,  // Max page size
+            Size = 1000,
             OrderBy = { "ruleId asc" }
         };
 
@@ -175,32 +173,20 @@ public sealed class AzureSearchRuleStore : IRuleStore
         var severityStr = doc.ContainsKey("severity") ? doc["severity"]?.ToString() : "Violation";
         var evidenceQuote = doc.ContainsKey("evidenceQuote") ? doc["evidenceQuote"]?.ToString() : null;
 
-        // Parse severity
         if (!Enum.TryParse<RuleSeverity>(severityStr, true, out var severity))
             severity = RuleSeverity.Violation;
 
-        // Parse applies_to schema (default to simple clause schema)
-        var schemaNode = JsonNode.Parse(/*lang=json,strict*/ """{
-            ""type"": ""object"",
-            ""properties"": {
-                ""id"": { ""type"": ""string"" },
-                ""text"": { ""type"": ""string"" }
-            }
-        }""");
+        var schemaJson = @"{""type"":""object"",""properties"":{""id"":{""type"":""string""},""text"":{""type"":""string""}}}";
+        var schemaNode = JsonNode.Parse(schemaJson);
         var appliesToSchema = schemaNode as JsonObject ?? new JsonObject();
 
-        // Parse source span
-        var sourceSpan = new SourceSpan(
-            doc.ContainsKey("documentId") ? doc["documentId"]?.ToString() ?? "" : "",
-            null, null, null, null);
+        var sourceSpan = new SourceSpan(doc.ContainsKey("documentId") ? doc["documentId"]?.ToString() ?? "" : "", 0, 0, null, null);
 
-        // Parse metadata
         var metadata = new Dictionary<string, string>();
         if (doc.ContainsKey("domain"))
             metadata["domain"] = doc["domain"]?.ToString() ?? "";
 
-        // Simple selector (default to "clause" - evaluates all clauses)
-        var selector = Selector.ParseOrDefault("clause");
+        var selector = new PathSelector("$.clauses[*]");
 
         return new Rule(
             Id: id,
@@ -223,10 +209,8 @@ public sealed class AzureSearchRuleStore : IRuleStore
         if (hashes.Count == 0)
             return string.Empty;
 
-        // Sort by ruleId for determinism
         var sorted = hashes.OrderBy(h => h.ruleId, StringComparer.Ordinal).ToList();
 
-        // Canonical JSON: [{""ruleId"":""..."""",""contentHash"":""...""}...]
         var json = JsonSerializer.Serialize(
             sorted.Select(h => new { ruleId = h.ruleId, contentHash = h.contentHash }),
             new JsonSerializerOptions { WriteIndented = false });
@@ -240,3 +224,4 @@ public sealed class AzureSearchRuleStore : IRuleStore
         return value.Replace("'", "''");
     }
 }
+
