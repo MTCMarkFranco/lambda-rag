@@ -53,7 +53,7 @@
     search service's system-assigned MI. No shared keys.
 
 .PARAMETER ApiVersion
-    Search REST API version (default 2024-11-01-preview).
+    Search REST API version (default 2025-11-01-preview).
 
 .EXAMPLE
     .\deploy-search-assets.ps1 `
@@ -77,7 +77,7 @@ param(
     [Parameter(Mandatory)] [string] $FunctionAppName,
     [Parameter(Mandatory)] [string] $AuthResourceId,
     [string] $FunctionUri,
-    [string] $ApiVersion = '2024-11-01-preview'
+    [string] $ApiVersion = '2025-11-01-preview'
 )
 
 $ErrorActionPreference = 'Stop'
