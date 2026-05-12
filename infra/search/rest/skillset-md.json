@@ -63,9 +63,6 @@
         "sourceContext": "/document/chunks/*",
         "mappings": [
           { "name": "ruleId",          "source": "/document/chunks/*/extractedRule/ruleId" },
-          { "name": "domain",          "source": "='architecture-review'" },
-          { "name": "version",         "source": "/document/version" },
-          { "name": "status",          "source": "='draft'" },
           { "name": "parentDocumentId","source": "/document/chunks/*/extractedRule/parentDocumentId" },
           { "name": "sectionId",       "source": "/document/chunks/*/extractedRule/sectionId" },
           { "name": "naturalLanguage", "source": "/document/chunks/*/extractedRule/naturalLanguage" },
