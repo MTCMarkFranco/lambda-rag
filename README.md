@@ -74,12 +74,12 @@ dotnet run --project src/LambdaRag.Cli -- topic-map list
 
 ```pwsh
 dotnet build
-dotnet test    # 115 unit + 15 idempotency proofs
+dotnet test    # 266 unit + 35 idempotency / golden-master proofs
 
 # Review the bundled sample contract → JSON report
 dotnet run --project src/LambdaRag.Cli -- review `
-  --document samples/contracts/contract.md `
-  --ruleset  samples/contracts/ruleset.json `
+  --document samples/contracts/contoso-sample-contract.docx `
+  --ruleset  samples/contracts/contoso-demo-ruleset.json `
   --out      out/sample `
   --mode     report
 
@@ -99,12 +99,16 @@ dotnet run --project src/LambdaRag.Cli -- review `
   --mode     markup `
   --annotate-pass
 
-# Both at once
+# Both at once, with --rewrite to emit tracked-change replacements
+# (ComplianceEditor renders a concrete rewrite for each Fail verdict
+#  and the markup stage applies it as a w:del / w:ins pair anchored
+#  to the offending clause)
 dotnet run --project src/LambdaRag.Cli -- review `
   --document samples/contracts/contoso-sample-contract.docx `
   --ruleset  samples/contracts/contoso-demo-ruleset.json `
   --out      out/sample `
-  --mode     both
+  --mode     both `
+  --rewrite
 ```
 
 Outputs land in `out/sample/`:
@@ -218,13 +222,13 @@ governance frameworks.
 ## CLI cheat sheet
 
 ```
-lambda-rag review        --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>]
+lambda-rag review        --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>] [--annotate-pass] [--rewrite]
 lambda-rag extract-rules --policy-dir <dir> --domain <name> --id <ruleset-id> --out <path>
 lambda-rag author        --chunk <path> --domain <name> --prefix <id-prefix> --out <path>
 lambda-rag coverage      --document <path> --ruleset <path> --out <path>
 lambda-rag project       --document <path> --out <path>
 lambda-rag parse         --document <path> --out <path>
-lambda-rag index         --ruleset <path> [--out <path>]
+lambda-rag index         --ruleset <path> [--out <path>]              # authoring-side only — see wrong-path-search-index.md
 lambda-rag topic-map     <list|show|coverage> [args]
 
 # Governance — never edits the ruleset; works through diffs and overlays
@@ -320,22 +324,31 @@ off, attach a note) with none of the chain-of-custody risk.
 
 ```
 src/
-  LambdaRag.Core/         Domain, hashing, selectors, abstractions
-  LambdaRag.Parsing/      PDF/DOCX/MD parsers → ParsedDocument
-  LambdaRag.Projection/   ParsedDocument → ProjectedDocument + topic maps
-  LambdaRag.Selectors/    JSONPath-subset matcher
-  LambdaRag.Evaluation/   Microsoft RulesEngine wrapper, verdict aggregator
-  LambdaRag.Markup/       OpenXml tracked-changes annotator (deterministic)
-  LambdaRag.Authoring/    MAF agents: extract rules from policy docs
-  LambdaRag.Persistence/  SQLite stores: rules, projections, evaluations
-  LambdaRag.Api/          ASP.NET Core minimal API (future-facing)
-  LambdaRag.Cli/          `lambda-rag` command-line tool
+  LambdaRag.Core/                       Domain, hashing, selectors, abstractions
+  LambdaRag.Parsing/                    PDF/DOCX/MD parsers → ParsedDocument
+  LambdaRag.Projection/                 ParsedDocument → ProjectedDocument + topic maps
+  LambdaRag.Selectors/                  JSONPath-subset matcher
+  LambdaRag.Evaluation/                 Microsoft RulesEngine wrapper, verdict aggregator
+  LambdaRag.Markup/                     OpenXml tracked-changes annotator + IClauseRewriter
+  LambdaRag.Authoring/                  MAF agents: extract rules + ComplianceEditor (rewrites)
+  LambdaRag.Authoring.ExtractFunction/  Azure Function — Web API custom skill for indexer-driven extraction
+  LambdaRag.Indexing/                   Authoring-side Azure Search adapters (rule semantic / signature indexes)
+  LambdaRag.Persistence/                SQLite stores: rules, projections, evaluations
+  LambdaRag.Api/                        ASP.NET Core minimal API — POST /review
+  LambdaRag.Cli/                        `lambda-rag` command-line tool
 tests/
-  LambdaRag.UnitTests/             106 unit tests
-  LambdaRag.IdempotencyTests/      4 run-twice + golden-master byte-equality proofs (report.json + reviewed.docx)
-samples/contracts/                 contract.md + ruleset.json
-docs/                              ARCHITECTURE.md, DETERMINISM.md, SELECTORS.md
+  LambdaRag.UnitTests/             266 unit tests
+  LambdaRag.IdempotencyTests/      35 run-twice + golden-master byte-equality proofs
+  Goldens/corpus/                  5-vertical regression corpus (frozen expected-verdict.json)
+samples/contracts/                 contoso-sample-contract.docx + contoso-demo-ruleset.json (+ arb, loi-25, …)
+docs/                              ARCHITECTURE.md, DETERMINISM.md, PIPELINE.md, SELECTORS.md, manifesto.md, diagrams/, findings/, regulatory/
+wrong-path-search-index.md         Postmortem: why the runtime never reads rules from Azure Search
 ```
+
+> 🧭 **Anti-pattern note.** A previous direction wired the runtime to fetch rules from an Azure AI Search
+> index. It is rolled back on `main`. The reasoning, signals we missed, and rules for next time live in
+> [`wrong-path-search-index.md`](wrong-path-search-index.md). The `LambdaRag.Indexing` project remains for
+> *authoring-side* discovery only — no runtime evaluation reads from a search index.
 
 ## Roadmap
 
