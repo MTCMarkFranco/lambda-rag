@@ -129,7 +129,7 @@ public sealed class ClauseRewriterTests
             Outcome: outcome,
             LambdaText: "true",
             EvaluatedInput: new JsonObject(),
-            SourceSpan: new SourceSpan("doc", 0, evidenceQuote.Length, null, null),
+            SourceSpan: new SourceSpan("doc", 0, evidenceQuote.Length, null, "/1. Test Clause"),
             ErrorMessage: null,
             EvidenceQuotes: new[] { evidenceQuote },
             EvaluatedAt: DateTimeOffset.UnixEpoch)

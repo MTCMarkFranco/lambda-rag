@@ -124,6 +124,18 @@ public static class AnnotationFactory
 
             var clauseText = clauseTextResolver?.Invoke(v)
                 ?? (v.EvidenceQuotes.Count > 0 ? v.EvidenceQuotes[0] : string.Empty);
+
+            // Don't rewrite content that lives outside any heading — that
+            // section is the document title / pre-amble. Striking the title
+            // is never a desirable redline even when a rule fails against it.
+            // Comment still fires so the reviewer sees the finding.
+            var rewriteSpan = v.ClauseSpan ?? v.SourceSpan;
+            if (IsTitleOrPreambleSpan(rewriteSpan))
+            {
+                yield return comment;
+                continue;
+            }
+
             string? rewrite;
             try
             {
@@ -163,6 +175,21 @@ public static class AnnotationFactory
                 ClauseSpan = v.ClauseSpan,
             };
         }
+    }
+
+    /// <summary>
+    /// True when the verdict's span sits outside any heading — i.e. the
+    /// document title or pre-amble before the first heading. The projector
+    /// reports these spans with a <c>HeadingPath</c> of <c>null</c>, empty,
+    /// or <c>"/"</c>. We refuse to strike-through the title under
+    /// <c>--rewrite</c> even when a rule fails there; the comment still
+    /// fires so reviewers see the finding.
+    /// </summary>
+    private static bool IsTitleOrPreambleSpan(SourceSpan? span)
+    {
+        if (span is null) return false;
+        var hp = span.HeadingPath;
+        return string.IsNullOrWhiteSpace(hp) || hp == "/";
     }
 
     private static Annotation BuildCommentAnnotation(Verdict v, Rule? rule)
