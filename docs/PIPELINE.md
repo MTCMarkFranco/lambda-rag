@@ -163,7 +163,10 @@ appears in the audit trail.
 ## Stage 4 — Aggregate & mark up
 
 **Module:** [`LambdaRag.Markup`](../src/LambdaRag.Markup) ·
-**Service:** `OpenXmlMarkupService`.
+**Service:** `OpenXmlMarkupService` ·
+**Optional rewriter:** `IClauseRewriter` (fed by
+[`ComplianceEditor`](../src/LambdaRag.Authoring/Editing/ComplianceEditor.cs)
+in `LambdaRag.Authoring`).
 
 `EvaluationService` wraps every verdict for the run into a
 `ComplianceReport` (with score = `passed / (passed + failed + gaps)`
@@ -180,7 +183,14 @@ For DOCX inputs, `OpenXmlMarkupService` then:
      evidence quote), and
    - a tracked **insertion** carrying the rendered remediation
      (when present), or a tracked **deletion** for redactions.
-3. Writes a `reviewed.docx` that opens cleanly in Word's review pane.
+3. When `--rewrite` is passed, `ComplianceEditor` renders a concrete
+   replacement clause for each `Fail` verdict (deterministic, no
+   runtime LLM — keyed off the rule, the failing input, and the
+   ruleset fingerprint) and the markup stage emits it as a paired
+   `w:del` of the offending clause + `w:ins` of the rewrite, both
+   anchored at the verdict's `SourceSpan`. The plain comment-only
+   path remains the default; `--rewrite` is opt-in.
+4. Writes a `reviewed.docx` that opens cleanly in Word's review pane.
 
 > ⚠️ Tracked-change anchoring fidelity is a known Phase-2 hardening
 > area — see issues
@@ -267,6 +277,7 @@ flowchart TD
 | Workflow assembly    | `src/LambdaRag.Evaluation/Workflow/WorkflowFactory.cs`                              |
 | Remediation          | `src/LambdaRag.Evaluation/Engine/RemediationRenderer.cs`                            |
 | Markup               | `src/LambdaRag.Markup/OpenXmlMarkupService.cs`                                      |
+| Rewrite (--rewrite)  | `src/LambdaRag.Authoring/Editing/ComplianceEditor.cs` + `src/LambdaRag.Markup/IClauseRewriter.cs` |
 
 See also: [`ARCHITECTURE.md`](ARCHITECTURE.md),
 [`DETERMINISM.md`](DETERMINISM.md),

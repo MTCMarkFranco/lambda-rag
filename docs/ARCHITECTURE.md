@@ -77,17 +77,36 @@ projected graph.
 - `LambdaRag.Markup` — `OpenXmlMarkupService` walks paragraphs of the
   source `.docx`, anchors comments at character offsets, and emits
   tracked-change inserts/deletes when annotations request them.
+  `IClauseRewriter` consumes `ComplianceEditor` output to render
+  concrete `w:del`/`w:ins` replacements for Fail verdicts when
+  `--rewrite` is set.
 - `LambdaRag.Authoring` — Microsoft Agent Framework agents that read a
   policy document and emit `RuleCandidate`s with selectors, lambdas,
   applies-to schemas, and source spans. Locked prompts; temperature=0;
-  schema-validated output.
+  schema-validated output. Also hosts `ComplianceEditor` /
+  `DeterministicMockClauseRewriter`, which render the
+  remediated-clause text the markup stage swaps in under `--rewrite`.
+- `LambdaRag.Authoring.ExtractFunction` — Azure Function exposing the
+  rule-extraction agent as a Web API custom skill, suitable for
+  indexer-driven authoring pipelines. **Authoring-side only.**
+- `LambdaRag.Indexing` — Azure AI Search adapters
+  (`AzureSearchRuleSemanticIndex`, `IRuleSignatureIndex`,
+  `IDocumentSectionIndex`) plus in-memory equivalents.
+  **Authoring-side only**: used to seed and inspect rule indexes
+  during extraction. The runtime evaluation pipeline does *not* read
+  rules through these adapters — see
+  [`../wrong-path-search-index.md`](../wrong-path-search-index.md) for
+  the rationale.
 - `LambdaRag.Persistence` — SQLite stores: `rule_sets` (versioned),
   `projections` (cache), `evaluations` (run history with input/output
   hashes for the audit trail).
-- `LambdaRag.Api` — ASP.NET Core minimal API exposing `/extract`,
-  `/project`, `/evaluate`, `/review`, `/rules`.
-- `LambdaRag.Cli` — `lambda-rag` command-line tool for the same five
-  actions plus `rules diff`.
+- `LambdaRag.Api` — ASP.NET Core minimal API. Today: `GET /` health
+  probe and `POST /review` (same pipeline as `lambda-rag review`).
+  Additional `/extract`, `/project`, `/evaluate`, `/rules` endpoints
+  are roadmap.
+- `LambdaRag.Cli` — `lambda-rag` command-line tool. Commands:
+  `review`, `project`, `parse`, `coverage`, `author`, `index`,
+  `topic-map`, `extract-rules`, `rules`, `ruleset`.
 
 ## Plug-in points
 

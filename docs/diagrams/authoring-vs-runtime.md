@@ -115,7 +115,8 @@ The diagram boxes correspond to these projects in `src/`:
 |---|---|---|
 | Authoring | `LambdaRag.Parsing` | Parse + chunk regulations |
 | Authoring | `LambdaRag.Authoring` | MAF extraction agent, normalization, coverage |
-| Authoring | `LambdaRag.Indexing` | Optional Azure AI Search indexing of rule semantics |
+| Authoring | `LambdaRag.Indexing` | Optional Azure AI Search indexing of rule semantics — **authoring-side only** (see [`../../wrong-path-search-index.md`](../../wrong-path-search-index.md)) |
+| Authoring | `LambdaRag.Authoring.ExtractFunction` | Azure Function exposing the extraction agent as a Web API custom skill |
 | Authoring + Runtime | `LambdaRag.Persistence` | Signed `RuleStore` + load/save |
 | Runtime | `LambdaRag.Parsing` | Parse the candidate document |
 | Runtime | `LambdaRag.Projection` | Topic-map projection, pure-code first, optional AI fallback (cached) |
@@ -139,8 +140,12 @@ lambda-rag implementation:
 - ❌ Runtime markup → calls an LLM to "phrase" comments based on the document under review
 - ❌ Runtime selector → uses an LLM to "find" relevant sections
 - ❌ AI projection fallback → re-runs on cache hit (must be deterministic on cache hit)
+- ❌ Runtime evaluation → fetches rules from an Azure AI Search index
+  (see [`../../wrong-path-search-index.md`](../../wrong-path-search-index.md) — this is the
+  exact direction `main` was reverted from at commit `93d7ca7`; rules
+  are loaded from the signed on-disk `RuleSet.json` only)
 
-If you're holding lambda-rag against another approach, those five
+If you're holding lambda-rag against another approach, those six
 arrows are the diff.
 
 ---
