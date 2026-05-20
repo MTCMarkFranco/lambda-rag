@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lambda-RAG — Deterministic AI Document Review</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("clawpilotTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #b11f4b;
+  --cp-accent-hover: #9a1a41;
+  --cp-accent-soft: rgba(177, 31, 75, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-overlay: rgba(255, 255, 255, 0.8);
+  --cp-panel: rgba(255, 255, 255, 0.86);
+  --cp-panel-strong: rgba(255, 255, 255, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.55);
+  --cp-highlight: rgba(177, 31, 75, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #fd8ea1;
+  --cp-accent-hover: #fb7b91;
+  --cp-accent-soft: rgba(253, 142, 161, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-overlay: rgba(41, 41, 41, 0.88);
+  --cp-panel: rgba(41, 41, 41, 0.72);
+  --cp-panel-strong: rgba(41, 41, 41, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.04);
+  --cp-highlight: rgba(253, 142, 161, 0.12);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 40px;
+}
+
+/* HERO */
+.hero {
+  text-align: center;
+  margin-bottom: 48px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--cp-border);
+}
+.hero-badge {
+  display: inline-block;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  border-radius: 100px;
+  margin-bottom: 16px;
+}
+.hero h1 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+  color: var(--cp-text);
+}
+.hero h1 span { color: var(--cp-accent); }
+.hero-sub {
+  font-size: 1.15rem;
+  color: var(--cp-text-muted);
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* PROMISE BAR */
+.promise-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 48px;
+}
+.promise-card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 24px 20px;
+  text-align: center;
+}
+.promise-card .icon { font-size: 1.6rem; margin-bottom: 8px; }
+.promise-card h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+.promise-card p { font-size: 0.82rem; color: var(--cp-text-muted); }
+
+/* SECTION HEADERS */
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--cp-text);
+}
+.section-subtitle {
+  font-size: 0.9rem;
+  color: var(--cp-text-muted);
+  margin-bottom: 20px;
+}
+
+/* PIPELINE FLOW */
+.pipeline-section { margin-bottom: 48px; }
+.pipeline {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  position: relative;
+}
+.pipeline-half {
+  flex: 1;
+  padding: 24px 20px;
+  border-radius: 16px;
+  border: 1px solid var(--cp-border);
+  position: relative;
+}
+.pipeline-half.authoring {
+  background: var(--cp-accent-soft);
+  border-color: var(--cp-accent);
+  margin-right: 8px;
+}
+.pipeline-half.runtime {
+  background: rgba(22, 163, 74, 0.06);
+  border-color: var(--cp-success);
+  margin-left: 8px;
+}
+.pipeline-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.pipeline-half.authoring .pipeline-label { color: var(--cp-accent); }
+.pipeline-half.runtime .pipeline-label { color: var(--cp-success); }
+.pipeline-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+}
+.pipeline-step .step-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+.authoring .step-icon { background: var(--cp-highlight); }
+.runtime .step-icon { background: rgba(22, 163, 74, 0.1); }
+.pipeline-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  flex-shrink: 0;
+  font-size: 1.2rem;
+  color: var(--cp-text-muted);
+}
+.pipeline-bridge {
+  text-align: center;
+  margin-top: 16px;
+  padding: 10px;
+  background: var(--cp-surface);
+  border: 2px dashed var(--cp-border-strong);
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--cp-text-muted);
+}
+
+/* RULES EXAMPLE */
+.example-section { margin-bottom: 48px; }
+.example-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.example-card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 20px;
+  overflow: hidden;
+}
+.example-card h4 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--cp-text-muted);
+  margin-bottom: 10px;
+}
+.example-card .highlight-text {
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--cp-text-soft);
+}
+.example-card .highlight-text mark {
+  background: var(--cp-highlight);
+  color: var(--cp-accent);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+.code-block {
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--cp-text);
+  overflow-x: auto;
+  white-space: pre;
+}
+.code-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--cp-text-muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.verdict-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 100px;
+  margin-top: 8px;
+}
+.verdict-pass { background: rgba(22, 163, 74, 0.12); color: var(--cp-success); }
+.verdict-fail { background: rgba(220, 38, 38, 0.1); color: var(--cp-danger); }
+.verdict-gap { background: rgba(245, 158, 11, 0.12); color: var(--cp-warning); }
+
+/* WHY BETTER */
+.compare-section { margin-bottom: 48px; }
+.compare-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--cp-border);
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 0.84rem;
+}
+.compare-table th {
+  background: var(--cp-surface-soft);
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 1px solid var(--cp-border);
+}
+.compare-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--cp-border);
+  vertical-align: top;
+}
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table .col-check { color: var(--cp-success); font-weight: 700; }
+.compare-table .col-x { color: var(--cp-danger); font-weight: 700; }
+
+/* GLOSSARY */
+.glossary-section { margin-bottom: 48px; }
+.glossary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.glossary-item {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.glossary-item dt {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--cp-accent);
+  margin-bottom: 4px;
+}
+.glossary-item dd {
+  font-size: 0.8rem;
+  color: var(--cp-text-muted);
+  line-height: 1.5;
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  padding-top: 32px;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+  font-size: 0.8rem;
+}
+.footer-tagline {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--cp-text);
+  margin-bottom: 8px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .page { padding: 24px 16px; }
+  .hero h1 { font-size: 1.8rem; }
+  .promise-bar { grid-template-columns: 1fr; }
+  .pipeline { flex-direction: column; }
+  .pipeline-arrow { transform: rotate(90deg); width: auto; height: 32px; }
+  .example-grid { grid-template-columns: 1fr; }
+  .glossary-grid { grid-template-columns: 1fr; }
+}
+
+@media print {
+  body { background: white; }
+  .page { max-width: 100%; padding: 20px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-badge">Open-Source Reference Architecture</div>
+    <h1><span>Lambda-RAG</span> — AI That Stands Up in Court</h1>
+    <p class="hero-sub">
+      A document review platform that uses AI to <em>write</em> the rules — then enforces them with pure code. Same document + same rules = same verdict. Every time. Forever.
+    </p>
+  </header>
+
+  <!-- PROMISE BAR -->
+  <div class="promise-bar">
+    <div class="promise-card">
+      <div class="icon">🔁</div>
+      <h3>Reproducible</h3>
+      <p>Byte-identical results across runs — 35 regression tests prove it on every code change</p>
+    </div>
+    <div class="promise-card">
+      <div class="icon">📍</div>
+      <h3>Auditable</h3>
+      <p>Every verdict cites the exact rule, the exact policy clause, and the exact paragraph in the document</p>
+    </div>
+    <div class="promise-card">
+      <div class="icon">🛡️</div>
+      <h3>Defensible</h3>
+      <p>No AI in the decision loop — verdicts survive regulatory challenge, subpoena, and tribunal review</p>
+    </div>
+  </div>
+
+  <!-- PIPELINE SECTION -->
+  <section class="pipeline-section">
+    <h2 class="section-title">Where AI Helps — and Where It Steps Aside</h2>
+    <p class="section-subtitle">The LLM is a brilliant author. It's a terrible judge. We use it for one, not the other.</p>
+    
+    <div class="pipeline">
+      <div class="pipeline-half authoring">
+        <div class="pipeline-label">🤖 Authoring — Once, Offline, AI-Assisted</div>
+        <div class="pipeline-step"><span class="step-icon">📄</span> Feed it your policy or regulation</div>
+        <div class="pipeline-step"><span class="step-icon">🧠</span> AI extracts candidate rules (temp=0, structured)</div>
+        <div class="pipeline-step"><span class="step-icon">👤</span> Human expert reviews &amp; approves each rule</div>
+        <div class="pipeline-step"><span class="step-icon">🔒</span> Rules are signed, fingerprinted, version-locked</div>
+        <div class="pipeline-bridge">🔒 Signed Ruleset — the ONLY thing that crosses →</div>
+      </div>
+
+      <div class="pipeline-half runtime">
+        <div class="pipeline-label">⚡ Runtime — Every Review, Deterministic, No AI</div>
+        <div class="pipeline-step"><span class="step-icon">📄</span> Document arrives (contract, permit, design…)</div>
+        <div class="pipeline-step"><span class="step-icon">🗂️</span> Parsed &amp; projected into structured categories</div>
+        <div class="pipeline-step"><span class="step-icon">🎯</span> Each rule's selector finds matching sections</div>
+        <div class="pipeline-step"><span class="step-icon">⚖️</span> Lambda expression evaluates: Pass / Fail / Gap</div>
+        <div class="pipeline-step"><span class="step-icon">📊</span> Verdict report + redlined Word doc emitted</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTION RULES EXAMPLE -->
+  <section class="example-section">
+    <h2 class="section-title">How Projection Rules Work — A Real Example</h2>
+    <p class="section-subtitle">Plain-language policy becomes a testable, repeatable rule applied over any document paragraph.</p>
+    
+    <div class="example-grid">
+      <div class="example-card">
+        <h4>① The Policy Says</h4>
+        <p class="highlight-text">
+          "Undisputed invoices shall be payable within <mark>thirty (30) days</mark> of receipt of a valid invoice."
+          <br><br>
+          <span style="font-size:0.78rem;color:var(--cp-text-muted);">— Treasury Board Directive on Payments</span>
+        </p>
+      </div>
+
+      <div class="example-card">
+        <h4>② AI Drafts → Human Approves → Rule</h4>
+        <p class="code-label">Natural language description:</p>
+        <div style="font-size:0.84rem;color:var(--cp-text);margin-bottom:12px;line-height:1.6;">
+          "Payment terms must be net 30 days or fewer from receipt of an undisputed invoice."
+        </div>
+        <p class="code-label">Selector (which paragraphs to check):</p>
+        <div class="code-block">category == "payment_terms"</div>
+        <p class="code-label" style="margin-top:10px;">Lambda expression (the test):</p>
+        <div class="code-block">text.Contains("30 days")
+  || text.Contains("net 30")
+  || text.Contains("15 days")</div>
+      </div>
+
+      <div class="example-card">
+        <h4>③ Contract Paragraph Under Review</h4>
+        <p class="highlight-text">
+          "5.2 Payment. Customer shall remit payment within <mark>net 30</mark> calendar days following receipt of Vendor's undisputed invoice."
+        </p>
+        <span class="verdict-badge verdict-pass">✓ PASS</span>
+      </div>
+
+      <div class="example-card">
+        <h4>④ A Different Contract…</h4>
+        <p class="highlight-text">
+          "5.2 Payment. All amounts shall be due <mark>net 60 days</mark> from date of invoice."
+        </p>
+        <span class="verdict-badge verdict-fail">✗ FAIL — Remediation provided</span>
+        <p style="font-size:0.78rem;color:var(--cp-text-muted);margin-top:8px;">
+          → "Replace with: Customer shall pay all undisputed invoices within thirty (30) days."
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY BETTER THAN LLMs ALONE -->
+  <section class="compare-section">
+    <h2 class="section-title">Why This Beats "Just Ask the AI"</h2>
+    <p class="section-subtitle">For anything where the answer has to survive a lawyer, auditor, or regulator.</p>
+    
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>What Matters</th>
+          <th>LLM Alone</th>
+          <th>Lambda-RAG</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Run it twice — same answer?</strong></td>
+          <td class="col-x">✗ &nbsp;Different each time</td>
+          <td class="col-check">✓ &nbsp;Byte-identical, proven by tests</td>
+        </tr>
+        <tr>
+          <td><strong>"Show me why."</strong></td>
+          <td class="col-x">✗ &nbsp;Cites can hallucinate</td>
+          <td class="col-check">✓ &nbsp;Rule ID + policy clause + exact paragraph</td>
+        </tr>
+        <tr>
+          <td><strong>Reproduce in 18 months?</strong></td>
+          <td class="col-x">✗ &nbsp;Model versions change</td>
+          <td class="col-check">✓ &nbsp;Fingerprinted ruleset, any time, forever</td>
+        </tr>
+        <tr>
+          <td><strong>Reorder paragraphs — verdict change?</strong></td>
+          <td class="col-x">✗ &nbsp;LLMs are order-sensitive</td>
+          <td class="col-check">✓ &nbsp;Each rule evaluates independently</td>
+        </tr>
+        <tr>
+          <td><strong>"The document is silent on this."</strong></td>
+          <td class="col-x">✗ &nbsp;Invents plausible answer</td>
+          <td class="col-check">✓ &nbsp;Returns GAP — silence ≠ compliance</td>
+        </tr>
+        <tr>
+          <td><strong>Speed of authoring?</strong></td>
+          <td class="col-check">✓ &nbsp;Fast for one-off</td>
+          <td class="col-check">✓ &nbsp;AI writes rules once, applies thousands of times</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- GLOSSARY -->
+  <section class="glossary-section">
+    <h2 class="section-title">Key Concepts — The Novel Pattern</h2>
+    <p class="section-subtitle">How prose becomes enforceable code.</p>
+    
+    <div class="glossary-grid">
+      <dl class="glossary-item">
+        <dt>Projection Rule</dt>
+        <dd>A machine-testable rule derived from a regulation or policy. Contains a <em>selector</em> (what to look at), a <em>lambda</em> (what to check), and a <em>citation</em> (where this requirement comes from). Authored with AI help, enforced without it.</dd>
+      </dl>
+      <dl class="glossary-item">
+        <dt>Lambda Expression</dt>
+        <dd>A small, deterministic test — like a formula in a spreadsheet — that returns true or false. "Does this paragraph mention 30 days?" is a lambda. It runs the same way, with the same result, every time.</dd>
+      </dl>
+      <dl class="glossary-item">
+        <dt>Topic Map Projection</dt>
+        <dd>The step that turns unstructured paragraphs into categorized buckets (e.g., "this paragraph is about payment terms"). Uses a fixed dictionary — not AI — so the same document always maps the same way.</dd>
+      </dl>
+      <dl class="glossary-item">
+        <dt>Signed Ruleset</dt>
+        <dd>The locked, fingerprinted bundle of all rules for a domain. Once signed, it cannot drift. If the fingerprint matches, the verdict is reproducible — guaranteed by the system, provable by the tests.</dd>
+      </dl>
+      <dl class="glossary-item">
+        <dt>Gap Verdict</dt>
+        <dd>When a rule applies but the document says nothing about it. Other systems either guess or silently pass. Lambda-RAG flags it explicitly — because silence is not the same as compliance.</dd>
+      </dl>
+      <dl class="glossary-item">
+        <dt>Golden-Master Tests</dt>
+        <dd>35 automated proofs that run on every change, across 5 industries. They guarantee that the engine hasn't drifted — the same inputs still produce the same verdicts, byte for byte.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p class="footer-tagline">The bet: AI is the best authoring tool we've ever had. It's the worst possible judge for anything that has to be defended.</p>
+    <p style="margin-top:8px;">Lambda-RAG — Open Source · .NET 9 · 5 Industry Verticals · 35 Golden-Master Proofs</p>
+    <p style="margin-top:4px;">github.com/MTCMarkFranco/lambda-rag</p>
+  </footer>
+
+</div>
+</body>
+</html>
