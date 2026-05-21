@@ -59,9 +59,8 @@ public sealed class ComplianceEditor : IClauseRewriter
         bullet markers — emit raw line text separated by '\n'.
 
         Keep total length proportional to the original; do not exceed
-        1000 characters. If you cannot confidently rewrite the clause
-        (e.g. the input is too short to be a clause, or the rule
-        guidance is ambiguous), output the single token NO_REWRITE.
+        1000 characters. Always produce a rewrite — even if the change
+        is minimal, adjust the clause wording to align with the rule.
         """;
 
     private readonly AIAgent _agent;

@@ -189,8 +189,41 @@ public static class AnnotationFactory
     {
         if (span is null) return false;
         var hp = span.HeadingPath;
-        return string.IsNullOrWhiteSpace(hp) || hp == "/";
+        // Only skip the literal document-root title span ("/").
+        // Sections without a detected heading (empty path) but with
+        // real clause text should still be rewritten.
+        return hp == "/";
     }
+
+    /// <summary>
+    /// Returns true when the verdict's span should be skipped for rewriting
+    /// (title/preamble area). Exposed for callers that inline the rewrite loop.
+    /// </summary>
+    public static bool IsSkippableSpan(Verdict v)
+        => IsTitleOrPreambleSpan(v.ClauseSpan ?? v.SourceSpan);
+
+    /// <summary>
+    /// Builds a Comment annotation for a verdict. Exposed for callers that
+    /// inline the rewrite loop outside <see cref="FromReportWithRewritesAsync"/>.
+    /// </summary>
+    public static Annotation BuildCommentForVerdict(Verdict v, Rule? rule)
+        => BuildCommentAnnotation(v, rule);
+
+    /// <summary>
+    /// Builds a Replace (tracked-change) annotation from a verdict, its
+    /// comment, and the rewritten clause text.
+    /// </summary>
+    public static Annotation BuildReplaceAnnotation(Verdict v, Annotation comment, string rewrite)
+        => new(
+            Id: ContentHash.Compose("annot", v.Id, "replace").Value,
+            Kind: AnnotationKind.Replace,
+            Span: v.SourceSpan,
+            Author: comment.Author,
+            Text: comment.Text,
+            Replacement: rewrite)
+        {
+            ClauseSpan = v.ClauseSpan,
+        };
 
     private static Annotation BuildCommentAnnotation(Verdict v, Rule? rule)
     {
