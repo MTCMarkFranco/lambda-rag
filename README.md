@@ -125,6 +125,19 @@ and have an executable ruleset out the other end.
 
 Best when you have customer / regulator policy PDFs or Word docs.
 
+The `--domain` flag tells the extractor which topic ontology to use
+when mapping policy sections to canonical topic IDs. Available domains:
+
+| Domain | Description |
+|--------|-------------|
+| `contract` | Commercial contract review (default) |
+| `architecture-review` | Cloud architecture / ASD review |
+| `fsi` | Financial services (Basel, AML, KYC, capital adequacy) |
+| `oil-gas` | Upstream / downstream (HSE, well integrity, environmental) |
+| `business-review` | MOUs, SOWs, business cases, vendor reviews |
+| `gov-architecture` | Government cloud architecture review |
+| `permitting` | Government permit / planning application review |
+
 ```pwsh
 # 1. Drop your policy files into a folder
 mkdir policies\acme-corp
