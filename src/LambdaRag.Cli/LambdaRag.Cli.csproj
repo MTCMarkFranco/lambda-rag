@@ -16,6 +16,7 @@
     <ProjectReference Include="..\LambdaRag.Persistence\LambdaRag.Persistence.csproj" />
     <ProjectReference Include="..\LambdaRag.Indexing\LambdaRag.Indexing.csproj" />
     <PackageReference Include="System.CommandLine" />
+    <PackageReference Include="Spectre.Console" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.AI" />
     <PackageReference Include="Microsoft.Extensions.AI.OpenAI" />

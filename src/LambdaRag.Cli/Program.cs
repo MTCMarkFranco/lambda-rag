@@ -19,6 +19,8 @@ using LambdaRag.Selectors;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Spectre.Console;
+using Rule = LambdaRag.Core.Domain.Rule;
 
 return await CliEntry.RunAsync(args);
 
@@ -188,24 +190,28 @@ static class CliEntry
             ruleset = applied.RuleSet;
             overlayAudit = applied.Audit;
             if (applied.UnknownRuleIds.Count > 0)
-                Console.WriteLine($"Overlay:   {applied.UnknownRuleIds.Count} unknown rule id(s) ignored: {string.Join(", ", applied.UnknownRuleIds)}");
-            Console.WriteLine($"Overlay:   {overlayPath}  fp={applied.Audit.Fingerprint.Value[..12]}…  disabled={applied.Audit.DisabledCount} notes={applied.Audit.AnnotatedCount}");
+                AnsiConsole.MarkupLine($"[yellow]Overlay:[/]   {applied.UnknownRuleIds.Count} unknown rule id(s) ignored: {Markup.Escape(string.Join(", ", applied.UnknownRuleIds))}");
+            AnsiConsole.MarkupLine($"[dim]Overlay:[/]   {Markup.Escape(overlayPath)}  fp={Markup.Escape(applied.Audit.Fingerprint.Value[..12])}…  disabled={applied.Audit.DisabledCount} notes={applied.Audit.AnnotatedCount}");
         }
         sigIndex.Build(ruleset);
-        var parsed = await parsers.ParseAsync(documentPath);
+
+        // ── Phase 1: Parse ──────────────────────────────────────────────
+        var parsed = await AnsiConsole.Status()
+            .Spinner(Spinner.Known.Dots)
+            .StartAsync("[bold]Parsing[/] document…", async _ =>
+                await parsers.ParseAsync(documentPath));
+
+        // ── Phase 2: Project ────────────────────────────────────────────
         var topicMapSpec = f.GetValueOrDefault("topic-map");
         var effectiveProjector = topicMapSpec is null
             ? projector
             : new LambdaRag.Projection.Projectors.DeterministicContractProjector(TopicMapRegistry.Load(topicMapSpec));
-        var projected = await effectiveProjector.ProjectAsync(parsed);
+        var projected = await AnsiConsole.Status()
+            .Spinner(Spinner.Known.Dots)
+            .StartAsync("[bold]Projecting[/] document…", async _ =>
+                await effectiveProjector.ProjectAsync(parsed));
 
-        // If any rule in the (possibly overlay-modified) ruleset declares a
-        // positive applicability gate or uses a semantic predicate, build a
-        // vector store via the active IRuleEmbedder. The store is also
-        // snapshotted next to the report so a follow-up replay can hydrate
-        // without any cloud calls. When no rule needs vectors, we skip the
-        // embedder work entirely and use the DI-resolved evaluator — which
-        // preserves the byte-identical behaviour of pre-semantic rulesets.
+        // ── Phase 3: Embed (optional) ───────────────────────────────────
         var needsVectors = ruleset.Rules.Any(r =>
             r.GateThreshold > 0 ||
             r.Lambda.Contains("SemanticFunctions.", StringComparison.Ordinal));
@@ -213,35 +219,33 @@ static class CliEntry
         InMemorySemanticVectorStore? store = null;
         if (needsVectors)
         {
-            var ruleSetEmbedder = new RuleSetEmbedder(ruleEmbedder);
-            store = await ruleSetEmbedder.EmbedAsync(ruleset);
-            var projEmbedder = new ProjectionEmbedder(ruleEmbedder);
-            store = await projEmbedder.EmbedSectionsAsync(projected, store);
+            await AnsiConsole.Status()
+                .Spinner(Spinner.Known.Dots)
+                .StartAsync($"[bold]Embedding[/] {ruleset.Rules.Count} rules + sections…", async _ =>
+                {
+                    var ruleSetEmbedder = new RuleSetEmbedder(ruleEmbedder);
+                    store = await ruleSetEmbedder.EmbedAsync(ruleset);
+                    var projEmbedder = new ProjectionEmbedder(ruleEmbedder);
+                    store = await projEmbedder.EmbedSectionsAsync(projected, store);
+                });
 
-            // Wrap the populated store with a JIT-embed decorator (see #69).
-            // Sections that the projector skipped — e.g. heading-only nodes
-            // with no body text in the upstream graph — would otherwise raise
-            // "no precomputed vector for section ..." at evaluation time.
-            // The decorator carries the (id -> text) map so any miss falls
-            // back to the same IRuleEmbedder + cache used at projection time;
-            // determinism is preserved because the embedder is itself
-            // deterministic and hash-cached.
-            var jitStore = new JitEmbeddingSemanticVectorStore(store, ruleEmbedder);
+            var jitStore = new JitEmbeddingSemanticVectorStore(store!, ruleEmbedder);
             jitStore.RegisterSectionTexts(projected);
 
-            // Build a fresh evaluator with the populated store. We pull every
-            // collaborator off DI so candidate filters and the time provider
-            // are still honoured.
             effectiveEvaluator = new EvaluationService(
                 sp.GetRequiredService<ISelectorMatcher>(),
                 sp.GetRequiredService<ILogger<EvaluationService>>(),
                 sp.GetService<TimeProvider>(),
                 sp.GetService<ICandidateRuleFilter>(),
                 jitStore);
-            Console.WriteLine($"Vectors:   embedder={ruleEmbedder.EmbedderId} dims={ruleEmbedder.Dimensions}");
+            AnsiConsole.MarkupLine($"[dim]Vectors:[/]   embedder={Markup.Escape(ruleEmbedder.EmbedderId)} dims={ruleEmbedder.Dimensions}");
         }
 
-        var report = await effectiveEvaluator.EvaluateAsync(ruleset, projected);
+        // ── Phase 4: Evaluate ───────────────────────────────────────────
+        var report = await AnsiConsole.Status()
+            .Spinner(Spinner.Known.Dots)
+            .StartAsync($"[bold]Evaluating[/] {ruleset.Rules.Count} rules…", async _ =>
+                await effectiveEvaluator.EvaluateAsync(ruleset, projected));
         if (overlayAudit is not null)
             report = report with { OverlayApplied = overlayAudit };
 
@@ -303,13 +307,101 @@ static class CliEntry
                         }
                         return canonical.Substring(span.CharStart, span.CharLength);
                     }
-                    await foreach (var ann in AnnotationFactory.FromReportWithRewritesAsync(
-                        report, ruleLookup, rewriter, clauseTextResolver: ResolveClauseText, cancellationToken: default))
+
+                    var failVerdicts = report.Verdicts
+                        .Where(v => v.Outcome is VerdictOutcome.Fail or VerdictOutcome.Error)
+                        .ToList();
+
+                    var rewrites = 0;
+                    var skipReasons = new List<(string RuleId, string Reason)>();
+                    await AnsiConsole.Progress()
+                        .AutoClear(false)
+                        .HideCompleted(false)
+                        .Columns(
+                            new TaskDescriptionColumn(),
+                            new ProgressBarColumn { CompletedStyle = new Style(Color.Green) },
+                            new SpinnerColumn(),
+                            new RemainingTimeColumn())
+                        .StartAsync(async ctx =>
+                        {
+                            var task = ctx.AddTask(
+                                $"[bold]Rewriting[/] 0/{failVerdicts.Count}",
+                                maxValue: failVerdicts.Count);
+
+                            for (var i = 0; i < failVerdicts.Count; i++)
+                            {
+                                var v = failVerdicts[i];
+                                var rule = ruleLookup.GetValueOrDefault(v.RuleId);
+                                var ruleId = v.RuleId;
+                                var truncatedId = ruleId.Length > 30 ? ruleId[..30] + "…" : ruleId;
+                                task.Description = $"[bold]Rewriting[/] {i + 1}/{failVerdicts.Count} [green]({rewrites} redlined)[/] [dim]{truncatedId}[/]";
+
+                                var comment = AnnotationFactory.BuildCommentForVerdict(v, rule);
+                                var clauseText = ResolveClauseText(v);
+
+                                if (v.Outcome != VerdictOutcome.Fail)
+                                {
+                                    skipReasons.Add((ruleId, "outcome is not Fail"));
+                                    annotations.Add(comment);
+                                    task.Increment(1);
+                                    continue;
+                                }
+                                if (string.IsNullOrWhiteSpace(clauseText))
+                                {
+                                    skipReasons.Add((ruleId, "no clause text resolved"));
+                                    annotations.Add(comment);
+                                    task.Increment(1);
+                                    continue;
+                                }
+                                if (AnnotationFactory.IsSkippableSpan(v))
+                                {
+                                    skipReasons.Add((ruleId, "title/preamble span (path=\"/\")"));
+                                    annotations.Add(comment);
+                                    task.Increment(1);
+                                    continue;
+                                }
+
+                                string? rewrite = null;
+                                try
+                                {
+                                    rewrite = await rewriter
+                                        .RewriteAsync(v, clauseText, rule, default)
+                                        .ConfigureAwait(false);
+                                }
+                                catch (OperationCanceledException) { throw; }
+                                catch (Exception ex)
+                                {
+                                    skipReasons.Add((ruleId, $"LLM error: {ex.GetType().Name}"));
+                                }
+
+                                if (!string.IsNullOrWhiteSpace(rewrite))
+                                {
+                                    rewrites++;
+                                    annotations.Add(AnnotationFactory.BuildReplaceAnnotation(v, comment, rewrite));
+                                }
+                                else
+                                {
+                                    if (!skipReasons.Any(s => s.RuleId == ruleId))
+                                        skipReasons.Add((ruleId, "LLM returned empty/NO_REWRITE"));
+                                    annotations.Add(comment);
+                                }
+                                task.Description = $"[bold]Rewriting[/] {i + 1}/{failVerdicts.Count} [green]({rewrites} redlined)[/] [dim]{truncatedId}[/]";
+                                task.Increment(1);
+                            }
+                        });
+
+                    Console.WriteLine($"Rewrite:   {rewrites} clause rewrite(s) emitted by {rewriter.GetType().Name}");
+                    if (skipReasons.Count > 0)
                     {
-                        annotations.Add(ann);
+                        AnsiConsole.WriteLine();
+                        var table = new Table()
+                            .Border(TableBorder.Rounded)
+                            .AddColumn("[bold]Rule ID[/]")
+                            .AddColumn("[bold]Skip Reason[/]");
+                        foreach (var (rid, reason) in skipReasons)
+                            table.AddRow(Markup.Escape(rid), Markup.Escape(reason));
+                        AnsiConsole.Write(table);
                     }
-                    var replaceCount = annotations.Count(a => a.Kind == AnnotationKind.Replace);
-                    Console.WriteLine($"Rewrite:   {replaceCount} clause rewrite(s) emitted by {rewriter.GetType().Name}");
                 }
                 else
                 {
@@ -323,15 +415,66 @@ static class CliEntry
             }
         }
 
-        Console.WriteLine($"Document:  {parsed.Source.Id}");
-        Console.WriteLine($"RuleSet:   {ruleset.Id}@{ruleset.Version}");
-        Console.WriteLine($"Score:     {report.Score:F4}");
-        Console.WriteLine($"Verdicts:  pass={report.Passed} fail={report.Failed} gap={report.Gaps} n/a={report.NotApplicable} err={report.Errored}");
+        // ── Final Summary ─────────────────────────────────────────────
+        AnsiConsole.WriteLine();
+        AnsiConsole.Write(new Spectre.Console.Rule("[bold]Review Summary[/]").LeftJustified());
+        AnsiConsole.WriteLine();
+
+        // Verdict breakdown table
+        var verdictTable = new Table()
+            .Border(TableBorder.Rounded)
+            .AddColumn("[bold]Metric[/]")
+            .AddColumn("[bold]Value[/]");
+        verdictTable.AddRow("Document", Markup.Escape(parsed.Source.Id.ToString()));
+        verdictTable.AddRow("RuleSet", Markup.Escape($"{ruleset.Id}@{ruleset.Version}"));
+        verdictTable.AddRow("Score", $"[bold]{report.Score:F4}[/]");
+        verdictTable.AddRow("Pass", $"[green]{report.Passed}[/]");
+        verdictTable.AddRow("Fail", report.Failed > 0 ? $"[red]{report.Failed}[/]" : "0");
+        verdictTable.AddRow("Gap", report.Gaps > 0 ? $"[yellow]{report.Gaps}[/]" : "0");
+        verdictTable.AddRow("N/A", $"{report.NotApplicable}");
+        verdictTable.AddRow("Error", report.Errored > 0 ? $"[red]{report.Errored}[/]" : "0");
         var withRemediation = report.Verdicts.Count(v => !string.IsNullOrEmpty(v.RemediationText));
         if (withRemediation > 0)
-            Console.WriteLine($"Rewrites:  {withRemediation} verdict(s) include a suggested remediation");
-        if (reportPath is not null) Console.WriteLine($"Wrote:     {reportPath}");
-        if (markupPath is not null) Console.WriteLine($"Markup:    {markupPath}");
+            verdictTable.AddRow("Remediations", $"[blue]{withRemediation}[/]");
+        AnsiConsole.Write(verdictTable);
+
+        // Per-verdict detail table
+        AnsiConsole.WriteLine();
+        var detailTable = new Table()
+            .Border(TableBorder.Rounded)
+            .AddColumn("[bold]Rule ID[/]")
+            .AddColumn("[bold]Outcome[/]")
+            .AddColumn("[bold]Section[/]");
+        foreach (var v in report.Verdicts.OrderBy(v => v.RuleId, StringComparer.Ordinal))
+        {
+            var outcomeMarkup = v.Outcome switch
+            {
+                VerdictOutcome.Pass => "[green]PASS[/]",
+                VerdictOutcome.Fail => "[red]FAIL[/]",
+                VerdictOutcome.Gap => "[yellow]GAP[/]",
+                VerdictOutcome.NotApplicable => "[dim]N/A[/]",
+                VerdictOutcome.Error => "[red bold]ERR[/]",
+                _ => v.Outcome.ToString(),
+            };
+            var section = v.SourceSpan?.HeadingPath ?? v.ClauseSpan?.HeadingPath ?? "";
+            if (section.Length > 50) section = section[..50] + "…";
+            detailTable.AddRow(Markup.Escape(v.RuleId), outcomeMarkup, Markup.Escape(section));
+        }
+        AnsiConsole.Write(detailTable);
+
+        // Output files table
+        AnsiConsole.WriteLine();
+        var fileTable = new Table()
+            .Border(TableBorder.Rounded)
+            .AddColumn("[bold]Output[/]")
+            .AddColumn("[bold]Path[/]");
+        if (reportPath is not null)
+            fileTable.AddRow("Report", Markup.Escape(Path.GetFullPath(reportPath)));
+        if (markupPath is not null)
+            fileTable.AddRow("Markup", Markup.Escape(Path.GetFullPath(markupPath)));
+        if (fileTable.Rows.Count > 0)
+            AnsiConsole.Write(fileTable);
+
         return 0;
     }
 
