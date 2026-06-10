@@ -6,7 +6,7 @@ using Xunit;
 namespace LambdaRag.UnitTests.Regulatory;
 
 /// <summary>
-/// Structural guard for <c>samples/contracts/loi-25-ruleset.json</c>.
+/// Structural guard for <c>rulesets/contracts/loi-25-ruleset.json</c>.
 ///
 /// The Quebec Law 25 mapping is bilingual by contract: every rule must
 /// carry a French translation, a citation back to the underlying statute,
@@ -18,7 +18,7 @@ public class QuebecLaw25RulesetParserTests
 {
     private static string RulesetPath => Path.GetFullPath(Path.Combine(
         AppContext.BaseDirectory, "..", "..", "..", "..", "..",
-        "samples", "contracts", "loi-25-ruleset.json"));
+        "rulesets", "contracts", "loi-25-ruleset.json"));
 
     [Fact]
     public void Ruleset_loads_with_canonical_options()

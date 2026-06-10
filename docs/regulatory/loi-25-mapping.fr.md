@@ -63,7 +63,7 @@ livrée dans [`samples/contracts/loi-25-ruleset.json`](../../samples/contracts/l
 | **Sévérité** | `Critical` (violation manifeste ; risque de SAP) / `Violation` (non-conformité avérée) / `Deviation` (artefact opérationnel manquant) / `Suggestion` (renforcement) |
 | **Réviseur** | `qc-privacy` (secteur privé) ou `qc-public-sector` (spécifique à A-2.1) |
 
-Le format-fil est identique à [`contoso-demo-ruleset.json`](../../samples/contracts/contoso-demo-ruleset.json).
+Le format-fil est identique à [`contoso-demo-ruleset.json`](../../rulesets/contracts/contoso-demo-ruleset.json).
 Chaque règle porte une formulation française dans `metadata.naturalLanguageFr`
 (les métadonnées sont opaques pour le moteur — aucun changement de code n'a
 été nécessaire).

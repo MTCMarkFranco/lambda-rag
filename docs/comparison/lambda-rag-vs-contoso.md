@@ -27,7 +27,7 @@
 | **S — Selector miss** | 0 (against Contoso findings) but **1 latent selector miss observed** in CTSO-LIAB-001 — see §4. |
 | **C — Actually caught** | 0 | None of Contoso's findings are caught by the demo ruleset under different surface wording. |
 
-> The dominant cause of the 27-comment gap is therefore **N** (ruleset coverage), not engine quality. **The engines are not on a level playing field**: Contoso ships 7 LLM domain agents driven by ~6 Contoso policy PDFs (~140 enriched chunks), while lambda-rag is being run with a **5-rule hand-authored demo ruleset** (`samples/contracts/contoso-demo-ruleset.json`). The promised `out/dev-full/policies-ruleset.json` (LLM-extracted from the same PDFs) **does not exist in the repo** as of commit `4d53ce2`. Until that ruleset is produced, every "miss" is structurally inevitable.
+> The dominant cause of the 27-comment gap is therefore **N** (ruleset coverage), not engine quality. **The engines are not on a level playing field**: Contoso ships 7 LLM domain agents driven by ~6 Contoso policy PDFs (~140 enriched chunks), while lambda-rag is being run with a **5-rule hand-authored demo ruleset** (`rulesets/contracts/contoso-demo-ruleset.json`). The promised `out/dev-full/policies-ruleset.json` (LLM-extracted from the same PDFs) **does not exist in the repo** as of commit `4d53ce2`. Until that ruleset is produced, every "miss" is structurally inevitable.
 
 ### One-sentence verdict
 
@@ -44,7 +44,7 @@
 | Sample contract | `contoso/test-data/contract_original.docx` | `39663242…3dbc4693` | 9 588 |
 | Contoso reviewed output | `contoso/test-data/contract_original_reviewed.docx` | `4aaf59e8…2d75e0fe` | (review of above) |
 | Policy corpus (PDF source Contoso's RAG indexes) | `contoso/docs/policy-documents/*.pdf` | 6 PDFs | — |
-| lambda-rag ruleset used | `lambda-rag/samples/contracts/contoso-demo-ruleset.json` (`rs_contoso_demo@1.0.0`, 5 rules) | — | 5 172 |
+| lambda-rag ruleset used | `lambda-rag/rulesets/contracts/contoso-demo-ruleset.json` (`rs_contoso_demo@1.0.0`, 5 rules) | — | 5 172 |
 | lambda-rag commit | `4d53ce2` (Phase 1 cleanup; projector v1.3.0) | — | — |
 | Contoso commit | `b2a0011` | — | — |
 
@@ -65,12 +65,12 @@ The CTSO-only artifact in this repo is the already-produced `contract_original_r
 dotnet build
 dotnet run --project src/LambdaRag.Cli -- review `
   --document out/comparison-vs-contoso/contract_original.docx `
-  --ruleset  samples/contracts/contoso-demo-ruleset.json `
+  --ruleset  rulesets/contracts/contoso-demo-ruleset.json `
   --out      out/comparison-vs-contoso/contoso-demo-rs `
   --mode     both
 dotnet run --project src/LambdaRag.Cli -- coverage `
   --document out/comparison-vs-contoso/contract_original.docx `
-  --ruleset  samples/contracts/contoso-demo-ruleset.json `
+  --ruleset  rulesets/contracts/contoso-demo-ruleset.json `
   --out      out/comparison-vs-contoso/contoso-demo-coverage.json
 dotnet run --project src/LambdaRag.Cli -- project `
   --document out/comparison-vs-contoso/contract_original.docx `
@@ -265,7 +265,7 @@ Closes the §5 backlog identified above. Three changes, all merged together
 in this PR:
 
 1. **19 new rules** authored as data only in
-   `samples/contracts/contoso-demo-ruleset.json` (now **v2.0.0**, 24 rules
+   `rulesets/contracts/contoso-demo-ruleset.json` (now **v2.0.0**, 24 rules
    total). New rule IDs: `CTSO-LIAB-CARVEOUTS`, `CTSO-TERM-CONV`,
    `CTSO-PAY-NET45`, `CTSO-PAY-INT-MAX`, `CTSO-TAX-EXCL`,
    `CTSO-IP-WORKFORHIRE`, `CTSO-INS-GCL-5M`, `CTSO-INS-CYBER-10M`,

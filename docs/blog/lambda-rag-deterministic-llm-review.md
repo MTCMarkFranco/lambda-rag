@@ -435,7 +435,7 @@ dotnet test    # 266 unit + 35 idempotency / golden-master proofs
 # Sample contract → tracked-change redline with positive-confirmation comments
 dotnet run --project src/LambdaRag.Cli -- review `
   --document samples/contracts/contoso-sample-contract.docx `
-  --ruleset  samples/contracts/contoso-demo-ruleset.json `
+  --ruleset  rulesets/contracts/contoso-demo-ruleset.json `
   --out      out/sample `
   --mode     both `
   --rewrite `

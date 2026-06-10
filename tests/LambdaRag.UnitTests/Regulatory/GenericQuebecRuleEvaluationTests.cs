@@ -42,7 +42,7 @@ public class GenericQuebecRuleEvaluationTests
 
     private static string RulesetPath => Path.GetFullPath(Path.Combine(
         AppContext.BaseDirectory, "..", "..", "..", "..", "..",
-        "samples", "contracts", "loi-25-ruleset.json"));
+        "rulesets", "contracts", "loi-25-ruleset.json"));
 
     private static EvaluationService Build()
     {

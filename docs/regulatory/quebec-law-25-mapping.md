@@ -57,7 +57,7 @@ Each row maps a Loi 25 article to a candidate `QC-LOI25-*` rule shipped in
 | **Severity** | `Critical` (clear legal violation; AMP risk) / `Violation` (definite non-compliance) / `Deviation` (operational artifact missing) / `Suggestion` (hardening) |
 | **Reviewer** | `qc-privacy` (private sector) or `qc-public-sector` (A-2.1 specific) |
 
-The same wire format used by [`contoso-demo-ruleset.json`](../../samples/contracts/contoso-demo-ruleset.json)
+The same wire format used by [`contoso-demo-ruleset.json`](../../rulesets/contracts/contoso-demo-ruleset.json)
 applies. Each rule carries a French one-liner via `metadata.naturalLanguageFr`
 (the engine treats metadata as opaque key/value strings — adding the field
 required no engine change).

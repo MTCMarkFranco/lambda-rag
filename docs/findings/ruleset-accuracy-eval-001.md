@@ -1,7 +1,7 @@
 # Ruleset Accuracy Evaluation #001
 
 **Date:** 2026-05-04
-**Ruleset:** `samples/contracts/contoso-demo-ruleset.json` @ `2.0.0`
+**Ruleset:** `rulesets/contracts/contoso-demo-ruleset.json` @ `2.0.0`
 **Document:** `samples/contracts/contoso-sample-contract.docx`
 **Engine:** `LambdaRag.Cli` (post-Contoso scrub baseline, commit `fa55e42`)
 **Baseline report:** [`eval-baselines/eval-001-baseline.json`](../../eval-baselines/eval-001-baseline.json)
