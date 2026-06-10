@@ -91,7 +91,7 @@ dotnet test    # tests unitaires + preuves d'idempotence
 # Revue du contrat échantillon → rapport JSON
 dotnet run --project src/LambdaRag.Cli -- review `
   --document samples/contracts/contract.md `
-  --ruleset  samples/contracts/ruleset.json `
+  --ruleset  rulesets/contracts/ruleset.json `
   --out      out/sample `
   --mode     report
 
@@ -99,14 +99,14 @@ dotnet run --project src/LambdaRag.Cli -- review `
 # (Le mode markup nécessite un fichier .docx — utilise le contrat échantillon fourni)
 dotnet run --project src/LambdaRag.Cli -- review `
   --document samples/contracts/contoso-sample-contract.docx `
-  --ruleset  samples/contracts/contoso-demo-ruleset.json `
+  --ruleset  rulesets/contracts/contoso-demo-ruleset.json `
   --out      out/sample `
   --mode     markup
 
 # Ajouter des commentaires de confirmation positive ✓ pour les verdicts Pass
 dotnet run --project src/LambdaRag.Cli -- review `
   --document samples/contracts/contoso-sample-contract.docx `
-  --ruleset  samples/contracts/contoso-demo-ruleset.json `
+  --ruleset  rulesets/contracts/contoso-demo-ruleset.json `
   --out      out/sample `
   --mode     markup `
   --annotate-pass
@@ -114,7 +114,7 @@ dotnet run --project src/LambdaRag.Cli -- review `
 # Les deux à la fois
 dotnet run --project src/LambdaRag.Cli -- review `
   --document samples/contracts/contoso-sample-contract.docx `
-  --ruleset  samples/contracts/contoso-demo-ruleset.json `
+  --ruleset  rulesets/contracts/contoso-demo-ruleset.json `
   --out      out/sample `
   --mode     both
 ```
@@ -145,12 +145,12 @@ dotnet run --project src/LambdaRag.Cli -- extract-rules `
   --policy-dir policies/acme-corp `
   --domain     contract `
   --id         rs_acme_procurement `
-  --out        rulesets/acme-procurement.json `
+  --out        rulesets/contracts/acme-procurement.json `
   --prefix     ACME `
   --min-chars  200
 ```
 
-Sortie : `rulesets/acme-procurement.json` — chaque règle inclut :
+Sortie : `rulesets/contracts/acme-procurement.json` — chaque règle inclut :
 
 - Un énoncé en langage naturel
 - Un prédicat typé (lambda) que le moteur évalue
@@ -169,13 +169,13 @@ dotnet run --project src/LambdaRag.Cli -- author `
   --chunk  policies/acme-corp/clause-7.txt `
   --domain contract `
   --prefix ACME `
-  --out    rulesets/clause-7-rule.json
+  --out    rulesets/contracts/clause-7-rule.json
 ```
 
 ### Option C — Rédiger un ensemble de règles à la main
 
-Voir `samples/contracts/ruleset.json` (et l'exemple Loi 25 bilingue
-[`samples/contracts/loi-25-ruleset.json`](samples/contracts/loi-25-ruleset.json)).
+Voir `rulesets/contracts/ruleset.json` (et l'exemple Loi 25 bilingue
+[`rulesets/contracts/loi-25-ruleset.json`](rulesets/contracts/loi-25-ruleset.json)).
 Le schéma est petit et documenté dans `docs/`. Tout ce qui peut s'exprimer
 comme prédicat typé sur un graphe de document projeté peut devenir une règle.
 
@@ -185,13 +185,13 @@ comme prédicat typé sur un graphe de document projeté peut devenir une règle
 # Vérifier la couverture
 dotnet run --project src/LambdaRag.Cli -- coverage `
   --document my-customer-doc.docx `
-  --ruleset  rulesets/acme-procurement.json `
+  --ruleset  rulesets/contracts/acme-procurement.json `
   --out      out/acme/coverage.json
 
 # Lancer la revue complète
 dotnet run --project src/LambdaRag.Cli -- review `
   --document my-customer-doc.docx `
-  --ruleset  rulesets/acme-procurement.json `
+  --ruleset  rulesets/contracts/acme-procurement.json `
   --out      out/acme `
   --mode     both
 ```
@@ -295,8 +295,8 @@ Il existe exactement deux cas, traités via une **RuleOverlay** annexe —
 
    ```pwsh
    lambda-rag rules disable `
-     --ruleset rulesets/acme.json `
-     --overlay rulesets/acme.overlay.json `
+     --ruleset rulesets/contracts/acme.json `
+     --overlay rulesets/contracts/acme.overlay.json `
      --rule    ACME-PAY-003 `
      --reason  "supplantée par la clause 4.2 de la lettre 2026-T2" `
      --by      legal@acme.com
@@ -306,8 +306,8 @@ Il existe exactement deux cas, traités via une **RuleOverlay** annexe —
 
    ```pwsh
    lambda-rag rules annotate `
-     --ruleset rulesets/acme.json `
-     --overlay rulesets/acme.overlay.json `
+     --ruleset rulesets/contracts/acme.json `
+     --overlay rulesets/contracts/acme.overlay.json `
      --rule    ACME-LIAB-001 `
      --note    "voir clause 7.2 du MSA — plafonné aux frais payés au cours des 12 derniers mois" `
      --by      legal@acme.com
@@ -318,8 +318,8 @@ Puis lancer une revue avec la surcouche appliquée :
 ```pwsh
 lambda-rag review `
   --document customer-doc.docx `
-  --ruleset  rulesets/acme.json `
-  --overlay  rulesets/acme.overlay.json `
+  --ruleset  rulesets/contracts/acme.json `
+  --overlay  rulesets/contracts/acme.overlay.json `
   --out      out/customer
 ```
 
@@ -352,7 +352,16 @@ src/
 tests/
   LambdaRag.UnitTests/             tests unitaires
   LambdaRag.IdempotencyTests/      preuves d'égalité octet-à-octet
-samples/contracts/                 contract.md + ruleset.json + loi-25-ruleset.json
+rulesets/                          ensembles de règles générés ou rédigés à la main, organisés par domaine
+  arb/                               ARB (arb-ruleset.json, arb-ruleset-with-examples.json)
+  cloud/                             architecture cloud (cloud_architecture.json, …)
+  contracts/                         revue contractuelle (contoso-demo-ruleset.json, loi-25-ruleset.json, …)
+samples/                           documents échantillons à soumettre en revue (pas d'ensembles de règles ici)
+  architecture/                      sample_asd.docx, Cloud-service-Architecture.docx
+  contracts/                         contoso-sample-contract.docx, contract.md
+policies/                          documents de politique sources (entrée de extract-rules / author)
+  arb/                               politiques ARB (markdown)
+  cloud/                             politiques Azure Cloud (docx)
 docs/                              ARCHITECTURE.md, DETERMINISM.md, SELECTORS.md, regulatory/*
 ```
 

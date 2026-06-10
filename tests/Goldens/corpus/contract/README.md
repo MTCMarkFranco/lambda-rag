@@ -50,9 +50,9 @@ These five were chosen because:
 | `doc-001-msa-with-gaps` | A US-flavoured MSA dropped onto a Canadian customer — net-45 payment, Delaware governing law, GDPR-only privacy clause, no liability cap, missing termination-for-convenience. | Multiple `Fail` verdicts. Low score. |
 | `doc-002-clean-msa` | A clean Canadian-law MSA. All five rules pass. | All `Pass`. Score = 1.0. |
 
-## Relationship to `samples/contracts/ruleset.json`
+## Relationship to `rulesets/contracts/ruleset.json`
 
-The bundled `samples/contracts/ruleset.json` shipped before this corpus
+The bundled `rulesets/contracts/ruleset.json` shipped before this corpus
 was a smaller US-flavoured demo (Delaware, ISO 27001) used as the
 running example throughout the README. The corpus ruleset here is a
 **Canadian-flavoured replacement** that the test suite uses; the

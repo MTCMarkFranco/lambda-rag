@@ -186,10 +186,12 @@ public sealed class RuntimeDeterminismGuardrails
         if (firstTriple is null)
         {
             // Fall back to the shared sample contract used by ReviewPipelineIdempotency.
-            var samplesRoot = Path.GetFullPath(Path.Combine(
+            var samplesRoot   = Path.GetFullPath(Path.Combine(
                 AppContext.BaseDirectory, "..", "..", "..", "..", "..", "samples", "contracts"));
+            var rulesetsRoot  = Path.GetFullPath(Path.Combine(
+                AppContext.BaseDirectory, "..", "..", "..", "..", "..", "rulesets", "contracts"));
             await ProduceVerdictJsonAsync(
-                Path.Combine(samplesRoot, "ruleset.json"),
+                Path.Combine(rulesetsRoot, "ruleset.json"),
                 Path.Combine(samplesRoot, "contract.md"),
                 vertical: "contract");
             return;

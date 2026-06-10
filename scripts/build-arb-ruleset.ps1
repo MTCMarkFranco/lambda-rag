@@ -4,7 +4,7 @@
 
 param(
   [string]$Source = "C:\Projects\architecture-review-board\back-end\file_processing\data\policies.json",
-  [string]$Out    = "C:\Projects\lambda-rag\samples\contracts\arb-ruleset.json"
+  [string]$Out    = "C:\Projects\lambda-rag\rulesets\arb\arb-ruleset.json"
 )
 
 # Header → (topic, severity-tag, meaning-phrases, anchor regex, remediation hint)

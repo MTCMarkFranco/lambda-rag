@@ -25,6 +25,9 @@ public sealed class ReviewPipelineIdempotency
     private static string SamplesRoot => Path.GetFullPath(Path.Combine(
         AppContext.BaseDirectory, "..", "..", "..", "..", "..", "samples", "contracts"));
 
+    private static string RulesetsRoot => Path.GetFullPath(Path.Combine(
+        AppContext.BaseDirectory, "..", "..", "..", "..", "..", "rulesets", "contracts"));
+
     [Fact]
     public async Task Two_runs_produce_byte_identical_report()
     {
@@ -61,7 +64,7 @@ public sealed class ReviewPipelineIdempotency
         var projector = sp.GetRequiredService<IDocumentProjector>();
         var evaluator = sp.GetRequiredService<EvaluationService>();
 
-        var rulesetJson = await File.ReadAllTextAsync(Path.Combine(SamplesRoot, "ruleset.json"));
+        var rulesetJson = await File.ReadAllTextAsync(Path.Combine(RulesetsRoot, "ruleset.json"));
         var ruleset = System.Text.Json.JsonSerializer.Deserialize<RuleSet>(rulesetJson, CanonicalJson.Options)!;
 
         var parsed = await parsers.ParseAsync(Path.Combine(SamplesRoot, "contract.md"));

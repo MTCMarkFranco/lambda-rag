@@ -1,0 +1,776 @@
+{
+  "id": "rs_cloud_architecture",
+  "version": "1.0.0",
+  "domain": "architecture",
+  "publishedAt": "1970-01-01T00:00:00+00:00",
+  "rules": [
+    {
+      "id": "CLOUD-4385-000IDENT-MFA-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Privileged and remote access must require phishing-resistant MFA.",
+      "lambda": "input1.text.ToLower().Contains(\"mfa\") || input1.text.ToLower().Contains(\"multi-factor\") || input1.text.ToLower().Contains(\"fido2\") || input1.text.ToLower().Contains(\"passkey\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:8fa03b3e8cb774d014109c6518ec418a40a0d1ef53cdc12c047b1e9fa8999bfb",
+        "charStart": 194,
+        "charLength": 632,
+        "headingPath": "/1. IDENTITY AND ACCESS MANAGEMENT",
+        "charEnd": 826
+      },
+      "evidenceQuote": "security_iam",
+      "metadata": {
+        "topic": "security_iam"
+      },
+      "predicate": "input1.category == \"security_iam\"",
+      "applicability": "Mandatory",
+      "remediation": "Add a clause requiring phishing-resistant MFA (FIDO2 / passkeys) for privileged and remote access.",
+      "sourceContent": "Identity is the new perimeter for Azure workloads. All human and workload identities must be issued from a single Microsoft Entra ID tenant; multi-tenant workloads should rely on application registrations with limited consent rather than shared credentials. Privileged access is granted just-in-time through Privileged Identity Management with time-bound activation, approval workflows, and access reviews on a quarterly cadence. Conditional Access policies must enforce phishing-resistant MFA for all administrators and for any user accessing production data planes; legacy authentication protocols are blocked at the tenant level.",
+      "sourceEmbedding": [
+        -0.09489079,
+        0.10323118,
+        0.24230927,
+        0.15544024,
+        0.066468164,
+        0.21908048,
+        -0.23605599,
+        0.16382045,
+        -0.22325465,
+        -0.07678411,
+        -0.25558856,
+        0.15792562,
+        -0.20527543,
+        -0.2401744,
+        -0.21582238,
+        -0.030509716,
+        0.026399268,
+        -0.10191679,
+        -0.018959042,
+        -0.18716875,
+        -0.23914678,
+        0.23712343,
+        -0.2300337,
+        0.1613988,
+        -0.24186318,
+        0.22598697,
+        -0.069774054,
+        -0.1577902,
+        -0.10598741,
+        -0.05984047,
+        -0.14095807,
+        0.23722698
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "CLOUD-4385-001CONF-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Confidentiality clause must define a survival period or be perpetual.",
+      "lambda": "input1.text.Contains(\"year\") || input1.text.Contains(\"years\") || input1.text.Contains(\"perpetual\") || input1.text.Contains(\"survive\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:8fa03b3e8cb774d014109c6518ec418a40a0d1ef53cdc12c047b1e9fa8999bfb",
+        "charStart": 827,
+        "charLength": 737,
+        "headingPath": "/1. IDENTITY AND ACCESS MANAGEMENT",
+        "charEnd": 1564
+      },
+      "evidenceQuote": "Confidentiality survival",
+      "metadata": {
+        "minYears": "5"
+      },
+      "predicate": "input1.category == \"confidentiality\"",
+      "applicability": "Mandatory",
+      "remediation": "Add an explicit survival period to the {section.heading} clause: \"obligations survive for {meta.minYears} years from termination.\"",
+      "sourceContent": "Workload identities favour managed identities — system-assigned where the lifecycle matches the resource, user-assigned where the identity is shared across resources or deployment slots. Service principals with client secrets are only permitted as a documented exception and must rotate credentials at least every 90 days through automation. Role assignments follow the principle of least privilege: prefer built-in roles, scope to the smallest resource boundary that satisfies the requirement, and use Azure ABAC conditions where the platform supports them. Break-glass accounts are excluded from Conditional Access only for the specific controls that would lock them out, monitored continuously, and stored in a sealed offline process.",
+      "sourceEmbedding": [
+        0.0064176377,
+        -0.23341286,
+        -0.2661162,
+        0.23277937,
+        -0.040966377,
+        0.15247168,
+        -0.29465127,
+        0.12019987,
+        0.2929803,
+        -0.010852143,
+        -0.113304816,
+        0.042288467,
+        0.28641576,
+        0.020529095,
+        0.12109962,
+        0.08433822,
+        -0.071558036,
+        -0.09681544,
+        0.264941,
+        -0.1848445,
+        0.12826094,
+        -0.0777186,
+        -0.08674368,
+        0.007969255,
+        0.12118225,
+        -0.17277125,
+        0.23457888,
+        0.11976836,
+        -0.17914298,
+        0.19294226,
+        -0.2658683,
+        0.29431155
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "CLOUD-4385-003DR-BACKUP-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Backup, restore and DR must have stated RPO and RTO.",
+      "lambda": "input1.text.ToLower().Contains(\"rpo\") || input1.text.ToLower().Contains(\"rto\") || input1.text.ToLower().Contains(\"recovery point\") || input1.text.ToLower().Contains(\"recovery time\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:8fa03b3e8cb774d014109c6518ec418a40a0d1ef53cdc12c047b1e9fa8999bfb",
+        "charStart": 1942,
+        "charLength": 579,
+        "headingPath": "/2. NETWORK SECURITY AND SEGMENTATION",
+        "charEnd": 2521
+      },
+      "evidenceQuote": "backup_restore",
+      "metadata": {
+        "topic": "backup_restore"
+      },
+      "predicate": "input1.category == \"backup_restore\"",
+      "applicability": "Mandatory",
+      "remediation": "State explicit RPO and RTO targets and the test cadence for restore drills.",
+      "sourceContent": "Azure network design starts from a hub-and-spoke topology with an Azure Virtual WAN or a regional hub virtual network providing shared services: Azure Firewall, ExpressRoute or VPN gateways, DNS resolvers, and bastion hosts. Workload spokes are peered to the hub and never to each other, forcing east-west traffic through inspection. Each spoke is subdivided into purpose-built subnets (web tier, application tier, data tier, management) with Network Security Groups applying default-deny rules and explicit allow lists keyed to Application Security Groups rather than IP ranges.",
+      "sourceEmbedding": [
+        0.1386598,
+        0.044244263,
+        -0.19362965,
+        -0.04584039,
+        0.18348356,
+        -0.053739697,
+        0.27924106,
+        0.2860119,
+        0.30209517,
+        -0.09182311,
+        -0.2531947,
+        0.03898822,
+        -0.10514112,
+        -0.109248355,
+        -0.09080647,
+        0.08547927,
+        -0.1980012,
+        0.28680488,
+        -0.20640883,
+        0.11266427,
+        0.037656423,
+        -0.11493138,
+        -0.21899487,
+        0.11368091,
+        -0.024236746,
+        0.024165582,
+        0.2640626,
+        0.3152607,
+        0.17351031,
+        -0.08306982,
+        -0.0065573417,
+        -0.28181317
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "CLOUD-4385-004NET-PRIVATE-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Public PaaS data planes must be reached via Private Endpoint / PrivateLink (no public network access).",
+      "lambda": "input1.text.ToLower().Contains(\"private endpoint\") || input1.text.ToLower().Contains(\"privatelink\") || input1.text.ToLower().Contains(\"private link\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:8fa03b3e8cb774d014109c6518ec418a40a0d1ef53cdc12c047b1e9fa8999bfb",
+        "charStart": 2522,
+        "charLength": 505,
+        "headingPath": "/2. NETWORK SECURITY AND SEGMENTATION",
+        "charEnd": 3027
+      },
+      "evidenceQuote": "network_segmentation",
+      "metadata": {
+        "topic": "network_segmentation"
+      },
+      "predicate": "input1.category == \"network_segmentation\"",
+      "applicability": "Mandatory",
+      "remediation": "Replace public-internet access with a Private Endpoint and disable the public network access flag on the resource.",
+      "sourceContent": "Public ingress is concentrated on Azure Front Door or Application Gateway with the integrated Web Application Firewall in prevention mode using the latest OWASP and Microsoft-managed rule sets. Outbound internet egress flows through Azure Firewall with FQDN-based rules; direct workload-to-internet routes are blocked. Private Endpoints are the default for every PaaS data service (Storage, Key Vault, SQL, Cosmos DB, Service Bus, Event Hubs); public network access on the resource is explicitly disabled.",
+      "sourceEmbedding": [
+        -0.010230311,
+        0.3054945,
+        0.07653935,
+        0.05273458,
+        -0.22989507,
+        -0.093289755,
+        -0.16277474,
+        0.030967962,
+        0.26645312,
+        -0.08112023,
+        -0.11608534,
+        -0.057552923,
+        -0.021786407,
+        -0.25223553,
+        0.0041653393,
+        -0.19789815,
+        -0.25846872,
+        0.081268646,
+        0.08435554,
+        -0.1289771,
+        0.27380428,
+        -0.20161825,
+        0.117767304,
+        -0.14914091,
+        -0.24194586,
+        -0.23183428,
+        -0.2797901,
+        0.23510917,
+        0.07251252,
+        -0.22973678,
+        0.025061294,
+        0.24057062
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "CLOUD-4385-006ENCRYPT-REST-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Data at rest must be encrypted using customer-managed keys (CMK) or platform-managed keys with documented rotation.",
+      "lambda": "input1.text.Contains(\"AES-256\") || input1.text.ToLower().Contains(\"customer-managed\") || input1.text.ToLower().Contains(\"platform-managed\") || input1.text.Contains(\"TDE\") || input1.text.ToLower().Contains(\"cmk\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:8fa03b3e8cb774d014109c6518ec418a40a0d1ef53cdc12c047b1e9fa8999bfb",
+        "charStart": 3428,
+        "charLength": 543,
+        "headingPath": "/3. DATA PROTECTION AND ENCRYPTION",
+        "charEnd": 3971
+      },
+      "evidenceQuote": "encryption_at_rest",
+      "metadata": {
+        "topic": "encryption_at_rest"
+      },
+      "predicate": "input1.category == \"encryption_at_rest\"",
+      "applicability": "Mandatory",
+      "remediation": "Specify the encryption algorithm and key management model (e.g., \"AES-256 with customer-managed keys in Azure Key Vault\").",
+      "sourceContent": "Data classification drives every protection control. Each workload maintains a data inventory mapping datasets to one of four sensitivity tiers (public, internal, confidential, restricted), and the tier dictates encryption, key management, retention, and egress controls. Encryption at rest is mandatory for all storage services and uses customer-managed keys (CMK) stored in Azure Key Vault Premium with HSM-backed keys for confidential and restricted tiers; platform-managed keys are acceptable only for public tier non-production workloads.",
+      "sourceEmbedding": [
+        0.1461977,
+        0.20701213,
+        -0.14474355,
+        0.09457489,
+        -0.07063546,
+        0.31273198,
+        0.15957819,
+        0.13061428,
+        0.2656019,
+        -0.13626815,
+        0.088009454,
+        -0.102323204,
+        0.3092702,
+        0.09174253,
+        0.17623596,
+        0.3502798,
+        -0.22132589,
+        -0.061715137,
+        -0.09499813,
+        0.13817811,
+        -0.09981639,
+        0.2151294,
+        -0.01329366,
+        -0.22245447,
+        -0.12058706,
+        -0.27559656,
+        -0.13313194,
+        -0.1459264,
+        0.08818309,
+        0.2260682,
+        -0.13545425,
+        -0.043006346
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "CLOUD-4385-007ENCRYPT-TRANSIT-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Data in transit must be protected by TLS 1.2 or higher.",
+      "lambda": "input1.text.Contains(\"TLS 1.2\") || input1.text.Contains(\"TLS 1.3\") || input1.text.Contains(\"TLS1.2\") || input1.text.Contains(\"TLS1.3\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:8fa03b3e8cb774d014109c6518ec418a40a0d1ef53cdc12c047b1e9fa8999bfb",
+        "charStart": 3972,
+        "charLength": 443,
+        "headingPath": "/3. DATA PROTECTION AND ENCRYPTION",
+        "charEnd": 4415
+      },
+      "evidenceQuote": "encryption_in_transit",
+      "metadata": {
+        "topic": "encryption_in_transit"
+      },
+      "predicate": "input1.category == \"encryption_in_transit\"",
+      "applicability": "Mandatory",
+      "remediation": "State the minimum TLS version explicitly (TLS 1.2 or TLS 1.3).",
+      "sourceContent": "Key rotation is automated on a maximum 12-month cadence with versioning preserved to support decryption of historical data. Encryption in transit requires TLS 1.2 or higher with modern cipher suites; Azure service endpoints that still permit TLS 1.0/1.1 must be explicitly overridden. Sensitive fields within databases use Always Encrypted, client-side envelope encryption, or Azure SQL column-level encryption to protect against insider DBAs.",
+      "sourceEmbedding": [
+        0.12335976,
+        0.21810561,
+        -0.060568124,
+        -0.32071927,
+        0.15370418,
+        0.13643926,
+        -0.023050094,
+        0.21187776,
+        -0.15245661,
+        0.24379174,
+        -0.24162857,
+        0.048504803,
+        -0.21289395,
+        0.25366172,
+        0.2906968,
+        -0.21898094,
+        -0.22786494,
+        0.14074543,
+        -0.043031536,
+        0.04049613,
+        0.09994746,
+        0.046120316,
+        -0.18339466,
+        0.089061305,
+        0.22789511,
+        0.17966196,
+        0.08546947,
+        -0.11248366,
+        0.09207965,
+        0.29418802,
+        0.060517818,
+        0.16035461
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "CLOUD-4385-008DATA-RES-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Customer data must remain in the contracted residency region.",
+      "lambda": "input1.text.ToLower().Contains(\"canada\") || input1.text.ToLower().Contains(\"residency\") || input1.text.Contains(\"region\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:8fa03b3e8cb774d014109c6518ec418a40a0d1ef53cdc12c047b1e9fa8999bfb",
+        "charStart": 4416,
+        "charLength": 492,
+        "headingPath": "/3. DATA PROTECTION AND ENCRYPTION",
+        "charEnd": 4908
+      },
+      "evidenceQuote": "data_residency",
+      "metadata": {
+        "topic": "data_residency"
+      },
+      "predicate": "input1.category == \"data_residency\"",
+      "applicability": "Mandatory",
+      "remediation": "Pin the workload region(s) explicitly (e.g., Canada Central + Canada East) and disable cross-region replication for protected data.",
+      "sourceContent": "Secrets — connection strings, API keys, certificates — live exclusively in Key Vault; configuration files and ARM/Bicep templates must reference them via Key Vault references rather than embedding values. Backups, snapshots, and exported datasets inherit the source encryption posture; cross-region replication must remain within approved data-residency boundaries. Data loss prevention is enforced through Microsoft Purview policies on Microsoft 365 and via egress controls on Azure storage.",
+      "sourceEmbedding": [
+        0.29076588,
+        0.150493,
+        -0.25919914,
+        0.11323854,
+        -0.11005699,
+        -0.24637516,
+        0.0056521515,
+        0.06525747,
+        0.22731249,
+        0.09511789,
+        0.12224111,
+        0.2669664,
+        -0.13469185,
+        -0.12192118,
+        0.07924566,
+        -0.049349684,
+        -0.2629139,
+        0.24705945,
+        -0.28221655,
+        -0.022137593,
+        -0.1219745,
+        0.07306917,
+        -0.27165878,
+        0.20418842,
+        -0.11713107,
+        -0.25873703,
+        -0.08808825,
+        -0.14502746,
+        -0.16025095,
+        0.117566526,
+        -0.048229918,
+        -0.2230467
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "CLOUD-4385-008IAC-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Infrastructure must be deployed via Infrastructure-as-Code with policy-as-code guardrails.",
+      "lambda": "input1.text.ToLower().Contains(\"terraform\") || input1.text.ToLower().Contains(\"bicep\") || input1.text.ToLower().Contains(\"arm template\") || input1.text.ToLower().Contains(\"infrastructure as code\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:8fa03b3e8cb774d014109c6518ec418a40a0d1ef53cdc12c047b1e9fa8999bfb",
+        "charStart": 4416,
+        "charLength": 492,
+        "headingPath": "/3. DATA PROTECTION AND ENCRYPTION",
+        "charEnd": 4908
+      },
+      "evidenceQuote": "infra_as_code",
+      "metadata": {
+        "topic": "infra_as_code"
+      },
+      "predicate": "input1.category == \"infra_as_code\"",
+      "applicability": "Mandatory",
+      "remediation": "Adopt Terraform or Bicep with PR-gated CI and Azure Policy / OPA as policy-as-code.",
+      "sourceContent": "Secrets — connection strings, API keys, certificates — live exclusively in Key Vault; configuration files and ARM/Bicep templates must reference them via Key Vault references rather than embedding values. Backups, snapshots, and exported datasets inherit the source encryption posture; cross-region replication must remain within approved data-residency boundaries. Data loss prevention is enforced through Microsoft Purview policies on Microsoft 365 and via egress controls on Azure storage.",
+      "sourceEmbedding": [
+        0.29076588,
+        0.150493,
+        -0.25919914,
+        0.11323854,
+        -0.11005699,
+        -0.24637516,
+        0.0056521515,
+        0.06525747,
+        0.22731249,
+        0.09511789,
+        0.12224111,
+        0.2669664,
+        -0.13469185,
+        -0.12192118,
+        0.07924566,
+        -0.049349684,
+        -0.2629139,
+        0.24705945,
+        -0.28221655,
+        -0.022137593,
+        -0.1219745,
+        0.07306917,
+        -0.27165878,
+        0.20418842,
+        -0.11713107,
+        -0.25873703,
+        -0.08808825,
+        -0.14502746,
+        -0.16025095,
+        0.117566526,
+        -0.048229918,
+        -0.2230467
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "CLOUD-4385-017AUDIT-LOG-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Control-plane and data-plane audit logs must be forwarded to a tamper-resistant SIEM with the documented retention.",
+      "lambda": "input1.text.ToLower().Contains(\"sentinel\") || input1.text.ToLower().Contains(\"log analytics\") || input1.text.ToLower().Contains(\"siem\") || input1.text.ToLower().Contains(\"audit log\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:8fa03b3e8cb774d014109c6518ec418a40a0d1ef53cdc12c047b1e9fa8999bfb",
+        "charStart": 8883,
+        "charLength": 364,
+        "headingPath": "/6. CONTAINER AND KUBERNETES SECURITY",
+        "charEnd": 9247
+      },
+      "evidenceQuote": "audit_logging",
+      "metadata": {
+        "topic": "audit_logging"
+      },
+      "predicate": "input1.category == \"audit_logging\"",
+      "applicability": "Mandatory",
+      "remediation": "Forward control-plane and data-plane audit logs to Microsoft Sentinel (or equivalent SIEM) with a defined retention policy.",
+      "sourceContent": "Cluster upgrades follow the AKS supported version policy: minor versions are upgraded within 90 days of release, and the node image is rotated monthly through auto-upgrade. Secrets are sourced through the Secret Store CSI Driver backed by Key Vault rather than Kubernetes secrets. Cluster diagnostic logs and audit logs flow to the central Log Analytics workspace.",
+      "sourceEmbedding": [
+        -0.15556984,
+        -0.21722035,
+        -0.10360095,
+        0.0068810666,
+        0.09328417,
+        0.23454332,
+        -0.10522739,
+        -0.12274283,
+        -0.20017648,
+        0.1657134,
+        -0.0033587303,
+        0.1982132,
+        0.0976534,
+        0.17856127,
+        -0.2344567,
+        0.18623148,
+        -0.17447113,
+        -0.23871046,
+        0.06758843,
+        -0.11764218,
+        0.22228251,
+        -0.03737911,
+        -0.28073788,
+        0.1611132,
+        0.19637506,
+        0.14348227,
+        0.1660695,
+        -0.3100618,
+        0.24840169,
+        0.13881469,
+        0.089068905,
+        0.2385276
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "CLOUD-4385-042DPA-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Data protection clause must reference an industry security standard.",
+      "lambda": "input1.text.Contains(\"ISO 27001\") || input1.text.Contains(\"SOC 2\") || input1.text.Contains(\"NIST\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:8fa03b3e8cb774d014109c6518ec418a40a0d1ef53cdc12c047b1e9fa8999bfb",
+        "charStart": 21015,
+        "charLength": 270,
+        "headingPath": "/15. AI AND AGENT WORKLOADS GOVERNANCE",
+        "charEnd": 21285
+      },
+      "evidenceQuote": "data protection",
+      "metadata": {
+        "requiredStandard": "ISO 27001 or SOC 2"
+      },
+      "predicate": "input1.category == \"privacy\"",
+      "applicability": "Mandatory",
+      "remediation": "Add to the {section.heading} clause: \"Provider shall maintain security controls aligned with {meta.requiredStandard}.\"",
+      "sourceContent": "Evaluation pipelines run automated groundedness, relevance, and safety scoring before promotion. Cost and quota are monitored per deployment with budgets and rate limits aligned to business value, and PII redaction is applied to telemetry to satisfy privacy commitments.",
+      "sourceEmbedding": [
+        -0.048288293,
+        -0.13422276,
+        -0.23543677,
+        -0.18684083,
+        -0.13049689,
+        -0.138826,
+        0.27814192,
+        -0.15853783,
+        0.2863685,
+        -0.038181707,
+        -0.042067103,
+        -0.053791653,
+        0.04065423,
+        -0.23376183,
+        0.20119743,
+        -0.15096074,
+        -0.08788287,
+        -0.093397625,
+        -0.26724914,
+        -0.30373314,
+        -0.27438188,
+        0.12036751,
+        -0.1740908,
+        -0.0006266768,
+        0.11222072,
+        -0.102307834,
+        0.19434957,
+        0.01950674,
+        -0.20487773,
+        0.08836143,
+        0.26478803,
+        -0.24800448
+      ],
+      "gateThreshold": 0
+    }
+  ],
+  "metadata": {
+    "source_dir": "policies/cloud",
+    "files_processed": "1",
+    "blocks_examined": "43",
+    "blocks_skipped_short": "19",
+    "raw_suggestions": "45",
+    "dedup_count": "35"
+  }
+}

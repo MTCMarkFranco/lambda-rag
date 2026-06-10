@@ -79,7 +79,7 @@ dotnet test    # 266 unit + 35 idempotency / golden-master proofs
 # Review the bundled sample contract → JSON report
 dotnet run --project src/LambdaRag.Cli -- review `
   --document samples/contracts/contoso-sample-contract.docx `
-  --ruleset  samples/contracts/contoso-demo-ruleset.json `
+  --ruleset  rulesets/contracts/contoso-demo-ruleset.json `
   --out      out/sample `
   --mode     report
 
@@ -87,14 +87,14 @@ dotnet run --project src/LambdaRag.Cli -- review `
 # (Markup mode requires a .docx source — uses the bundled sample contract)
 dotnet run --project src/LambdaRag.Cli -- review `
   --document samples/contracts/contoso-sample-contract.docx `
-  --ruleset  samples/contracts/contoso-demo-ruleset.json `
+  --ruleset  rulesets/contracts/contoso-demo-ruleset.json `
   --out      out/sample `
   --mode     markup
 
 # Add positive-confirmation ✓ comments for Pass verdicts (full coverage proof)
 dotnet run --project src/LambdaRag.Cli -- review `
   --document samples/contracts/contoso-sample-contract.docx `
-  --ruleset  samples/contracts/contoso-demo-ruleset.json `
+  --ruleset  rulesets/contracts/contoso-demo-ruleset.json `
   --out      out/sample `
   --mode     markup `
   --annotate-pass
@@ -105,7 +105,7 @@ dotnet run --project src/LambdaRag.Cli -- review `
 #  to the offending clause)
 dotnet run --project src/LambdaRag.Cli -- review `
   --document samples/contracts/contoso-sample-contract.docx `
-  --ruleset  samples/contracts/contoso-demo-ruleset.json `
+  --ruleset  rulesets/contracts/contoso-demo-ruleset.json `
   --out      out/sample `
   --mode     both `
   --rewrite
@@ -135,12 +135,12 @@ dotnet run --project src/LambdaRag.Cli -- extract-rules `
   --policy-dir policies/acme-corp `
   --domain     contract `
   --id         rs_acme_procurement `
-  --out        rulesets/acme-procurement.json `
+  --out        rulesets/contracts/acme-procurement.json `
   --prefix     ACME `
   --min-chars  200
 ```
 
-Output: `rulesets/acme-procurement.json` — every rule includes:
+Output: `rulesets/contracts/acme-procurement.json` — every rule includes:
 - A natural-language statement
 - A typed predicate (lambda) the engine evaluates
 - A pointer to the source span in the originating policy document
@@ -158,12 +158,12 @@ dotnet run --project src/LambdaRag.Cli -- author `
   --chunk  policies/acme-corp/clause-7.txt `
   --domain contract `
   --prefix ACME `
-  --out    rulesets/clause-7-rule.json
+  --out    rulesets/contracts/clause-7-rule.json
 ```
 
 ### Option C — Hand-write a ruleset
 
-Look at `samples/contracts/ruleset.json`. The schema is small and
+Look at `rulesets/contracts/ruleset.json`. The schema is small and
 documented in `docs/`. Anything you can express as a typed predicate
 over a projected document graph can be a rule.
 
@@ -173,13 +173,13 @@ over a projected document graph can be a rule.
 # Sanity-check coverage of your ruleset against a target document
 dotnet run --project src/LambdaRag.Cli -- coverage `
   --document my-customer-doc.docx `
-  --ruleset  rulesets/acme-procurement.json `
+  --ruleset  rulesets/contracts/acme-procurement.json `
   --out      out/acme/coverage.json
 
 # Run the full review
 dotnet run --project src/LambdaRag.Cli -- review `
   --document my-customer-doc.docx `
-  --ruleset  rulesets/acme-procurement.json `
+  --ruleset  rulesets/contracts/acme-procurement.json `
   --out      out/acme `
   --mode     both
 ```
@@ -280,8 +280,8 @@ There are exactly two such cases, and both are handled via a
 
    ```pwsh
    lambda-rag rules disable `
-     --ruleset rulesets/acme.json `
-     --overlay rulesets/acme.overlay.json `
+     --ruleset rulesets/contracts/acme.json `
+     --overlay rulesets/contracts/acme.overlay.json `
      --rule    ACME-PAY-003 `
      --reason  "superseded by 2026-Q2 side-letter clause 4.2" `
      --by      legal@acme.com
@@ -291,8 +291,8 @@ There are exactly two such cases, and both are handled via a
 
    ```pwsh
    lambda-rag rules annotate `
-     --ruleset rulesets/acme.json `
-     --overlay rulesets/acme.overlay.json `
+     --ruleset rulesets/contracts/acme.json `
+     --overlay rulesets/contracts/acme.overlay.json `
      --rule    ACME-LIAB-001 `
      --note    "see clause 7.2 in MSA — capped at fees paid in prior 12 months" `
      --by      legal@acme.com
@@ -303,8 +303,8 @@ Then run a review with the overlay applied:
 ```pwsh
 lambda-rag review `
   --document customer-doc.docx `
-  --ruleset  rulesets/acme.json `
-  --overlay  rulesets/acme.overlay.json `
+  --ruleset  rulesets/contracts/acme.json `
+  --overlay  rulesets/contracts/acme.overlay.json `
   --out      out/customer
 ```
 
@@ -340,7 +340,16 @@ tests/
   LambdaRag.UnitTests/             266 unit tests
   LambdaRag.IdempotencyTests/      35 run-twice + golden-master byte-equality proofs
   Goldens/corpus/                  5-vertical regression corpus (frozen expected-verdict.json)
-samples/contracts/                 contoso-sample-contract.docx + contoso-demo-ruleset.json (+ arb, loi-25, …)
+rulesets/                          generated and hand-authored rulesets, organized by domain
+  arb/                               ARB rulesets (arb-ruleset.json, arb-ruleset-with-examples.json)
+  cloud/                             cloud architecture rulesets (cloud_architecture.json, …)
+  contracts/                         contract review rulesets (contoso-demo-ruleset.json, loi-25-ruleset.json, …)
+samples/                           sample input documents for review (no rulesets here)
+  architecture/                      sample_asd.docx, Cloud-service-Architecture.docx
+  contracts/                         contoso-sample-contract.docx, contract.md
+policies/                          source policy documents (input to extract-rules / author)
+  arb/                               Architecture Review Board markdown policies
+  cloud/                             Azure cloud policy documents
 docs/                              ARCHITECTURE.md, DETERMINISM.md, PIPELINE.md, SELECTORS.md, manifesto.md, diagrams/, findings/, regulatory/
 wrong-path-search-index.md         Postmortem: why the runtime never reads rules from Azure Search
 ```

@@ -56,6 +56,9 @@ public sealed class ReviewedDocxIdempotency
     private static string SamplesRoot => Path.GetFullPath(Path.Combine(
         AppContext.BaseDirectory, "..", "..", "..", "..", "..", "samples", "contracts"));
 
+    private static string RulesetsRoot => Path.GetFullPath(Path.Combine(
+        AppContext.BaseDirectory, "..", "..", "..", "..", "..", "rulesets", "contracts"));
+
     private static string GoldenRoot => Path.GetFullPath(Path.Combine(
         AppContext.BaseDirectory, "..", "..", "..", "..", "Goldens", "reviewed-docx"));
 
@@ -143,7 +146,7 @@ public sealed class ReviewedDocxIdempotency
         var markup = sp.GetRequiredService<OpenXmlMarkupService>();
 
         var rulesetJson = await File.ReadAllTextAsync(
-            Path.Combine(SamplesRoot, "ruleset.json"));
+            Path.Combine(RulesetsRoot, "ruleset.json"));
         var ruleset = JsonSerializer.Deserialize<RuleSet>(
             rulesetJson, CanonicalJson.Options)!;
 
