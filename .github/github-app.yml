@@ -1,0 +1,9 @@
+instructions: |-
+  Ensure when we add a new feature we follow strong development practices like
+  -no direct changes to the main branch, must use PR
+  -Open new branch per feature
+  -create issues for new features
+  -create prompt contracts before writing a line of code for a new feature
+automation:
+  auto_issue_session: true
+  remote_control: true
