@@ -20,6 +20,8 @@ public static class RuleSetIO
 
     public static void Save(RuleSet ruleset, string path)
     {
+        var dir = Path.GetDirectoryName(path);
+        if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
         var json = JsonSerializer.Serialize(ruleset, CanonicalJson.Options);
         File.WriteAllText(path, json);
     }

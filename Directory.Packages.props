@@ -41,6 +41,7 @@
 
     <!-- CLI -->
     <PackageVersion Include="System.CommandLine" Version="2.0.7" />
+    <PackageVersion Include="Spectre.Console" Version="0.49.1" />
 
     <!-- API -->
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.2.0" />
