@@ -159,6 +159,31 @@ Each verdict carries a stable id derived from
 span, outcome)` so re-running the same evaluation produces
 byte-identical verdict ids.
 
+#### 3c.1 Semantic binding (Pillar 6, #124)
+
+Before invoking the lambda, if the rule declares
+`semanticAnchors[]` and the engine was constructed with an
+`ITokenEmbedder`, the evaluator:
+
+1. Tokenizes the matched section's body text via the signed
+   `SemanticTokenizer` (unigrams + bigrams by default; trigrams opt-in).
+2. Embeds each anchor + each token through the file-backed embedding
+   cache (offline after first warm-up).
+3. Cosine-compares every anchor vector against every token vector and
+   collects `(text, span, cosine)` tuples whose cosine ≥
+   `anchor.threshold`.
+4. Pushes the bindings into an AsyncLocal scope so the lambda can call
+   `LambdaPrimitives.SemanticBindings("anchor_name")` and receive a
+   typed list of `TokenMatch`.
+5. Records the top-3 bindings per anchor on `Verdict.SemanticBindings`
+   so the audit trail proves the verdict is reproducible from the
+   `(rule, projection, embedder)` bytes alone.
+
+Rules without `semanticAnchors[]` skip the binding pass entirely, so
+adding Pillar 6 to a fresh ruleset cannot regress legacy verdicts —
+the additive guarantee is asserted by `AdditiveGuaranteeTests` in
+`tests/LambdaRag.IdempotencyTests/`.
+
 ### 3d. Remediation
 
 When the lambda returns `false` and the rule defined a `Remediation`
