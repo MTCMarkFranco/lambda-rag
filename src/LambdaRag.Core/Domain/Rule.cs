@@ -137,6 +137,17 @@ public sealed record Rule(
     /// </summary>
     public RuleExamples? Examples { get; init; }
 
+    /// <summary>
+    /// Optional list of doc-kind identifiers (e.g. <c>"arb-psa"</c>,
+    /// <c>"contract"</c>) this rule applies to. <c>null</c> or empty means
+    /// "applies to every doc kind" — backward-compatible default for all
+    /// pre-Pillar-1 rulesets. The evaluator's doc-kind gate skips a rule
+    /// whose list is non-empty and does not contain the resolved doc kind,
+    /// emitting <see cref="LambdaRag.Core.Domain.VerdictOutcome.Skipped"/>
+    /// so the rule still appears in the audit trail.
+    /// </summary>
+    public IReadOnlyList<string>? AppliesToDocKinds { get; init; }
+
     /// <summary>SHA-256 of the predicate expression. Changes if the gate changes.</summary>
      public ContentHash PredicateHash() => ContentHash.OfString(Predicate);
 
@@ -180,6 +191,16 @@ public sealed record Rule(
             parts.Add("examples.positive:" + string.Join("\u001f", Examples.Positive));
             parts.Add("examples.negative:" + string.Join("\u001f", Examples.Negative));
         }
+        // AppliesToDocKinds only folds in when non-empty so pre-Pillar-1
+        // rulesets keep byte-identical fingerprints and verdict ids.
+        if (AppliesToDocKinds is { Count: > 0 })
+        {
+            var kinds = AppliesToDocKinds
+                .Select(k => k.Trim())
+                .Where(k => k.Length > 0)
+                .OrderBy(k => k, StringComparer.Ordinal);
+            parts.Add("appliesToDocKinds:" + string.Join("\u001f", kinds));
+        }
         return ContentHash.Compose(parts.ToArray());
     }
 }
@@ -196,11 +217,59 @@ public sealed record RuleSet(
     IReadOnlyList<Rule> Rules,
     IReadOnlyDictionary<string, string> Metadata)
 {
+    /// <summary>
+    /// Optional list of doc-kind identifiers this whole ruleset is
+    /// authored for. <c>null</c> or empty means "applies to every kind".
+    /// The effective gate for an individual rule is the union of the
+    /// ruleset-level list and the rule-level list — a rule may narrow but
+    /// not widen the ruleset's declared scope. See
+    /// <see cref="Rule.AppliesToDocKinds"/>.
+    /// </summary>
+    public IReadOnlyList<string>? AppliesToDocKinds { get; init; }
+
+    /// <summary>
+    /// Pillar 3 (#118) — signed phrasebooks the runtime exposes to rule
+    /// lambdas via <c>LambdaPrimitives.PhraseMatch(text, phrasebookId)</c>.
+    /// Keying is by id (e.g. <c>"dr_rpo"</c>); each value is the list of
+    /// case-insensitive substring phrases that count as a match. Folded
+    /// into <see cref="Fingerprint"/> only when non-empty so pre-Pillar-3
+    /// rulesets stay byte-identical.
+    /// </summary>
+    public IReadOnlyDictionary<string, IReadOnlyList<string>>? Phrasebooks { get; init; }
+
+    /// <summary>
+    /// Pillar 3 (#118) — the embedder id the rule's
+    /// <see cref="Rule.SourceEmbedding"/> vectors were produced with
+    /// (e.g. <c>azure-openai:text-embedding-3-large@2025-04</c>). When
+    /// non-null and the runtime <c>ISemanticVectorStore.ModelId</c>
+    /// disagrees, evaluation throws — drifted embedding models can never
+    /// silently pass. Folded into <see cref="Fingerprint"/> only when set.
+    /// </summary>
+    public string? EmbedderId { get; init; }
+
     public ContentHash Fingerprint()
     {
         var parts = new List<string> { Id, Version, Domain };
         foreach (var r in Rules.OrderBy(r => r.Id, StringComparer.Ordinal))
             parts.Add(r.Fingerprint().Value);
+        if (AppliesToDocKinds is { Count: > 0 })
+        {
+            var kinds = AppliesToDocKinds
+                .Select(k => k.Trim())
+                .Where(k => k.Length > 0)
+                .OrderBy(k => k, StringComparer.Ordinal);
+            parts.Add("appliesToDocKinds:" + string.Join("\u001f", kinds));
+        }
+        if (Phrasebooks is { Count: > 0 })
+        {
+            foreach (var kvp in Phrasebooks.OrderBy(k => k.Key, StringComparer.Ordinal))
+            {
+                var phrases = string.Join("\u001f", kvp.Value.OrderBy(p => p, StringComparer.Ordinal));
+                parts.Add($"phrasebook:{kvp.Key}={phrases}");
+            }
+        }
+        if (!string.IsNullOrWhiteSpace(EmbedderId))
+            parts.Add("embedderId:" + EmbedderId);
         return ContentHash.Compose(parts.ToArray());
     }
 }

@@ -62,7 +62,11 @@ public static class WorkflowFactory
     {
         return new RE.ReSettings
         {
-            CustomTypes = new[] { typeof(SemanticFunctions) },
+            CustomTypes = new[]
+            {
+                typeof(SemanticFunctions),
+                typeof(LambdaPrimitives),
+            },
         };
     }
 

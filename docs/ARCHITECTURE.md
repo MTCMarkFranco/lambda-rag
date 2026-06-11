@@ -21,7 +21,7 @@ for terminal-only consumers:
   contract.docx ─►Parser─►Projector─►(cache)─►ProjectedDocument
                                                         │
                               for each Rule:            ▼
-                          Selector.match ─►RulesEngine.eval ─►Verdict
+                          DocKindGate ─► Selector.match ─►RulesEngine.eval ─►Verdict
                                                         │
                                                         ▼
                                                ComplianceReport
@@ -30,6 +30,16 @@ for terminal-only consumers:
                                             OpenXml Markup ─► reviewed.docx
                         └─────────────────────────────────────┘
 ```
+
+> **Pillar 1 — doc-kind gating (#116).** Before selector match, the
+> evaluator resolves a deterministic `doc_kind` from (CLI flag → path
+> heuristic → heading-bigram classifier) and short-circuits any rule
+> whose `appliesToDocKinds` list does not contain the resolved kind.
+> Skipped rules emit a `Skipped` verdict (never silent), and the
+> report carries `wrong_profile: true` when every rule got skipped.
+> This is what protects an ARB-PSA artifact from being graded against
+> contract-clause rules — and vice versa. See
+> [`PIPELINE.md`](PIPELINE.md) §"Pillar 1 — doc-kind gating".
 
 ## Why .NET
 

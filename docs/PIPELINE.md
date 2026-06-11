@@ -35,6 +35,17 @@ For every contract we review:
 No LLM, no embeddings, no nondeterminism on this path. Same source +
 same `RuleSet` ⇒ byte-identical report.
 
+> **Pillar 1 — doc-kind gating (#116).** Between Project and "for each
+> rule" there is a deterministic *doc-kind* resolution: explicit CLI
+> flag (`--doc-kind arb-psa`) → filename heuristic
+> (`samples/architecture/**` → `arb-psa`) → heading-bigram classifier
+> over a signed dictionary. Any rule whose `appliesToDocKinds` list is
+> non-empty and does not contain the resolved kind is **skipped**,
+> emitting a single `Skipped` verdict so the audit trail still cites
+> the rule. When every rule got skipped, the report carries
+> `wrong_profile: true` — the operator picked the wrong ruleset
+> profile for this artifact.
+
 ---
 
 ## Stage 1 — Parse

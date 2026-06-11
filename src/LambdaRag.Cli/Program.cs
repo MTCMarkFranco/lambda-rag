@@ -242,12 +242,22 @@ static class CliEntry
         }
 
         // ── Phase 4: Evaluate ───────────────────────────────────────────
+        // Pillar 1 (#116) — resolve doc kind: explicit flag → filename
+        // heuristic → heading-bigram classifier. Passed to the evaluator
+        // which skips rules whose declared appliesToDocKinds excludes it.
+        var explicitDocKind = f.GetValueOrDefault("doc-kind");
+        var resolvedDocKind = DocKindResolver.Resolve(explicitDocKind, documentPath, parsed);
+        if (!string.IsNullOrWhiteSpace(explicitDocKind) || resolvedDocKind != DocKindResolver.Unknown)
+            AnsiConsole.MarkupLine($"[dim]Doc-kind:[/]  {Markup.Escape(resolvedDocKind)}");
+
         var report = await AnsiConsole.Status()
             .Spinner(Spinner.Known.Dots)
             .StartAsync($"[bold]Evaluating[/] {ruleset.Rules.Count} rules…", async _ =>
-                await effectiveEvaluator.EvaluateAsync(ruleset, projected));
+                await effectiveEvaluator.EvaluateAsync(ruleset, projected, resolvedDocKind));
         if (overlayAudit is not null)
             report = report with { OverlayApplied = overlayAudit };
+        if (report.WrongProfile == true)
+            AnsiConsole.MarkupLine($"[yellow]Profile:[/]   wrong_profile=true — every rule was skipped for doc-kind '{Markup.Escape(resolvedDocKind)}'.");
 
         var emitReport = mode is "report" or "both";
         var emitMarkup = mode is "markup" or "both";

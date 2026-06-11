@@ -55,11 +55,68 @@ public sealed class EvaluationService
         RuleSet ruleSet,
         ProjectedDocument document,
         CancellationToken ct = default)
+        => await EvaluateAsync(ruleSet, document, docKind: null, ct).ConfigureAwait(false);
+
+    /// <summary>
+    /// Pillar 1 (#116) overload — when <paramref name="docKind"/> is non-null
+    /// every rule whose <see cref="Rule.AppliesToDocKinds"/> (or the
+    /// ruleset-level list) is non-empty and does not contain the resolved
+    /// kind is skipped *before* selector match, emitting a single
+    /// <see cref="VerdictOutcome.Skipped"/> verdict with
+    /// <c>ErrorMessage = "doc_kind_mismatch:&lt;kind&gt;"</c> so the audit
+    /// trail still cites the rule. Rules with no doc-kind declaration are
+    /// evaluated normally (backward compatible).
+    /// </summary>
+    public async Task<ComplianceReport> EvaluateAsync(
+        RuleSet ruleSet,
+        ProjectedDocument document,
+        string? docKind,
+        CancellationToken ct = default)
     {
+        // Pillar 3 (#118) — fail loud on embedder drift. When the ruleset
+        // pinned an embedder id but the active vector store reports a
+        // different model, the precomputed sourceEmbedding vectors on
+        // rules can't be trusted and we must not silently produce a
+        // verdict against the wrong vectors.
+        if (!string.IsNullOrWhiteSpace(ruleSet.EmbedderId)
+            && _vectorStore is not NotConfiguredSemanticVectorStore
+            && !string.Equals(ruleSet.EmbedderId, _vectorStore.ModelId, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException(
+                $"Ruleset '{ruleSet.Id}' was authored against embedder '{ruleSet.EmbedderId}' " +
+                $"but the runtime vector store reports model '{_vectorStore.ModelId}'. " +
+                "Re-embed the ruleset or wire the matching embedder.");
+        }
+
+        // Pillar 3 (#118) — expose the ruleset's phrasebooks to
+        // LambdaPrimitives.PhraseMatch for the duration of this evaluation.
+        // AsyncLocal-scoped so concurrent evaluations are isolated.
+        using var _phrasebookScope = PhrasebookAccessor.Push(
+            new DictionaryPhrasebookStore(ruleSet.Phrasebooks));
+
         var verdicts = new List<Verdict>();
         foreach (var rule in ruleSet.Rules.OrderBy(r => r.Id, StringComparer.Ordinal))
         {
             ct.ThrowIfCancellationRequested();
+
+            // Pillar 1 doc-kind gate. Only fires when both a doc kind is
+            // known and the rule (or its ruleset) declared an explicit
+            // applies-to list. Otherwise behaviour is byte-identical to the
+            // pre-Pillar-1 path so all existing golden masters stay green.
+            if (!string.IsNullOrWhiteSpace(docKind)
+                && !DocKindResolver.Applies(rule.AppliesToDocKinds, ruleSet.AppliesToDocKinds, docKind))
+            {
+                verdicts.Add(BuildVerdict(
+                    rule, ruleSet,
+                    outcome: VerdictOutcome.Skipped,
+                    section: null,
+                    input: new JsonObject(),
+                    span: rule.SourceSpan,
+                    error: $"doc_kind_mismatch:{docKind}",
+                    remediationText: null));
+                continue;
+            }
+
             var matches = _matcher.Match(rule.Selector, document);
 
             if (matches.Count == 0)
@@ -296,7 +353,8 @@ public sealed class EvaluationService
         // than masquerading as Fail.
         return exceptionMessage.StartsWith("Exception while parsing expression", StringComparison.Ordinal)
             || exceptionMessage.Contains("RuleException", StringComparison.Ordinal)
-            || exceptionMessage.Contains(LambdaRag.Core.Semantic.SemanticFunctions.ErrorMarker, StringComparison.Ordinal);
+            || exceptionMessage.Contains(LambdaRag.Core.Semantic.SemanticFunctions.ErrorMarker, StringComparison.Ordinal)
+            || exceptionMessage.Contains(LambdaRag.Core.Semantic.LambdaPrimitives.ErrorMarker, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -528,10 +586,21 @@ public sealed class EvaluationService
         var na = verdicts.Count(v => v.Outcome == VerdictOutcome.NotApplicable);
         var gap = verdicts.Count(v => v.Outcome == VerdictOutcome.Gap);
         var err = verdicts.Count(v => v.Outcome == VerdictOutcome.Error);
+        var skipped = verdicts.Count(v => v.Outcome == VerdictOutcome.Skipped);
         // Gaps count against the score: a Mandatory rule the document
         // never addressed is just as much a finding as an explicit fail.
+        // Skipped verdicts (Pillar 1 doc-kind mismatch) never count — the
+        // rule simply did not apply to this artifact kind.
         var denominator = pass + fail + gap;
         var score = denominator == 0 ? 1.0 : (double)pass / denominator;
+
+        // Pillar 1 (#116) — when every rule that ran got skipped via the
+        // doc-kind gate, the operator picked the wrong ruleset profile for
+        // this artifact. Surface that fact at the report level so the
+        // audit trail is unambiguous instead of looking like a perfect
+        // pass on zero adjudicated rules.
+        var wrongProfile = verdicts.Count > 0
+            && skipped == verdicts.Count;
 
         return new ComplianceReport(
             DocumentId: document.SourceId,
@@ -554,6 +623,11 @@ public sealed class EvaluationService
             GeneratedAt: _time.GetUtcNow())
         {
             Gaps = gap,
+            // Pillar 1 (#116) — leave Skipped / WrongProfile unset (null)
+            // when the doc-kind gate did not fire, so legacy reports stay
+            // byte-identical. The fields appear only when actually relevant.
+            Skipped = skipped > 0 ? skipped : null,
+            WrongProfile = wrongProfile ? true : null,
         };
     }
 }
