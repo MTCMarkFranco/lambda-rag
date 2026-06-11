@@ -20,6 +20,7 @@ public class TopicMapRegistryTests
             "architecture-review.v1",
             "permitting.v1",
             "gov-architecture.v1",
+            "arb-psa.v1",
         });
     }
 
@@ -31,6 +32,7 @@ public class TopicMapRegistryTests
     [InlineData("architecture-review.v1")]
     [InlineData("permitting.v1")]
     [InlineData("gov-architecture.v1")]
+    [InlineData("arb-psa.v1")]
     public void Load_by_full_id_returns_a_topic_map(string id)
     {
         var map = TopicMapRegistry.Load(id);

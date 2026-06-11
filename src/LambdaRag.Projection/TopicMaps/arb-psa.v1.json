@@ -1,0 +1,131 @@
+{
+  "domain": "arb-psa",
+  "version": "1.0.0",
+  "description": "Project Solution Architecture (PSA) review topic map. Maps PSA sections to the 12 dimensions used by Architecture Review Board (ARB) reviewers: PSA Completeness, Architecture Constraints, Architecture Risks, Decision Records, Technology Standards, Design Patterns, Data Security, Integrations, Infrastructure Architecture, Security Architecture, Information Governance, DR & Resiliency. Each primary topic has heading keywords and body-keyword fallbacks so the projector labels sections correctly whether the heading is verbose ('6.3 Security Architecture Overview') or terse ('Security').",
+  "topics": [
+    {
+      "id": "psa_completeness",
+      "keywords": [
+        "psa overview", "executive summary", "project overview", "scope",
+        "in scope", "out of scope", "stakeholders", "business context",
+        "objectives", "review checklist", "arb-2", "arb stage"
+      ]
+    },
+    {
+      "id": "architecture_constraints",
+      "keywords": [
+        "architecture constraints", "constraints", "dependencies",
+        "external dependencies", "delivery constraints", "operational constraints",
+        "assumption", "must remain operational"
+      ]
+    },
+    {
+      "id": "architecture_risks",
+      "keywords": [
+        "architecture risks", "risks", "risk register", "risk table",
+        "risk and mitigation", "risk and issue", "key risks",
+        "risk severity", "mitigation owner", "residual risk"
+      ]
+    },
+    {
+      "id": "decision_records",
+      "keywords": [
+        "decision records", "architecture decision", "adr", "decision log",
+        "decision rationale", "decision status", "deferred decisions",
+        "technical debt", "vendor selection", "options considered"
+      ]
+    },
+    {
+      "id": "technology_standards",
+      "keywords": [
+        "technology standards", "tech standards", "standards catalog",
+        "standards alignment", "approved technology", "technology currency",
+        "ntip", "deviation management", "dmp", "tech radar"
+      ]
+    },
+    {
+      "id": "design_patterns",
+      "keywords": [
+        "design patterns", "pattern library", "enterprise patterns",
+        "approved patterns", "dp-001", "dp-005", "dp-006", "dp-008", "dp-009",
+        "api gateway", "broker", "zero-trust ingress", "asynchronous messaging",
+        "saas federation", "reference architecture"
+      ]
+    },
+    {
+      "id": "data_security",
+      "keywords": [
+        "data security", "data protection", "data at rest",
+        "data in transit", "encryption at rest", "encryption in transit",
+        "authentication", "authorization", "access control", "rbac", "abac",
+        "secrets management", "key management", "cmk", "kms", "key vault"
+      ]
+    },
+    {
+      "id": "integrations",
+      "keywords": [
+        "integrations", "integration architecture", "integration patterns",
+        "integration flows", "source/target", "hub model", "esb", "api hub",
+        "data flows", "ingress controls", "egress controls", "interface design",
+        "system context", "upstream", "downstream"
+      ]
+    },
+    {
+      "id": "infrastructure_architecture",
+      "keywords": [
+        "infrastructure architecture", "infrastructure design", "network design",
+        "physical design", "logical design", "subnet", "vnet", "vpc",
+        "topology", "compute design", "storage design", "infrastructure as code",
+        "terraform", "bicep", "arm template", "new modules required",
+        "iac modules", "landing zone"
+      ]
+    },
+    {
+      "id": "security_architecture",
+      "keywords": [
+        "security architecture", "security design", "security posture",
+        "security controls", "security assumptions", "security gaps",
+        "security recommendations", "nist", "nist csf", "pci dss",
+        "mvs", "minimum viable security", "threat model", "shared responsibility",
+        "current posture", "target posture", "security traceability"
+      ]
+    },
+    {
+      "id": "information_governance",
+      "keywords": [
+        "information governance", "data governance", "data classification",
+        "data retention", "retention policy", "privacy", "pia",
+        "privacy impact assessment", "ig questionnaire",
+        "information governance questionnaire", "data residency",
+        "data sovereignty", "personal information", "pii", "gdpr", "pipeda"
+      ]
+    },
+    {
+      "id": "dr_resiliency",
+      "keywords": [
+        "dr & resiliency", "dr and resiliency", "disaster recovery",
+        "resiliency", "rto", "rpo", "recovery time objective",
+        "recovery point objective", "failover", "warm standby",
+        "hot standby", "pilot light", "business impact", "bcp",
+        "single point of failure", "spof", "redundancy", "sla",
+        "service level agreement", "uptime target"
+      ]
+    }
+  ],
+  "axes": {
+    "stage": {
+      "headingPatterns": [
+        "arb-1", "arb-2", "arb-3", "stage 1", "stage 2", "stage 3"
+      ]
+    },
+    "platform": {
+      "headingPatterns": [
+        "azure", "aws", "gcp", "on-premises", "hybrid", "multi-cloud", "saas"
+      ]
+    }
+  },
+  "amendmentPatterns": [
+    "(?i)(?:see|refer to)\\s+(?:section|adr|chapter|appendix)\\s+\\d+\\w*\\s+\\(([^)]+)\\)",
+    "(?i)(?:supersedes|replaces)\\s+adr\\s+\\d+\\w*\\s+([A-Za-z][A-Za-z0-9\\s\\-]+)"
+  ]
+}
