@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using LambdaRag.Core.Semantic;
 
 namespace LambdaRag.Authoring;
 
@@ -13,20 +14,9 @@ namespace LambdaRag.Authoring;
 /// • Pure — no I/O at runtime evaluation. Embeddings are computed once at
 ///   authoring time and stored on the rule.
 /// </summary>
-public interface IRuleEmbedder
+public interface IRuleEmbedder : ITokenEmbedder
 {
-    /// <summary>Returns a fixed-length vector for the supplied text.</summary>
-    Task<float[]> EmbedAsync(string text, CancellationToken ct = default);
-
-    /// <summary>The embedding dimensionality. Must be constant for a given embedder.</summary>
-    int Dimensions { get; }
-
-    /// <summary>
-    /// A stable identifier for this embedder — e.g.
-    /// <c>"deterministic-sha256/32"</c> or <c>"azure-openai:text-embedding-3-large"</c>.
-    /// Stored alongside vectors so audit can detect mismatches.
-    /// </summary>
-    string EmbedderId { get; }
+    // Inherits EmbedAsync, Dimensions, EmbedderId from ITokenEmbedder (Pillar 6).
 }
 
 /// <summary>

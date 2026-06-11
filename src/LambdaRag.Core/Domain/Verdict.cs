@@ -68,6 +68,15 @@ public sealed record Verdict(
     /// replay holds.
     /// </summary>
     public SourceSpan? ClauseSpan { get; init; }
+
+    /// <summary>
+    /// Pillar 6 (#124) — semantic bindings recorded during evaluation.
+    /// One <see cref="BindingRecord"/> per (anchor, matched token) pair
+    /// whose cosine cleared the anchor threshold. Null / empty for
+    /// verdicts produced by rules without <c>semanticAnchors</c> so
+    /// pre-Pillar-6 verdict JSON stays byte-identical.
+    /// </summary>
+    public IReadOnlyList<BindingRecord>? SemanticBindings { get; init; }
 }
 
 /// <summary>

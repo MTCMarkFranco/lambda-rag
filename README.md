@@ -235,6 +235,41 @@ governance frameworks.
 
 ## CLI cheat sheet
 
+### Semantic anchors (Pillar 6, #124)
+
+Rules can declare `semanticAnchors[]` — named natural-language phrases
+the engine cosine-binds against the tokens of each candidate section at
+evaluation time. The lambda then accesses bindings via
+`LambdaPrimitives.SemanticBindings("anchor_name")` to express things
+like *"the section mentions RPO **or any phrasing that semantically
+means RPO**"* without the lambda having to enumerate every synonym.
+
+```json
+{
+  "id": "ARB-PSA-DR-001",
+  "semanticAnchors": [
+    { "name": "rpo",      "anchorText": "recovery point objective rpo data loss",      "threshold": 0.78 },
+    { "name": "rto",      "anchorText": "recovery time objective rto downtime",        "threshold": 0.78 },
+    { "name": "failover", "anchorText": "failover design warm standby hot standby",    "threshold": 0.78 }
+  ],
+  "lambda": "LambdaPrimitives.SemanticBindings(\"rpo\").Count > 0 && LambdaPrimitives.SemanticBindings(\"rto\").Count > 0"
+}
+```
+
+Determinism: tokens are produced by the signed `SemanticTokenizer`
+(`TokenizerVersion = "semantic-tokenizer-v1"`, stopword list SHA-256
+exposed via `SemanticTokenizer.StopwordHash`), and embeddings are
+served from the file-backed embedding cache — no LLM call at runtime.
+Every binding is emitted on `Verdict.SemanticBindings` with
+`(anchor, matched, cosine, charStart, charLength)` so an auditor can
+re-derive the verdict from the projection + ruleset + embedder bytes.
+
+Rules without `semanticAnchors[]` skip the binding pass entirely;
+adding Pillar 6 to the engine cannot flip a single pre-Pillar-6
+verdict (asserted by `tests/LambdaRag.IdempotencyTests/AdditiveGuaranteeTests.cs`).
+
+## CLI cheat sheet (commands)
+
 ```
 lambda-rag review        --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>] [--annotate-pass] [--rewrite] [--doc-kind <id>] [--topic-map <id-or-path>]
 lambda-rag extract-rules --policy-dir <dir> --domain <name> --id <ruleset-id> --out <path>

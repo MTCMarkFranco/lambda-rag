@@ -36,19 +36,22 @@ public sealed class EvaluationService
     private readonly TimeProvider _time;
     private readonly ICandidateRuleFilter? _candidateFilter;
     private readonly ISemanticVectorStore _vectorStore;
+    private readonly SemanticBindingResolver? _bindingResolver;
 
     public EvaluationService(
         ISelectorMatcher matcher,
         ILogger<EvaluationService> logger,
         TimeProvider? time = null,
         ICandidateRuleFilter? candidateFilter = null,
-        ISemanticVectorStore? vectorStore = null)
+        ISemanticVectorStore? vectorStore = null,
+        ITokenEmbedder? tokenEmbedder = null)
     {
         _matcher = matcher;
         _logger = logger;
         _time = time ?? TimeProvider.System;
         _candidateFilter = candidateFilter;
         _vectorStore = vectorStore ?? new NotConfiguredSemanticVectorStore();
+        _bindingResolver = tokenEmbedder is null ? null : new SemanticBindingResolver(tokenEmbedder);
     }
 
     public async Task<ComplianceReport> EvaluateAsync(
@@ -180,7 +183,33 @@ public sealed class EvaluationService
                     continue;
                 }
 
-                var verdict = await EvaluateRuleAsync(rule, ruleSet, section).ConfigureAwait(false);
+                // Pillar 6 — resolve semantic bindings BEFORE the lambda
+                // runs so LambdaPrimitives.SemanticBindings(name) returns
+                // populated lists during the lambda's evaluation. Skipped
+                // entirely for rules without anchors so legacy lambdas
+                // run exactly as before (byte-identity guarantee).
+                IReadOnlyDictionary<string, IReadOnlyList<TokenMatch>>? bindingMap = null;
+                IReadOnlyList<BindingRecord>? bindingRecords = null;
+                if (_bindingResolver is not null
+                    && rule.SemanticAnchors is { Count: > 0 } anchors)
+                {
+                    var sectionText = section.Node is JsonObject so
+                        && so["text"] is JsonValue tv
+                        && tv.TryGetValue<string>(out var t)
+                        ? t
+                        : string.Empty;
+                    if (!string.IsNullOrEmpty(sectionText))
+                    {
+                        var (b, r) = await _bindingResolver
+                            .ResolveAsync(anchors, sectionText, ct)
+                            .ConfigureAwait(false);
+                        bindingMap = b;
+                        bindingRecords = r;
+                    }
+                }
+
+                var verdict = await EvaluateRuleAsync(rule, ruleSet, section, bindingMap, bindingRecords)
+                    .ConfigureAwait(false);
                 verdicts.Add(verdict);
                 emittedForRule++;
             }
@@ -246,7 +275,12 @@ public sealed class EvaluationService
         }
     }
 
-    private async Task<Verdict> EvaluateRuleAsync(Rule rule, RuleSet ruleSet, MatchedSection section)
+    private async Task<Verdict> EvaluateRuleAsync(
+        Rule rule,
+        RuleSet ruleSet,
+        MatchedSection section,
+        IReadOnlyDictionary<string, IReadOnlyList<TokenMatch>>? bindingMap = null,
+        IReadOnlyList<BindingRecord>? bindingRecords = null)
     {
         var inputJson = SnapshotInput(section);
 
@@ -256,6 +290,12 @@ public sealed class EvaluationService
             var workflow = WorkflowFactory.ForRule(rule);
             var engine = new RE.RulesEngine([workflow], WorkflowFactory.CreateReSettings());
             using var _ = VectorStoreAccessor.Push(_vectorStore);
+            // Pillar 6 — bindings are visible inside the lambda for the
+            // duration of this call. The scope is AsyncLocal so concurrent
+            // evaluations of different rules don't see each other's bindings.
+            using var _bindingScope = bindingMap is null
+                ? (IDisposable)NullScope.Instance
+                : SemanticBindingAccessor.Push(new DictionarySemanticBindingScope(bindingMap));
             var results = await engine.ExecuteAllRulesAsync(WorkflowFactory.WorkflowName, input!).ConfigureAwait(false);
             var result = results.Single();
 
@@ -301,7 +341,8 @@ public sealed class EvaluationService
                 span: span,
                 error: result.IsSuccess ? null : result.ExceptionMessage,
                 remediationText: remediationText,
-                clauseSpan: clauseSpan);
+                clauseSpan: clauseSpan,
+                bindings: bindingRecords);
         }
         catch (Exception ex)
         {
@@ -524,7 +565,8 @@ public sealed class EvaluationService
         SourceSpan span,
         string? error,
         string? remediationText,
-        SourceSpan? clauseSpan = null)
+        SourceSpan? clauseSpan = null,
+        IReadOnlyList<BindingRecord>? bindings = null)
     {
         // Stable verdict id derived from rule + ruleset + predicate + span.
         // Predicate hash is folded in so a predicate-only change creates a
@@ -576,7 +618,17 @@ public sealed class EvaluationService
             RemediationText = remediationText,
             PredicateText = predicateText,
             ClauseSpan = clauseSpan,
+            // Pillar 6 — only attach when non-empty so legacy verdict JSON
+            // remains byte-identical for rules that don't declare anchors.
+            SemanticBindings = bindings is { Count: > 0 } ? bindings : null,
         };
+    }
+
+    /// <summary>No-op IDisposable so the binding-scope using-statement is uniform.</summary>
+    private sealed class NullScope : IDisposable
+    {
+        public static readonly NullScope Instance = new();
+        public void Dispose() { }
     }
 
     private ComplianceReport BuildReport(RuleSet ruleSet, ProjectedDocument document, List<Verdict> verdicts)

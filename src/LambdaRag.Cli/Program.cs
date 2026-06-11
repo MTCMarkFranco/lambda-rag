@@ -215,30 +215,42 @@ static class CliEntry
         var needsVectors = ruleset.Rules.Any(r =>
             r.GateThreshold > 0 ||
             r.Lambda.Contains("SemanticFunctions.", StringComparison.Ordinal));
+        // Pillar 6 (#124) — rules with semanticAnchors need a token
+        // embedder (re-uses the same IRuleEmbedder so the same cache
+        // and signed model id apply).
+        var needsTokenEmbedder = ruleset.Rules.Any(r => r.SemanticAnchors is { Count: > 0 });
         var effectiveEvaluator = evaluator;
         InMemorySemanticVectorStore? store = null;
-        if (needsVectors)
+        if (needsVectors || needsTokenEmbedder)
         {
-            await AnsiConsole.Status()
-                .Spinner(Spinner.Known.Dots)
-                .StartAsync($"[bold]Embedding[/] {ruleset.Rules.Count} rules + sections…", async _ =>
-                {
-                    var ruleSetEmbedder = new RuleSetEmbedder(ruleEmbedder);
-                    store = await ruleSetEmbedder.EmbedAsync(ruleset);
-                    var projEmbedder = new ProjectionEmbedder(ruleEmbedder);
-                    store = await projEmbedder.EmbedSectionsAsync(projected, store);
-                });
+            if (needsVectors)
+            {
+                await AnsiConsole.Status()
+                    .Spinner(Spinner.Known.Dots)
+                    .StartAsync($"[bold]Embedding[/] {ruleset.Rules.Count} rules + sections…", async _ =>
+                    {
+                        var ruleSetEmbedder = new RuleSetEmbedder(ruleEmbedder);
+                        store = await ruleSetEmbedder.EmbedAsync(ruleset);
+                        var projEmbedder = new ProjectionEmbedder(ruleEmbedder);
+                        store = await projEmbedder.EmbedSectionsAsync(projected, store);
+                    });
+            }
 
-            var jitStore = new JitEmbeddingSemanticVectorStore(store!, ruleEmbedder);
-            jitStore.RegisterSectionTexts(projected);
+            JitEmbeddingSemanticVectorStore? jitStore = null;
+            if (store is not null)
+            {
+                jitStore = new JitEmbeddingSemanticVectorStore(store!, ruleEmbedder);
+                jitStore.RegisterSectionTexts(projected);
+            }
 
             effectiveEvaluator = new EvaluationService(
                 sp.GetRequiredService<ISelectorMatcher>(),
                 sp.GetRequiredService<ILogger<EvaluationService>>(),
                 sp.GetService<TimeProvider>(),
                 sp.GetService<ICandidateRuleFilter>(),
-                jitStore);
-            AnsiConsole.MarkupLine($"[dim]Vectors:[/]   embedder={Markup.Escape(ruleEmbedder.EmbedderId)} dims={ruleEmbedder.Dimensions}");
+                jitStore as LambdaRag.Core.Semantic.ISemanticVectorStore,
+                tokenEmbedder: needsTokenEmbedder ? ruleEmbedder : null);
+            AnsiConsole.MarkupLine($"[dim]Vectors:[/]   embedder={Markup.Escape(ruleEmbedder.EmbedderId)} dims={ruleEmbedder.Dimensions}{(needsTokenEmbedder ? " [bound-anchors]" : string.Empty)}");
         }
 
         // ── Phase 4: Evaluate ───────────────────────────────────────────
