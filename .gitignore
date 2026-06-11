@@ -488,6 +488,11 @@ _reference/
 *.db
 *.db-journal
 
+# Policy source and specific sample document
+/policies/sample/
+/rulesets/architecture-review
+/samples/architecture/Example PSA - 16614 Shipping 360 ARB2 v2.1.pdf
+
 
 out/
 
@@ -495,4 +500,5 @@ out/
 infra/**/main.json
 infra/**/deploy-params*.json
 !infra/**/deploy-params.example.json
+
 
