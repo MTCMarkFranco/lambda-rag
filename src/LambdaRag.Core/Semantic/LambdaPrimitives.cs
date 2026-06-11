@@ -166,6 +166,154 @@ public static class LambdaPrimitives
         "this section describes",
         "details to follow",
     };
+
+    // ─────────────────────────── Pillar 6 (#124) ───────────────────────────
+
+    /// <summary>
+    /// Pillar 6 — registered as
+    /// <c>LambdaPrimitives.SemanticBindings(anchorName)</c>. Returns the
+    /// list of tokens bound to <paramref name="anchorName"/> for the
+    /// section currently being evaluated. Empty list when no token cleared
+    /// the anchor's cosine threshold — the lambda can express
+    /// <c>LambdaPrimitives.SemanticBindings("rpo").Count &gt; 0</c> as the
+    /// canonical "any binding" check, which also fully evaluates as a
+    /// boolean inside Microsoft RulesEngine.
+    ///
+    /// Bindings are sourced from the ambient
+    /// <see cref="SemanticBindingAccessor"/> pushed by the evaluator
+    /// before invoking the lambda. Calling outside an evaluation scope
+    /// returns an empty list (rather than throwing) so the primitive is
+    /// safe to compose with predicates and short-circuit operators.
+    /// </summary>
+    public static IReadOnlyList<TokenMatch> SemanticBindings(string anchorName)
+    {
+        if (string.IsNullOrEmpty(anchorName)) return Array.Empty<TokenMatch>();
+        var scope = SemanticBindingAccessor.Current;
+        if (scope is null) return Array.Empty<TokenMatch>();
+        return scope.GetBindings(anchorName);
+    }
+
+    /// <summary>
+    /// Pillar 6 — find the nearest decimal number to any binding within
+    /// <paramref name="windowChars"/> characters and return it. Returns
+    /// <see cref="double.NaN"/> when no number is found (so the lambda
+    /// can guard with <c>!double.IsNaN(...)</c> — RulesEngine resolves
+    /// <see cref="double.NaN"/> reliably).
+    /// </summary>
+    public static double ExtractNumberNear(string text, IReadOnlyList<TokenMatch> bindings, long windowChars = 40)
+    {
+        if (string.IsNullOrEmpty(text) || bindings is null || bindings.Count == 0) return double.NaN;
+        var w = (int)Math.Max(1, Math.Min(windowChars, 4096));
+        double? best = null;
+        foreach (var b in bindings)
+        {
+            var lo = Math.Max(0, b.CharStart - w);
+            var hi = Math.Min(text.Length, b.CharStart + b.CharLength + w);
+            var window = text[lo..hi];
+            foreach (System.Text.RegularExpressions.Match m in NumberRx.Matches(window))
+            {
+                if (double.TryParse(
+                        m.Value,
+                        System.Globalization.NumberStyles.Float,
+                        System.Globalization.CultureInfo.InvariantCulture,
+                        out var d))
+                {
+                    if (best is null) best = d;
+                    break;
+                }
+            }
+            if (best is not null) break;
+        }
+        return best ?? double.NaN;
+    }
+
+    /// <summary>
+    /// Pillar 6 — return the text window around the first binding for
+    /// evidence quoting. Empty string when no bindings exist.
+    /// </summary>
+    public static string NearestText(string text, IReadOnlyList<TokenMatch> bindings, long windowChars = 40)
+    {
+        if (string.IsNullOrEmpty(text) || bindings is null || bindings.Count == 0) return string.Empty;
+        var w = (int)Math.Max(1, Math.Min(windowChars, 4096));
+        var b = bindings[0];
+        var lo = Math.Max(0, b.CharStart - w);
+        var hi = Math.Min(text.Length, b.CharStart + b.CharLength + w);
+        return text[lo..hi];
+    }
+
+    private static readonly System.Text.RegularExpressions.Regex NumberRx = new(
+        @"-?\d+(?:\.\d+)?",
+        System.Text.RegularExpressions.RegexOptions.Compiled);
+}
+
+/// <summary>
+/// Pillar 6 — a single token that bound to an anchor at runtime. Exposed
+/// to lambdas via <see cref="LambdaPrimitives.SemanticBindings"/>.
+/// Locale-invariant by construction (all text is lowercased ASCII).
+/// </summary>
+public sealed record TokenMatch(string Text, double Cosine, int CharStart, int CharLength);
+
+/// <summary>
+/// Pillar 6 — per-evaluation scope holding the bindings the active rule
+/// resolved against the current section. The evaluator pushes one of
+/// these before invoking the lambda and clears it after, mirroring the
+/// <see cref="VectorStoreAccessor"/> / <see cref="PhrasebookAccessor"/>
+/// pattern. Scoped via <see cref="AsyncLocal{T}"/> so concurrent
+/// evaluations on different rules are isolated.
+/// </summary>
+public interface ISemanticBindingScope
+{
+    IReadOnlyList<TokenMatch> GetBindings(string anchorName);
+}
+
+/// <summary>
+/// Default dictionary-backed binding scope, used by the evaluator and by tests.
+/// </summary>
+public sealed class DictionarySemanticBindingScope : ISemanticBindingScope
+{
+    private readonly Dictionary<string, IReadOnlyList<TokenMatch>> _map;
+
+    public DictionarySemanticBindingScope(IReadOnlyDictionary<string, IReadOnlyList<TokenMatch>>? bindings = null)
+    {
+        _map = new Dictionary<string, IReadOnlyList<TokenMatch>>(StringComparer.Ordinal);
+        if (bindings is null) return;
+        foreach (var (k, v) in bindings) _map[k] = v;
+    }
+
+    public IReadOnlyList<TokenMatch> GetBindings(string anchorName)
+        => _map.TryGetValue(anchorName, out var v) ? v : Array.Empty<TokenMatch>();
+}
+
+/// <summary>
+/// Ambient holder for the active <see cref="ISemanticBindingScope"/>. The
+/// evaluator pushes the current rule's bindings before invoking
+/// RulesEngine and clears it after. AsyncLocal so concurrent evaluations
+/// remain isolated.
+/// </summary>
+public static class SemanticBindingAccessor
+{
+    private static readonly AsyncLocal<ISemanticBindingScope?> _current = new();
+
+    public static ISemanticBindingScope? Current => _current.Value;
+
+    public static IDisposable Push(ISemanticBindingScope scope)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        var previous = _current.Value;
+        _current.Value = scope;
+        return new PopOnDispose(previous);
+    }
+
+    private sealed class PopOnDispose(ISemanticBindingScope? previous) : IDisposable
+    {
+        private bool _disposed;
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            _current.Value = previous;
+        }
+    }
 }
 
 /// <summary>

@@ -138,6 +138,21 @@ public sealed record Rule(
     public RuleExamples? Examples { get; init; }
 
     /// <summary>
+    /// Pillar 6 (#124) — semantic-binding anchors. Each anchor declares a
+    /// named natural-language phrase plus an embedding the runtime cosine-
+    /// compares against every token embedding of the candidate section.
+    /// Tokens whose cosine meets or exceeds the anchor's threshold become
+    /// <i>bindings</i> the rule's lambda accesses via
+    /// <c>LambdaPrimitives.SemanticBindings(input1, "name")</c>.
+    ///
+    /// Optional and nullable so pre-Pillar-6 rules are unaffected: when the
+    /// list is null or empty no binding pass runs and the rule behaves
+    /// exactly as before (folded into <see cref="Fingerprint"/> only when
+    /// non-empty so byte-identity replay holds for legacy verdicts).
+    /// </summary>
+    public IReadOnlyList<SemanticAnchor>? SemanticAnchors { get; init; }
+
+    /// <summary>
     /// Optional list of doc-kind identifiers (e.g. <c>"arb-psa"</c>,
     /// <c>"contract"</c>) this rule applies to. <c>null</c> or empty means
     /// "applies to every doc kind" — backward-compatible default for all
@@ -200,6 +215,21 @@ public sealed record Rule(
                 .Where(k => k.Length > 0)
                 .OrderBy(k => k, StringComparer.Ordinal);
             parts.Add("appliesToDocKinds:" + string.Join("\u001f", kinds));
+        }
+        // Pillar 6 — semantic anchors fold in only when non-empty so
+        // pre-Pillar-6 rules keep their existing fingerprints. Anchor
+        // embeddings are fingerprinted by name + threshold + text + ngram,
+        // not the vector bytes (the embedder id pinned at the ruleset
+        // level already gates against drift).
+        if (SemanticAnchors is { Count: > 0 })
+        {
+            foreach (var a in SemanticAnchors.OrderBy(a => a.Name, StringComparer.Ordinal))
+            {
+                var ng = a.Ngram is null
+                    ? "1-2"
+                    : string.Join(",", a.Ngram.OrderBy(n => n));
+                parts.Add($"anchor:{a.Name}|{a.AnchorText}|{a.Threshold.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}|{ng}");
+            }
         }
         return ContentHash.Compose(parts.ToArray());
     }

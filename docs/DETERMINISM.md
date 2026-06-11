@@ -57,6 +57,18 @@ Custom types registered on every workflow:
   `PhrasebookAccessor` which the engine populates from
   `RuleSet.Phrasebooks` — and folds them into the ruleset fingerprint
   when present so a phrasebook change is a content-addressed change.
+- **Pillar 6 semantic anchors (#124).** Tokens are produced by
+  `SemanticTokenizer` whose `TokenizerVersion` and `StopwordHash`
+  (SHA-256 of the signed `stopwords-en.v1.txt` list) are pinned. Anchor
+  embeddings flow through the same file-backed embedding cache as
+  section vectors; cache keys fold `(tokenizer_version, embedder_id,
+  text)` so a drift in any of the three invalidates entries rather than
+  silently mixing. Bindings are pure cosine math; every binding is
+  emitted in `Verdict.SemanticBindings` with `(anchor, matched, cosine,
+  span)` so an auditor can replay the computation from bytes alone.
+  When a rule declares no `semanticAnchors[]`, the entire binding code
+  path is skipped and report bytes remain byte-identical to the
+  pre-Pillar-6 baseline (proven by `AdditiveGuaranteeTests`).
 
 ### 5. Markup is deterministic
 - Annotations are sorted by `(span.charStart, annotation.id)` before
