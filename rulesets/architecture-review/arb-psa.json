@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "domain": "architecture-review",
   "publishedAt": "1970-01-01T00:00:00+00:00",
-  "appliesToDocKinds": ["arb-psa"],
+  "appliesToDocKinds": [
+    "arb-psa"
+  ],
   "phrasebooks": {
     "dr_rpo": [
       "rpo",
@@ -111,14 +113,21 @@
     {
       "id": "ARB-PSA-COMPLETENESS-001",
       "version": "1.0.0",
-      "naturalLanguage": "PSA must be complete for the required ARB stage — sections with placeholder/template language are not acceptable.",
+      "naturalLanguage": "PSA must be complete for the required ARB stage \u2014 sections with placeholder/template language are not acceptable.",
       "predicate": "input1.category == \"psa_completeness\"",
       "lambda": "!LambdaPrimitives.IsTemplateBoilerplate(input1.text)",
-      "appliesToSchema": { "type": "object" },
-      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "appliesToSchema": {
+        "type": "object"
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
       "severity": "Violation",
       "applicability": "Mandatory",
-      "appliesToDocKinds": ["arb-psa"],
+      "appliesToDocKinds": [
+        "arb-psa"
+      ],
       "sourceSpan": {
         "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
         "charStart": 0,
@@ -128,7 +137,27 @@
       },
       "evidenceQuote": "PSA must be complete for the required ARB stage",
       "remediation": "Replace placeholder/TBD text in {section.heading} with completed content before submitting to ARB.",
-      "metadata": {}
+      "metadata": {},
+      "semanticAnchors": [
+        {
+          "name": "completeness",
+          "anchorText": "document complete review ready",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "placeholder",
+          "anchorText": "placeholder to be completed",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        }
+      ]
     },
     {
       "id": "ARB-PSA-CONSTRAINTS-001",
@@ -136,11 +165,18 @@
       "naturalLanguage": "Architecture Constraints section must document at least one real dependency with operational context, not template placeholders.",
       "predicate": "input1.category == \"architecture_constraints\"",
       "lambda": "!LambdaPrimitives.IsTemplateBoilerplate(input1.text) && LambdaPrimitives.PhraseMatch(input1.text, \"constraint_quality\")",
-      "appliesToSchema": { "type": "object" },
-      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "appliesToSchema": {
+        "type": "object"
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
       "severity": "Violation",
       "applicability": "Mandatory",
-      "appliesToDocKinds": ["arb-psa"],
+      "appliesToDocKinds": [
+        "arb-psa"
+      ],
       "sourceSpan": {
         "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
         "charStart": 1,
@@ -150,19 +186,46 @@
       },
       "evidenceQuote": "Architecture Constraints documented with dependency context",
       "remediation": "Document concrete constraints in {section.heading} with dependency, owner and operational impact.",
-      "metadata": {}
+      "metadata": {},
+      "semanticAnchors": [
+        {
+          "name": "constraint",
+          "anchorText": "architecture constraint dependency",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "operational",
+          "anchorText": "must remain operational dependency",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        }
+      ]
     },
     {
       "id": "ARB-PSA-RISKS-001",
       "version": "1.0.0",
-      "naturalLanguage": "Architecture Risks must be meaningful with severity, mitigation and owner — template-only risk tables fail.",
+      "naturalLanguage": "Architecture Risks must be meaningful with severity, mitigation and owner \u2014 template-only risk tables fail.",
       "predicate": "input1.category == \"architecture_risks\"",
       "lambda": "!LambdaPrimitives.IsTemplateBoilerplate(input1.text) && LambdaPrimitives.PhraseMatch(input1.text, \"risk_quality\")",
-      "appliesToSchema": { "type": "object" },
-      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "appliesToSchema": {
+        "type": "object"
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
       "severity": "Violation",
       "applicability": "Mandatory",
-      "appliesToDocKinds": ["arb-psa"],
+      "appliesToDocKinds": [
+        "arb-psa"
+      ],
       "sourceSpan": {
         "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
         "charStart": 2,
@@ -172,19 +235,55 @@
       },
       "evidenceQuote": "Architecture Risks include severity, mitigation, owner",
       "remediation": "Populate the risk table in {section.heading} with concrete entries (severity + mitigation + owner per row).",
-      "metadata": {}
+      "metadata": {},
+      "semanticAnchors": [
+        {
+          "name": "severity",
+          "anchorText": "risk severity high medium low",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "mitigation",
+          "anchorText": "mitigation owner residual risk",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "owner",
+          "anchorText": "risk owner accountable",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        }
+      ]
     },
     {
       "id": "ARB-PSA-DECISIONS-001",
       "version": "1.0.0",
-      "naturalLanguage": "Decision Records must capture decision, rationale, resolution, owner and status — no template-only records.",
+      "naturalLanguage": "Decision Records must capture decision, rationale, resolution, owner and status \u2014 no template-only records.",
       "predicate": "input1.category == \"decision_records\"",
       "lambda": "!LambdaPrimitives.IsTemplateBoilerplate(input1.text) && LambdaPrimitives.PhraseMatch(input1.text, \"decision_quality\")",
-      "appliesToSchema": { "type": "object" },
-      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "appliesToSchema": {
+        "type": "object"
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
       "severity": "Violation",
       "applicability": "Mandatory",
-      "appliesToDocKinds": ["arb-psa"],
+      "appliesToDocKinds": [
+        "arb-psa"
+      ],
       "sourceSpan": {
         "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
         "charStart": 3,
@@ -194,7 +293,36 @@
       },
       "evidenceQuote": "Decision Records capture decision, rationale, owner, status",
       "remediation": "Add decision rationale, options considered, owner and status to each entry in {section.heading}.",
-      "metadata": {}
+      "metadata": {},
+      "semanticAnchors": [
+        {
+          "name": "rationale",
+          "anchorText": "decision rationale options considered",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "status",
+          "anchorText": "decision status approved deferred",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "vendor",
+          "anchorText": "vendor selection rationale",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        }
+      ]
     },
     {
       "id": "ARB-PSA-STANDARDS-001",
@@ -202,11 +330,18 @@
       "naturalLanguage": "Technology Standards section must list standards with IDs and align to the approved catalog.",
       "predicate": "input1.category == \"technology_standards\"",
       "lambda": "!LambdaPrimitives.IsTemplateBoilerplate(input1.text) && LambdaPrimitives.RegexMatch(input1.text, \"(?i)\\\\b(?:std-|standard\\\\s+id|approved\\\\s+technology|tech\\\\s+standard)\\\\b\")",
-      "appliesToSchema": { "type": "object" },
-      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "appliesToSchema": {
+        "type": "object"
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
       "severity": "Violation",
       "applicability": "Mandatory",
-      "appliesToDocKinds": ["arb-psa"],
+      "appliesToDocKinds": [
+        "arb-psa"
+      ],
       "sourceSpan": {
         "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
         "charStart": 4,
@@ -216,7 +351,27 @@
       },
       "evidenceQuote": "Technology Standards listed with IDs and status",
       "remediation": "Add explicit standards-catalog IDs/status to {section.heading} (e.g. STD-001 Approved).",
-      "metadata": {}
+      "metadata": {},
+      "semanticAnchors": [
+        {
+          "name": "standard_id",
+          "anchorText": "standard catalog identifier approved technology",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "approved",
+          "anchorText": "approved technology standard status",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        }
+      ]
     },
     {
       "id": "ARB-PSA-PATTERNS-001",
@@ -224,11 +379,18 @@
       "naturalLanguage": "Design Patterns section must reference the approved enterprise pattern library (DP-### or named patterns).",
       "predicate": "input1.category == \"design_patterns\"",
       "lambda": "LambdaPrimitives.PhraseMatch(input1.text, \"pattern_library\")",
-      "appliesToSchema": { "type": "object" },
-      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "appliesToSchema": {
+        "type": "object"
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
       "severity": "Violation",
       "applicability": "Mandatory",
-      "appliesToDocKinds": ["arb-psa"],
+      "appliesToDocKinds": [
+        "arb-psa"
+      ],
       "sourceSpan": {
         "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
         "charStart": 5,
@@ -238,19 +400,46 @@
       },
       "evidenceQuote": "Design Patterns reference approved enterprise pattern library",
       "remediation": "Cite specific DP-### patterns from the approved library in {section.heading}.",
-      "metadata": {}
+      "metadata": {},
+      "semanticAnchors": [
+        {
+          "name": "pattern_ref",
+          "anchorText": "design pattern reference enterprise library",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "pattern_id",
+          "anchorText": "pattern dp-001 api gateway",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        }
+      ]
     },
     {
       "id": "ARB-PSA-DATA-SEC-001",
       "version": "1.0.0",
-      "naturalLanguage": "Data Security section must describe controls for data at rest, in transit, and authentication/authorization — not placeholder text.",
+      "naturalLanguage": "Data Security section must describe controls for data at rest, in transit, and authentication/authorization \u2014 not placeholder text.",
       "predicate": "input1.category == \"data_security\"",
       "lambda": "!LambdaPrimitives.IsTemplateBoilerplate(input1.text) && LambdaPrimitives.RegexMatch(input1.text, \"(?i)\\\\b(?:at\\\\s+rest|in\\\\s+transit|encryption|authentication|authorization)\\\\b\")",
-      "appliesToSchema": { "type": "object" },
-      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "appliesToSchema": {
+        "type": "object"
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
       "severity": "Violation",
       "applicability": "Mandatory",
-      "appliesToDocKinds": ["arb-psa"],
+      "appliesToDocKinds": [
+        "arb-psa"
+      ],
       "sourceSpan": {
         "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
         "charStart": 6,
@@ -260,7 +449,36 @@
       },
       "evidenceQuote": "Data Security covers at-rest, in-transit, authentication, authorization",
       "remediation": "Complete {section.heading} with concrete controls for at-rest, in-transit, and AuthN/AuthZ.",
-      "metadata": {}
+      "metadata": {},
+      "semanticAnchors": [
+        {
+          "name": "at_rest",
+          "anchorText": "encryption at rest customer managed keys",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "in_transit",
+          "anchorText": "encryption in transit transport layer security tls",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "authn",
+          "anchorText": "authentication authorization access control",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        }
+      ]
     },
     {
       "id": "ARB-PSA-INTEGRATION-001",
@@ -268,11 +486,18 @@
       "naturalLanguage": "Integrations must be documented in detail with source/target, type/schedule, tooling and pattern.",
       "predicate": "input1.category == \"integrations\"",
       "lambda": "!LambdaPrimitives.IsTemplateBoilerplate(input1.text) && LambdaPrimitives.PhraseMatch(input1.text, \"integration_depth\")",
-      "appliesToSchema": { "type": "object" },
-      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "appliesToSchema": {
+        "type": "object"
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
       "severity": "Violation",
       "applicability": "Mandatory",
-      "appliesToDocKinds": ["arb-psa"],
+      "appliesToDocKinds": [
+        "arb-psa"
+      ],
       "sourceSpan": {
         "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
         "charStart": 7,
@@ -282,7 +507,36 @@
       },
       "evidenceQuote": "Integrations documented with source/target, schedule, tooling, pattern",
       "remediation": "Add source/target, type, schedule, and pattern references to each integration in {section.heading}.",
-      "metadata": {}
+      "metadata": {},
+      "semanticAnchors": [
+        {
+          "name": "source_target",
+          "anchorText": "integration source target system",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "pattern",
+          "anchorText": "integration pattern hub asynchronous messaging",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "schedule",
+          "anchorText": "integration schedule batch streaming",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        }
+      ]
     },
     {
       "id": "ARB-PSA-INFRA-001",
@@ -290,11 +544,18 @@
       "naturalLanguage": "Infrastructure Architecture must include network/physical design and (when applicable) new IaC modules.",
       "predicate": "input1.category == \"infrastructure_architecture\"",
       "lambda": "!LambdaPrimitives.IsTemplateBoilerplate(input1.text) && LambdaPrimitives.PhraseMatch(input1.text, \"iac_tools\")",
-      "appliesToSchema": { "type": "object" },
-      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "appliesToSchema": {
+        "type": "object"
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
       "severity": "Violation",
       "applicability": "Mandatory",
-      "appliesToDocKinds": ["arb-psa"],
+      "appliesToDocKinds": [
+        "arb-psa"
+      ],
       "sourceSpan": {
         "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
         "charStart": 8,
@@ -304,7 +565,27 @@
       },
       "evidenceQuote": "Infrastructure Architecture includes network design and IaC modules",
       "remediation": "List concrete IaC modules (Terraform/Bicep/ARM) and network design in {section.heading}.",
-      "metadata": {}
+      "metadata": {},
+      "semanticAnchors": [
+        {
+          "name": "network",
+          "anchorText": "network topology subnet virtual network",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "iac",
+          "anchorText": "infrastructure as code terraform bicep arm",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        }
+      ]
     },
     {
       "id": "ARB-PSA-SECARCH-001",
@@ -312,11 +593,18 @@
       "naturalLanguage": "Security Architecture must align to internal standards (NIST/PCI/MVS) and include posture, gaps, and traceability.",
       "predicate": "input1.category == \"security_architecture\"",
       "lambda": "!LambdaPrimitives.IsTemplateBoilerplate(input1.text) && LambdaPrimitives.PhraseMatch(input1.text, \"nist_pci\")",
-      "appliesToSchema": { "type": "object" },
-      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "appliesToSchema": {
+        "type": "object"
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
       "severity": "Violation",
       "applicability": "Mandatory",
-      "appliesToDocKinds": ["arb-psa"],
+      "appliesToDocKinds": [
+        "arb-psa"
+      ],
       "sourceSpan": {
         "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
         "charStart": 9,
@@ -326,7 +614,36 @@
       },
       "evidenceQuote": "Security Architecture aligns to NIST/PCI/MVS standards",
       "remediation": "Reference NIST CSF, PCI DSS or MVS standards alignment in {section.heading}.",
-      "metadata": {}
+      "metadata": {},
+      "semanticAnchors": [
+        {
+          "name": "nist",
+          "anchorText": "nist cybersecurity framework csf",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "pci",
+          "anchorText": "pci dss data security standard",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "mvs",
+          "anchorText": "minimum viable security baseline",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        }
+      ]
     },
     {
       "id": "ARB-PSA-IG-001",
@@ -334,11 +651,18 @@
       "naturalLanguage": "Information Governance must include data classification/retention and privacy evidence (IG questionnaire/PIA).",
       "predicate": "input1.category == \"information_governance\"",
       "lambda": "!LambdaPrimitives.IsTemplateBoilerplate(input1.text) && LambdaPrimitives.PhraseMatch(input1.text, \"governance_evidence\")",
-      "appliesToSchema": { "type": "object" },
-      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "appliesToSchema": {
+        "type": "object"
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
       "severity": "Violation",
       "applicability": "Mandatory",
-      "appliesToDocKinds": ["arb-psa"],
+      "appliesToDocKinds": [
+        "arb-psa"
+      ],
       "sourceSpan": {
         "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
         "charStart": 10,
@@ -348,7 +672,36 @@
       },
       "evidenceQuote": "Information Governance includes PIA / IG questionnaire / data classification",
       "remediation": "Attach PIA or IG questionnaire and a data-classification matrix in {section.heading}.",
-      "metadata": {}
+      "metadata": {},
+      "semanticAnchors": [
+        {
+          "name": "pia",
+          "anchorText": "privacy impact assessment pia",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "classification",
+          "anchorText": "data classification confidential retention",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "ig",
+          "anchorText": "information governance questionnaire",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        }
+      ]
     },
     {
       "id": "ARB-PSA-DR-001",
@@ -356,11 +709,18 @@
       "naturalLanguage": "DR & Resiliency must document RTO, RPO, and DR design including failover/SLA.",
       "predicate": "input1.category == \"dr_resiliency\"",
       "lambda": "!LambdaPrimitives.IsTemplateBoilerplate(input1.text) && (LambdaPrimitives.PhraseMatch(input1.text, \"dr_rpo\") || LambdaPrimitives.RegexMatch(input1.text, \"(?i)\\\\b(?:rpo|recovery\\\\s+point\\\\s+objective)\\\\b\")) && (LambdaPrimitives.PhraseMatch(input1.text, \"dr_rto\") || LambdaPrimitives.RegexMatch(input1.text, \"(?i)\\\\b(?:rto|recovery\\\\s+time\\\\s+objective)\\\\b\"))",
-      "appliesToSchema": { "type": "object" },
-      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "appliesToSchema": {
+        "type": "object"
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
       "severity": "Violation",
       "applicability": "Mandatory",
-      "appliesToDocKinds": ["arb-psa"],
+      "appliesToDocKinds": [
+        "arb-psa"
+      ],
       "sourceSpan": {
         "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
         "charStart": 11,
@@ -370,7 +730,36 @@
       },
       "evidenceQuote": "DR & Resiliency documents RTO, RPO, and failover design",
       "remediation": "State explicit RTO and RPO values plus DR/failover design in {section.heading}.",
-      "metadata": {}
+      "metadata": {},
+      "semanticAnchors": [
+        {
+          "name": "rpo",
+          "anchorText": "recovery point objective rpo data loss",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "rto",
+          "anchorText": "recovery time objective rto downtime",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "failover",
+          "anchorText": "failover design warm standby hot standby",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        }
+      ]
     },
     {
       "id": "ARB-PSA-DR-002",
@@ -378,11 +767,18 @@
       "naturalLanguage": "DR section must include at least one business impact scenario or SPOF discussion.",
       "predicate": "input1.category == \"dr_resiliency\"",
       "lambda": "LambdaPrimitives.RegexMatch(input1.text, \"(?i)\\\\b(?:business\\\\s+impact|single\\\\s+point\\\\s+of\\\\s+failure|spof|impact\\\\s+scenario)\\\\b\")",
-      "appliesToSchema": { "type": "object" },
-      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "appliesToSchema": {
+        "type": "object"
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
       "severity": "Deviation",
       "applicability": "Conditional",
-      "appliesToDocKinds": ["arb-psa"],
+      "appliesToDocKinds": [
+        "arb-psa"
+      ],
       "sourceSpan": {
         "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
         "charStart": 12,
@@ -392,7 +788,27 @@
       },
       "evidenceQuote": "DR section discusses business impact / SPOF",
       "remediation": "Add at least one business-impact scenario or SPOF discussion to {section.heading}.",
-      "metadata": {}
+      "metadata": {},
+      "semanticAnchors": [
+        {
+          "name": "business_impact",
+          "anchorText": "business impact analysis scenario",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "spof",
+          "anchorText": "single point of failure spof",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        }
+      ]
     },
     {
       "id": "ARB-PSA-PATTERNS-002",
@@ -400,11 +816,18 @@
       "naturalLanguage": "Design Patterns section must reference at least 3 distinct enterprise patterns.",
       "predicate": "input1.category == \"design_patterns\"",
       "lambda": "LambdaPrimitives.RegexMatch(input1.text, \"(?is)(?:DP-\\\\d+.*){3}\")",
-      "appliesToSchema": { "type": "object" },
-      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "appliesToSchema": {
+        "type": "object"
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
       "severity": "Suggestion",
       "applicability": "Optional",
-      "appliesToDocKinds": ["arb-psa"],
+      "appliesToDocKinds": [
+        "arb-psa"
+      ],
       "sourceSpan": {
         "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
         "charStart": 13,
@@ -414,7 +837,18 @@
       },
       "evidenceQuote": "Design Patterns references at least 3 DP-### patterns",
       "remediation": "Reference at least 3 distinct DP-### patterns to demonstrate pattern reuse in {section.heading}.",
-      "metadata": {}
+      "metadata": {},
+      "semanticAnchors": [
+        {
+          "name": "pattern_count",
+          "anchorText": "multiple patterns dp-001 dp-002 dp-003 dp-004 dp-005",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        }
+      ]
     },
     {
       "id": "ARB-PSA-STANDARDS-002",
@@ -422,11 +856,18 @@
       "naturalLanguage": "Technology Standards section should align with at least one named industry standard (NIST/PCI/ISO 27001/SOC 2).",
       "predicate": "input1.category == \"technology_standards\"",
       "lambda": "LambdaPrimitives.PhraseMatch(input1.text, \"nist_pci\")",
-      "appliesToSchema": { "type": "object" },
-      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "appliesToSchema": {
+        "type": "object"
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
       "severity": "Deviation",
       "applicability": "Conditional",
-      "appliesToDocKinds": ["arb-psa"],
+      "appliesToDocKinds": [
+        "arb-psa"
+      ],
       "sourceSpan": {
         "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
         "charStart": 14,
@@ -436,12 +877,25 @@
       },
       "evidenceQuote": "Technology Standards aligned with NIST/PCI/ISO/SOC",
       "remediation": "Add explicit reference to NIST CSF, PCI DSS, ISO 27001 or SOC 2 in {section.heading}.",
-      "metadata": {}
+      "metadata": {},
+      "semanticAnchors": [
+        {
+          "name": "industry_std",
+          "anchorText": "industry standard nist pci iso soc",
+          "threshold": 0.78,
+          "ngram": [
+            1,
+            2
+          ]
+        }
+      ]
     }
   ],
   "metadata": {
     "authoredBy": "lambda-rag-accuracy-plan",
-    "embedderId": "deterministic",
-    "notes": "Pillar 4 hand-authored ruleset for ARB-PSA review. Covers the 12 LLM-baseline dimensions (out/analysis-llm.md) with section-presence + quality-floor + standards-alignment rules. Gated to doc-kind=arb-psa via appliesToDocKinds."
+    "embedderId": "deterministic-sha256/32",
+    "notes": "Pillar 4 hand-authored ruleset for ARB-PSA review. Covers the 12 LLM-baseline dimensions (out/analysis-llm.md) with section-presence + quality-floor + standards-alignment rules. Gated to doc-kind=arb-psa via appliesToDocKinds.",
+    "embedderNote": "Mock embedder used in this branch (no Foundry creds in env). Re-author with text-embedding-3-large for production semantic binding.",
+    "tokenizerVersion": "semantic-tokenizer-v1"
   }
 }
