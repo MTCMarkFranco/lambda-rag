@@ -1,0 +1,478 @@
+{
+  "id": "rs_ctc_arb_psa",
+  "version": "1.0.0",
+  "domain": "arb-psa",
+  "publishedAt": "1970-01-01T00:00:00+00:00",
+  "rules": [
+    {
+      "id": "CTC-5517-000CONF-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Confidentiality clause must define a survival period or be perpetual.",
+      "lambda": "input1.text.Contains(\"year\") || input1.text.Contains(\"years\") || input1.text.Contains(\"perpetual\") || input1.text.Contains(\"survive\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:7338ef09073ba20e872167116b4a1e1b90aaff14615b311062444c18a12941b0",
+        "charStart": 0,
+        "charLength": 565,
+        "pageNumber": 1,
+        "headingPath": "/",
+        "charEnd": 565
+      },
+      "evidenceQuote": "Confidentiality survival",
+      "metadata": {
+        "minYears": "5"
+      },
+      "predicate": "input1.category == \"confidentiality\"",
+      "applicability": "Conditional",
+      "remediation": "Add an explicit survival period to the {section.heading} clause: \"obligations survive for {meta.minYears} years from termination.\"",
+      "sourceContent": "Principles and Guidelines2 Architecture Principles3 Guidelines10 6Rs12 ARB - Architecture Review Board14 Submit an ARB Intake Request15 Purpose & Mandate21 When to go to ARB22 ARB Work Flow25 ARB EA Pre-Read Calendar28 ARB Members Roles & Responsibilities29 Project Solution Architecture (PSA) Guide31 NTIP - New Technology Introduction Process43 NTIP Release Information48 DMP - Deviation Management Process50 DMP Power Automate Overview53 Policies and Standards55 Technology Standards56 Design Patterns57 Technology Currency Compliance Policy (DRAFT)58 Acronyms64",
+      "sourceEmbedding": [
+        -0.28458136,
+        -0.16582695,
+        -0.25329962,
+        0.091605455,
+        -0.2940465,
+        0.16664228,
+        -0.037466865,
+        0.29350293,
+        -0.08512045,
+        -0.028282892,
+        0.0655061,
+        0.20719232,
+        0.14237972,
+        0.08970306,
+        -0.07594585,
+        0.24596182,
+        -0.2707398,
+        0.0617388,
+        0.0461073,
+        -0.2976451,
+        -0.27055237,
+        0.0019211374,
+        -0.0300822,
+        -0.13187437,
+        0.077941954,
+        0.14258587,
+        -0.26373938,
+        0.082665145,
+        0.03506779,
+        -0.28924832,
+        -0.10867078,
+        0.0922146
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "CTC-5517-000DR-BACKUP-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Backup, restore and DR must have stated RPO and RTO.",
+      "lambda": "input1.text.ToLower().Contains(\"rpo\") || input1.text.ToLower().Contains(\"rto\") || input1.text.ToLower().Contains(\"recovery point\") || input1.text.ToLower().Contains(\"recovery time\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:7338ef09073ba20e872167116b4a1e1b90aaff14615b311062444c18a12941b0",
+        "charStart": 0,
+        "charLength": 565,
+        "pageNumber": 1,
+        "headingPath": "/",
+        "charEnd": 565
+      },
+      "evidenceQuote": "backup_restore",
+      "metadata": {
+        "topic": "backup_restore"
+      },
+      "predicate": "input1.category == \"backup_restore\"",
+      "applicability": "Conditional",
+      "remediation": "State explicit RPO and RTO targets and the test cadence for restore drills.",
+      "sourceContent": "Principles and Guidelines2 Architecture Principles3 Guidelines10 6Rs12 ARB - Architecture Review Board14 Submit an ARB Intake Request15 Purpose & Mandate21 When to go to ARB22 ARB Work Flow25 ARB EA Pre-Read Calendar28 ARB Members Roles & Responsibilities29 Project Solution Architecture (PSA) Guide31 NTIP - New Technology Introduction Process43 NTIP Release Information48 DMP - Deviation Management Process50 DMP Power Automate Overview53 Policies and Standards55 Technology Standards56 Design Patterns57 Technology Currency Compliance Policy (DRAFT)58 Acronyms64",
+      "sourceEmbedding": [
+        -0.28458136,
+        -0.16582695,
+        -0.25329962,
+        0.091605455,
+        -0.2940465,
+        0.16664228,
+        -0.037466865,
+        0.29350293,
+        -0.08512045,
+        -0.028282892,
+        0.0655061,
+        0.20719232,
+        0.14237972,
+        0.08970306,
+        -0.07594585,
+        0.24596182,
+        -0.2707398,
+        0.0617388,
+        0.0461073,
+        -0.2976451,
+        -0.27055237,
+        0.0019211374,
+        -0.0300822,
+        -0.13187437,
+        0.077941954,
+        0.14258587,
+        -0.26373938,
+        0.082665145,
+        0.03506779,
+        -0.28924832,
+        -0.10867078,
+        0.0922146
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "CTC-5517-007DPA-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Data protection clause must reference an industry security standard.",
+      "lambda": "input1.text.Contains(\"ISO 27001\") || input1.text.Contains(\"SOC 2\") || input1.text.Contains(\"NIST\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:7338ef09073ba20e872167116b4a1e1b90aaff14615b311062444c18a12941b0",
+        "charStart": 11437,
+        "charLength": 1289,
+        "pageNumber": 10,
+        "headingPath": "/Principles and GuidelinesArchitecture PrinciplesGuidelines6Rs2",
+        "charEnd": 12726
+      },
+      "evidenceQuote": "data protection",
+      "metadata": {
+        "requiredStandard": "ISO 27001 or SOC 2"
+      },
+      "predicate": "input1.category == \"privacy\"",
+      "applicability": "Mandatory",
+      "remediation": "Add to the {section.heading} clause: \"Provider shall maintain security controls aligned with {meta.requiredStandard}.\"",
+      "sourceContent": "GuidelinesTOP Operating GuidelinesOutcomes Drive UsWe Take Personal ResponsibilityInclusion is a mustWe are innovators and entrepreneurs at our coreWe are stronger togetherIndustry GuidelinesTOP Operating Guidelinessource: TOP Townhall, Q2, 2023Outcomes Drive UsWe are business value driven. Balancing the need for rapid and continuous improvementswith an assurance of stable business operations.We leverage governance to maximize our investments and ensure the privacy and security ofour company and customers information.We Take Personal ResponsibilityWe take responsibility for our commitments made whether operational or projectWe work together to resolve and get to root causeWe will first work together to find common ground, but when required, we know thatescalations are not a bad thingInclusion is a mustWe leverage the breadth of experience across the teamWe are innovators and entrepreneurs at our coreWe invest in ourselves and each other - our true value is not what we know but what we canlearnWe are curious - how does it work? How could it work?We are pragmatic - what technologies truly will bring value to CYC and our customers?We are stronger togetherWe wonʼt rest until we have solved the problem. Itʼs about leaning in and learning; not blameWe have each others back10",
+      "sourceEmbedding": [
+        -0.006427013,
+        0.24129024,
+        -0.25252613,
+        0.0123449555,
+        0.13505816,
+        0.25969857,
+        0.035189487,
+        -0.26558927,
+        0.012835844,
+        -6.3633786E-05,
+        -0.1306129,
+        0.22237282,
+        0.27793422,
+        -0.10155044,
+        0.21780027,
+        0.0009817785,
+        -0.23381782,
+        -0.2848703,
+        -0.013872166,
+        0.14111248,
+        0.2797705,
+        -0.23937212,
+        0.014899397,
+        -0.020317359,
+        0.21104601,
+        0.032516867,
+        0.22098197,
+        -0.020580985,
+        -0.22707263,
+        0.05341602,
+        0.09815966,
+        -0.2600895
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "CTC-5517-032ENCRYPT-REST-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Data at rest must be encrypted using customer-managed keys (CMK) or platform-managed keys with documented rotation.",
+      "lambda": "input1.text.Contains(\"AES-256\") || input1.text.ToLower().Contains(\"customer-managed\") || input1.text.ToLower().Contains(\"platform-managed\") || input1.text.Contains(\"TDE\") || input1.text.ToLower().Contains(\"cmk\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:7338ef09073ba20e872167116b4a1e1b90aaff14615b311062444c18a12941b0",
+        "charStart": 40169,
+        "charLength": 1541,
+        "pageNumber": 38,
+        "headingPath": "/ARB EA Pre-Read CalendarBelow are the scheduled pre-reads for each week. Team Calendars28",
+        "charEnd": 41710
+      },
+      "evidenceQuote": "encryption_at_rest",
+      "metadata": {
+        "topic": "encryption_at_rest"
+      },
+      "predicate": "input1.category == \"encryption_at_rest\"",
+      "applicability": "Conditional",
+      "remediation": "Specify the encryption algorithm and key management model (e.g., \"AES-256 with customer-managed keys in Azure Key Vault\").",
+      "sourceContent": "Technical DebtREQUIRED FOR ARB-2This section lists deliberate design compromises, deviations from target architecture, or sub-optimal choices that are being accepted.For ARB, technical debt is not automatically a problem. Hidden technical debt is the problem.The board needs to understand the impact, why it exists, what the mitigation plan is, and whoowns it.Example: If you are building an integration connecting to mainframe.Data SecurityREQUIRED FOR ARB-2This section explains the security controls protecting the solutionʼs data, including data at rest,data in transit, and authentication and authorization controls. Typically, this is the completedSAINT documentation from Security.For ARB, this helps validate that the design has appropriate security architecture and that dataprotection has been considered as part of the solution, not added later.IntegrationsREQUIRED FOR ARB-2This section describes data flows and integrations, including integration platforms, connectionpoints, and naming where applicable. For ARB, this clarifies how systems exchange data, where integration complexity exists, andwhether the project is using supported integration patterns and platforms.If you have any integrations, they should be documented in detail. What good looks likeA comprehensive list of integrations needed for the solution with the following details:Integration name (e.g. IA-123)Source / Target Name (e.g. PMM to Azure Storage)Integration Type / Schedule (e.g. Batch File @ 10am ET Daily)Tool use (e.g. AZCopy, DataStage, A2A FTP)38",
+      "sourceEmbedding": [
+        0.26241514,
+        -0.007751285,
+        -0.212502,
+        -0.14780898,
+        -0.05897114,
+        0.14978887,
+        -0.040280942,
+        0.17508201,
+        -0.08609569,
+        -0.28670844,
+        -0.15394665,
+        0.118001685,
+        -0.13682057,
+        -0.2816003,
+        0.18881258,
+        -0.016680606,
+        0.057585217,
+        0.19357423,
+        0.2593562,
+        -0.15873799,
+        -0.14908601,
+        0.036608238,
+        -0.2648009,
+        -0.11055727,
+        0.16879585,
+        -0.043894246,
+        0.23831983,
+        0.31216,
+        -0.07775044,
+        0.25589138,
+        -0.20310743,
+        0.09000598
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "CTC-5517-033IAC-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Infrastructure must be deployed via Infrastructure-as-Code with policy-as-code guardrails.",
+      "lambda": "input1.text.ToLower().Contains(\"terraform\") || input1.text.ToLower().Contains(\"bicep\") || input1.text.ToLower().Contains(\"arm template\") || input1.text.ToLower().Contains(\"infrastructure as code\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:7338ef09073ba20e872167116b4a1e1b90aaff14615b311062444c18a12941b0",
+        "charStart": 41711,
+        "charLength": 1579,
+        "pageNumber": 39,
+        "headingPath": "/ARB EA Pre-Read CalendarBelow are the scheduled pre-reads for each week. Team Calendars28",
+        "charEnd": 43290
+      },
+      "evidenceQuote": "infra_as_code",
+      "metadata": {
+        "topic": "infra_as_code"
+      },
+      "predicate": "input1.category == \"infra_as_code\"",
+      "applicability": "Mandatory",
+      "remediation": "Adopt Terraform or Bicep with PR-gated CI and Azure Policy / OPA as policy-as-code.",
+      "sourceContent": "Infrastructure ArchitectureREQUIRED FOR ARB-2This section is to be completed by the Solution Architect. It documents the physical andnetwork infrastructure supporting the solution.Key content includes:Network & Physical Design: a diagram of networking and physical components perenvironment, including all on-premise and/or cloud infrastructure involved in the solution. New Modules Required: a list of new IaC (Infrastructure as Code) modules required for thesolution, if applicable.For ARB, this section answers: Is the infrastructure design sound, appropriately scoped perenvironment, and aligned to enterprise hosting and network standards?Security ArchitectureREQUIRED FOR ARB-2This section is to be completed by the Security Architect. It provides the formal securityassessment, gap analysis, and recommended controls for the solution, aligned with CanadianTire's internal security standards, NIST CSF v2.0, PCI DSS (where applicable), and threatmodelling practices.Key content includes:Scope: which solution components are in scope for the security assessment.Security Assumptions & Constraints: documented assumptions and constraints affectingthe security design.Security Design: a high-level visual representation illustrating trust zones, boundaries,enforcement controls, integrations, and data flows.What good looks likeAn infrastructure diagram showing:Network layers, names, and boundariesService names and connectivityPlatform names and connectivityDatabase names, types, and connectivityStorage names, types, and connectivityIntegration names and transport types39",
+      "sourceEmbedding": [
+        -0.1777972,
+        -0.056061737,
+        -0.24302638,
+        0.11593666,
+        -0.3227872,
+        0.045649566,
+        -0.21281727,
+        0.17033876,
+        -0.03806271,
+        0.119799234,
+        0.23063847,
+        0.031522997,
+        0.10260039,
+        -0.27931094,
+        -0.0657824,
+        0.043733094,
+        0.13154504,
+        -0.11091827,
+        0.30564758,
+        -0.3126615,
+        0.05870923,
+        -0.070909455,
+        -0.16907428,
+        0.28152376,
+        -0.019885862,
+        -0.28906122,
+        -0.07157133,
+        -0.21272835,
+        -0.23705964,
+        0.08621159,
+        0.029438587,
+        -0.107075445
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "CTC-5517-055PAY-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Payment terms must be 30 days or fewer.",
+      "lambda": "input1.text.Contains(\"30 days\") || input1.text.Contains(\"15 days\") || input1.text.Contains(\"net 30\") || input1.text.Contains(\"Net 30\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:7338ef09073ba20e872167116b4a1e1b90aaff14615b311062444c18a12941b0",
+        "charStart": 71514,
+        "charLength": 712,
+        "pageNumber": 64,
+        "headingPath": "/Design PatternsLink: Link: Link: Link: Contact: @sun lamDesign Patterns LibraryDesign Patterns Library Governance WorkflowDesign Pattern Template (Excel)Design Pattern Template (Word)57",
+        "charEnd": 72226
+      },
+      "evidenceQuote": "Payment terms",
+      "metadata": {
+        "maxDays": "30"
+      },
+      "predicate": "input1.category == \"payment_terms\"",
+      "applicability": "Mandatory",
+      "remediation": "Replace the {section.heading} clause with: \"Customer shall pay all undisputed invoices within {meta.maxDays} days of the invoice date.\"",
+      "sourceContent": "AcronymsPlease maintain alphabetical order.AJAcronym used for thedatacenter in BramptonAPIMAPI ManagementGateway (Azure)AOCAttestation of ComplianceCIFContract Intake FormProcess to scrutinize new softwarefor use by CTB/CTFS. To getstarted, send an email to CIHCustomer InteractionHistoryDatabase that contains records ofactions clients take interacting withus (DASH/Triangle), Things likeupdating address, making apayment, adding a payee, etc.\u00A0CKACertified Key Applicationsa.k.a. IFRS application; i.e. used inthe flow of reporting financialinformation.CoCoCorporate ComplianceCTBCanadian Tire BankCTCCanadian TireCorporationCTFSCanadian Tire FinancialServicesAcronymMeaningDescription/NotesContractManagement64",
+      "sourceEmbedding": [
+        0.114122145,
+        0.12586637,
+        0.24650507,
+        -0.092365935,
+        -0.012806262,
+        -0.16880138,
+        0.10729626,
+        -0.03579979,
+        0.30057594,
+        -0.32370353,
+        0.18666002,
+        0.2511244,
+        0.17608094,
+        -0.028613023,
+        0.041955456,
+        -0.32183722,
+        0.21530397,
+        -0.06423753,
+        0.037923858,
+        0.1321664,
+        -0.3286631,
+        -0.08343661,
+        -0.07397111,
+        -0.19364056,
+        0.2798199,
+        -0.05288512,
+        -0.22791432,
+        0.046430428,
+        -0.092706196,
+        -0.18373169,
+        -0.046925355,
+        0.15198414
+      ],
+      "gateThreshold": 0
+    }
+  ],
+  "metadata": {
+    "source_dir": "policies/CTC",
+    "files_processed": "1",
+    "blocks_examined": "59",
+    "blocks_skipped_short": "9",
+    "raw_suggestions": "60",
+    "dedup_count": "54"
+  }
+}
