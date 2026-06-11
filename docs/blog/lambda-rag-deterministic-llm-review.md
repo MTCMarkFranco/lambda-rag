@@ -370,6 +370,61 @@ fires; the strike-through doesn't.
 
 ---
 
+## Case study — CTC ARB-PSA review (the accuracy uplift)
+
+A field test caught lambda-rag in the act of *correctly* executing the
+*wrong* rules. A customer's contract-style ruleset (confidentiality
+survival, payment terms) was applied to a *Project Solution Architecture*
+document. Lambda-rag deterministically scored 14.3% (1 of 7 adjudicated
+verdicts), while an LLM reasoning baseline over the same artifact scored
+58.3% (7 of 12 dimensions). The verdict was correct given the inputs.
+The *inputs* were the bug.
+
+The fix shipped on `branch-lambda-accuracy-1` is five surgical changes,
+none of which adds an LLM to the runtime:
+
+1. **Doc-kind gating (#116).** A signed dictionary (filename heuristic
+   + heading-bigram classifier) resolves `doc_kind` *before*
+   evaluation. Rules carry an `appliesToDocKinds` list; mismatches
+   emit a `Skipped` verdict — audited, never silent. When every rule
+   was skipped, the report carries `wrong_profile: true`.
+2. **ARB-PSA topic map (#117).** A new `arb-psa.v1` topic map covers
+   the 12 PSA review dimensions (PSA completeness, architecture
+   constraints, risks, decision records, technology standards, design
+   patterns, data security, integrations, infrastructure, security
+   architecture, information governance, DR & resiliency).
+3. **Semantic primitives (#118).** `LambdaPrimitives.RegexMatch`,
+   `PhraseMatch` (over signed phrasebooks declared in the ruleset
+   header), and a pinned `EmbedderId` startup check. `Contains("year")`
+   matching `"yearly basis"` stops being a thing.
+4. **ARB-PSA ruleset (#119).** ~15 hand-authored rules gated to
+   `doc-kind=arb-psa`, covering all 12 dimensions with
+   section-presence + quality-floor + standards-alignment checks.
+5. **Template-boilerplate detector (#120).** `IsTemplateBoilerplate`
+   — verbatim placeholder hit OR ≥ 30% boilerplate-character density.
+   A section that exists but is still `"To be completed…"` now FAILs,
+   matching the LLM's strongest discriminator.
+
+The acceptance gates
+(`prompt-contracts/accuracy-improvement-plan.md` §4) are:
+
+- ≥ 7/7 recall on the LLM PASS set (the rules engine agrees with the
+  LLM where the LLM said the artifact is fine).
+- 0 false positives on the LLM FAIL set (the rules engine never PASSes
+  a dimension the LLM said is broken).
+- Byte-identical `report.json` across 100 consecutive runs.
+
+The benchmark — `tests/LambdaRag.IdempotencyTests/ArbPsaBenchmark.cs` —
+runs these as separate `[Fact]` methods so a regression shows up
+exactly where it lives.
+
+> 📊 **Before / after.** Empirical numbers from a local benchmark
+> against the bundled PSA sample (customer-sensitive, gitignored) will
+> be filled in here once the benchmark has run end-to-end. The
+> acceptance gates above are what's enforced in CI.
+
+---
+
 ## Determinism — what's actually guaranteed
 
 | Property                                | Mechanism                                                |

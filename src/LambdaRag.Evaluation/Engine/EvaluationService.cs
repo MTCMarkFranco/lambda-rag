@@ -73,6 +73,27 @@ public sealed class EvaluationService
         string? docKind,
         CancellationToken ct = default)
     {
+        // Pillar 3 (#118) — fail loud on embedder drift. When the ruleset
+        // pinned an embedder id but the active vector store reports a
+        // different model, the precomputed sourceEmbedding vectors on
+        // rules can't be trusted and we must not silently produce a
+        // verdict against the wrong vectors.
+        if (!string.IsNullOrWhiteSpace(ruleSet.EmbedderId)
+            && _vectorStore is not NotConfiguredSemanticVectorStore
+            && !string.Equals(ruleSet.EmbedderId, _vectorStore.ModelId, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException(
+                $"Ruleset '{ruleSet.Id}' was authored against embedder '{ruleSet.EmbedderId}' " +
+                $"but the runtime vector store reports model '{_vectorStore.ModelId}'. " +
+                "Re-embed the ruleset or wire the matching embedder.");
+        }
+
+        // Pillar 3 (#118) — expose the ruleset's phrasebooks to
+        // LambdaPrimitives.PhraseMatch for the duration of this evaluation.
+        // AsyncLocal-scoped so concurrent evaluations are isolated.
+        using var _phrasebookScope = PhrasebookAccessor.Push(
+            new DictionaryPhrasebookStore(ruleSet.Phrasebooks));
+
         var verdicts = new List<Verdict>();
         foreach (var rule in ruleSet.Rules.OrderBy(r => r.Id, StringComparer.Ordinal))
         {
@@ -332,7 +353,8 @@ public sealed class EvaluationService
         // than masquerading as Fail.
         return exceptionMessage.StartsWith("Exception while parsing expression", StringComparison.Ordinal)
             || exceptionMessage.Contains("RuleException", StringComparison.Ordinal)
-            || exceptionMessage.Contains(LambdaRag.Core.Semantic.SemanticFunctions.ErrorMarker, StringComparison.Ordinal);
+            || exceptionMessage.Contains(LambdaRag.Core.Semantic.SemanticFunctions.ErrorMarker, StringComparison.Ordinal)
+            || exceptionMessage.Contains(LambdaRag.Core.Semantic.LambdaPrimitives.ErrorMarker, StringComparison.Ordinal);
     }
 
     /// <summary>
