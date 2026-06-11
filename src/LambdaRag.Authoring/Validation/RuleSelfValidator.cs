@@ -148,4 +148,32 @@ public sealed class RuleSelfValidator
 
     private static string Truncate(string s, int n = 80)
         => s.Length <= n ? s : s[..n] + "…";
+
+    /// <summary>
+    /// Pillar 1/3 structural check (#116, #118) — every rule must carry
+    /// <see cref="Rule.EvidenceQuote"/> and a non-default
+    /// <see cref="Rule.SourceSpan"/>. Returns the offending rule ids;
+    /// empty list = all rules are audit-trail safe. Pure-code, no I/O —
+    /// safe to call from authoring tools or CI gates.
+    /// </summary>
+    public static IReadOnlyList<string> ValidateStructural(RuleSet ruleset)
+    {
+        ArgumentNullException.ThrowIfNull(ruleset);
+        var bad = new List<string>();
+        foreach (var rule in ruleset.Rules)
+        {
+            if (string.IsNullOrWhiteSpace(rule.EvidenceQuote))
+            {
+                bad.Add($"{rule.Id}: missing evidenceQuote");
+                continue;
+            }
+            if (rule.SourceSpan is null
+                || string.IsNullOrEmpty(rule.SourceSpan.DocumentId)
+                || rule.SourceSpan.DocumentId == "(unknown)")
+            {
+                bad.Add($"{rule.Id}: missing or unknown sourceSpan.documentId");
+            }
+        }
+        return bad;
+    }
 }

@@ -47,6 +47,17 @@ convert the matched JSON to an `ExpandoObject`, and call
 `ExecuteAllRulesAsync`. RulesEngine itself is deterministic given the
 inputs; we never cross-evaluate or share state across rules.
 
+Custom types registered on every workflow:
+
+- `LambdaRag.Core.Semantic.SemanticFunctions` — `ContainsMeaning` /
+  `MatchesAnyMeaning` against precomputed vectors (authoring-time).
+- `LambdaRag.Core.Semantic.LambdaPrimitives` (Pillar 3 / 5, #118 / #120)
+  — `RegexMatch`, `PhraseMatch`, `IsTemplateBoilerplate`. All pure
+  code, no I/O. `PhraseMatch` resolves phrasebooks via the per-evaluation
+  `PhrasebookAccessor` which the engine populates from
+  `RuleSet.Phrasebooks` — and folds them into the ruleset fingerprint
+  when present so a phrasebook change is a content-addressed change.
+
 ### 5. Markup is deterministic
 - Annotations are sorted by `(span.charStart, annotation.id)` before
   application.

@@ -227,6 +227,26 @@ public sealed record RuleSet(
     /// </summary>
     public IReadOnlyList<string>? AppliesToDocKinds { get; init; }
 
+    /// <summary>
+    /// Pillar 3 (#118) — signed phrasebooks the runtime exposes to rule
+    /// lambdas via <c>LambdaPrimitives.PhraseMatch(text, phrasebookId)</c>.
+    /// Keying is by id (e.g. <c>"dr_rpo"</c>); each value is the list of
+    /// case-insensitive substring phrases that count as a match. Folded
+    /// into <see cref="Fingerprint"/> only when non-empty so pre-Pillar-3
+    /// rulesets stay byte-identical.
+    /// </summary>
+    public IReadOnlyDictionary<string, IReadOnlyList<string>>? Phrasebooks { get; init; }
+
+    /// <summary>
+    /// Pillar 3 (#118) — the embedder id the rule's
+    /// <see cref="Rule.SourceEmbedding"/> vectors were produced with
+    /// (e.g. <c>azure-openai:text-embedding-3-large@2025-04</c>). When
+    /// non-null and the runtime <c>ISemanticVectorStore.ModelId</c>
+    /// disagrees, evaluation throws — drifted embedding models can never
+    /// silently pass. Folded into <see cref="Fingerprint"/> only when set.
+    /// </summary>
+    public string? EmbedderId { get; init; }
+
     public ContentHash Fingerprint()
     {
         var parts = new List<string> { Id, Version, Domain };
@@ -240,6 +260,16 @@ public sealed record RuleSet(
                 .OrderBy(k => k, StringComparer.Ordinal);
             parts.Add("appliesToDocKinds:" + string.Join("\u001f", kinds));
         }
+        if (Phrasebooks is { Count: > 0 })
+        {
+            foreach (var kvp in Phrasebooks.OrderBy(k => k.Key, StringComparer.Ordinal))
+            {
+                var phrases = string.Join("\u001f", kvp.Value.OrderBy(p => p, StringComparer.Ordinal));
+                parts.Add($"phrasebook:{kvp.Key}={phrases}");
+            }
+        }
+        if (!string.IsNullOrWhiteSpace(EmbedderId))
+            parts.Add("embedderId:" + EmbedderId);
         return ContentHash.Compose(parts.ToArray());
     }
 }

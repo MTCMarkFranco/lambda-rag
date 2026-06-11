@@ -63,6 +63,7 @@ against:
 | `business-review.v1` | MOUs, SOWs, business cases, vendor reviews |
 | `gov-architecture.v1` | Government cloud architecture review |
 | `permitting.v1` | Government permit / planning application review |
+| `arb-psa.v1` | Architecture Review Board — Project Solution Architecture review (12 dims) |
 
 List them at any time:
 
@@ -235,7 +236,7 @@ governance frameworks.
 ## CLI cheat sheet
 
 ```
-lambda-rag review        --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>] [--annotate-pass] [--rewrite]
+lambda-rag review        --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>] [--annotate-pass] [--rewrite] [--doc-kind <id>] [--topic-map <id-or-path>]
 lambda-rag extract-rules --policy-dir <dir> --domain <name> --id <ruleset-id> --out <path>
 lambda-rag author        --chunk <path> --domain <name> --prefix <id-prefix> --out <path>
 lambda-rag coverage      --document <path> --ruleset <path> --out <path>
