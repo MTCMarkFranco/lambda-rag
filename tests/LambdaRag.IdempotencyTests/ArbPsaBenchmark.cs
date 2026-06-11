@@ -1,7 +1,10 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using FluentAssertions;
+using LambdaRag.Authoring;
+using LambdaRag.Authoring.Embeddings;
 using LambdaRag.Core;
+using LambdaRag.Core.Abstractions;
 using LambdaRag.Core.Domain;
 using LambdaRag.Evaluation;
 using LambdaRag.Evaluation.Engine;
@@ -9,6 +12,7 @@ using LambdaRag.Parsing;
 using LambdaRag.Projection;
 using LambdaRag.Projection.Projectors;
 using LambdaRag.Selectors;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -174,20 +178,34 @@ public sealed class ArbPsaBenchmark
 
     // ─── helpers ────────────────────────────────────────────────────────
 
+    // The CLI's UserSecretsId so the benchmark sees the same Foundry
+    // embedding secrets the dev configured for `lambda-rag review`.
+    private const string CliUserSecretsId =
+        "lambda-rag-cli-3f1e7b8c-9c2a-4f6e-bf2a-2c5b9c6d4e10";
+
+    private static IConfiguration BuildBenchmarkConfiguration()
+        => new ConfigurationBuilder()
+            .AddUserSecrets(userSecretsId: CliUserSecretsId, reloadOnChange: false)
+            .AddEnvironmentVariables()
+            .Build();
+
     private static async Task<ComplianceReport> RunBenchmarkAsync()
     {
+        var configuration = BuildBenchmarkConfiguration();
         var services = new ServiceCollection();
         services.AddLogging(b => b.SetMinimumLevel(LogLevel.Warning));
         services.AddSingleton<TimeProvider>(new FrozenTimeProvider(FrozenInstant));
+        services.AddSingleton<IConfiguration>(configuration);
         services
             .AddLambdaRagParsing()
             .AddLambdaRagProjection()
             .AddLambdaRagSelectors()
-            .AddLambdaRagEvaluation();
+            .AddLambdaRagEvaluation()
+            .AddLambdaRagAuthoring(configuration);
 
         await using var sp = services.BuildServiceProvider();
         var parsers = sp.GetRequiredService<ParserRegistry>();
-        var evaluator = sp.GetRequiredService<EvaluationService>();
+        var ruleEmbedder = sp.GetRequiredService<IRuleEmbedder>();
 
         var topicMap = TopicMapRegistry.Load("arb-psa.v1");
         var projector = new DeterministicContractProjector(topicMap);
@@ -199,6 +217,25 @@ public sealed class ArbPsaBenchmark
         var docKind = DocKindResolver.Resolve(
             explicitKind: "arb-psa", path: PsaSamplePath, parsed: parsed);
         var projected = await projector.ProjectAsync(parsed);
+
+        // Pillar 6 (#126) — when the ruleset carries semanticAnchors, build
+        // an EvaluationService with the real IRuleEmbedder as the token
+        // embedder so LambdaPrimitives.SemanticBindings(name) resolves
+        // against the baked anchor vectors at evaluation time. Without
+        // this wiring, every SemanticBindings(...) call would return an
+        // empty list and ARB-PSA recall craters.
+        var needsTokenEmbedder = ruleset.Rules.Any(r =>
+            r.SemanticAnchors is { Count: > 0 });
+        var evaluator = needsTokenEmbedder
+            ? new EvaluationService(
+                sp.GetRequiredService<ISelectorMatcher>(),
+                sp.GetRequiredService<ILogger<EvaluationService>>(),
+                sp.GetService<TimeProvider>(),
+                sp.GetService<ICandidateRuleFilter>(),
+                vectorStore: null,
+                tokenEmbedder: ruleEmbedder)
+            : sp.GetRequiredService<EvaluationService>();
+
         return await evaluator.EvaluateAsync(ruleset, projected, docKind);
     }
 

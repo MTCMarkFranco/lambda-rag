@@ -39,12 +39,22 @@ public static class FoundryEmbedderFactory
     public const string ApiKeyVar = "LAMBDA_RAG_FOUNDRY_API_KEY";
     public const string CacheDirVar = "LAMBDA_RAG_EMBEDDING_CACHE";
 
-    public const string EndpointKey = "LambdaRag:Foundry:Endpoint";
-    public const string DeploymentKey = "LambdaRag:Foundry:Deployment";
-    public const string ModelKey = "LambdaRag:Foundry:Model";
-    public const string DimensionsKey = "LambdaRag:Foundry:Dimensions";
-    public const string ApiKeyKey = "LambdaRag:Foundry:ApiKey";
+    // Preferred Pillar 6 (#126) keys — embedding endpoint lives under
+    // :Foundry:Embed:* so it cleanly co-exists with the chat/edit endpoint
+    // configured under :Foundry:Edit:*. The legacy unsegmented keys
+    // (EndpointKeyLegacy etc.) are read as a fallback for backward compat.
+    public const string EndpointKey = "LambdaRag:Foundry:Embed:Endpoint";
+    public const string DeploymentKey = "LambdaRag:Foundry:Embed:Deployment";
+    public const string ModelKey = "LambdaRag:Foundry:Embed:Model";
+    public const string DimensionsKey = "LambdaRag:Foundry:Embed:Dimensions";
+    public const string ApiKeyKey = "LambdaRag:Foundry:Embed:ApiKey";
     public const string CacheDirKey = "LambdaRag:EmbeddingCache";
+
+    private const string EndpointKeyLegacy = "LambdaRag:Foundry:Endpoint";
+    private const string DeploymentKeyLegacy = "LambdaRag:Foundry:Deployment";
+    private const string ModelKeyLegacy = "LambdaRag:Foundry:Model";
+    private const string DimensionsKeyLegacy = "LambdaRag:Foundry:Dimensions";
+    private const string ApiKeyKeyLegacy = "LambdaRag:Foundry:ApiKey";
 
     /// <summary>
     /// Reads Foundry settings from <paramref name="configuration"/> first,
@@ -54,15 +64,20 @@ public static class FoundryEmbedderFactory
     /// </summary>
     public static AzureFoundryEmbeddingProvider? TryCreate(IConfiguration? configuration)
     {
-        var endpoint = Resolve(configuration, EndpointKey, EndpointVar);
-        var deployment = Resolve(configuration, DeploymentKey, DeploymentVar);
+        var endpoint = Resolve(configuration, EndpointKey, EndpointVar)
+            ?? configuration?[EndpointKeyLegacy];
+        var deployment = Resolve(configuration, DeploymentKey, DeploymentVar)
+            ?? configuration?[DeploymentKeyLegacy];
         if (string.IsNullOrWhiteSpace(endpoint) || string.IsNullOrWhiteSpace(deployment))
             return null;
 
-        var modelId = Resolve(configuration, ModelKey, ModelVar) ?? "text-embedding-3-large";
+        var modelId = Resolve(configuration, ModelKey, ModelVar)
+            ?? configuration?[ModelKeyLegacy]
+            ?? "text-embedding-3-large";
         var dimensions = ResolveDimensions(configuration, modelId);
 
-        var apiKey = Resolve(configuration, ApiKeyKey, ApiKeyVar);
+        var apiKey = Resolve(configuration, ApiKeyKey, ApiKeyVar)
+            ?? configuration?[ApiKeyKeyLegacy];
         var azureClient = string.IsNullOrWhiteSpace(apiKey)
             ? new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
             : new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(apiKey));
@@ -95,7 +110,8 @@ public static class FoundryEmbedderFactory
 
     private static int ResolveDimensions(IConfiguration? configuration, string modelId)
     {
-        var explicitDims = Resolve(configuration, DimensionsKey, DimensionsVar);
+        var explicitDims = Resolve(configuration, DimensionsKey, DimensionsVar)
+            ?? configuration?[DimensionsKeyLegacy];
         if (!string.IsNullOrWhiteSpace(explicitDims) && int.TryParse(explicitDims, out var d) && d > 0)
             return d;
         return modelId switch
