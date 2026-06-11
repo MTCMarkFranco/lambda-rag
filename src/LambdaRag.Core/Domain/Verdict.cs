@@ -11,8 +11,12 @@ namespace LambdaRag.Core.Domain;
 /// • <c>Gap</c>: the rule is Mandatory but the document is silent on it
 ///   — a compliance finding ("you should have addressed this and didn't").
 /// • <c>Error</c>: predicate or lambda threw at evaluation time.
+/// • <c>Skipped</c>: rule deliberately not evaluated (e.g. its
+///   <see cref="LambdaRag.Core.Domain.Rule.AppliesToDocKinds"/> did not
+///   intersect the resolved doc kind). The audit trail still cites the
+///   rule so coverage is never silently dropped.
 /// </summary>
-public enum VerdictOutcome { Pass, Fail, NotApplicable, Gap, Error }
+public enum VerdictOutcome { Pass, Fail, NotApplicable, Gap, Error, Skipped }
 
 /// <summary>
 /// One rule applied to one matched section. Carries the full audit trail
@@ -92,6 +96,23 @@ public sealed record ComplianceReport(
     /// score: <c>Score = pass / (pass + fail + gap)</c>.
     /// </summary>
     public int Gaps { get; init; }
+
+    /// <summary>
+    /// Pillar 1 (#116) — count of <see cref="VerdictOutcome.Skipped"/>
+    /// verdicts (rules excluded by the doc-kind gate). Never affects the
+    /// score; the rule simply did not apply. Defaults to <c>null</c>
+    /// (omitted from canonical JSON) so existing reports remain
+    /// byte-identical when no doc-kind gating is in play.
+    /// </summary>
+    public int? Skipped { get; init; }
+
+    /// <summary>
+    /// Pillar 1 (#116) — true when every rule the engine ran was skipped
+    /// by the doc-kind gate, i.e. the operator picked the wrong ruleset
+    /// profile for this artifact. Defaults to <c>null</c> (omitted) so
+    /// existing reports stay byte-identical when no gating fires.
+    /// </summary>
+    public bool? WrongProfile { get; init; }
 
     /// <summary>
     /// When a review was run with <c>--overlay</c>, this captures which
