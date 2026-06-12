@@ -86695,7 +86695,7 @@
       "id": "ARB-PSA-DR-001",
       "version": "1.0.0",
       "naturalLanguage": "DR & Resiliency must document RTO, RPO, and DR design including failover/SLA.",
-      "lambda": "!LambdaPrimitives.IsTemplateBoilerplate(input1.text) && (LambdaPrimitives.HasSyntheticAnchor(input1) || LambdaPrimitives.PhraseMatch(input1.text, \"dr_rpo\") || LambdaPrimitives.RegexMatch(input1.text, \"(?i)\\\\b(?:rpo|recovery\\\\s+point\\\\s+objective)\\\\b\") || LambdaPrimitives.SemanticBindings(\"rpo\").Count > 0) && (LambdaPrimitives.PhraseMatch(input1.text, \"dr_rto\") || LambdaPrimitives.RegexMatch(input1.text, \"(?i)\\\\b(?:rto|recovery\\\\s+time\\\\s+objective)\\\\b\") || LambdaPrimitives.SemanticBindings(\"rto\").Count > 0 || LambdaPrimitives.SemanticBindings(\"failover\").Count > 0)",
+      "lambda": "LambdaPrimitives.HasExtractedDurationNear(input1.text, \"rpo\") && LambdaPrimitives.HasExtractedDurationNear(input1.text, \"rto\")",
       "appliesToSchema": {
         "type": "object"
       },
@@ -86714,7 +86714,7 @@
       },
       "evidenceQuote": "DR & Resiliency documents RTO, RPO, and failover design",
       "metadata": {},
-      "predicate": "LambdaPrimitives.HasTopic(input1, \"dr_resiliency\", 0.5)",
+      "predicate": "LambdaPrimitives.HasTopic(input1, \"dr_resiliency\")",
       "applicability": "Mandatory",
       "remediation": "State explicit RTO and RPO values plus DR/failover design in {section.heading}.",
       "gateThreshold": 0,
