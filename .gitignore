@@ -507,3 +507,6 @@ infra/**/deploy-params*.json
 !infra/**/deploy-params.example.json
 
 
+
+# Pillar 6 (#126) scratch dir
+tmp-pillar6/
