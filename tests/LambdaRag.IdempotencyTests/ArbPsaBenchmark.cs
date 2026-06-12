@@ -247,13 +247,32 @@ public sealed class ArbPsaBenchmark
 
     private static HashSet<string> PassByCategory(ComplianceReport report)
     {
-        // A "PASS category" = any verdict with Outcome=Pass whose evaluated
-        // input was a section in that category. The same dimension may
-        // appear in multiple section matches; a single Pass is enough.
+        // Pillar 7 (#129) — recall is now measured by *which dimension the
+        // rule was about*, not by *which primary topic the matched section
+        // happened to be classified as*. Once predicates moved to
+        // `LambdaPrimitives.HasTopic(input1, "X")` (multi-label topic
+        // membership), a rule can legitimately Pass on a section whose
+        // primary `category` is some other topic — that's the whole
+        // point. Reading the dimension off the predicate keeps the metric
+        // honest under both the legacy `input1.category == "X"` shape and
+        // the new HasTopic shape.
         var passes = new HashSet<string>(StringComparer.Ordinal);
         foreach (var v in report.Verdicts)
         {
             if (v.Outcome != VerdictOutcome.Pass) continue;
+
+            var dim = ExtractTargetDimension(v.PredicateText)
+                      ?? ExtractTargetDimension(v.LambdaText);
+            if (!string.IsNullOrEmpty(dim))
+            {
+                passes.Add(dim);
+                continue;
+            }
+
+            // Fallback (defensive — covers verdicts whose predicate text
+            // wasn't captured, e.g. default "true" predicate): use the
+            // matched section's primary `category`. This was the entire
+            // pre-Pillar-7 measurement path; keep it as a last resort.
             if (v.EvaluatedInput?["category"] is { } cat)
             {
                 var s = cat.GetValue<string>();
@@ -261,6 +280,30 @@ public sealed class ArbPsaBenchmark
             }
         }
         return passes;
+    }
+
+    private static readonly System.Text.RegularExpressions.Regex HasTopicRegex =
+        new(@"HasTopic\s*\(\s*input1\s*,\s*""([^""]+)""\s*\)",
+            System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    private static readonly System.Text.RegularExpressions.Regex CategoryEqRegex =
+        new(@"input1\.category\s*==\s*""([^""]+)""",
+            System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    private static readonly System.Text.RegularExpressions.Regex TopicsContainsRegex =
+        new(@"input1\.topics\.Contains\s*\(\s*""([^""]+)""\s*\)",
+            System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    private static string? ExtractTargetDimension(string? predicate)
+    {
+        if (string.IsNullOrEmpty(predicate)) return null;
+        var m = HasTopicRegex.Match(predicate);
+        if (m.Success) return m.Groups[1].Value;
+        m = CategoryEqRegex.Match(predicate);
+        if (m.Success) return m.Groups[1].Value;
+        m = TopicsContainsRegex.Match(predicate);
+        if (m.Success) return m.Groups[1].Value;
+        return null;
     }
 
     private static string Sha256(string s)

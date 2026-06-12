@@ -95,4 +95,221 @@ public class LambdaPrimitivesTests
         first.Should().Be(second);
         LambdaPrimitives.BoilerplatePhrases.Should().NotBeEmpty();
     }
+
+    // ---- HasTopic (Pillar 7 / #129) ----------------------------------
+
+    private static System.Dynamic.ExpandoObject ExpandoWith(params (string Key, object? Value)[] pairs)
+    {
+        var e = new System.Dynamic.ExpandoObject();
+        var dict = (IDictionary<string, object?>)e;
+        foreach (var (k, v) in pairs) dict[k] = v;
+        return e;
+    }
+
+    [Fact]
+    public void HasTopic_returns_true_when_topics_array_contains_value()
+    {
+        var input = ExpandoWith(("topics", new List<object?> { "design_patterns", "dr_resiliency" }));
+        LambdaPrimitives.HasTopic(input, "dr_resiliency").Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasTopic_returns_false_when_topics_array_does_not_contain_value()
+    {
+        var input = ExpandoWith(("topics", new List<object?> { "design_patterns" }));
+        LambdaPrimitives.HasTopic(input, "decision_records").Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasTopic_returns_false_for_null_input()
+    {
+        LambdaPrimitives.HasTopic(null, "design_patterns").Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasTopic_returns_false_for_null_or_empty_topic()
+    {
+        var input = ExpandoWith(("topics", new List<object?> { "design_patterns" }));
+        LambdaPrimitives.HasTopic(input, null!).Should().BeFalse();
+        LambdaPrimitives.HasTopic(input, "").Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasTopic_returns_false_when_topics_key_missing()
+    {
+        var input = ExpandoWith(("category", (object?)"design_patterns"));
+        LambdaPrimitives.HasTopic(input, "design_patterns").Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasTopic_returns_false_when_topics_is_null_or_empty_or_non_enumerable()
+    {
+        LambdaPrimitives.HasTopic(ExpandoWith(("topics", (object?)null)), "x").Should().BeFalse();
+        LambdaPrimitives.HasTopic(ExpandoWith(("topics", new List<object?>())), "x").Should().BeFalse();
+        LambdaPrimitives.HasTopic(ExpandoWith(("topics", (object?)"design_patterns")), "design_patterns")
+            .Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasTopic_skips_non_string_elements_and_keeps_matching_siblings()
+    {
+        var input = ExpandoWith(("topics",
+            (object?)new List<object?> { 42L, true, null, "design_patterns" }));
+        LambdaPrimitives.HasTopic(input, "design_patterns").Should().BeTrue();
+        LambdaPrimitives.HasTopic(input, "42").Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasTopic_axis_qualified_topic_requires_exact_match_no_prefix()
+    {
+        var input = ExpandoWith(("topics",
+            (object?)new List<object?> { "platform:azure" }));
+        LambdaPrimitives.HasTopic(input, "platform:azure").Should().BeTrue();
+        LambdaPrimitives.HasTopic(input, "platform").Should().BeFalse();
+        LambdaPrimitives.HasTopic(input, "azure").Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasTopic_primary_topic_alone_does_not_satisfy_membership()
+    {
+        var input = ExpandoWith(
+            ("category", (object?)"decision_records"),
+            ("topics", (object?)new List<object?>()));
+        LambdaPrimitives.HasTopic(input, "decision_records").Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasTopic_works_on_jsonobject_input()
+    {
+        var json = System.Text.Json.Nodes.JsonNode.Parse(
+            "{\"topics\":[\"design_patterns\",\"dr_resiliency\"]}")
+            as System.Text.Json.Nodes.JsonObject;
+        LambdaPrimitives.HasTopic(json, "dr_resiliency").Should().BeTrue();
+        LambdaPrimitives.HasTopic(json, "psa_completeness").Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasTopic_is_deterministic_across_two_calls()
+    {
+        var input = ExpandoWith(("topics", new List<object?> { "design_patterns" }));
+        var a = LambdaPrimitives.HasTopic(input, "design_patterns");
+        var b = LambdaPrimitives.HasTopic(input, "design_patterns");
+        a.Should().Be(b);
+    }
+
+    // Proxy for Microsoft RulesEngine's DynamicClassFactory output: a real
+    // POCO with a typed `topics` property. At evaluation time `input1` is
+    // an instance of a generated class shaped like this, NOT an
+    // ExpandoObject — so HasTopic must read `topics` via reflection.
+    private sealed class SectionPocoStrings
+    {
+        public string category { get; set; } = "";
+        public List<string> topics { get; set; } = new();
+    }
+
+    private sealed class SectionPocoObjects
+    {
+        public string category { get; set; } = "";
+        public List<object?> topics { get; set; } = new();
+    }
+
+    private sealed class SectionPocoArray
+    {
+        public object?[] topics { get; set; } = Array.Empty<object?>();
+    }
+
+    private sealed class SectionPocoNoTopics
+    {
+        public string category { get; set; } = "";
+    }
+
+    [Fact]
+    public void HasTopic_reads_topics_via_reflection_on_poco_with_string_list()
+    {
+        var p = new SectionPocoStrings { topics = new() { "design_patterns", "dr_resiliency" } };
+        LambdaPrimitives.HasTopic(p, "dr_resiliency").Should().BeTrue();
+        LambdaPrimitives.HasTopic(p, "decision_records").Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasTopic_reads_topics_via_reflection_on_poco_with_object_list()
+    {
+        var p = new SectionPocoObjects { topics = new() { "decision_records", 42L } };
+        LambdaPrimitives.HasTopic(p, "decision_records").Should().BeTrue();
+        LambdaPrimitives.HasTopic(p, "missing").Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasTopic_reads_topics_via_reflection_on_poco_with_array()
+    {
+        var p = new SectionPocoArray { topics = new object?[] { "security_architecture" } };
+        LambdaPrimitives.HasTopic(p, "security_architecture").Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasTopic_returns_false_when_poco_has_no_topics_member()
+    {
+        var p = new SectionPocoNoTopics { category = "design_patterns" };
+        LambdaPrimitives.HasTopic(p, "design_patterns").Should().BeFalse();
+    }
+
+    // ---- HasTopic with score gate (Pillar 7 / #129) -------------------
+
+    [Fact]
+    public void HasTopic_with_score_gate_passes_when_score_meets_threshold()
+    {
+        var scores = ExpandoWith(("decision_records", (object?)0.9));
+        var input = ExpandoWith(
+            ("topics", new List<object?> { "decision_records" }),
+            ("topic_scores", (object?)scores));
+        LambdaPrimitives.HasTopic(input, "decision_records", 0.5).Should().BeTrue();
+        LambdaPrimitives.HasTopic(input, "decision_records", 0.9).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasTopic_with_score_gate_fails_when_score_below_threshold()
+    {
+        // 0.4 body-only keyword match — exactly the case Pillar 7 wants
+        // to filter out so false positives stay contained.
+        var scores = ExpandoWith(("decision_records", (object?)0.4));
+        var input = ExpandoWith(
+            ("topics", new List<object?> { "decision_records" }),
+            ("topic_scores", (object?)scores));
+        LambdaPrimitives.HasTopic(input, "decision_records", 0.5).Should().BeFalse();
+        LambdaPrimitives.HasTopic(input, "decision_records", 0.4).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasTopic_with_score_gate_fails_when_topic_scores_missing()
+    {
+        var input = ExpandoWith(("topics", new List<object?> { "decision_records" }));
+        LambdaPrimitives.HasTopic(input, "decision_records", 0.5).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasTopic_with_zero_threshold_is_equivalent_to_membership_only()
+    {
+        var input = ExpandoWith(("topics", new List<object?> { "decision_records" }));
+        // Threshold 0.0 → don't even consult topic_scores; pure membership.
+        LambdaPrimitives.HasTopic(input, "decision_records", 0.0).Should().BeTrue();
+    }
+
+    private sealed class SectionPocoWithScores
+    {
+        public List<string> topics { get; set; } = new();
+        public Dictionary<string, double> topic_scores { get; set; } = new();
+    }
+
+    [Fact]
+    public void HasTopic_with_score_gate_reads_topic_scores_via_reflection()
+    {
+        var p = new SectionPocoWithScores
+        {
+            topics = new() { "decision_records" },
+            topic_scores = new() { ["decision_records"] = 0.9 },
+        };
+        LambdaPrimitives.HasTopic(p, "decision_records", 0.5).Should().BeTrue();
+        p.topic_scores["decision_records"] = 0.3;
+        LambdaPrimitives.HasTopic(p, "decision_records", 0.5).Should().BeFalse();
+    }
 }
