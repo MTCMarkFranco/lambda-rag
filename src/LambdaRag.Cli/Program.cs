@@ -250,7 +250,7 @@ static class CliEntry
                 sp.GetService<ICandidateRuleFilter>(),
                 jitStore as LambdaRag.Core.Semantic.ISemanticVectorStore,
                 tokenEmbedder: needsTokenEmbedder ? ruleEmbedder : null);
-            AnsiConsole.MarkupLine($"[dim]Vectors:[/]   embedder={Markup.Escape(ruleEmbedder.EmbedderId)} dims={ruleEmbedder.Dimensions}{(needsTokenEmbedder ? " [bound-anchors]" : string.Empty)}");
+            AnsiConsole.MarkupLine($"[dim]Vectors:[/]   embedder={Markup.Escape(ruleEmbedder.EmbedderId)} dims={ruleEmbedder.Dimensions}{(needsTokenEmbedder ? " [[bound-anchors]]" : string.Empty)}");
         }
 
         // ── Phase 4: Evaluate ───────────────────────────────────────────
@@ -702,6 +702,7 @@ static class CliEntry
                                             [--no-validate] [--epsilon 0.05] [--apply]
                 lambda-rag ruleset validate --in <ruleset.json> [--out <report.json>]
                                             [--epsilon 0.05] [--apply] [--embedder foundry|deterministic]
+                lambda-rag ruleset reembed-anchors --ruleset <ruleset.json> [--out <path>]
                 """);
             return 0;
         }
@@ -710,8 +711,69 @@ static class CliEntry
         {
             "pull" => await RulesetPullAsync(args.Skip(1).ToArray()),
             "validate" => await RulesetValidateAsync(args.Skip(1).ToArray()),
+            "reembed-anchors" => await RulesetReembedAnchorsAsync(args.Skip(1).ToArray()),
             _ => UnknownCommand($"ruleset {args[0]}"),
         };
+    }
+
+    /// <summary>
+    /// Pillar 6 (#126) — re-author the <c>anchorEmbedding</c> on every
+    /// <see cref="SemanticAnchor"/> in a ruleset using the configured
+    /// <see cref="IRuleEmbedder"/> (Azure Foundry when user-secrets are
+    /// configured, deterministic hash otherwise). Stamps the resolved
+    /// embedder id into <c>metadata.embedderId</c> so an auditor can tell
+    /// which embedder was used to author the vectors.
+    /// </summary>
+    static async Task<int> RulesetReembedAnchorsAsync(string[] args)
+    {
+        var f = ParseFlags(args);
+        var inPath = f.GetValueOrDefault("ruleset")
+            ?? f.GetValueOrDefault("in")
+            ?? throw new ArgumentException("--ruleset (or --in) required");
+        var outPath = f.GetValueOrDefault("out") ?? inPath;
+
+        await using var sp = (ServiceProvider)BuildServices();
+        var embedder = sp.GetRequiredService<IRuleEmbedder>();
+        Console.WriteLine($"Embedder:  {embedder.EmbedderId} (dims={embedder.Dimensions})");
+        if (embedder is DeterministicHashEmbedder)
+        {
+            Console.Error.WriteLine("warning: deterministic-hash embedder selected — set LambdaRag:Foundry:Embed:* secrets for real semantic vectors.");
+        }
+
+        var ruleset = RuleSetIO.Load(inPath);
+        var newRules = new List<Rule>(ruleset.Rules.Count);
+        var anchorCount = 0;
+        foreach (var rule in ruleset.Rules)
+        {
+            if (rule.SemanticAnchors is not { Count: > 0 } anchors)
+            {
+                newRules.Add(rule);
+                continue;
+            }
+            var newAnchors = new List<SemanticAnchor>(anchors.Count);
+            foreach (var anchor in anchors)
+            {
+                var vec = await embedder.EmbedAsync(anchor.AnchorText);
+                newAnchors.Add(anchor with { AnchorEmbedding = vec });
+                anchorCount++;
+            }
+            newRules.Add(rule with { SemanticAnchors = newAnchors });
+        }
+
+        var newMetadata = new Dictionary<string, string>(ruleset.Metadata, StringComparer.Ordinal)
+        {
+            ["embedderId"] = embedder.EmbedderId,
+            ["embedderDimensions"] = embedder.Dimensions.ToString(),
+            ["anchorsReembeddedAt"] = "1970-01-01T00:00:00Z",
+        };
+        newMetadata.Remove("embedderNote");
+
+        var newRuleset = ruleset with { Rules = newRules, Metadata = newMetadata };
+        RuleSetIO.Save(newRuleset, outPath);
+        Console.WriteLine($"Rules:     {newRules.Count}");
+        Console.WriteLine($"Anchors:   {anchorCount} re-embedded");
+        Console.WriteLine($"Wrote:     {outPath}");
+        return 0;
     }
 
     static async Task<int> RulesetPullAsync(string[] args)
