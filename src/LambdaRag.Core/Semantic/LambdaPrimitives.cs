@@ -414,6 +414,350 @@ public static class LambdaPrimitives
         return string.Equals(name, anchorName, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// Pillar 8 POC (#133) — resolves the <i>best</i> token-match binding for
+    /// <paramref name="anchorName"/> in the active Pillar 6
+    /// <see cref="SemanticBindingAccessor"/> scope. "Best" is highest
+    /// <see cref="TokenMatch.Cosine"/>; ties broken deterministically by
+    /// lowest <see cref="TokenMatch.CharStart"/>, then ordinal lower
+    /// <see cref="TokenMatch.Text"/>. Returns <c>null</c> when the scope
+    /// is absent, the anchor has no bindings, or the anchor name is
+    /// null/empty. Never throws.
+    ///
+    /// <para>
+    /// This is the locator step of the Pillar 8 extraction pattern:
+    /// cosine-find <em>where</em> in the chunk the policy concept appears,
+    /// so downstream extraction primitives can read the value adjacent to
+    /// that span and apply the structural constraint.
+    /// </para>
+    /// </summary>
+    public static TokenMatch? ResolveAnchorSpan(string anchorName)
+    {
+        if (string.IsNullOrEmpty(anchorName)) return null;
+        var scope = SemanticBindingAccessor.Current;
+        if (scope is null) return null;
+        var bindings = scope.GetBindings(anchorName);
+        if (bindings is null || bindings.Count == 0) return null;
+
+        TokenMatch? best = null;
+        foreach (var b in bindings)
+        {
+            if (best is null) { best = b; continue; }
+            if (b.Cosine > best.Cosine) { best = b; continue; }
+            if (b.Cosine < best.Cosine) continue;
+            if (b.CharStart < best.CharStart) { best = b; continue; }
+            if (b.CharStart > best.CharStart) continue;
+            if (string.CompareOrdinal(b.Text, best.Text) < 0) best = b;
+        }
+        return best;
+    }
+
+    /// <summary>
+    /// Pillar 8 POC (#133) — same as <see cref="ResolveAnchorSpan(string)"/>,
+    /// but when the cosine-based bindings are empty, falls back to a
+    /// case-insensitive literal whole-word search of
+    /// <paramref name="anchorName"/> in <paramref name="text"/>. The
+    /// leftmost literal occurrence is returned as a synthetic
+    /// <see cref="TokenMatch"/> with <c>Cosine = 1.0</c>.
+    ///
+    /// <para>
+    /// Rationale: acronyms like <c>RPO</c> / <c>RTO</c> are 3-letter
+    /// tokens that often do not clear the rule-level cosine threshold
+    /// against multi-word anchor texts ("recovery point objective rpo
+    /// data loss"). When the literal acronym is present in the chunk,
+    /// that's the strongest possible "where in the chunk" signal — no
+    /// embedding can do better. The fallback preserves the Pillar 8
+    /// architecture (locator → extractor → constraint) when the
+    /// vocabulary in the doc happens to match the anchor name exactly.
+    /// </para>
+    ///
+    /// <para>
+    /// Deterministic by construction: the regex is a static word-boundary
+    /// match on a Regex.Escape'd anchor name, leftmost wins, no
+    /// re-ordering. Same text + same anchorName → byte-identical span.
+    /// </para>
+    /// </summary>
+    public static TokenMatch? ResolveAnchorSpan(string anchorName, string text)
+    {
+        var cosine = ResolveAnchorSpan(anchorName);
+        if (cosine is not null) return cosine;
+        if (string.IsNullOrEmpty(anchorName) || string.IsNullOrEmpty(text)) return null;
+        var pattern = @"\b" + System.Text.RegularExpressions.Regex.Escape(anchorName) + @"\b";
+        System.Text.RegularExpressions.Match m;
+        try
+        {
+            m = System.Text.RegularExpressions.Regex.Match(
+                text, pattern,
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase
+                | System.Text.RegularExpressions.RegexOptions.CultureInvariant,
+                TimeSpan.FromMilliseconds(200));
+        }
+        catch (System.Text.RegularExpressions.RegexMatchTimeoutException)
+        {
+            return null;
+        }
+        if (!m.Success) return null;
+        return new TokenMatch(m.Value, 1.0, m.Index, m.Length);
+    }
+
+    private static readonly System.Text.RegularExpressions.Regex DurationRx = new(
+        @"\b(\d+(?:[.,]\d+)?)\s*(hours|hour|hrs|hr|h|minutes|minute|mins|min|seconds|second|secs|sec|days|day|weeks|week|wk)(?:\b|(?=[A-Z]))",
+        System.Text.RegularExpressions.RegexOptions.IgnoreCase
+        | System.Text.RegularExpressions.RegexOptions.CultureInvariant
+        | System.Text.RegularExpressions.RegexOptions.Compiled,
+        TimeSpan.FromMilliseconds(200));
+
+    private static readonly char[] SentenceDelims = { '.', '!', '?', '\n', '\r' };
+
+    /// <summary>
+    /// Sentence-start scanner: walks backwards from <paramref name="beforePos"/>
+    /// and returns the offset just AFTER the previous sentence terminator,
+    /// or 0 if none found. A period / bang / question mark counts as a
+    /// terminator only when followed by whitespace or end-of-text, so
+    /// numeric literals like <c>4.5</c> do NOT split a sentence.
+    /// </summary>
+    private static int FindSentenceStart(string text, int beforePos)
+    {
+        var i = Math.Min(beforePos, text.Length - 1);
+        while (i >= 0)
+        {
+            var c = text[i];
+            if (c == '\n' || c == '\r') return i + 1;
+            if (c == '.' || c == '!' || c == '?')
+            {
+                if (i + 1 >= text.Length) return i + 1;
+                if (char.IsWhiteSpace(text[i + 1])) return i + 1;
+            }
+            i--;
+        }
+        return 0;
+    }
+
+    /// <summary>
+    /// Sentence-end scanner: walks forward from <paramref name="afterPos"/>
+    /// and returns the offset just AFTER the next sentence terminator, or
+    /// <c>text.Length</c> if none found. Same digit-aware semantics as
+    /// <see cref="FindSentenceStart(string, int)"/>.
+    /// </summary>
+    private static int FindSentenceEnd(string text, int afterPos)
+    {
+        for (var i = afterPos; i < text.Length; i++)
+        {
+            var c = text[i];
+            if (c == '\n' || c == '\r') return i + 1;
+            if (c == '.' || c == '!' || c == '?')
+            {
+                if (i + 1 >= text.Length) return i + 1;
+                if (char.IsWhiteSpace(text[i + 1])) return i + 1;
+            }
+        }
+        return text.Length;
+    }
+
+    /// <summary>
+    /// Pillar 8 POC (#133) — extracts a duration value from <paramref name="text"/>
+    /// associated with the anchor span resolved by
+    /// <see cref="ResolveAnchorSpan(string)"/> for <paramref name="anchorName"/>.
+    /// Scope is the <em>sentence containing the anchor</em>, intersected with
+    /// the ±<paramref name="windowChars"/> window. Within that scope, the
+    /// match whose span is nearest the anchor wins (gap-distance, with
+    /// leftmost / ordinal-text tiebreakers). Returns <c>null</c> when:
+    /// <list type="bullet">
+    /// <item><description><paramref name="text"/> is null or empty</description></item>
+    /// <item><description><paramref name="anchorName"/> is null or empty</description></item>
+    /// <item><description>the anchor has no resolvable binding in scope</description></item>
+    /// <item><description>no duration pattern is present in the anchor's sentence</description></item>
+    /// <item><description>the regex times out (200ms, locale-invariant)</description></item>
+    /// </list>
+    ///
+    /// <para>
+    /// Sentence terminators are <c>. ! ?</c> followed by whitespace (or
+    /// end-of-text), plus <c>\n \r</c>. A bare <c>.</c> inside a numeric
+    /// literal (<c>4.5</c>) does NOT split the sentence — the digit-aware
+    /// scanner preserves "4.5 hours" as one extractable duration.
+    /// </para>
+    ///
+    /// <para>
+    /// Sentence scoping ensures <c>RPO: 4 hours. RTO: 2 hours.</c> yields
+    /// the correct value for each anchor independently — a pure
+    /// nearest-to-anchor metric ties when two durations are equidistant
+    /// from the anchor, so we constrain to the anchor's own sentence first.
+    /// </para>
+    ///
+    /// <para>Unit table (case-insensitive, locale-invariant):</para>
+    /// <list type="bullet">
+    /// <item><description><c>h | hr | hrs | hour | hours</c> → hours</description></item>
+    /// <item><description><c>min | mins | minute | minutes</c> → minutes</description></item>
+    /// <item><description><c>sec | secs | second | seconds</c> → seconds</description></item>
+    /// <item><description><c>day | days</c> → days</description></item>
+    /// <item><description><c>wk | week | weeks</c> → 7 × days</description></item>
+    /// </list>
+    /// Bare single-letter units (<c>m</c>, <c>s</c>, <c>d</c>, <c>w</c>) are
+    /// intentionally excluded — too ambiguous in technical prose
+    /// ("Section 4d", "$5m budget").
+    ///
+    /// <para>
+    /// Decimal values accept both <c>4.5</c> and <c>4,5</c> (European
+    /// decimal). Negative numbers and hyphenated forms (<c>4-hour</c>) do
+    /// not match.
+    /// </para>
+    /// </summary>
+    /// <summary>
+    /// Pillar 8 POC (#133) — internal helper that builds the full set of
+    /// anchor candidates for <paramref name="anchorName"/>: cosine bindings
+    /// if any, otherwise literal whole-word regex matches in
+    /// <paramref name="text"/>. Used by <see cref="ExtractDurationNear"/>
+    /// to evaluate every candidate against every duration match and pick
+    /// the (anchor, duration) pair with the smallest gap — the real
+    /// anchor-value pairing rather than the leftmost mention.
+    /// </summary>
+    private static IReadOnlyList<TokenMatch> ResolveAnchorSpans(string anchorName, string text)
+    {
+        var scope = SemanticBindingAccessor.Current;
+        var bindings = scope?.GetBindings(anchorName);
+        if (bindings is { Count: > 0 }) return bindings;
+
+        if (string.IsNullOrEmpty(text)) return Array.Empty<TokenMatch>();
+        var pattern = @"\b" + System.Text.RegularExpressions.Regex.Escape(anchorName) + @"\b";
+        System.Text.RegularExpressions.MatchCollection mc;
+        try
+        {
+            mc = System.Text.RegularExpressions.Regex.Matches(
+                text, pattern,
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase
+                | System.Text.RegularExpressions.RegexOptions.CultureInvariant,
+                TimeSpan.FromMilliseconds(200));
+        }
+        catch (System.Text.RegularExpressions.RegexMatchTimeoutException)
+        {
+            return Array.Empty<TokenMatch>();
+        }
+        if (mc.Count == 0) return Array.Empty<TokenMatch>();
+        var list = new List<TokenMatch>(mc.Count);
+        foreach (System.Text.RegularExpressions.Match m in mc)
+            list.Add(new TokenMatch(m.Value, 1.0, m.Index, m.Length));
+        return list;
+    }
+
+    public static TimeSpan? ExtractDurationNear(string text, string anchorName, int windowChars = 120)
+    {
+        if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(anchorName)) return null;
+        if (windowChars < 0) windowChars = 0;
+
+        var candidates = ResolveAnchorSpans(anchorName, text);
+        if (candidates.Count == 0) return null;
+
+        TimeSpan? overallBest = null;
+        var bestAnchorGap = int.MaxValue;
+        var bestAnchorCosine = double.NegativeInfinity;
+        var bestAnchorStart = int.MaxValue;
+        var bestMatchStart = int.MaxValue;
+        string bestMatchText = string.Empty;
+
+        foreach (var span in candidates)
+        {
+            var anchorStart = span.CharStart;
+            var anchorEnd = span.CharStart + span.CharLength;
+            if (anchorStart < 0 || anchorEnd > text.Length) continue;
+
+            var winLo = Math.Max(0, anchorStart - windowChars);
+            var winHi = Math.Min(text.Length, anchorEnd + windowChars);
+            var sentStart = anchorStart > 0 ? FindSentenceStart(text, anchorStart - 1) : 0;
+            var sentEnd = anchorEnd < text.Length ? FindSentenceEnd(text, anchorEnd) : text.Length;
+            var lo = Math.Max(sentStart, winLo);
+            var hi = Math.Min(sentEnd, winHi);
+            if (lo >= hi) continue;
+            var slice = text.Substring(lo, hi - lo);
+
+            System.Text.RegularExpressions.MatchCollection matches;
+            try { matches = DurationRx.Matches(slice); }
+            catch (System.Text.RegularExpressions.RegexMatchTimeoutException) { continue; }
+            if (matches.Count == 0) continue;
+
+            foreach (System.Text.RegularExpressions.Match m in matches)
+            {
+                var matchStart = lo + m.Index;
+                var matchEnd = matchStart + m.Length;
+                int gap =
+                    matchStart >= anchorEnd ? matchStart - anchorEnd :
+                    matchEnd <= anchorStart ? anchorStart - matchEnd :
+                    0;
+
+                // Deterministic preference order across ALL (anchor, duration)
+                // pairs in this chunk:
+                //   1. smaller anchor-to-duration gap (the real pairing)
+                //   2. higher anchor cosine (more confident anchor first)
+                //   3. lower anchor CharStart (leftmost anchor wins ties)
+                //   4. lower duration CharStart (leftmost duration wins ties)
+                //   5. ordinal-lower duration text
+                bool wins =
+                    gap < bestAnchorGap
+                    || (gap == bestAnchorGap && span.Cosine > bestAnchorCosine)
+                    || (gap == bestAnchorGap && span.Cosine == bestAnchorCosine
+                        && anchorStart < bestAnchorStart)
+                    || (gap == bestAnchorGap && span.Cosine == bestAnchorCosine
+                        && anchorStart == bestAnchorStart && matchStart < bestMatchStart)
+                    || (gap == bestAnchorGap && span.Cosine == bestAnchorCosine
+                        && anchorStart == bestAnchorStart && matchStart == bestMatchStart
+                        && string.CompareOrdinal(m.Value, bestMatchText) < 0);
+                if (!wins) continue;
+
+                var parsed = ParseDurationMatch(m);
+                if (parsed is null) continue;
+
+                overallBest = parsed;
+                bestAnchorGap = gap;
+                bestAnchorCosine = span.Cosine;
+                bestAnchorStart = anchorStart;
+                bestMatchStart = matchStart;
+                bestMatchText = m.Value;
+            }
+        }
+        return overallBest;
+    }
+
+    private static TimeSpan? ParseDurationMatch(System.Text.RegularExpressions.Match m)
+    {
+        var numText = m.Groups[1].Value.Replace(',', '.');
+        if (!double.TryParse(
+                numText,
+                System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out var n))
+            return null;
+
+        var unit = m.Groups[2].Value.ToLowerInvariant();
+        return unit switch
+        {
+            "h" or "hr" or "hrs" or "hour" or "hours" => TimeSpan.FromHours(n),
+            "min" or "mins" or "minute" or "minutes" => TimeSpan.FromMinutes(n),
+            "sec" or "secs" or "second" or "seconds" => TimeSpan.FromSeconds(n),
+            "day" or "days" => TimeSpan.FromDays(n),
+            "wk" or "week" or "weeks" => TimeSpan.FromDays(n * 7),
+            _ => null,
+        };
+    }
+
+    /// <summary>
+    /// Pillar 8 POC (#133) — boolean sugar over
+    /// <see cref="ExtractDurationNear(string, string, int)"/>. Returns
+    /// <c>true</c> when a duration is extractable near the resolved anchor
+    /// span; <c>false</c> otherwise. Lets a rule lambda read naturally:
+    /// <c>HasExtractedDurationNear(input1.text, "rpo")</c> — the policy's
+    /// real intent is "did the section commit to a duration for RPO?",
+    /// not "did the section mention the word RPO?".
+    /// </summary>
+    public static bool HasExtractedDurationNear(string text, string anchorName, int windowChars = 120)
+        => ExtractDurationNear(text, anchorName, windowChars) is not null;
+
+    /// <summary>
+    /// Pillar 8 POC (#133) — 2-arg overload for the dynamic lambda parser,
+    /// which does not bind to methods with default-valued parameters. Uses
+    /// the default 120-char window.
+    /// </summary>
+    public static bool HasExtractedDurationNear(string text, string anchorName)
+        => ExtractDurationNear(text, anchorName, 120) is not null;
+
     private static object? ReadMember(object? input, string memberName)
     {
         if (input is null) return null;
