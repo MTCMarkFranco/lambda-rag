@@ -362,6 +362,58 @@ public static class LambdaPrimitives
         return score.HasValue && score.Value >= minScore;
     }
 
+    /// <summary>
+    /// Pillar 7.B (#130) — returns <c>true</c> when the section was
+    /// emitted by the projector's anchor-driven synthetic-section
+    /// post-pass (<c>is_synthetic_anchor == true</c>). The post-pass
+    /// only emits a synthetic when the section body's embedding
+    /// cleared a configured cosine threshold against one of the rule's
+    /// own anchors, so this primitive is a *section-level* anchor-
+    /// match witness — the runtime-equivalent of "an anchor for this
+    /// rule's topic matched somewhere in this body".
+    ///
+    /// Rules that gate on per-token <c>SemanticBindings(name).Count</c>
+    /// can OR this primitive in as an alternative pass path, so a
+    /// synthetic section still passes even though its body text won't
+    /// produce a token-level cosine ≥ the per-anchor threshold (0.78).
+    /// </summary>
+    public static bool HasSyntheticAnchor(object? input)
+    {
+        var raw = ReadMember(input, "is_synthetic_anchor");
+        if (raw is null) return false;
+        if (raw is bool b) return b;
+        if (raw is System.Text.Json.Nodes.JsonValue jv
+            && jv.TryGetValue<bool>(out var jb))
+            return jb;
+        if (raw is string s && bool.TryParse(s, out var parsed))
+            return parsed;
+        return false;
+    }
+
+    /// <summary>
+    /// Pillar 7.B (#130) — overload that ALSO checks the synthetic
+    /// anchor's name. Returns <c>true</c> when the section is synthetic
+    /// AND <c>synthetic_anchor</c> equals <paramref name="anchorName"/>
+    /// (case-sensitive). Lets a rule lambda demand the synthetic was
+    /// emitted for a *specific* anchor, not just any anchor — useful
+    /// when one rule defines several anchors and only some of them
+    /// should count as evidence in a particular branch.
+    /// </summary>
+    public static bool HasSyntheticAnchor(object? input, string anchorName)
+    {
+        if (!HasSyntheticAnchor(input)) return false;
+        if (string.IsNullOrEmpty(anchorName)) return false;
+        var raw = ReadMember(input, "synthetic_anchor");
+        if (raw is null) return false;
+        string? name = raw switch
+        {
+            string s => s,
+            System.Text.Json.Nodes.JsonValue jv when jv.TryGetValue<string>(out var js) => js,
+            _ => raw.ToString(),
+        };
+        return string.Equals(name, anchorName, StringComparison.Ordinal);
+    }
+
     private static object? ReadMember(object? input, string memberName)
     {
         if (input is null) return null;

@@ -208,10 +208,27 @@ public sealed class ArbPsaBenchmark
         var ruleEmbedder = sp.GetRequiredService<IRuleEmbedder>();
 
         var topicMap = TopicMapRegistry.Load("arb-psa.v1");
-        var projector = new DeterministicContractProjector(topicMap);
 
         var rulesetJson = await File.ReadAllTextAsync(RulesetPath);
         var ruleset = JsonSerializer.Deserialize<RuleSet>(rulesetJson, CanonicalJson.Options)!;
+
+        // Pillar 7.B (#130) — when the ruleset has anchored rules, pass it
+        // (plus the real embedder) into the projector so its
+        // synthetic-section post-pass can recover topics that the keyword
+        // classifier missed entirely. Topics already represented in any
+        // section's primary_topic or topics[] are skipped, so the pass is
+        // a no-op for well-classified docs. When the ruleset has no
+        // anchors, behave exactly like the parameterless ctor.
+        var hasAnchoredRules = ruleset.Rules.Any(r =>
+            r.SemanticAnchors is { Count: > 0 });
+        var projector = hasAnchoredRules
+            ? new DeterministicContractProjector(
+                topicMap,
+                ruleSet: ruleset,
+                ruleEmbedder: ruleEmbedder,
+                syntheticCosineThreshold: 0.30,
+                logger: sp.GetService<ILogger<DeterministicContractProjector>>())
+            : new DeterministicContractProjector(topicMap);
 
         var parsed = await parsers.ParseAsync(PsaSamplePath);
         var docKind = DocKindResolver.Resolve(
