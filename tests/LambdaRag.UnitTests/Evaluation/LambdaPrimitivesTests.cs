@@ -312,4 +312,84 @@ public class LambdaPrimitivesTests
         p.topic_scores["decision_records"] = 0.3;
         LambdaPrimitives.HasTopic(p, "decision_records", 0.5).Should().BeFalse();
     }
+
+    // ---- HasSyntheticAnchor (Pillar 7.B #130) -------------------------
+
+    [Fact]
+    public void HasSyntheticAnchor_returns_false_for_null_input()
+    {
+        LambdaPrimitives.HasSyntheticAnchor(null).Should().BeFalse();
+        LambdaPrimitives.HasSyntheticAnchor(null, "x").Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasSyntheticAnchor_returns_false_when_flag_missing()
+    {
+        var input = ExpandoWith(("topics", new List<object?> { "x" }));
+        LambdaPrimitives.HasSyntheticAnchor(input).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasSyntheticAnchor_returns_true_for_synthetic_section_expando()
+    {
+        var input = ExpandoWith(
+            ("is_synthetic_anchor", (object?)true),
+            ("synthetic_anchor", (object?)"severity"));
+        LambdaPrimitives.HasSyntheticAnchor(input).Should().BeTrue();
+        LambdaPrimitives.HasSyntheticAnchor(input, "severity").Should().BeTrue();
+        LambdaPrimitives.HasSyntheticAnchor(input, "rationale").Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasSyntheticAnchor_returns_false_when_flag_explicitly_false()
+    {
+        var input = ExpandoWith(("is_synthetic_anchor", (object?)false));
+        LambdaPrimitives.HasSyntheticAnchor(input).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasSyntheticAnchor_reads_jsonobject_input()
+    {
+        var input = new System.Text.Json.Nodes.JsonObject
+        {
+            ["is_synthetic_anchor"] = true,
+            ["synthetic_anchor"] = "rationale",
+        };
+        LambdaPrimitives.HasSyntheticAnchor(input).Should().BeTrue();
+        LambdaPrimitives.HasSyntheticAnchor(input, "rationale").Should().BeTrue();
+        LambdaPrimitives.HasSyntheticAnchor(input, "severity").Should().BeFalse();
+    }
+
+    private sealed class SyntheticPoco
+    {
+        public bool is_synthetic_anchor { get; set; }
+        public string? synthetic_anchor { get; set; }
+    }
+
+    [Fact]
+    public void HasSyntheticAnchor_reads_poco_via_reflection()
+    {
+        var p = new SyntheticPoco
+        {
+            is_synthetic_anchor = true,
+            synthetic_anchor = "owner",
+        };
+        LambdaPrimitives.HasSyntheticAnchor(p).Should().BeTrue();
+        LambdaPrimitives.HasSyntheticAnchor(p, "owner").Should().BeTrue();
+        LambdaPrimitives.HasSyntheticAnchor(p, "severity").Should().BeFalse();
+
+        p.is_synthetic_anchor = false;
+        LambdaPrimitives.HasSyntheticAnchor(p).Should().BeFalse();
+        LambdaPrimitives.HasSyntheticAnchor(p, "owner").Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasSyntheticAnchor_empty_anchor_name_returns_false()
+    {
+        var input = ExpandoWith(
+            ("is_synthetic_anchor", (object?)true),
+            ("synthetic_anchor", (object?)"severity"));
+        LambdaPrimitives.HasSyntheticAnchor(input, "").Should().BeFalse();
+        LambdaPrimitives.HasSyntheticAnchor(input, null!).Should().BeFalse();
+    }
 }

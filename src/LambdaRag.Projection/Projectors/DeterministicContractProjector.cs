@@ -3,6 +3,9 @@ using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using LambdaRag.Core.Abstractions;
 using LambdaRag.Core.Domain;
+using LambdaRag.Core.Semantic;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace LambdaRag.Projection.Projectors;
 
@@ -44,12 +47,40 @@ public sealed class DeterministicContractProjector : IDocumentProjector
     public JsonObject Schema => SchemaInstance;
 
     private readonly TopicMap _topicMap;
+    private readonly RuleSet? _syntheticRuleSet;
+    private readonly ITokenEmbedder? _syntheticEmbedder;
+    private readonly double _syntheticCosineThreshold;
+    private readonly ILogger _syntheticLogger;
 
     public DeterministicContractProjector() : this(LoadDefaultTopicMap()) { }
 
     public DeterministicContractProjector(TopicMap topicMap)
+        : this(topicMap, ruleSet: null, ruleEmbedder: null) { }
+
+    /// <summary>
+    /// Pillar 7.B (#130) — full-form constructor that enables the
+    /// anchor-driven synthetic-section post-pass. Pass a
+    /// <paramref name="ruleSet"/> (with non-empty
+    /// <see cref="SemanticAnchor"/> lists) and an
+    /// <paramref name="ruleEmbedder"/> to let the projector emit one
+    /// synthetic child per (target-topic, qualifying source section) pair
+    /// for topics that have no presence in any section's
+    /// <c>primary_topic</c> or <c>topics[]</c>. When either argument is
+    /// null, or the ruleset has no anchored rules, the post-pass is a
+    /// no-op and projection output is byte-identical to legacy.
+    /// </summary>
+    public DeterministicContractProjector(
+        TopicMap topicMap,
+        RuleSet? ruleSet,
+        ITokenEmbedder? ruleEmbedder,
+        double syntheticCosineThreshold = 0.30,
+        ILogger<DeterministicContractProjector>? logger = null)
     {
         _topicMap = topicMap ?? throw new ArgumentNullException(nameof(topicMap));
+        _syntheticRuleSet = ruleSet;
+        _syntheticEmbedder = ruleEmbedder;
+        _syntheticCosineThreshold = syntheticCosineThreshold;
+        _syntheticLogger = (ILogger?)logger ?? NullLogger.Instance;
     }
 
     public TopicMap TopicMap => _topicMap;
@@ -97,7 +128,7 @@ public sealed class DeterministicContractProjector : IDocumentProjector
         },
     };
 
-    public Task<ProjectedDocument> ProjectAsync(ParsedDocument parsed, CancellationToken ct = default)
+    public async Task<ProjectedDocument> ProjectAsync(ParsedDocument parsed, CancellationToken ct = default)
     {
         var sections = new JsonArray();
         var spanMap = new Dictionary<string, SourceSpan>(StringComparer.Ordinal);
@@ -265,6 +296,23 @@ public sealed class DeterministicContractProjector : IDocumentProjector
                 operativeNode["is_operative_for_topic"] = true;
         }
 
+        // Pillar 7.B (#130) — anchor-driven synthetic child sections.
+        // Runs only when the projector was constructed with a ruleset AND
+        // an embedder AND at least one anchored rule. For every target
+        // topic absent from the projected sections (neither
+        // primary_topic nor topics[] hits), embeds each section body and
+        // checks cosine vs the rule's anchor vectors. When a section
+        // clears the threshold, emits one synthetic child appended to
+        // the section list with the target topic as primary. Adds to
+        // categories so downstream verdict-grouping works. Skipped (and
+        // byte-identical to legacy) whenever any precondition fails.
+        await ExpandSyntheticAnchorSectionsAsync(
+            sections,
+            sectionNodesById,
+            categories,
+            densityByTopicByScn,
+            ct).ConfigureAwait(false);
+
         var categoriesObj = new JsonObject();
         foreach (var (cat, ids) in categories.OrderBy(kvp => kvp.Key, StringComparer.Ordinal))
             categoriesObj[cat] = ids;
@@ -285,8 +333,282 @@ public sealed class DeterministicContractProjector : IDocumentProjector
             Graph: graph,
             SpanMap: spanMap);
 
-        return Task.FromResult(projected);
+        return projected;
     }
+
+    // ─── Pillar 7.B (#130) — anchor-driven synthetic child sections ─────
+
+    private static readonly Regex PredicateHasTopicRegex =
+        new(@"HasTopic\s*\(\s*input1\s*,\s*""([^""]+)""", RegexOptions.Compiled);
+
+    private static readonly Regex PredicateCategoryEqRegex =
+        new(@"input1\.category\s*==\s*""([^""]+)""", RegexOptions.Compiled);
+
+    private static readonly Regex PredicateTopicsContainsRegex =
+        new(@"input1\.topics\.Contains\s*\(\s*""([^""]+)""", RegexOptions.Compiled);
+
+    private static string? ExtractTargetTopic(string? predicate)
+    {
+        if (string.IsNullOrEmpty(predicate)) return null;
+        var m = PredicateHasTopicRegex.Match(predicate);
+        if (m.Success) return m.Groups[1].Value;
+        m = PredicateCategoryEqRegex.Match(predicate);
+        if (m.Success) return m.Groups[1].Value;
+        m = PredicateTopicsContainsRegex.Match(predicate);
+        return m.Success ? m.Groups[1].Value : null;
+    }
+
+    private async Task ExpandSyntheticAnchorSectionsAsync(
+        JsonArray sections,
+        Dictionary<string, JsonObject> sectionNodesById,
+        Dictionary<string, JsonArray> categories,
+        Dictionary<string, double> densityByTopicByScn,
+        CancellationToken ct)
+    {
+        if (_syntheticRuleSet is null || _syntheticEmbedder is null) return;
+
+        // 1. Gather (target_topic → distinct anchors) from rules whose
+        //    predicate names a topic AND whose SemanticAnchors carry
+        //    embeddings. Without embeddings we cannot score cosine.
+        var topicAnchors = new SortedDictionary<string, List<SemanticAnchor>>(StringComparer.Ordinal);
+        foreach (var rule in _syntheticRuleSet.Rules)
+        {
+            if (rule.SemanticAnchors is not { Count: > 0 }) continue;
+            var topic = ExtractTargetTopic(rule.Predicate);
+            if (string.IsNullOrEmpty(topic)) continue;
+
+            if (!topicAnchors.TryGetValue(topic, out var bag))
+                topicAnchors[topic] = bag = new List<SemanticAnchor>();
+
+            foreach (var anchor in rule.SemanticAnchors
+                         .Where(a => a.AnchorEmbedding is { Count: > 0 })
+                         .OrderBy(a => a.Name, StringComparer.Ordinal))
+            {
+                if (!bag.Any(b => string.Equals(b.Name, anchor.Name, StringComparison.Ordinal)))
+                    bag.Add(anchor);
+            }
+        }
+        if (topicAnchors.Count == 0) return;
+
+        // 2. Drop any topic already "effectively present" — i.e. some
+        //    section has a topic_score >= 0.5 for it (the threshold
+        //    score-gated rule predicates use). Lower-confidence body
+        //    keyword hits (score = 0.4) are NOT enough: the rule won't
+        //    fire on them, so we still need a synthetic anchor section
+        //    to surface real evidence the keyword classifier missed.
+        //    Primary-topic membership counts unconditionally (its
+        //    canonical score is 0.9). This is wider than the
+        //    "any topics[] membership" check the original contract
+        //    sketched, but it is the only definition consistent with
+        //    "synthesise when no existing section would let the rule
+        //    fire".
+        const double presenceThreshold = 0.5;
+        var present = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var node in sections.OfType<JsonObject>())
+        {
+            if (node["primary_topic"] is JsonValue pv
+                && pv.TryGetValue<string>(out var p) && !string.IsNullOrEmpty(p))
+                present.Add(p);
+            if (node["topic_scores"] is JsonObject scoresMap)
+            {
+                foreach (var kvp in scoresMap)
+                {
+                    if (kvp.Value is JsonValue sv
+                        && sv.TryGetValue<double>(out var sc)
+                        && sc >= presenceThreshold)
+                        present.Add(kvp.Key);
+                }
+            }
+        }
+        var candidates = topicAnchors
+            .Where(kvp => !present.Contains(kvp.Key))
+            .ToList();
+        if (candidates.Count == 0) return;
+
+        // 3. Embed each non-synthetic section body exactly once. Cache
+        //    keyed on section id for determinism + cost.
+        var bodyVecCache = new Dictionary<string, float[]>(StringComparer.Ordinal);
+        var sourceSections = sections
+            .OfType<JsonObject>()
+            .Where(n => !(n["is_synthetic_anchor"] is JsonValue sv
+                          && sv.TryGetValue<bool>(out var b) && b))
+            .ToList();
+
+        async Task<float[]?> EmbedBodyAsync(JsonObject section)
+        {
+            var id = section["id"]?.GetValue<string>() ?? "";
+            if (string.IsNullOrEmpty(id)) return null;
+            if (bodyVecCache.TryGetValue(id, out var cached)) return cached;
+
+            var body = section["text"]?.GetValue<string>() ?? "";
+            if (string.IsNullOrWhiteSpace(body)) return null;
+
+            try
+            {
+                var vec = await _syntheticEmbedder!.EmbedAsync(body, ct).ConfigureAwait(false);
+                bodyVecCache[id] = vec;
+                return vec;
+            }
+            catch (Exception ex)
+            {
+                _syntheticLogger.LogWarning(ex,
+                    "Synthetic-section post-pass: body embedding failed for section {SectionId}; skipping.",
+                    id);
+                return null;
+            }
+        }
+
+        // 4. For each candidate topic, score every (section, anchor)
+        //    pair, keep the best cosine per section, and emit one
+        //    synthetic child per qualifying section.
+        var topicCounters = new Dictionary<string, int>(StringComparer.Ordinal);
+        var insertions = new List<(int InsertAfterIndex, JsonObject Synthetic, string TargetTopic)>();
+
+        foreach (var (topic, anchors) in candidates)
+        {
+            var perSectionBest = new List<(int Index, string SectionId, double Cosine, string AnchorName)>();
+
+            for (var i = 0; i < sourceSections.Count; i++)
+            {
+                var node = sourceSections[i];
+                var sectionId = node["id"]?.GetValue<string>() ?? "";
+                if (string.IsNullOrEmpty(sectionId)) continue;
+
+                var bodyVec = await EmbedBodyAsync(node).ConfigureAwait(false);
+                if (bodyVec is null) continue;
+
+                double bestCos = double.NegativeInfinity;
+                string bestAnchor = "";
+                foreach (var anchor in anchors)
+                {
+                    var av = anchor.AnchorEmbedding!;
+                    if (av.Count != bodyVec.Length)
+                    {
+                        _syntheticLogger.LogWarning(
+                            "Anchor {Anchor} dim {AnchorDim} != body dim {BodyDim}; skipping.",
+                            anchor.Name, av.Count, bodyVec.Length);
+                        continue;
+                    }
+                    var cos = SemanticFunctions.Cosine(av, bodyVec);
+                    if (cos > bestCos
+                        || (cos == bestCos
+                            && string.CompareOrdinal(anchor.Name, bestAnchor) < 0))
+                    {
+                        bestCos = cos;
+                        bestAnchor = anchor.Name;
+                    }
+                }
+
+                if (bestCos >= _syntheticCosineThreshold)
+                    perSectionBest.Add((i, sectionId, bestCos, bestAnchor));
+            }
+
+            if (perSectionBest.Count == 0) continue;
+
+            // Deterministic emission order: by source section index.
+            foreach (var hit in perSectionBest.OrderBy(h => h.Index))
+            {
+                var source = sourceSections[hit.Index];
+                if (!topicCounters.TryGetValue(topic, out var seq)) seq = 0;
+                topicCounters[topic] = ++seq;
+
+                var syntheticId = $"s_synthetic_{topic}_{seq:D4}";
+                var bodyText = source["text"]?.GetValue<string>() ?? "";
+                var bodyRaw = source["text_raw"]?.GetValue<string>() ?? bodyText;
+                var heading = source["heading"]?.GetValue<string>() ?? "";
+                var headingPath = source["heading_path"]?.GetValue<string>() ?? "";
+                var bodyCharStart = source["text_char_start"]?.GetValue<int>() ?? 0;
+                var isCountrySupp = source["is_country_supplement"] is JsonValue cv
+                                    && cv.TryGetValue<bool>(out var cb) && cb;
+
+                var density = ComputeDensity(topic, bodyText);
+                var roundedCos = Math.Round(hit.Cosine, 4);
+
+                // Synthetic sections semantically anchored against a
+                // rule's own anchor vector are at least as confident a
+                // topic signal as a heading-keyword match — both are
+                // strong, intentional matches. Promoting the
+                // topic_scores entry to the heading-tier confidence
+                // (0.9) lets score-gated predicates like
+                // HasTopic(input1, "X", 0.5) fire on the synthetic
+                // section. Raw cosine is preserved in
+                // synthetic_cosine for traceability.
+                var topicsArr = new JsonArray { topic };
+                var scoresObj = new JsonObject { [topic] = 0.9 };
+
+                var synth = new JsonObject
+                {
+                    ["id"] = syntheticId,
+                    ["heading"] = heading,
+                    ["heading_path"] = headingPath,
+                    ["category"] = topic,
+                    ["primary_topic"] = topic,
+                    ["topics"] = topicsArr,
+                    ["topic_scores"] = scoresObj,
+                    ["topic_density"] = density,
+                    ["is_operative_for_topic"] = false,
+                    ["is_country_supplement"] = isCountrySupp,
+                    ["text_features"] = TextFeatureExtractor.Extract(bodyText),
+                    ["text"] = bodyText,
+                    ["text_raw"] = bodyRaw,
+                    ["text_char_start"] = bodyCharStart,
+                    ["paragraphs"] = BuildParagraphOffsets(bodyText),
+                    ["is_synthetic_anchor"] = true,
+                    ["synthetic_from"] = hit.SectionId,
+                    ["synthetic_anchor"] = hit.AnchorName,
+                    ["synthetic_cosine"] = roundedCos,
+                };
+
+                insertions.Add((hit.Index, synth, topic));
+            }
+        }
+
+        if (insertions.Count == 0) return;
+
+        // 5. Insert synthetic sections immediately after their source.
+        var ordered = insertions
+            .OrderBy(x => x.InsertAfterIndex)
+            .ThenBy(x => x.TargetTopic, StringComparer.Ordinal)
+            .ThenBy(x => x.Synthetic["id"]?.GetValue<string>(), StringComparer.Ordinal)
+            .ToList();
+
+        var inserted = 0;
+        foreach (var (sourceIdx, synth, topic) in ordered)
+        {
+            var sourceId = sourceSections[sourceIdx]["id"]!.GetValue<string>();
+            var liveIdx = -1;
+            for (var i = 0; i < sections.Count; i++)
+            {
+                if (sections[i] is JsonObject jo
+                    && jo["id"]?.GetValue<string>() == sourceId)
+                {
+                    liveIdx = i; break;
+                }
+            }
+            if (liveIdx < 0) continue;
+
+            sections.Insert(liveIdx + 1, synth);
+
+            var synthId = synth["id"]!.GetValue<string>();
+            sectionNodesById[synthId] = synth;
+            densityByTopicByScn[synthId] = synth["topic_density"]!.GetValue<double>();
+
+            if (!categories.TryGetValue(topic, out var ids))
+                categories[topic] = ids = new JsonArray();
+            ids.Add(synthId);
+
+            inserted++;
+        }
+
+        if (inserted > 0)
+        {
+            _syntheticLogger.LogInformation(
+                "Pillar 7.B: emitted {Count} synthetic anchor section(s) across {TopicCount} topic(s) (threshold {Threshold}).",
+                inserted, candidates.Count, _syntheticCosineThreshold);
+        }
+    }
+
+    // ─── /Pillar 7.B (#130) ────────────────────────────────────────────
 
     /// <summary>
     /// Vocabulary-density score for a primary topic in a section's body —
