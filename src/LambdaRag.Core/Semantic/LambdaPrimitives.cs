@@ -141,6 +141,10 @@ public static class LambdaPrimitives
         "to be defined",
         "to be determined",
         "to be confirmed",
+        "will be completed",
+        "will be defined",
+        "will be determined",
+        "will be added",
         "tbd",
         "tba",
         "[insert",
@@ -164,8 +168,161 @@ public static class LambdaPrimitives
         "click here to add",
         "this section will describe",
         "this section describes",
+        "this section will be completed",
         "details to follow",
     };
+
+    // ───────────── Pillar 9 — spike-ported pre-filter primitives ─────────
+
+    // Minimum word count for a clause to count as a "real" prose sentence
+    // (an obligation/discussion sentence). Short tag lines like
+    // "Architecture Risks (ARB-1)" do not qualify.
+    private const int ProseSentenceMinWords = 8;
+
+    // Sentence boundary: . ! ? followed by whitespace or end-of-string,
+    // NOT preceded by a digit (so "6.4.1" does not count as 3 sentences).
+    private static readonly Regex ProseSentenceSplitRe = new(
+        @"(?<!\d)[.!?](?:\s+|$)",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant,
+        RegexTimeout);
+
+    // (ARB-1), (ARB-2), (ARB-1 & ARB-2), (ARB-2 if required), with various
+    // unicode dashes — matches the CTC PSA template tag pattern.
+    private static readonly Regex ArbTagRe = new(
+        @"\(ARB[\u2010\u2011\u2012\u2013\u2014\u2015\-]?[12](\s*&\s*ARB[\u2010-\u2015\-]?2)?(\s+if\s+required)?\)",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+        RegexTimeout);
+
+    private static readonly Regex TemplatePhraseRe = new(
+        @"(to\s+be\s+completed\s+by|required\s+for\s+ARB[\u2010-\u2015\-]?[12]|click\s+to\s+read\s+message)",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+        RegexTimeout);
+
+    private static readonly Regex GlossaryHeadingRe = new(
+        @"\b(glossary|acronym|appendix|appendices|reference\s+links?|references)\b",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+        RegexTimeout);
+
+    // Acronym-definition row: "TLS Transport Layer Security" — uppercase
+    // acronym (2-6 chars), then 2-6 capitalised words, no digits/units.
+    private static readonly Regex AcronymDefinitionRowRe = new(
+        @"^[A-Z]{2,6}\s+[A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){1,5}$",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant,
+        RegexTimeout);
+
+    private static readonly Regex DigitOrPercentRe = new(
+        @"[\d%]",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant,
+        RegexTimeout);
+
+    /// <summary>
+    /// Counts sentences in <paramref name="text"/> whose word count clears
+    /// the obligation-prose floor (<see cref="ProseSentenceMinWords"/>).
+    /// Section/version numbers (e.g. "6.4.1") are not treated as sentence
+    /// boundaries. Exposed so ruleset authors can write threshold-aware
+    /// predicates and so test code can assert filter semantics directly.
+    /// Pure, deterministic, no I/O.
+    /// </summary>
+    public static int CountProseSentences(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return 0;
+        var total = 0;
+        foreach (var s in ProseSentenceSplitRe.Split(text))
+        {
+            // Word count via simple whitespace split — matches the spike's
+            // `len(s.split())` semantics. Empty entries fall out naturally.
+            var words = 0;
+            foreach (var part in s.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+            {
+                _ = part;
+                words++;
+                if (words >= ProseSentenceMinWords) break;
+            }
+            if (words >= ProseSentenceMinWords) total++;
+        }
+        return total;
+    }
+
+    /// <summary>
+    /// Pillar 9 — ported from policy-compiler-spike v0.1.1
+    /// <c>_is_arb_scaffolding</c>. Returns <c>true</c> when the chunk is
+    /// dominated by PSA section-template tags and placeholders (e.g.
+    /// "Sendsuite Replacement X (ARB-1)" repeated several times, or
+    /// "Required for ARB-2" stubs) and contains at most one real prose
+    /// sentence.
+    /// <para>
+    /// Trigger: <c>(ARB-tag occurrences + template-phrase occurrences) ≥ 3</c>
+    /// AND <see cref="CountProseSentences"/> ≤ 1.
+    /// </para>
+    /// <para>
+    /// Use in a rule's lambda as
+    /// <c>!LambdaPrimitives.IsArbScaffolding(input1.text)</c> to suppress
+    /// passes driven by section-listing chunks that mention obligation
+    /// keywords only as template scaffolding.
+    /// </para>
+    /// </summary>
+    public static bool IsArbScaffolding(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return false;
+        var tagHits = ArbTagRe.Matches(text).Count;
+        var templateHits = TemplatePhraseRe.Matches(text).Count;
+        if (tagHits + templateHits < 3) return false;
+        return CountProseSentences(text) <= 1;
+    }
+
+    /// <summary>
+    /// Pillar 9 — ported from policy-compiler-spike v0.1.1
+    /// <c>_is_glossary_or_appendix_listing</c> (post-ABCCo refinement).
+    /// Returns <c>true</c> when the chunk is a glossary, acronym table,
+    /// appendix listing, or reference-link block — chunks that lexically
+    /// mention obligation concepts only as items in a reference list.
+    /// <para>
+    /// Triggers in two cases:
+    /// </para>
+    /// <list type="number">
+    ///   <item>An explicit heading or line contains <c>glossary</c>,
+    ///   <c>acronym</c>, <c>appendix</c>, <c>appendices</c>,
+    ///   <c>reference links</c>, or <c>references</c> as a standalone
+    ///   word, AND there are ≤ 2 real prose sentences.</item>
+    ///   <item>The chunk has ≥ 4 acronym-DEFINITION rows
+    ///   (uppercase 2–6-char acronym followed by 2–6 capitalised words,
+    ///   no digits, no units) AND ≤ 2 real prose sentences. The digit/
+    ///   unit guard prevents data tables like SLA percentages from being
+    ///   mis-classified (observed in the ABCCo cross-doc validation).
+    ///   </item>
+    /// </list>
+    /// </summary>
+    public static bool IsGlossaryOrAppendixListing(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return false;
+        var lines = new List<string>();
+        foreach (var raw in text.Split('\n'))
+        {
+            var s = raw.Trim();
+            if (s.Length > 0) lines.Add(s);
+        }
+        if (lines.Count == 0) return false;
+
+        var headingHit = false;
+        foreach (var ln in lines)
+        {
+            if (GlossaryHeadingRe.IsMatch(ln)) { headingHit = true; break; }
+        }
+        if (!headingHit)
+        {
+            var definitionRows = 0;
+            foreach (var ln in lines)
+            {
+                if (AcronymDefinitionRowRe.IsMatch(ln)
+                    && !DigitOrPercentRe.IsMatch(ln))
+                {
+                    definitionRows++;
+                }
+            }
+            if (definitionRows < 4) return false;
+        }
+        return CountProseSentences(text) <= 2;
+    }
 
     // ─────────────────────────── Pillar 6 (#124) ───────────────────────────
 
