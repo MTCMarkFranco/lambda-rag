@@ -44,14 +44,21 @@ public sealed class EvaluationService
         TimeProvider? time = null,
         ICandidateRuleFilter? candidateFilter = null,
         ISemanticVectorStore? vectorStore = null,
-        ITokenEmbedder? tokenEmbedder = null)
+        ITokenEmbedder? tokenEmbedder = null,
+        double semanticThresholdOffset = 0.0,
+        double minEffectiveSemanticThreshold = 0.0)
     {
         _matcher = matcher;
         _logger = logger;
         _time = time ?? TimeProvider.System;
         _candidateFilter = candidateFilter;
         _vectorStore = vectorStore ?? new NotConfiguredSemanticVectorStore();
-        _bindingResolver = tokenEmbedder is null ? null : new SemanticBindingResolver(tokenEmbedder);
+        _bindingResolver = tokenEmbedder is null
+            ? null
+            : new SemanticBindingResolver(
+                tokenEmbedder,
+                thresholdOffset: semanticThresholdOffset,
+                minEffectiveThreshold: minEffectiveSemanticThreshold);
     }
 
     public async Task<ComplianceReport> EvaluateAsync(
