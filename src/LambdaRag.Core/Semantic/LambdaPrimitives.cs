@@ -363,6 +363,49 @@ public static class LambdaPrimitives
     }
 
     /// <summary>
+    /// Pillar 9 — hybrid 4-arg overload ported from
+    /// policy-compiler-spike v0.1.1. Returns <c>true</c> when EITHER:
+    /// <list type="bullet">
+    ///   <item>The metadata-projected <c>topics[]</c> array contains
+    ///   <paramref name="topic"/> with <c>topic_scores</c> ≥ <paramref name="minScore"/>
+    ///   (the legacy lexical path — same as the 3-arg overload), OR</item>
+    ///   <item>The ambient <see cref="SemanticBindingAccessor"/> scope has
+    ///   any non-empty bindings for <paramref name="semanticAnchorName"/>
+    ///   (the semantic fallback — picks up chunks the projector
+    ///   under-tagged but whose body text has at least one token binding
+    ///   the rule's anchor).</item>
+    /// </list>
+    /// <para>
+    /// The semantic path uses bindings already pre-filtered by the
+    /// resolver's effective threshold (anchor.Threshold − offset). Pass
+    /// the anchor's own name as <paramref name="semanticAnchorName"/> to
+    /// get the natural "lexical-or-semantic" predicate gate.
+    /// </para>
+    /// <para>
+    /// Returns <c>false</c> (never throws) when the ambient scope is
+    /// missing — e.g. when called from a rule whose ruleset declared no
+    /// semantic anchors, or from outside an evaluation. Pure,
+    /// deterministic, no I/O of its own.
+    /// </para>
+    /// </summary>
+    public static bool HasTopic(
+        object? input,
+        string topic,
+        double minScore,
+        string semanticAnchorName)
+    {
+        // Lexical path first — preserves byte-identity for chunks the
+        // projector already tagged correctly.
+        if (HasTopic(input, topic, minScore)) return true;
+
+        // Semantic fallback. Empty anchor name disables the fallback so
+        // ruleset authors can opt out per call site.
+        if (string.IsNullOrEmpty(semanticAnchorName)) return false;
+        var bindings = SemanticBindings(semanticAnchorName);
+        return bindings.Count > 0;
+    }
+
+    /// <summary>
     /// Pillar 7.B (#130) — returns <c>true</c> when the section was
     /// emitted by the projector's anchor-driven synthetic-section
     /// post-pass (<c>is_synthetic_anchor == true</c>). The post-pass

@@ -338,4 +338,153 @@ public class SemanticBindingTests
         Assert.Throws<ArgumentOutOfRangeException>(() =>
             new SemanticBindingResolver(Embedder, thresholdOffset: double.NaN));
     }
+
+    // ─── Pillar 9 — hybrid HasTopic + bindings-before-predicate ─────────
+
+    [Fact]
+    public async Task Predicate_now_sees_semantic_bindings_when_anchors_resolve()
+    {
+        // Pillar 9 port — bindings are now pre-resolved BEFORE the
+        // predicate so the predicate can use SemanticBindings(...) as
+        // part of its applicability gate. Before the port, the predicate
+        // saw an empty bindings list (resolver ran AFTER predicate).
+        var anchorVec = await EmbedAsync("recovery point objective");
+        var rule = MakeRule(
+            "TEST-PRED-SEM-001",
+            // Lambda is trivially true; the assertion target is the
+            // predicate using SemanticBindings.
+            "true",
+            new[]
+            {
+                new SemanticAnchor(
+                    Name: "rpo",
+                    AnchorText: "recovery point objective",
+                    AnchorEmbedding: anchorVec,
+                    Threshold: 0.0,
+                    Ngram: new[] { 1, 2 }),
+            });
+        // Predicate explicitly gates on semantic bindings — this is the
+        // capability the port added.
+        rule = rule with
+        {
+            Predicate = "LambdaPrimitives.SemanticBindings(\"rpo\").Count > 0",
+        };
+        var ruleset = new RuleSet("rs-t", "1.0.0", "test", DateTimeOffset.UnixEpoch,
+            new[] { rule }, new Dictionary<string, string>());
+        var doc = BuildDoc(("s1", "Our recovery point objective is 4 hours for tier-1 services."));
+
+        var report = await NewEvaluator().EvaluateAsync(ruleset, doc);
+        report.Verdicts.Single().Outcome.Should().Be(VerdictOutcome.Pass,
+            "predicate must now see bindings — semantic-only applicability gates work");
+    }
+
+    [Fact]
+    public async Task Hybrid_HasTopic_lexical_path_returns_true_when_topic_metadata_matches()
+    {
+        // The 4-arg overload's lexical path is identical to the 3-arg
+        // overload when metadata says yes — semantic fallback is never
+        // consulted.
+        var anchorVec = await EmbedAsync("disaster recovery");
+        var rule = MakeRule(
+            "TEST-HYBRID-LEX",
+            "true",
+            new[]
+            {
+                new SemanticAnchor("dr", "disaster recovery", anchorVec, Threshold: 0.999),
+            });
+        rule = rule with
+        {
+            Predicate = "LambdaPrimitives.HasTopic(input1, \"dr_resiliency\", 0.5, \"dr\")",
+        };
+        var ruleset = new RuleSet("rs-t", "1.0.0", "test", DateTimeOffset.UnixEpoch,
+            new[] { rule }, new Dictionary<string, string>());
+
+        // Section is tagged with the topic + matching score — lexical path
+        // must admit it even though the (unrelated) anchor threshold is
+        // unreachable.
+        var arr = new JsonArray
+        {
+            new JsonObject
+            {
+                ["id"] = "s1",
+                ["heading"] = "DR",
+                ["heading_path"] = "/DR",
+                ["category"] = "test",
+                ["text"] = "Some content unrelated to the anchor surface form.",
+                ["text_char_start"] = 0L,
+                ["topics"] = new JsonArray { "dr_resiliency" },
+                ["topic_scores"] = new JsonObject { ["dr_resiliency"] = 0.9 },
+            },
+        };
+        var graph = new JsonObject { ["doc_kind"] = "test", ["sections"] = arr };
+        var doc = new ProjectedDocument(
+            SourceId: ContentHash.OfString("test"),
+            ProjectorId: "test", ProjectorVersion: "1.0",
+            Graph: graph,
+            SpanMap: new Dictionary<string, SourceSpan>());
+
+        var report = await NewEvaluator().EvaluateAsync(ruleset, doc);
+        report.Verdicts.Single().Outcome.Should().Be(VerdictOutcome.Pass);
+    }
+
+    [Fact]
+    public async Task Hybrid_HasTopic_semantic_fallback_admits_chunk_lacking_topic_metadata()
+    {
+        // The chunk has NO topics[] metadata for "dr_resiliency", so the
+        // lexical path fails — but the anchor binds on the body text,
+        // so the semantic fallback admits it. This is the recall lever.
+        var anchorVec = await EmbedAsync("recovery point objective");
+        var rule = MakeRule(
+            "TEST-HYBRID-SEM",
+            "true",
+            new[]
+            {
+                new SemanticAnchor(
+                    Name: "rpo",
+                    AnchorText: "recovery point objective",
+                    AnchorEmbedding: anchorVec,
+                    Threshold: 0.0,
+                    Ngram: new[] { 1, 2 }),
+            });
+        rule = rule with
+        {
+            Predicate = "LambdaPrimitives.HasTopic(input1, \"dr_resiliency\", 0.5, \"rpo\")",
+        };
+        var ruleset = new RuleSet("rs-t", "1.0.0", "test", DateTimeOffset.UnixEpoch,
+            new[] { rule }, new Dictionary<string, string>());
+
+        // No topics[] / topic_scores — but body text mentions the anchor.
+        var doc = BuildDoc(("s1", "Our recovery point objective is 4 hours."));
+        var report = await NewEvaluator().EvaluateAsync(ruleset, doc);
+        report.Verdicts.Single().Outcome.Should().Be(VerdictOutcome.Pass,
+            "semantic fallback admits chunks the projector under-tagged");
+    }
+
+    [Fact]
+    public async Task Hybrid_HasTopic_empty_anchor_name_disables_semantic_fallback()
+    {
+        // Pass an empty anchor name to opt out — the 4-arg call collapses
+        // to the 3-arg lexical-only semantics.
+        var anchorVec = await EmbedAsync("recovery point objective");
+        var rule = MakeRule(
+            "TEST-HYBRID-OPTOUT",
+            "true",
+            new[]
+            {
+                new SemanticAnchor("rpo", "recovery point objective", anchorVec, Threshold: 0.0),
+            });
+        rule = rule with
+        {
+            Predicate = "LambdaPrimitives.HasTopic(input1, \"dr_resiliency\", 0.5, \"\")",
+        };
+        var ruleset = new RuleSet("rs-t", "1.0.0", "test", DateTimeOffset.UnixEpoch,
+            new[] { rule }, new Dictionary<string, string>());
+
+        // Body would normally bind, but the lexical path has no metadata
+        // match and the empty anchor name disables the semantic fallback.
+        var doc = BuildDoc(("s1", "Our recovery point objective is 4 hours."));
+        var report = await NewEvaluator().EvaluateAsync(ruleset, doc);
+        // Mandatory rule with no chunk passing the predicate → Gap.
+        report.Verdicts.Single().Outcome.Should().Be(VerdictOutcome.Gap);
+    }
 }
