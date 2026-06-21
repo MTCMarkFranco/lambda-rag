@@ -38,6 +38,9 @@ public sealed class EvaluationService
     private readonly ISemanticVectorStore _vectorStore;
     private readonly SemanticBindingResolver? _bindingResolver;
 
+    private readonly bool _enforceSoftCohesion;
+    private readonly int _minEvidencedAnchors;
+
     public EvaluationService(
         ISelectorMatcher matcher,
         ILogger<EvaluationService> logger,
@@ -46,7 +49,9 @@ public sealed class EvaluationService
         ISemanticVectorStore? vectorStore = null,
         ITokenEmbedder? tokenEmbedder = null,
         double semanticThresholdOffset = 0.0,
-        double minEffectiveSemanticThreshold = 0.0)
+        double minEffectiveSemanticThreshold = 0.0,
+        bool enforceSoftCohesion = false,
+        int minEvidencedAnchors = 2)
     {
         _matcher = matcher;
         _logger = logger;
@@ -59,6 +64,11 @@ public sealed class EvaluationService
                 tokenEmbedder,
                 thresholdOffset: semanticThresholdOffset,
                 minEffectiveThreshold: minEffectiveSemanticThreshold);
+        _enforceSoftCohesion = enforceSoftCohesion;
+        if (minEvidencedAnchors < 1)
+            throw new ArgumentOutOfRangeException(nameof(minEvidencedAnchors),
+                "minEvidencedAnchors must be at least 1.");
+        _minEvidencedAnchors = minEvidencedAnchors;
     }
 
     public async Task<ComplianceReport> EvaluateAsync(
@@ -339,6 +349,42 @@ public sealed class EvaluationService
             }
 
             var outcome = result.IsSuccess ? VerdictOutcome.Pass : VerdictOutcome.Fail;
+
+            // Pillar 9 — soft cohesion post-filter ported from
+            // policy-compiler-spike v0.1.1. For rules with ≥2 anchors,
+            // demote a Pass verdict to NotApplicable when fewer than
+            // _minEvidencedAnchors of the rule's anchors actually produced
+            // bindings on this section. Rationale: a Pass is the claim
+            // "the document addresses this requirement"; a Pass driven by
+            // a single anchor on a multi-anchor rule is too thin a signal
+            // to assert compliance (it's the classic ARB-PSA FP pattern).
+            // Fail outcomes are left untouched so genuine gaps still
+            // surface. Default-off → byte-identity preserved.
+            if (_enforceSoftCohesion
+                && outcome == VerdictOutcome.Pass
+                && rule.SemanticAnchors is { Count: var anchorCount } anchorsForCohesion
+                && anchorCount >= 2
+                && bindingMap is not null)
+            {
+                var evidencedAnchors = 0;
+                foreach (var anchor in anchorsForCohesion)
+                {
+                    if (bindingMap.TryGetValue(anchor.Name, out var matches)
+                        && matches.Count > 0)
+                    {
+                        evidencedAnchors++;
+                    }
+                }
+                if (evidencedAnchors < _minEvidencedAnchors)
+                {
+                    _logger.LogDebug(
+                        "Soft cohesion demoted Pass→NotApplicable for rule {RuleId} at {Path}: "
+                        + "{Evidenced} of {Total} anchors evidenced (< {Min}).",
+                        rule.Id, section.Path, evidencedAnchors, anchorCount, _minEvidencedAnchors);
+                    outcome = VerdictOutcome.NotApplicable;
+                }
+            }
+
             SourceSpan span;
             SourceSpan? clauseSpan = null;
             if (outcome == VerdictOutcome.Fail)
