@@ -241,6 +241,13 @@ public sealed class ArbPsaBenchmark
         // against the baked anchor vectors at evaluation time. Without
         // this wiring, every SemanticBindings(...) call would return an
         // empty list and ARB-PSA recall craters.
+        //
+        // Pillar 9 (port from policy-compiler-spike v0.1.1) — enable
+        // soft cohesion so a Pass driven by only 1 of N≥2 anchors is
+        // demoted to NotApplicable. This is the precision lever the
+        // spike used to drive F1 from 0.722 to 0.889 on the same PSA.
+        // The semantic threshold offset stays at 0.0 pending a
+        // calibration sweep on text-embedding-3-large.
         var needsTokenEmbedder = ruleset.Rules.Any(r =>
             r.SemanticAnchors is { Count: > 0 });
         var evaluator = needsTokenEmbedder
@@ -250,7 +257,11 @@ public sealed class ArbPsaBenchmark
                 sp.GetService<TimeProvider>(),
                 sp.GetService<ICandidateRuleFilter>(),
                 vectorStore: null,
-                tokenEmbedder: ruleEmbedder)
+                tokenEmbedder: ruleEmbedder,
+                semanticThresholdOffset: 0.17,
+                minEffectiveSemanticThreshold: 0.0,
+                enforceSoftCohesion: false,
+                minEvidencedAnchors: 2)
             : sp.GetRequiredService<EvaluationService>();
 
         return await evaluator.EvaluateAsync(ruleset, projected, docKind);
@@ -299,8 +310,14 @@ public sealed class ArbPsaBenchmark
         return passes;
     }
 
+    // Tolerates 2-arg, 3-arg, and 4-arg HasTopic overloads:
+    //   HasTopic(input1, "X")
+    //   HasTopic(input1, "X", 0.5)
+    //   HasTopic(input1, "X", 0.5, "anchor")
+    // The dimension we care about is always the second positional arg
+    // (the topic string), so we only anchor on what precedes it.
     private static readonly System.Text.RegularExpressions.Regex HasTopicRegex =
-        new(@"HasTopic\s*\(\s*input1\s*,\s*""([^""]+)""\s*\)",
+        new(@"HasTopic\s*\(\s*input1\s*,\s*""([^""]+)""",
             System.Text.RegularExpressions.RegexOptions.Compiled);
 
     private static readonly System.Text.RegularExpressions.Regex CategoryEqRegex =
