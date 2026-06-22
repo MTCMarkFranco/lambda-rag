@@ -193,4 +193,298 @@ public class SemanticBindingTests
         var result = await Task.FromResult(LambdaPrimitives.SemanticBindings("anything"));
         result.Should().BeEmpty();
     }
+
+    // ─── Pillar 9 — threshold offset calibration lever ──────────────────
+
+    [Fact]
+    public async Task ThresholdOffset_default_is_byte_identical_to_legacy_path()
+    {
+        // Default-zero offset MUST reproduce the exact same bindings the
+        // pre-Pillar-9 code emitted. This is the "safe by default" guarantee
+        // that protects every golden master.
+        var anchorVec = await EmbedAsync("recovery point objective");
+        var rule = MakeRule(
+            "TEST-BIND-OFFSET-DEFAULT",
+            "LambdaPrimitives.SemanticBindings(\"rpo\").Count > 0",
+            new[]
+            {
+                new SemanticAnchor(
+                    Name: "rpo",
+                    AnchorText: "recovery point objective",
+                    AnchorEmbedding: anchorVec,
+                    Threshold: 0.0,
+                    Ngram: new[] { 1, 2 }),
+            });
+        var ruleset = new RuleSet(
+            "rs-t", "1.0.0", "test", DateTimeOffset.UnixEpoch,
+            new[] { rule }, new Dictionary<string, string>());
+        var doc = BuildDoc(("s1", "Our recovery point objective is 4 hours."));
+
+        var matcher = new JsonPathSelectorMatcher(NullLogger<JsonPathSelectorMatcher>.Instance);
+        var defaultEvaluator = new EvaluationService(
+            matcher, NullLogger<EvaluationService>.Instance,
+            tokenEmbedder: Embedder);
+        var explicitZero = new EvaluationService(
+            matcher, NullLogger<EvaluationService>.Instance,
+            tokenEmbedder: Embedder,
+            semanticThresholdOffset: 0.0);
+
+        var a = await defaultEvaluator.EvaluateAsync(ruleset, doc);
+        var b = await explicitZero.EvaluateAsync(ruleset, doc);
+
+        a.Verdicts.Single().SemanticBindings.Should().BeEquivalentTo(
+            b.Verdicts.Single().SemanticBindings,
+            "default ctor and explicit-zero offset must produce identical bindings");
+    }
+
+    [Fact]
+    public async Task ThresholdOffset_loosens_gate_and_recovers_borderline_bindings()
+    {
+        // Pillar 9 lever — when the author threshold is calibrated for one
+        // embedder cosine register but the runtime uses another, lowering
+        // the effective threshold via offset recovers borderline matches.
+        // Hash embedder cosines are noisy and small, so we pick a high
+        // author threshold that yields zero bindings, then prove that an
+        // offset large enough to drop the effective threshold recovers
+        // them.
+        var anchorVec = await EmbedAsync("recovery point objective");
+        var rule = MakeRule(
+            "TEST-BIND-OFFSET-LOOSEN",
+            "LambdaPrimitives.SemanticBindings(\"rpo\").Count > 0",
+            new[]
+            {
+                new SemanticAnchor(
+                    Name: "rpo",
+                    AnchorText: "recovery point objective",
+                    AnchorEmbedding: anchorVec,
+                    Threshold: 0.95,
+                    Ngram: new[] { 1, 2 }),
+            });
+        var ruleset = new RuleSet(
+            "rs-t", "1.0.0", "test", DateTimeOffset.UnixEpoch,
+            new[] { rule }, new Dictionary<string, string>());
+        var doc = BuildDoc(("s1", "Our recovery point objective is 4 hours."));
+
+        var matcher = new JsonPathSelectorMatcher(NullLogger<JsonPathSelectorMatcher>.Instance);
+        var strict = new EvaluationService(
+            matcher, NullLogger<EvaluationService>.Instance,
+            tokenEmbedder: Embedder,
+            semanticThresholdOffset: 0.0);
+        var loosened = new EvaluationService(
+            matcher, NullLogger<EvaluationService>.Instance,
+            tokenEmbedder: Embedder,
+            semanticThresholdOffset: 0.95);
+
+        var strictReport = await strict.EvaluateAsync(ruleset, doc);
+        var loosenedReport = await loosened.EvaluateAsync(ruleset, doc);
+
+        strictReport.Verdicts.Single().Outcome.Should().Be(VerdictOutcome.Fail,
+            "strict 0.95 threshold should not bind on hash-embedder noise");
+        loosenedReport.Verdicts.Single().Outcome.Should().Be(VerdictOutcome.Pass,
+            "loosened effective threshold should recover the borderline binding");
+    }
+
+    [Fact]
+    public async Task ThresholdOffset_respects_min_effective_threshold_floor()
+    {
+        // A very large offset must not drive the effective threshold
+        // below the configured floor — guards against accidentally turning
+        // a semantic gate into "everything matches".
+        var anchorVec = await EmbedAsync("kubernetes orchestration");
+        var rule = MakeRule(
+            "TEST-BIND-OFFSET-FLOOR",
+            "LambdaPrimitives.SemanticBindings(\"k8s\").Count > 0",
+            new[]
+            {
+                new SemanticAnchor(
+                    Name: "k8s",
+                    AnchorText: "kubernetes orchestration",
+                    AnchorEmbedding: anchorVec,
+                    Threshold: 0.30,
+                    Ngram: new[] { 1, 2 }),
+            });
+        var ruleset = new RuleSet(
+            "rs-t", "1.0.0", "test", DateTimeOffset.UnixEpoch,
+            new[] { rule }, new Dictionary<string, string>());
+        // Section text intentionally has nothing to do with the anchor.
+        var doc = BuildDoc(("s1", "The quick brown fox jumps over the lazy dog."));
+
+        var matcher = new JsonPathSelectorMatcher(NullLogger<JsonPathSelectorMatcher>.Instance);
+        // Offset of 5.0 would drive effective threshold to 0.30-5.0=-4.7,
+        // which (without a floor) admits every cosine in [0, 1]. The 0.99
+        // floor is set high enough that even the hash embedder's noise
+        // cannot cross it, so the gate still rejects unrelated text.
+        var floored = new EvaluationService(
+            matcher, NullLogger<EvaluationService>.Instance,
+            tokenEmbedder: Embedder,
+            semanticThresholdOffset: 5.0,
+            minEffectiveSemanticThreshold: 0.99);
+
+        var report = await floored.EvaluateAsync(ruleset, doc);
+        report.Verdicts.Single().Outcome.Should().Be(VerdictOutcome.Fail,
+            "min effective threshold floor (0.99) must clamp the offset so semantic gating still rejects unrelated text");
+    }
+
+    [Fact]
+    public void ThresholdOffset_negative_offset_is_rejected()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            new SemanticBindingResolver(Embedder, thresholdOffset: -0.01));
+    }
+
+    [Fact]
+    public void ThresholdOffset_NaN_offset_is_rejected()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            new SemanticBindingResolver(Embedder, thresholdOffset: double.NaN));
+    }
+
+    // ─── Pillar 9 — hybrid HasTopic + bindings-before-predicate ─────────
+
+    [Fact]
+    public async Task Predicate_now_sees_semantic_bindings_when_anchors_resolve()
+    {
+        // Pillar 9 port — bindings are now pre-resolved BEFORE the
+        // predicate so the predicate can use SemanticBindings(...) as
+        // part of its applicability gate. Before the port, the predicate
+        // saw an empty bindings list (resolver ran AFTER predicate).
+        var anchorVec = await EmbedAsync("recovery point objective");
+        var rule = MakeRule(
+            "TEST-PRED-SEM-001",
+            // Lambda is trivially true; the assertion target is the
+            // predicate using SemanticBindings.
+            "true",
+            new[]
+            {
+                new SemanticAnchor(
+                    Name: "rpo",
+                    AnchorText: "recovery point objective",
+                    AnchorEmbedding: anchorVec,
+                    Threshold: 0.0,
+                    Ngram: new[] { 1, 2 }),
+            });
+        // Predicate explicitly gates on semantic bindings — this is the
+        // capability the port added.
+        rule = rule with
+        {
+            Predicate = "LambdaPrimitives.SemanticBindings(\"rpo\").Count > 0",
+        };
+        var ruleset = new RuleSet("rs-t", "1.0.0", "test", DateTimeOffset.UnixEpoch,
+            new[] { rule }, new Dictionary<string, string>());
+        var doc = BuildDoc(("s1", "Our recovery point objective is 4 hours for tier-1 services."));
+
+        var report = await NewEvaluator().EvaluateAsync(ruleset, doc);
+        report.Verdicts.Single().Outcome.Should().Be(VerdictOutcome.Pass,
+            "predicate must now see bindings — semantic-only applicability gates work");
+    }
+
+    [Fact]
+    public async Task Hybrid_HasTopic_lexical_path_returns_true_when_topic_metadata_matches()
+    {
+        // The 4-arg overload's lexical path is identical to the 3-arg
+        // overload when metadata says yes — semantic fallback is never
+        // consulted.
+        var anchorVec = await EmbedAsync("disaster recovery");
+        var rule = MakeRule(
+            "TEST-HYBRID-LEX",
+            "true",
+            new[]
+            {
+                new SemanticAnchor("dr", "disaster recovery", anchorVec, Threshold: 0.999),
+            });
+        rule = rule with
+        {
+            Predicate = "LambdaPrimitives.HasTopic(input1, \"dr_resiliency\", 0.5, \"dr\")",
+        };
+        var ruleset = new RuleSet("rs-t", "1.0.0", "test", DateTimeOffset.UnixEpoch,
+            new[] { rule }, new Dictionary<string, string>());
+
+        // Section is tagged with the topic + matching score — lexical path
+        // must admit it even though the (unrelated) anchor threshold is
+        // unreachable.
+        var arr = new JsonArray
+        {
+            new JsonObject
+            {
+                ["id"] = "s1",
+                ["heading"] = "DR",
+                ["heading_path"] = "/DR",
+                ["category"] = "test",
+                ["text"] = "Some content unrelated to the anchor surface form.",
+                ["text_char_start"] = 0L,
+                ["topics"] = new JsonArray { "dr_resiliency" },
+                ["topic_scores"] = new JsonObject { ["dr_resiliency"] = 0.9 },
+            },
+        };
+        var graph = new JsonObject { ["doc_kind"] = "test", ["sections"] = arr };
+        var doc = new ProjectedDocument(
+            SourceId: ContentHash.OfString("test"),
+            ProjectorId: "test", ProjectorVersion: "1.0",
+            Graph: graph,
+            SpanMap: new Dictionary<string, SourceSpan>());
+
+        var report = await NewEvaluator().EvaluateAsync(ruleset, doc);
+        report.Verdicts.Single().Outcome.Should().Be(VerdictOutcome.Pass);
+    }
+
+    [Fact]
+    public async Task Hybrid_HasTopic_semantic_fallback_admits_chunk_lacking_topic_metadata()
+    {
+        // The chunk has NO topics[] metadata for "dr_resiliency", so the
+        // lexical path fails — but the anchor binds on the body text,
+        // so the semantic fallback admits it. This is the recall lever.
+        var anchorVec = await EmbedAsync("recovery point objective");
+        var rule = MakeRule(
+            "TEST-HYBRID-SEM",
+            "true",
+            new[]
+            {
+                new SemanticAnchor(
+                    Name: "rpo",
+                    AnchorText: "recovery point objective",
+                    AnchorEmbedding: anchorVec,
+                    Threshold: 0.0,
+                    Ngram: new[] { 1, 2 }),
+            });
+        rule = rule with
+        {
+            Predicate = "LambdaPrimitives.HasTopic(input1, \"dr_resiliency\", 0.5, \"rpo\")",
+        };
+        var ruleset = new RuleSet("rs-t", "1.0.0", "test", DateTimeOffset.UnixEpoch,
+            new[] { rule }, new Dictionary<string, string>());
+
+        // No topics[] / topic_scores — but body text mentions the anchor.
+        var doc = BuildDoc(("s1", "Our recovery point objective is 4 hours."));
+        var report = await NewEvaluator().EvaluateAsync(ruleset, doc);
+        report.Verdicts.Single().Outcome.Should().Be(VerdictOutcome.Pass,
+            "semantic fallback admits chunks the projector under-tagged");
+    }
+
+    [Fact]
+    public async Task Hybrid_HasTopic_empty_anchor_name_disables_semantic_fallback()
+    {
+        // Pass an empty anchor name to opt out — the 4-arg call collapses
+        // to the 3-arg lexical-only semantics.
+        var anchorVec = await EmbedAsync("recovery point objective");
+        var rule = MakeRule(
+            "TEST-HYBRID-OPTOUT",
+            "true",
+            new[]
+            {
+                new SemanticAnchor("rpo", "recovery point objective", anchorVec, Threshold: 0.0),
+            });
+        rule = rule with
+        {
+            Predicate = "LambdaPrimitives.HasTopic(input1, \"dr_resiliency\", 0.5, \"\")",
+        };
+        var ruleset = new RuleSet("rs-t", "1.0.0", "test", DateTimeOffset.UnixEpoch,
+            new[] { rule }, new Dictionary<string, string>());
+
+        // Body would normally bind, but the lexical path has no metadata
+        // match and the empty anchor name disables the semantic fallback.
+        var doc = BuildDoc(("s1", "Our recovery point objective is 4 hours."));
+        var report = await NewEvaluator().EvaluateAsync(ruleset, doc);
+        // Mandatory rule with no chunk passing the predicate → Gap.
+        report.Verdicts.Single().Outcome.Should().Be(VerdictOutcome.Gap);
+    }
 }

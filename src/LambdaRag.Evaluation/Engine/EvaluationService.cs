@@ -38,20 +38,37 @@ public sealed class EvaluationService
     private readonly ISemanticVectorStore _vectorStore;
     private readonly SemanticBindingResolver? _bindingResolver;
 
+    private readonly bool _enforceSoftCohesion;
+    private readonly int _minEvidencedAnchors;
+
     public EvaluationService(
         ISelectorMatcher matcher,
         ILogger<EvaluationService> logger,
         TimeProvider? time = null,
         ICandidateRuleFilter? candidateFilter = null,
         ISemanticVectorStore? vectorStore = null,
-        ITokenEmbedder? tokenEmbedder = null)
+        ITokenEmbedder? tokenEmbedder = null,
+        double semanticThresholdOffset = 0.0,
+        double minEffectiveSemanticThreshold = 0.0,
+        bool enforceSoftCohesion = false,
+        int minEvidencedAnchors = 2)
     {
         _matcher = matcher;
         _logger = logger;
         _time = time ?? TimeProvider.System;
         _candidateFilter = candidateFilter;
         _vectorStore = vectorStore ?? new NotConfiguredSemanticVectorStore();
-        _bindingResolver = tokenEmbedder is null ? null : new SemanticBindingResolver(tokenEmbedder);
+        _bindingResolver = tokenEmbedder is null
+            ? null
+            : new SemanticBindingResolver(
+                tokenEmbedder,
+                thresholdOffset: semanticThresholdOffset,
+                minEffectiveThreshold: minEffectiveSemanticThreshold);
+        _enforceSoftCohesion = enforceSoftCohesion;
+        if (minEvidencedAnchors < 1)
+            throw new ArgumentOutOfRangeException(nameof(minEvidencedAnchors),
+                "minEvidencedAnchors must be at least 1.");
+        _minEvidencedAnchors = minEvidencedAnchors;
     }
 
     public async Task<ComplianceReport> EvaluateAsync(
@@ -164,30 +181,14 @@ public sealed class EvaluationService
                     continue;
                 }
 
-                var (predicateApplies, predicateError) = await EvaluatePredicateAsync(rule, section).ConfigureAwait(false);
-                if (predicateError is not null)
-                {
-                    verdicts.Add(BuildVerdict(
-                        rule, ruleSet,
-                        outcome: VerdictOutcome.Error,
-                        section: section,
-                        input: SnapshotInput(section),
-                        span: section.Span,
-                        error: $"predicate: {predicateError}",
-                        remediationText: null));
-                    emittedForRule++;
-                    continue;
-                }
-                if (!predicateApplies)
-                {
-                    continue;
-                }
-
-                // Pillar 6 — resolve semantic bindings BEFORE the lambda
-                // runs so LambdaPrimitives.SemanticBindings(name) returns
-                // populated lists during the lambda's evaluation. Skipped
-                // entirely for rules without anchors so legacy lambdas
-                // run exactly as before (byte-identity guarantee).
+                // Pillar 6 — resolve semantic bindings BEFORE the predicate
+                // gate so both the predicate AND the lambda see the same
+                // pre-resolved bindings. (Pillar 9 port from
+                // policy-compiler-spike v0.1.1: the predicate gate is the
+                // place semantic signal is needed most — to admit chunks
+                // the metadata projector under-tagged.) Skipped entirely
+                // for rules without anchors so legacy lambdas run exactly
+                // as before (byte-identity guarantee).
                 IReadOnlyDictionary<string, IReadOnlyList<TokenMatch>>? bindingMap = null;
                 IReadOnlyList<BindingRecord>? bindingRecords = null;
                 if (_bindingResolver is not null
@@ -206,6 +207,25 @@ public sealed class EvaluationService
                         bindingMap = b;
                         bindingRecords = r;
                     }
+                }
+
+                var (predicateApplies, predicateError) = await EvaluatePredicateAsync(rule, section, bindingMap).ConfigureAwait(false);
+                if (predicateError is not null)
+                {
+                    verdicts.Add(BuildVerdict(
+                        rule, ruleSet,
+                        outcome: VerdictOutcome.Error,
+                        section: section,
+                        input: SnapshotInput(section),
+                        span: section.Span,
+                        error: $"predicate: {predicateError}",
+                        remediationText: null));
+                    emittedForRule++;
+                    continue;
+                }
+                if (!predicateApplies)
+                {
+                    continue;
                 }
 
                 var verdict = await EvaluateRuleAsync(rule, ruleSet, section, bindingMap, bindingRecords)
@@ -252,7 +272,10 @@ public sealed class EvaluationService
             ? $"Document does not address: {rule.NaturalLanguage}"
             : null;
 
-    private async Task<(bool Applies, string? Error)> EvaluatePredicateAsync(Rule rule, MatchedSection section)
+    private async Task<(bool Applies, string? Error)> EvaluatePredicateAsync(
+        Rule rule,
+        MatchedSection section,
+        IReadOnlyDictionary<string, IReadOnlyList<TokenMatch>>? bindingMap = null)
     {
         try
         {
@@ -260,6 +283,13 @@ public sealed class EvaluationService
             var workflow = WorkflowFactory.ForPredicate(rule);
             var engine = new RE.RulesEngine([workflow], WorkflowFactory.CreateReSettings());
             using var _ = VectorStoreAccessor.Push(_vectorStore);
+            // Pillar 9 — make semantic bindings visible to the predicate
+            // (not just the lambda) so a predicate may use SemanticBindings
+            // as part of its applicability check. Null bindingMap ⇒ no
+            // scope pushed ⇒ legacy behaviour preserved.
+            using var _bindingScope = bindingMap is null
+                ? (IDisposable)NullScope.Instance
+                : SemanticBindingAccessor.Push(new DictionarySemanticBindingScope(bindingMap));
             var results = await engine
                 .ExecuteAllRulesAsync(WorkflowFactory.PredicateWorkflowName, input!)
                 .ConfigureAwait(false);
@@ -319,6 +349,42 @@ public sealed class EvaluationService
             }
 
             var outcome = result.IsSuccess ? VerdictOutcome.Pass : VerdictOutcome.Fail;
+
+            // Pillar 9 — soft cohesion post-filter ported from
+            // policy-compiler-spike v0.1.1. For rules with ≥2 anchors,
+            // demote a Pass verdict to NotApplicable when fewer than
+            // _minEvidencedAnchors of the rule's anchors actually produced
+            // bindings on this section. Rationale: a Pass is the claim
+            // "the document addresses this requirement"; a Pass driven by
+            // a single anchor on a multi-anchor rule is too thin a signal
+            // to assert compliance (it's the classic ARB-PSA FP pattern).
+            // Fail outcomes are left untouched so genuine gaps still
+            // surface. Default-off → byte-identity preserved.
+            if (_enforceSoftCohesion
+                && outcome == VerdictOutcome.Pass
+                && rule.SemanticAnchors is { Count: var anchorCount } anchorsForCohesion
+                && anchorCount >= 2
+                && bindingMap is not null)
+            {
+                var evidencedAnchors = 0;
+                foreach (var anchor in anchorsForCohesion)
+                {
+                    if (bindingMap.TryGetValue(anchor.Name, out var matches)
+                        && matches.Count > 0)
+                    {
+                        evidencedAnchors++;
+                    }
+                }
+                if (evidencedAnchors < _minEvidencedAnchors)
+                {
+                    _logger.LogDebug(
+                        "Soft cohesion demoted Pass→NotApplicable for rule {RuleId} at {Path}: "
+                        + "{Evidenced} of {Total} anchors evidenced (< {Min}).",
+                        rule.Id, section.Path, evidencedAnchors, anchorCount, _minEvidencedAnchors);
+                    outcome = VerdictOutcome.NotApplicable;
+                }
+            }
+
             SourceSpan span;
             SourceSpan? clauseSpan = null;
             if (outcome == VerdictOutcome.Fail)
