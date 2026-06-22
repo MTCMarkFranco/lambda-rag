@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-22T16:12:17.4254572+00:00",
+  "model": "gpt-5.3-chat-1",
+  "ruleset_id": "rs_hipaa_security_rule",
+  "ruleset_version": "1.0.0",
+  "ruleset_fingerprint": "lr1:97e6fdd867b89beb725c8abef571458e0fe4f2fee2089921cca7c61f2abc6ba3",
+  "document_hash": "lr1:493942daf289d2b32d897aeaba30311df4164d7d3013f09b477e28a2d519437b",
+  "document_path": "healthcare/summitcare-compliant/source.md",
+  "per_rule": {
+    "HIPAA-H-1-RiskAnalysis": {
+      "verdict": "PASS",
+      "evidence": "documented, organization-wide risk analysis annually and after any material system change, covering every system that creates, receives, maintains, or transmits ePHI",
+      "reason": "The document states a documented, periodic (annual and after changes), organization-wide risk analysis covering all systems handling ePHI."
+    },
+    "HIPAA-H-2-SanctionPolicy": {
+      "verdict": "PASS",
+      "evidence": "Workforce members who violate security policies are subject to a documented progressive disciplinary process up to and including termination.",
+      "reason": "The document explicitly states a documented disciplinary/sanction policy for workforce members who violate security policies."
+    },
+    "HIPAA-H-3-WorkforceAccess": {
+      "verdict": "PASS",
+      "evidence": "Access requests require manager and Security Officer approval. Upon role change or separation, access is revoked within 4 hours",
+      "reason": "The document describes role-based access, an approval process for granting access, and a defined deprovisioning/termination procedure."
+    },
+    "HIPAA-H-4-SecurityTraining": {
+      "verdict": "PASS",
+      "evidence": "HIPAA security training at hire and annually thereafter",
+      "reason": "The document specifies recurring security training beyond initial hire, satisfying the requirement for ongoing workforce security awareness training."
+    },
+    "HIPAA-H-5-ContingencyPlan": {
+      "verdict": "PASS",
+      "evidence": "(a) a data backup plan ...; (b) a disaster recovery plan ...; and (c) an emergency-mode operation plan",
+      "reason": "The document explicitly addresses backup, disaster recovery, and emergency-mode operation as required."
+    },
+    "HIPAA-H-6-AccessControl": {
+      "verdict": "PASS",
+      "evidence": "Every user has a **unique identifier**; shared or generic accounts are prohibited. Sessions enforce **automatic logoff after 15 minutes** of inactivity.",
+      "reason": "The document explicitly requires unique user identifiers, prohibits shared accounts, and includes automatic logoff."
+    },
+    "HIPAA-H-7-AuditControls": {
+      "verdict": "PASS",
+      "evidence": "reviewed weekly",
+      "reason": "The document states audit logs are generated and reviewed weekly, satisfying the requirement for audit logging with periodic review."
+    },
+    "HIPAA-H-8-TransmissionSecurity": {
+      "verdict": "PASS",
+      "evidence": "ePHI in transit is protected with TLS 1.3 and integrity controls. ePHI at rest is encrypted with AES-256.",
+      "reason": "The document explicitly states encryption in transit using TLS 1.3 and encryption at rest using AES-256, satisfying the rule."
+    }
+  }
+}

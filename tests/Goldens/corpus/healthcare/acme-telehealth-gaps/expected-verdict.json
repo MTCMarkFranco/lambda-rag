@@ -1,0 +1,510 @@
+{
+  "documentId": {
+    "value": "lr1:ab4506c9dfb5b06d39081b5bf8a0a25f2cf538ff6221ddcd7c6efa0cece4a79c"
+  },
+  "ruleSetId": "rs_hipaa_security_rule",
+  "ruleSetVersion": "1.0.0",
+  "ruleSetFingerprint": {
+    "value": "lr1:f48b84afaff48275faf583a8b934fc27fefe0d39c74086d1329968256ba61c4f"
+  },
+  "projectorId": "contract",
+  "projectorVersion": "1.5.0",
+  "score": 0,
+  "totalRules": 9,
+  "passed": 0,
+  "failed": 5,
+  "notApplicable": 0,
+  "errored": 0,
+  "verdicts": [
+    {
+      "id": "lr1:3ed657357c5dafc8d4c1dc3dc4650c589f97b1f3f0dbe97493cd62bd6f0a7df3",
+      "ruleId": "HIPAA-H-1-RiskAnalysis",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"risk analysis\") || input1.text.Contains(\"risk assessment\")) && (input1.text.Contains(\"annually\") || input1.text.Contains(\"annual\") || input1.text.Contains(\"periodic\") || input1.text.Contains(\"organization-wide\") || input1.text.Contains(\"organisation-wide\")) && !(input1.text.Contains(\"of its primary\") || input1.text.Contains(\"one-time\") || input1.text.Contains(\"in 2024\") || input1.text.Contains(\"in 2025\") || input1.text.Contains(\"in 2023\"))",
+      "evaluatedInput": {
+        "id": "s_00000006",
+        "heading": "6. Risk assessment",
+        "heading_path": "/Information Security Policy — Acme Telehealth Platform, Inc./6. Risk assessment",
+        "category": "risk_analysis",
+        "primary_topic": "risk_analysis",
+        "topics": [
+          "risk_analysis"
+        ],
+        "topic_scores": {
+          "risk_analysis": 0.9
+        },
+        "topic_density": 4.5455,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "Acme performed a security risk assessment of its primary patient-records database in 2024 as part of our SOC 2 Type II audit.",
+        "text_raw": "Acme performed a security risk assessment of its primary patient-records database in 2024 as part of our SOC 2 Type II audit.",
+        "text_char_start": 1446,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 125
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:ab4506c9dfb5b06d39081b5bf8a0a25f2cf538ff6221ddcd7c6efa0cece4a79c",
+        "charStart": 1472,
+        "charLength": 15,
+        "headingPath": "/Information Security Policy — Acme Telehealth Platform, Inc./6. Risk assessment",
+        "charEnd": 1487
+      },
+      "errorMessage": "Rule 'HIPAA-H-1-RiskAnalysis' failed: The entity must conduct an accurate and thorough, periodic, documented risk analysis covering all systems handling ePHI. A one-time or single-system assessment is a gap.",
+      "evidenceQuotes": [
+        "§164.308(a)(1)(ii)(A): Conduct an accurate and thorough assessment of the potential risks and vulnerabilities to the confidentiality, integrity, and availability of all ePHI."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000006",
+      "remediationText": "Update 6. Risk assessment to describe a periodic (e.g., annual) organization-wide documented risk analysis covering every system that creates, receives, maintains, or transmits ePHI, per §164.308(a)(1)(ii)(A).",
+      "predicateText": "input1.category == \"risk_analysis\"",
+      "clauseSpan": {
+        "documentId": "lr1:ab4506c9dfb5b06d39081b5bf8a0a25f2cf538ff6221ddcd7c6efa0cece4a79c",
+        "charStart": 1446,
+        "charLength": 125,
+        "headingPath": "/Information Security Policy — Acme Telehealth Platform, Inc./6. Risk assessment",
+        "charEnd": 1571
+      }
+    },
+    {
+      "id": "lr1:d2749e28e97103a2a376b9f3668a99279d9fe448a3b2cb41338a491bd746bc72",
+      "ruleId": "HIPAA-H-2-SanctionPolicy",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Gap",
+      "lambdaText": "input1.text.Contains(\"sanction\") && (input1.text.Contains(\"disciplinary\") || input1.text.Contains(\"violations\") || input1.text.Contains(\"violation\"))",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "HIPAA-164.308-1-ii-C",
+        "charStart": 0,
+        "charLength": 0,
+        "pageNumber": 1,
+        "headingPath": "/164.308/SanctionPolicy",
+        "charEnd": 0
+      },
+      "evidenceQuotes": [
+        "§164.308(a)(1)(ii)(C): Apply appropriate sanctions against workforce members who fail to comply with the security policies and procedures."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: The entity must apply sanctions against workforce members who fail to comply with security policies. A documented sanction / disciplinary policy must be present.",
+      "predicateText": "input1.category == \"sanction_policy\""
+    },
+    {
+      "id": "lr1:b7ce47ac7a2cf4461ab1fd85580fbdc3827f8de4121b0fec4c8a00d000a08f6b",
+      "ruleId": "HIPAA-H-3-WorkforceAccess",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"least privilege\") || input1.text.Contains(\"role-based\")) && (input1.text.Contains(\"deprovisioning\") || input1.text.Contains(\"revoked\") || input1.text.Contains(\"termination\") || input1.text.Contains(\"separation\"))",
+      "evaluatedInput": {
+        "id": "s_00000002",
+        "heading": "2. Access management",
+        "heading_path": "/Information Security Policy — Acme Telehealth Platform, Inc./2. Access management",
+        "category": "workforce_access",
+        "primary_topic": "workforce_access",
+        "topics": [
+          "workforce_access",
+          "contingency_plan"
+        ],
+        "topic_scores": {
+          "workforce_access": 0.9,
+          "contingency_plan": 0.4
+        },
+        "topic_density": 0,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "All Acme engineers receive access to the production environment on their first day. Access is provisioned by the DevOps team through our identity provider. Each engineer signs in with their corporate single sign-on credentials.\nNote: shared \"oncall-admin\" and \"support-readonly\" accounts are used by the on-call rotation and the support desk for faster response.",
+        "text_raw": "All Acme engineers receive access to the production environment on their first day. Access is provisioned by the DevOps team through our identity provider. Each engineer signs in with their corporate single sign-on credentials.\nNote: shared \"oncall-admin\" and \"support-readonly\" accounts are used by the on-call rotation and the support desk for faster response.",
+        "text_char_start": 620,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 227
+          },
+          {
+            "char_start": 228,
+            "char_length": 134
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:ab4506c9dfb5b06d39081b5bf8a0a25f2cf538ff6221ddcd7c6efa0cece4a79c",
+        "charStart": 596,
+        "charLength": 23,
+        "headingPath": "/Information Security Policy — Acme Telehealth Platform, Inc./2. Access management",
+        "charEnd": 619
+      },
+      "errorMessage": "Rule 'HIPAA-H-3-WorkforceAccess' failed: Access to ePHI must be role-based with documented procedures for granting AND terminating access. Granting access without a termination/deprovisioning procedure is a gap.",
+      "evidenceQuotes": [
+        "§164.308(a)(3)–(a)(4): Implement procedures for authorization, supervision, and termination of access to ePHI."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000002",
+      "remediationText": "Update 2. Access management to describe role-based access on least privilege AND a documented termination/deprovisioning workflow tied to HR, per §164.308(a)(3)–(a)(4).",
+      "predicateText": "input1.category == \"workforce_access\"",
+      "clauseSpan": {
+        "documentId": "lr1:ab4506c9dfb5b06d39081b5bf8a0a25f2cf538ff6221ddcd7c6efa0cece4a79c",
+        "charStart": 620,
+        "charLength": 362,
+        "headingPath": "/Information Security Policy — Acme Telehealth Platform, Inc./2. Access management",
+        "charEnd": 982
+      }
+    },
+    {
+      "id": "lr1:958b80376395af6892f252817b4faf8e13facf09d1ce9b0fb0be181fd24969d9",
+      "ruleId": "HIPAA-H-4-SecurityTraining",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"annually\") || input1.text.Contains(\"annual\") || input1.text.Contains(\"recurring\") || input1.text.Contains(\"quarterly\")) && !(input1.text.Contains(\"during onboarding\") && !input1.text.Contains(\"annual\"))",
+      "evaluatedInput": {
+        "id": "s_00000005",
+        "heading": "5. Security training",
+        "heading_path": "/Information Security Policy — Acme Telehealth Platform, Inc./5. Security training",
+        "category": "security_training",
+        "primary_topic": "security_training",
+        "topics": [
+          "security_training",
+          "workforce_access"
+        ],
+        "topic_scores": {
+          "security_training": 0.9,
+          "workforce_access": 0.4
+        },
+        "topic_density": 5.8824,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "New hires complete a 45-minute HIPAA security orientation during onboarding week, covering phishing awareness and password hygiene.",
+        "text_raw": "New hires complete a 45-minute HIPAA security orientation during onboarding week, covering phishing awareness and password hygiene.",
+        "text_char_start": 1291,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 131
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:ab4506c9dfb5b06d39081b5bf8a0a25f2cf538ff6221ddcd7c6efa0cece4a79c",
+        "charStart": 1349,
+        "charLength": 17,
+        "headingPath": "/Information Security Policy — Acme Telehealth Platform, Inc./5. Security training",
+        "charEnd": 1366
+      },
+      "errorMessage": "Rule 'HIPAA-H-4-SecurityTraining' failed: The entity must implement recurring security awareness and training for all workforce members. Training only at hire / one-time orientation is a gap.",
+      "evidenceQuotes": [
+        "§164.308(a)(5): Implement a security awareness and training program for all members of the workforce."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000005",
+      "remediationText": "Update 5. Security training to require recurring (at least annual) HIPAA security training for all workforce members with periodic phishing/security reminders, per §164.308(a)(5).",
+      "predicateText": "input1.category == \"security_training\"",
+      "clauseSpan": {
+        "documentId": "lr1:ab4506c9dfb5b06d39081b5bf8a0a25f2cf538ff6221ddcd7c6efa0cece4a79c",
+        "charStart": 1291,
+        "charLength": 131,
+        "headingPath": "/Information Security Policy — Acme Telehealth Platform, Inc./5. Security training",
+        "charEnd": 1422
+      }
+    },
+    {
+      "id": "lr1:3083102f2d6177d4b9926578c7cfbe43b2f5a36d36100a6b6a4a644963e73432",
+      "ruleId": "HIPAA-H-5-ContingencyPlan",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"backup\") || input1.text.Contains(\"Backup\")) && (input1.text.Contains(\"disaster recovery\") || input1.text.Contains(\"DR plan\") || input1.text.Contains(\"RTO\")) && (input1.text.Contains(\"emergency-mode\") || input1.text.Contains(\"emergency mode\"))",
+      "evaluatedInput": {
+        "id": "s_00000001",
+        "heading": "1. Purpose",
+        "heading_path": "/Information Security Policy — Acme Telehealth Platform, Inc./1. Purpose",
+        "category": "contingency_plan",
+        "primary_topic": "contingency_plan",
+        "topics": [
+          "contingency_plan"
+        ],
+        "topic_scores": {
+          "contingency_plan": 0.9
+        },
+        "topic_density": 0,
+        "is_operative_for_topic": false,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "Acme Telehealth provides a cloud video-visit and patient-records platform to clinics. This policy describes how Acme protects electronic Protected Health Information (ePHI) processed on the platform.",
+        "text_raw": "Acme Telehealth provides a cloud video-visit and patient-records platform to clinics. This policy describes how Acme protects electronic Protected Health Information (ePHI) processed on the platform.",
+        "text_char_start": 395,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 199
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:ab4506c9dfb5b06d39081b5bf8a0a25f2cf538ff6221ddcd7c6efa0cece4a79c",
+        "charStart": 381,
+        "charLength": 13,
+        "headingPath": "/Information Security Policy — Acme Telehealth Platform, Inc./1. Purpose",
+        "charEnd": 394
+      },
+      "errorMessage": "Rule 'HIPAA-H-5-ContingencyPlan' failed: The entity must address backup, disaster recovery, AND emergency-mode operation. Backups alone are not sufficient.",
+      "evidenceQuotes": [
+        "§164.308(a)(7): Establish (and implement as needed) policies and procedures for responding to an emergency or other occurrence (data backup plan, disaster recovery plan, emergency mode operation plan)."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000001",
+      "remediationText": "Expand 1. Purpose to cover all three components: data backup plan, disaster recovery plan with defined RTO/RPO, and emergency-mode operation plan, per §164.308(a)(7).",
+      "predicateText": "input1.category == \"contingency_plan\"",
+      "clauseSpan": {
+        "documentId": "lr1:ab4506c9dfb5b06d39081b5bf8a0a25f2cf538ff6221ddcd7c6efa0cece4a79c",
+        "charStart": 395,
+        "charLength": 199,
+        "headingPath": "/Information Security Policy — Acme Telehealth Platform, Inc./1. Purpose",
+        "charEnd": 594
+      }
+    },
+    {
+      "id": "lr1:5f9f54d63cd87226577e9a76f029cd5966d3a3a8c1dd63421cc5e3ddfc415a01",
+      "ruleId": "HIPAA-H-5-ContingencyPlan",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"backup\") || input1.text.Contains(\"Backup\")) && (input1.text.Contains(\"disaster recovery\") || input1.text.Contains(\"DR plan\") || input1.text.Contains(\"RTO\")) && (input1.text.Contains(\"emergency-mode\") || input1.text.Contains(\"emergency mode\"))",
+      "evaluatedInput": {
+        "id": "s_00000004",
+        "heading": "4. Backups",
+        "heading_path": "/Information Security Policy — Acme Telehealth Platform, Inc./4. Backups",
+        "category": "contingency_plan",
+        "primary_topic": "contingency_plan",
+        "topics": [
+          "contingency_plan"
+        ],
+        "topic_scores": {
+          "contingency_plan": 0.9
+        },
+        "topic_density": 5.8824,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [
+            30
+          ],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 30,
+          "day_count_max": 30,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "Production databases are backed up nightly to a second cloud region. Backups are retained for 30 days.",
+        "text_raw": "Production databases are backed up nightly to a second cloud region. Backups are retained for 30 days.",
+        "text_char_start": 1163,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 102
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:ab4506c9dfb5b06d39081b5bf8a0a25f2cf538ff6221ddcd7c6efa0cece4a79c",
+        "charStart": 1232,
+        "charLength": 6,
+        "headingPath": "/Information Security Policy — Acme Telehealth Platform, Inc./4. Backups",
+        "charEnd": 1238
+      },
+      "errorMessage": "Rule 'HIPAA-H-5-ContingencyPlan' failed: The entity must address backup, disaster recovery, AND emergency-mode operation. Backups alone are not sufficient.",
+      "evidenceQuotes": [
+        "§164.308(a)(7): Establish (and implement as needed) policies and procedures for responding to an emergency or other occurrence (data backup plan, disaster recovery plan, emergency mode operation plan)."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000004",
+      "remediationText": "Expand 4. Backups to cover all three components: data backup plan, disaster recovery plan with defined RTO/RPO, and emergency-mode operation plan, per §164.308(a)(7).",
+      "predicateText": "input1.category == \"contingency_plan\"",
+      "clauseSpan": {
+        "documentId": "lr1:ab4506c9dfb5b06d39081b5bf8a0a25f2cf538ff6221ddcd7c6efa0cece4a79c",
+        "charStart": 1163,
+        "charLength": 102,
+        "headingPath": "/Information Security Policy — Acme Telehealth Platform, Inc./4. Backups",
+        "charEnd": 1265
+      }
+    },
+    {
+      "id": "lr1:6ac373e4475b35c99442fe0346c1695dfe9c3a2a5a1a1b75dfc76cc39637eda0",
+      "ruleId": "HIPAA-H-6-AccessControl",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Gap",
+      "lambdaText": "(input1.text.Contains(\"unique identifier\") || input1.text.Contains(\"unique user\")) && (!input1.text.Contains(\"shared account\") || input1.text.Contains(\"prohibit\")) && (!input1.text.Contains(\"generic account\") || input1.text.Contains(\"prohibit\"))",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "HIPAA-164.312-a-1",
+        "charStart": 0,
+        "charLength": 0,
+        "pageNumber": 1,
+        "headingPath": "/164.312/AccessControl",
+        "charEnd": 0
+      },
+      "evidenceQuotes": [
+        "§164.312(a)(2)(i): Assign a unique name and/or number for identifying and tracking user identity."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: Each user must have a unique identifier; shared or generic accounts on ePHI systems are a gap. Automatic logoff is addressable but should be present or documented as an alternative.",
+      "predicateText": "input1.category == \"access_control\""
+    },
+    {
+      "id": "lr1:32011405f0285cd5ff9f67dac9f16ac5fb23af3759d8b937a5f9178ab411558d",
+      "ruleId": "HIPAA-H-7-AuditControls",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Gap",
+      "lambdaText": "(input1.text.Contains(\"audit log\") || input1.text.Contains(\"audit logs\") || input1.text.Contains(\"audit logging\")) && (input1.text.Contains(\"reviewed\") || input1.text.Contains(\"review\") || input1.text.Contains(\"alerting\"))",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "HIPAA-164.312-b",
+        "charStart": 0,
+        "charLength": 0,
+        "pageNumber": 1,
+        "headingPath": "/164.312/AuditControls",
+        "charEnd": 0
+      },
+      "evidenceQuotes": [
+        "§164.312(b): Implement hardware, software, and/or procedural mechanisms that record and examine activity in information systems that contain or use ePHI."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: The entity must implement audit logging on ePHI systems with periodic review. Logs collected but never reviewed is a gap.",
+      "predicateText": "input1.category == \"audit_controls\""
+    },
+    {
+      "id": "lr1:4cc68d249736d506f90894c9cff9aca7aa45c6cad384459e223b02bb4fbd5499",
+      "ruleId": "HIPAA-H-8-TransmissionSecurity",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Gap",
+      "lambdaText": "(input1.text.Contains(\"TLS 1.2\") || input1.text.Contains(\"TLS 1.3\")) && (input1.text.Contains(\"AES-256\") || input1.text.Contains(\"encrypted at rest\") || input1.text.Contains(\"at rest using\"))",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "HIPAA-164.312-e",
+        "charStart": 0,
+        "charLength": 0,
+        "pageNumber": 1,
+        "headingPath": "/164.312/TransmissionSecurity",
+        "charEnd": 0
+      },
+      "evidenceQuotes": [
+        "§164.312(e): Implement technical security measures to guard against unauthorized access to ePHI transmitted over an electronic communications network."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: ePHI must be encrypted in transit (TLS 1.2+) AND at rest (e.g., AES-256), or a documented equivalent measure. Encryption in transit only with PHI unencrypted at rest is a gap.",
+      "predicateText": "input1.category == \"transmission_security\""
+    }
+  ],
+  "generatedAt": "2000-01-01T00:00:00+00:00",
+  "gaps": 4
+}

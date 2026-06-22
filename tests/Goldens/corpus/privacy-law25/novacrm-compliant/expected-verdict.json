@@ -1,0 +1,549 @@
+{
+  "documentId": {
+    "value": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8"
+  },
+  "ruleSetId": "rs_quebec_law25",
+  "ruleSetVersion": "1.0.0",
+  "ruleSetFingerprint": {
+    "value": "lr1:59082fb7eb89210678220b1df761d673c9cf7cc02b819146d741a340b7c77adb"
+  },
+  "projectorId": "contract",
+  "projectorVersion": "1.5.0",
+  "score": 0.7142857142857143,
+  "totalRules": 7,
+  "passed": 5,
+  "failed": 2,
+  "notApplicable": 0,
+  "errored": 0,
+  "verdicts": [
+    {
+      "id": "lr1:255057feffed6d0cfdc7a20b9bd4405b81a1a4f31ab117a76dfad211ec05f4b2",
+      "ruleId": "QLA25-L-1-PrivacyOfficer",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"Person in charge of the protection of personal information\") || input1.text.Contains(\"Privacy Officer\")) && (input1.text.Contains(\"@\") || input1.text.Contains(\"published\") || input1.text.Contains(\"website\"))",
+      "evaluatedInput": {
+        "id": "s_00000001",
+        "heading": "1. Who we are",
+        "heading_path": "/Privacy Notice — NovaCRM/1. Who we are",
+        "category": "privacy_officer",
+        "primary_topic": "privacy_officer",
+        "topics": [
+          "privacy_officer"
+        ],
+        "topic_scores": {
+          "privacy_officer": 0.9
+        },
+        "topic_density": 8.9286,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "NovaCRM B.V. is the data controller for the personal data described below. You can contact our Data Protection Officer at dpo@novacrm.example or by post at the address above. For customers in Québec, our Person in charge of the protection of personal information (Privacy Officer) is the VP of Trust, reachable at privacy-officer@novacrm.example (also published at novacrm.example/privacy).",
+        "text_raw": "NovaCRM B.V. is the data controller for the personal data described below. You can contact our Data Protection Officer at dpo@novacrm.example or by post at the address above. For customers in Québec, our Person in charge of the protection of personal information (Privacy Officer) is the VP of Trust, reachable at privacy-officer@novacrm.example (also published at novacrm.example/privacy).",
+        "text_char_start": 353,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 390
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 336,
+        "charLength": 16,
+        "headingPath": "/Privacy Notice — NovaCRM/1. Who we are",
+        "charEnd": 352
+      },
+      "evidenceQuotes": [
+        "Law 25 s. 3.1: The person having the highest authority shall ensure the implementation of and compliance with this Act. That person exercises the function of the person in charge of the protection of personal information."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000001",
+      "predicateText": "input1.category == \"privacy_officer\""
+    },
+    {
+      "id": "lr1:303667d70cf14f20f4071fbf7854a1daccdca309d1ab1944293f226876edc461",
+      "ruleId": "QLA25-L-2-CollectionTransparency",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"rectif\") || input1.text.Contains(\"access and rectification\")) && (input1.text.Contains(\"withdraw consent\") || input1.text.Contains(\"right to withdraw\"))",
+      "evaluatedInput": {
+        "id": "s_00000002",
+        "heading": "2. What we collect, why, and our lawful basis",
+        "heading_path": "/Privacy Notice — NovaCRM/2. What we collect, why, and our lawful basis",
+        "category": "collection_transparency",
+        "primary_topic": "collection_transparency",
+        "topics": [
+          "collection_transparency",
+          "consent_cross_border",
+          "privacy_by_default"
+        ],
+        "topic_scores": {
+          "collection_transparency": 0.9,
+          "consent_cross_border": 0.4,
+          "privacy_by_default": 0.4
+        },
+        "topic_density": 0,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "| Data category | Purpose (specific) | Lawful basis (GDPR Art. 6) ||---|---|---|| Name, business email | Create and administer your account | Performance of a contract — Art. 6(1)(b) || Billing details | Process payments and issue invoices | Legal obligation — Art. 6(1)(c) || Product usage logs | Diagnose errors and maintain service reliability | Legitimate interests — Art. 6(1)(f) || Marketing email address | Send product newsletters (only if you opt in) | Consent — Art. 6(1)(a) |\nWe collect only the data necessary for each purpose above and do not repurpose it incompatibly (data minimisation, purpose limitation).",
+        "text_raw": "| Data category | Purpose (specific) | Lawful basis (GDPR Art. 6) ||---|---|---|| Name, business email | Create and administer your account | Performance of a contract — Art. 6(1)(b) || Billing details | Process payments and issue invoices | Legal obligation — Art. 6(1)(c) || Product usage logs | Diagnose errors and maintain service reliability | Legitimate interests — Art. 6(1)(f) || Marketing email address | Send product newsletters (only if you opt in) | Consent — Art. 6(1)(a) |\nWe collect only the data necessary for each purpose above and do not repurpose it incompatibly (data minimisation, purpose limitation).",
+        "text_char_start": 806,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 486
+          },
+          {
+            "char_start": 487,
+            "char_length": 135
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 757,
+        "charLength": 48,
+        "headingPath": "/Privacy Notice — NovaCRM/2. What we collect, why, and our lawful basis",
+        "charEnd": 805
+      },
+      "errorMessage": "Rule 'QLA25-L-2-CollectionTransparency' failed: At collection the enterprise must inform the individual of purposes, access/rectification rights, and the right to withdraw consent. Missing rectification or consent-withdrawal route is a gap.",
+      "evidenceQuotes": [
+        "Law 25 s. 8: Any person collecting personal information from the person concerned must inform that person of the purposes, means of collection, rights of access and rectification, and the right to withdraw consent."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000002",
+      "remediationText": "Expand 2. What we collect, why, and our lawful basis to inform individuals at collection of: (a) purposes, (b) the rights of access and rectification, and (c) the route to withdraw consent, per s. 8.",
+      "predicateText": "input1.category == \"collection_transparency\" || input1.category == \"rights_and_complaints\"",
+      "clauseSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 806,
+        "charLength": 622,
+        "headingPath": "/Privacy Notice — NovaCRM/2. What we collect, why, and our lawful basis",
+        "charEnd": 1428
+      }
+    },
+    {
+      "id": "lr1:2bcbfd64755a6bdbb3fae3807eccd45f5b3597ce98df9d436e203bbce47f8eed",
+      "ruleId": "QLA25-L-2-CollectionTransparency",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"rectif\") || input1.text.Contains(\"access and rectification\")) && (input1.text.Contains(\"withdraw consent\") || input1.text.Contains(\"right to withdraw\"))",
+      "evaluatedInput": {
+        "id": "s_00000006",
+        "heading": "6. Your rights",
+        "heading_path": "/Privacy Notice — NovaCRM/6. Your rights",
+        "category": "rights_and_complaints",
+        "primary_topic": "rights_and_complaints",
+        "topics": [
+          "rights_and_complaints",
+          "collection_transparency",
+          "consent_cross_border",
+          "incident_handling"
+        ],
+        "topic_scores": {
+          "rights_and_complaints": 0.9,
+          "collection_transparency": 0.4,
+          "consent_cross_border": 0.4,
+          "incident_handling": 0.4
+        },
+        "topic_density": 3.2787,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [
+            1
+          ],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 1,
+          "month_count_max": 1,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "You have the right to access, rectify, erase, restrict, port, and object to processing of your personal data, and to withdraw consent at any time. You also have the right to lodge a complaint with a supervisory authority (e.g., the Dutch Autoriteit Persoonsgegevens, or the Commission d'accès à l'information du Québec). Exercise any right at privacy@novacrm.example; we respond within one month.",
+        "text_raw": "You have the right to access, rectify, erase, restrict, port, and object to processing of your personal data, and to withdraw consent at any time. You also have the right to lodge a complaint with a supervisory authority (e.g., the Dutch Autoriteit Persoonsgegevens, or the Commission d'accès à l'information du Québec). Exercise any right at privacy@novacrm.example; we respond within one month.",
+        "text_char_start": 2336,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 396
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 2318,
+        "charLength": 17,
+        "headingPath": "/Privacy Notice — NovaCRM/6. Your rights",
+        "charEnd": 2335
+      },
+      "evidenceQuotes": [
+        "Law 25 s. 8: Any person collecting personal information from the person concerned must inform that person of the purposes, means of collection, rights of access and rectification, and the right to withdraw consent."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000006",
+      "predicateText": "input1.category == \"collection_transparency\" || input1.category == \"rights_and_complaints\""
+    },
+    {
+      "id": "lr1:316cf23a4cbb0f9fe0de76caef641d3606360748c78412df89e862016753b652",
+      "ruleId": "QLA25-L-3-PrivacyByDefault",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"highest-confidentiality\") || input1.text.Contains(\"highest confidentiality\") || input1.text.Contains(\"most-protective\")) && input1.text.Contains(\"default\")",
+      "evaluatedInput": {
+        "id": "s_00000007",
+        "heading": "7. Privacy by default (Québec Law 25 s. 9.1)",
+        "heading_path": "/Privacy Notice — NovaCRM/7. Privacy by default (Québec Law 25 s. 9.1)",
+        "category": "privacy_by_default",
+        "primary_topic": "privacy_by_default",
+        "topics": [
+          "privacy_by_default"
+        ],
+        "topic_scores": {
+          "privacy_by_default": 0.9
+        },
+        "topic_density": 4.3478,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "New accounts ship with the highest-confidentiality settings enabled by default — analytics sharing off, profile private — with no action required by you.",
+        "text_raw": "New accounts ship with the highest-confidentiality settings enabled by default — analytics sharing off, profile private — with no action required by you.",
+        "text_char_start": 2794,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 153
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 2746,
+        "charLength": 47,
+        "headingPath": "/Privacy Notice — NovaCRM/7. Privacy by default (Québec Law 25 s. 9.1)",
+        "charEnd": 2793
+      },
+      "evidenceQuotes": [
+        "Law 25 s. 9.1: An enterprise that collects personal information when offering a technological product or service to the public shall ensure that the parameters of the product or service provide the highest level of confidentiality by default."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000007",
+      "predicateText": "input1.category == \"privacy_by_default\""
+    },
+    {
+      "id": "lr1:2d46ed85e6f0457bab70aa7083bc4dd5ab7de8e9b5f85697a838eb5a4c589292",
+      "ruleId": "QLA25-L-4-PrivacyImpactAssessment",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"Privacy Impact Assessment\") || input1.text.Contains(\"PIA\")) && (input1.text.Contains(\"outside Québec\") || input1.text.Contains(\"outside Quebec\") || input1.text.Contains(\"outside the province\") || input1.text.Contains(\"outside the EEA\") || input1.text.Contains(\"system project\") || input1.text.Contains(\"before communicating\") || input1.text.Contains(\"beforehand\") || input1.text.Contains(\"cross-border\"))",
+      "evaluatedInput": {
+        "id": "s_00000004",
+        "heading": "4. International transfers",
+        "heading_path": "/Privacy Notice — NovaCRM/4. International transfers",
+        "category": "consent_cross_border",
+        "primary_topic": "consent_cross_border",
+        "topics": [
+          "consent_cross_border",
+          "international_transfers",
+          "privacy_impact_assessment"
+        ],
+        "topic_scores": {
+          "consent_cross_border": 0.9,
+          "international_transfers": 0.4,
+          "privacy_impact_assessment": 0.4
+        },
+        "topic_density": 4.5455,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "Where data is transferred outside the EEA (our email sub-processor operates in the United States), the transfer is protected by the European Commission's Standard Contractual Clauses (SCCs) plus supplementary measures. For Québec data communicated outside the province, we complete a Privacy Impact Assessment beforehand.",
+        "text_raw": "Where data is transferred outside the EEA (our email sub-processor operates in the United States), the transfer is protected by the European Commission's Standard Contractual Clauses (SCCs) plus supplementary measures. For Québec data communicated outside the province, we complete a Privacy Impact Assessment beforehand.",
+        "text_char_start": 1757,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 321
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 1727,
+        "charLength": 29,
+        "headingPath": "/Privacy Notice — NovaCRM/4. International transfers",
+        "charEnd": 1756
+      },
+      "evidenceQuotes": [
+        "Law 25 s. 3.3: A privacy impact assessment must be conducted for any project to acquire, develop or overhaul an information system or electronic service involving personal information. s. 17: Before communicating personal information outside Québec, an assessment of privacy-related factors must be conducted."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000004",
+      "predicateText": "input1.category == \"privacy_impact_assessment\" || input1.category == \"consent_cross_border\""
+    },
+    {
+      "id": "lr1:15951bbef6f6b0b2854c1fd9929db51a5756e5cf4508f2068babc7bb4d18ae82",
+      "ruleId": "QLA25-L-5-IncidentRegister",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"register of confidentiality incidents\") || input1.text.Contains(\"incident register\")) && (input1.text.Contains(\"Commission d'accès\") || input1.text.Contains(\"CAI\") || input1.text.Contains(\"notify affected\") || input1.text.Contains(\"notify the relevant authority\"))",
+      "evaluatedInput": {
+        "id": "s_00000008",
+        "heading": "8. Security (GDPR Art. 32)",
+        "heading_path": "/Privacy Notice — NovaCRM/8. Security (GDPR Art. 32)",
+        "category": "unknown",
+        "primary_topic": "unknown",
+        "topics": [
+          "incident_handling",
+          "security_measures"
+        ],
+        "topic_scores": {
+          "incident_handling": 0.4,
+          "security_measures": 0.4
+        },
+        "topic_density": 0,
+        "is_operative_for_topic": false,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "We protect personal data with AES-256 encryption at rest, TLS 1.3 in transit, role-based access control with least privilege, multi-factor authentication for staff, pseudonymisation of analytics data, annual penetration testing, and a documented incident-response plan. We maintain a register of confidentiality incidents and notify affected individuals and the relevant authority where a risk of serious injury exists.",
+        "text_raw": "We protect personal data with AES-256 encryption at rest, TLS 1.3 in transit, role-based access control with least privilege, multi-factor authentication for staff, pseudonymisation of analytics data, annual penetration testing, and a documented incident-response plan. We maintain a register of confidentiality incidents and notify affected individuals and the relevant authority where a risk of serious injury exists.",
+        "text_char_start": 2983,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 419
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 2953,
+        "charLength": 29,
+        "headingPath": "/Privacy Notice — NovaCRM/8. Security (GDPR Art. 32)",
+        "charEnd": 2982
+      },
+      "evidenceQuotes": [
+        "Law 25 s. 3.5–3.8: Where a confidentiality incident presents a risk of serious injury, the enterprise must promptly notify the Commission and any person whose personal information is concerned, and must keep a register of confidentiality incidents."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000008",
+      "predicateText": "input1.category == \"incident_handling\" || input1.text.Contains(\"register of confidentiality incidents\") || input1.text.Contains(\"incident register\")"
+    },
+    {
+      "id": "lr1:19ba619e647132ef3110579a5ce3a8c19a82cd55920a959a5964caf7aa3106a8",
+      "ruleId": "QLA25-L-6-ConsentCrossBorder",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"specific purposes\") || input1.text.Contains(\"manifest\") || input1.text.Contains(\"free and informed\")) && !(input1.text.Contains(\"By creating an account, you consent to all\") || input1.text.Contains(\"consent to all of the\"))",
+      "evaluatedInput": {
+        "id": "s_00000004",
+        "heading": "4. International transfers",
+        "heading_path": "/Privacy Notice — NovaCRM/4. International transfers",
+        "category": "consent_cross_border",
+        "primary_topic": "consent_cross_border",
+        "topics": [
+          "consent_cross_border",
+          "international_transfers",
+          "privacy_impact_assessment"
+        ],
+        "topic_scores": {
+          "consent_cross_border": 0.9,
+          "international_transfers": 0.4,
+          "privacy_impact_assessment": 0.4
+        },
+        "topic_density": 4.5455,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "Where data is transferred outside the EEA (our email sub-processor operates in the United States), the transfer is protected by the European Commission's Standard Contractual Clauses (SCCs) plus supplementary measures. For Québec data communicated outside the province, we complete a Privacy Impact Assessment beforehand.",
+        "text_raw": "Where data is transferred outside the EEA (our email sub-processor operates in the United States), the transfer is protected by the European Commission's Standard Contractual Clauses (SCCs) plus supplementary measures. For Québec data communicated outside the province, we complete a Privacy Impact Assessment beforehand.",
+        "text_char_start": 1757,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 321
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 1727,
+        "charLength": 29,
+        "headingPath": "/Privacy Notice — NovaCRM/4. International transfers",
+        "charEnd": 1756
+      },
+      "errorMessage": "Rule 'QLA25-L-6-ConsentCrossBorder' failed: Consent must be manifest, free, and informed and given for specific purposes. Blanket / bundled consent is a gap. Communication of PI outside Québec requires a PIA and consideration of the receiving jurisdiction's protections.",
+      "evidenceQuotes": [
+        "Law 25 s. 12: Consent must be manifest, free and informed and be given for specific purposes. s. 17: Before communicating personal information outside Québec, the enterprise must conduct a privacy impact assessment."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000004",
+      "remediationText": "Update 4. International transfers so consent is captured for each specific purpose (no blanket / bundled consent) and cross-border communications of PI are paired with a PIA naming the destination's protections, per s. 12 and s. 17.",
+      "predicateText": "input1.category == \"consent_cross_border\"",
+      "clauseSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 1757,
+        "charLength": 321,
+        "headingPath": "/Privacy Notice — NovaCRM/4. International transfers",
+        "charEnd": 2078
+      }
+    }
+  ],
+  "generatedAt": "2000-01-01T00:00:00+00:00",
+  "gaps": 0
+}

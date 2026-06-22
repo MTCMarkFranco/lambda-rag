@@ -1,0 +1,704 @@
+{
+  "documentId": {
+    "value": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8"
+  },
+  "ruleSetId": "rs_gdpr_privacy_notice",
+  "ruleSetVersion": "1.0.0",
+  "ruleSetFingerprint": {
+    "value": "lr1:cd03d44034e409ef89d09d8144b6c4a9362757ef216e07b1e931efb716c21343"
+  },
+  "projectorId": "contract",
+  "projectorVersion": "1.5.0",
+  "score": 0.6666666666666666,
+  "totalRules": 9,
+  "passed": 6,
+  "failed": 3,
+  "notApplicable": 0,
+  "errored": 0,
+  "verdicts": [
+    {
+      "id": "lr1:51e023aadca24a150eafc99020f208309ce28b2fb96559bfe843e239984da1a8",
+      "ruleId": "GDPR-G-1-PurposeLimitation",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"specific purpose\") || input1.text.Contains(\"purpose limitation\") || input1.text.Contains(\"data minimisation\") || input1.text.Contains(\"only the data necessary\")) && !(input1.text.Contains(\"general business purposes\") || input1.text.Contains(\"to improve our services\"))",
+      "evaluatedInput": {
+        "id": "s_00000002",
+        "heading": "2. What we collect, why, and our lawful basis",
+        "heading_path": "/Privacy Notice — NovaCRM/2. What we collect, why, and our lawful basis",
+        "category": "purpose_and_minimisation",
+        "primary_topic": "purpose_and_minimisation",
+        "topics": [
+          "lawful_basis",
+          "purpose_and_minimisation",
+          "consent_practices"
+        ],
+        "topic_scores": {
+          "lawful_basis": 0.9,
+          "purpose_and_minimisation": 0.9,
+          "consent_practices": 0.4
+        },
+        "topic_density": 2.9703,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "| Data category | Purpose (specific) | Lawful basis (GDPR Art. 6) ||---|---|---|| Name, business email | Create and administer your account | Performance of a contract — Art. 6(1)(b) || Billing details | Process payments and issue invoices | Legal obligation — Art. 6(1)(c) || Product usage logs | Diagnose errors and maintain service reliability | Legitimate interests — Art. 6(1)(f) || Marketing email address | Send product newsletters (only if you opt in) | Consent — Art. 6(1)(a) |\nWe collect only the data necessary for each purpose above and do not repurpose it incompatibly (data minimisation, purpose limitation).",
+        "text_raw": "| Data category | Purpose (specific) | Lawful basis (GDPR Art. 6) ||---|---|---|| Name, business email | Create and administer your account | Performance of a contract — Art. 6(1)(b) || Billing details | Process payments and issue invoices | Legal obligation — Art. 6(1)(c) || Product usage logs | Diagnose errors and maintain service reliability | Legitimate interests — Art. 6(1)(f) || Marketing email address | Send product newsletters (only if you opt in) | Consent — Art. 6(1)(a) |\nWe collect only the data necessary for each purpose above and do not repurpose it incompatibly (data minimisation, purpose limitation).",
+        "text_char_start": 806,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 486
+          },
+          {
+            "char_start": 487,
+            "char_length": 135
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 757,
+        "charLength": 48,
+        "headingPath": "/Privacy Notice — NovaCRM/2. What we collect, why, and our lawful basis",
+        "charEnd": 805
+      },
+      "evidenceQuotes": [
+        "GDPR Art. 5(1)(b): Personal data shall be collected for specified, explicit and legitimate purposes and not further processed in a manner that is incompatible with those purposes."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000002",
+      "predicateText": "input1.category == \"purpose_and_minimisation\""
+    },
+    {
+      "id": "lr1:7fd7777d19ec1fa0a3c527bb39f6ef47e89528398cf92ff3f206af5aed844b7f",
+      "ruleId": "GDPR-G-3-LawfulBasis",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"lawful basis\") || input1.text.Contains(\"Lawful basis\")) && (input1.text.Contains(\"Art. 6\") || input1.text.Contains(\"Article 6\")) && (input1.text.Contains(\"consent\") || input1.text.Contains(\"contract\") || input1.text.Contains(\"legitimate interests\") || input1.text.Contains(\"legal obligation\"))",
+      "evaluatedInput": {
+        "id": "s_00000002",
+        "heading": "2. What we collect, why, and our lawful basis",
+        "heading_path": "/Privacy Notice — NovaCRM/2. What we collect, why, and our lawful basis",
+        "category": "purpose_and_minimisation",
+        "primary_topic": "purpose_and_minimisation",
+        "topics": [
+          "lawful_basis",
+          "purpose_and_minimisation",
+          "consent_practices"
+        ],
+        "topic_scores": {
+          "lawful_basis": 0.9,
+          "purpose_and_minimisation": 0.9,
+          "consent_practices": 0.4
+        },
+        "topic_density": 2.9703,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "| Data category | Purpose (specific) | Lawful basis (GDPR Art. 6) ||---|---|---|| Name, business email | Create and administer your account | Performance of a contract — Art. 6(1)(b) || Billing details | Process payments and issue invoices | Legal obligation — Art. 6(1)(c) || Product usage logs | Diagnose errors and maintain service reliability | Legitimate interests — Art. 6(1)(f) || Marketing email address | Send product newsletters (only if you opt in) | Consent — Art. 6(1)(a) |\nWe collect only the data necessary for each purpose above and do not repurpose it incompatibly (data minimisation, purpose limitation).",
+        "text_raw": "| Data category | Purpose (specific) | Lawful basis (GDPR Art. 6) ||---|---|---|| Name, business email | Create and administer your account | Performance of a contract — Art. 6(1)(b) || Billing details | Process payments and issue invoices | Legal obligation — Art. 6(1)(c) || Product usage logs | Diagnose errors and maintain service reliability | Legitimate interests — Art. 6(1)(f) || Marketing email address | Send product newsletters (only if you opt in) | Consent — Art. 6(1)(a) |\nWe collect only the data necessary for each purpose above and do not repurpose it incompatibly (data minimisation, purpose limitation).",
+        "text_char_start": 806,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 486
+          },
+          {
+            "char_start": 487,
+            "char_length": 135
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 757,
+        "charLength": 48,
+        "headingPath": "/Privacy Notice — NovaCRM/2. What we collect, why, and our lawful basis",
+        "charEnd": 805
+      },
+      "evidenceQuotes": [
+        "GDPR Art. 6(1): Processing shall be lawful only if and to the extent that at least one of the following applies — consent, contract, legal obligation, vital interests, public task, or legitimate interests."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000002",
+      "predicateText": "input1.category == \"lawful_basis\" || input1.category == \"purpose_and_minimisation\""
+    },
+    {
+      "id": "lr1:01128cfa2c9d6a874528e252128e0befe7505357d58860c0d208471014e4fa91",
+      "ruleId": "GDPR-G-4-Transparency",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"controller\") && (input1.text.Contains(\"DPO\") || input1.text.Contains(\"Data Protection Officer\") || input1.text.Contains(\"recipients\") || input1.text.Contains(\"retain\") || input1.text.Contains(\"retention\"))",
+      "evaluatedInput": {
+        "id": "s_00000000",
+        "heading": "Privacy Notice — NovaCRM",
+        "heading_path": "/Privacy Notice — NovaCRM",
+        "category": "transparency",
+        "primary_topic": "transparency",
+        "topics": [
+          "transparency"
+        ],
+        "topic_scores": {
+          "transparency": 0.9
+        },
+        "topic_density": 6.25,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "Document type: SaaS vendor privacy noticeVersion: 4.0 — effective 2026-04-01Owner / Controller: NovaCRM B.V., Keizersgracht 100, 1015 CW Amsterdam, NetherlandsTest label: CLEAN / COMPLIANT — for lambda-rag evaluation against gdpr-privacy-ruleset.md (and quebec-law25-ruleset.md)",
+        "text_raw": "Document type: SaaS vendor privacy noticeVersion: 4.0 — effective 2026-04-01Owner / Controller: NovaCRM B.V., Keizersgracht 100, 1015 CW Amsterdam, NetherlandsTest label: CLEAN / COMPLIANT — for lambda-rag evaluation against gdpr-privacy-ruleset.md (and quebec-law25-ruleset.md)",
+        "text_char_start": 28,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 278
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 112,
+        "charLength": 10,
+        "headingPath": "/Privacy Notice — NovaCRM",
+        "charEnd": 122
+      },
+      "errorMessage": "Rule 'GDPR-G-4-Transparency' failed: At collection the notice must disclose controller identity & contact, recipients, retention period(s), and data-subject rights. Missing retention period or recipients is a gap.",
+      "evidenceQuotes": [
+        "GDPR Arts. 13–14: The controller shall provide the data subject with the identity and contact details of the controller, the recipients of the personal data, and the period for which personal data will be stored."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000000",
+      "remediationText": "Update Privacy Notice — NovaCRM so it explicitly names the controller identity & contact, the recipients (or a sub-processor list URL), and the retention period for each data category, per Arts. 13–14.",
+      "predicateText": "input1.category == \"transparency\"",
+      "clauseSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 28,
+        "charLength": 278,
+        "headingPath": "/Privacy Notice — NovaCRM",
+        "charEnd": 306
+      }
+    },
+    {
+      "id": "lr1:a28ac155c4e0e5763255c08c193d8b068c5f80de9d8f998ccb458db016728cab",
+      "ruleId": "GDPR-G-4-Transparency",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"controller\") && (input1.text.Contains(\"DPO\") || input1.text.Contains(\"Data Protection Officer\") || input1.text.Contains(\"recipients\") || input1.text.Contains(\"retain\") || input1.text.Contains(\"retention\"))",
+      "evaluatedInput": {
+        "id": "s_00000001",
+        "heading": "1. Who we are",
+        "heading_path": "/Privacy Notice — NovaCRM/1. Who we are",
+        "category": "transparency",
+        "primary_topic": "transparency",
+        "topics": [
+          "transparency"
+        ],
+        "topic_scores": {
+          "transparency": 0.9
+        },
+        "topic_density": 5.3571,
+        "is_operative_for_topic": false,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "NovaCRM B.V. is the data controller for the personal data described below. You can contact our Data Protection Officer at dpo@novacrm.example or by post at the address above. For customers in Québec, our Person in charge of the protection of personal information (Privacy Officer) is the VP of Trust, reachable at privacy-officer@novacrm.example (also published at novacrm.example/privacy).",
+        "text_raw": "NovaCRM B.V. is the data controller for the personal data described below. You can contact our Data Protection Officer at dpo@novacrm.example or by post at the address above. For customers in Québec, our Person in charge of the protection of personal information (Privacy Officer) is the VP of Trust, reachable at privacy-officer@novacrm.example (also published at novacrm.example/privacy).",
+        "text_char_start": 353,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 390
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 336,
+        "charLength": 16,
+        "headingPath": "/Privacy Notice — NovaCRM/1. Who we are",
+        "charEnd": 352
+      },
+      "evidenceQuotes": [
+        "GDPR Arts. 13–14: The controller shall provide the data subject with the identity and contact details of the controller, the recipients of the personal data, and the period for which personal data will be stored."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000001",
+      "predicateText": "input1.category == \"transparency\""
+    },
+    {
+      "id": "lr1:76dac290badb7258537980cd30a368963d7ca76028565fe25029cf264fef2745",
+      "ruleId": "GDPR-G-4-Transparency",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"controller\") && (input1.text.Contains(\"DPO\") || input1.text.Contains(\"Data Protection Officer\") || input1.text.Contains(\"recipients\") || input1.text.Contains(\"retain\") || input1.text.Contains(\"retention\"))",
+      "evaluatedInput": {
+        "id": "s_00000003",
+        "heading": "3. Recipients",
+        "heading_path": "/Privacy Notice — NovaCRM/3. Recipients",
+        "category": "transparency",
+        "primary_topic": "transparency",
+        "topics": [
+          "transparency",
+          "records_of_processing"
+        ],
+        "topic_scores": {
+          "transparency": 0.9,
+          "records_of_processing": 0.4
+        },
+        "topic_density": 0,
+        "is_operative_for_topic": false,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "We share personal data only with: (a) our cloud hosting provider (EU region); (b) our payment processor; and (c) our email-delivery sub-processor. Each is bound by a written data-processing agreement. A current sub-processor list is at novacrm.example/subprocessors.",
+        "text_raw": "We share personal data only with: (a) our cloud hosting provider (EU region); (b) our payment processor; and (c) our email-delivery sub-processor. Each is bound by a written data-processing agreement. A current sub-processor list is at novacrm.example/subprocessors.",
+        "text_char_start": 1459,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 266
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 1442,
+        "charLength": 16,
+        "headingPath": "/Privacy Notice — NovaCRM/3. Recipients",
+        "charEnd": 1458
+      },
+      "errorMessage": "Rule 'GDPR-G-4-Transparency' failed: At collection the notice must disclose controller identity & contact, recipients, retention period(s), and data-subject rights. Missing retention period or recipients is a gap.",
+      "evidenceQuotes": [
+        "GDPR Arts. 13–14: The controller shall provide the data subject with the identity and contact details of the controller, the recipients of the personal data, and the period for which personal data will be stored."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000003",
+      "remediationText": "Update 3. Recipients so it explicitly names the controller identity & contact, the recipients (or a sub-processor list URL), and the retention period for each data category, per Arts. 13–14.",
+      "predicateText": "input1.category == \"transparency\"",
+      "clauseSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 1459,
+        "charLength": 266,
+        "headingPath": "/Privacy Notice — NovaCRM/3. Recipients",
+        "charEnd": 1725
+      }
+    },
+    {
+      "id": "lr1:77e3d6eab84c0a9c739363357303813a0c6afa390bfede9dfd5b62b596d73eb2",
+      "ruleId": "GDPR-G-4-Transparency",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"controller\") && (input1.text.Contains(\"DPO\") || input1.text.Contains(\"Data Protection Officer\") || input1.text.Contains(\"recipients\") || input1.text.Contains(\"retain\") || input1.text.Contains(\"retention\"))",
+      "evaluatedInput": {
+        "id": "s_00000005",
+        "heading": "5. Retention",
+        "heading_path": "/Privacy Notice — NovaCRM/5. Retention",
+        "category": "transparency",
+        "primary_topic": "transparency",
+        "topics": [
+          "transparency",
+          "consent_practices",
+          "data_subject_rights",
+          "lawful_basis"
+        ],
+        "topic_scores": {
+          "transparency": 0.9,
+          "consent_practices": 0.4,
+          "data_subject_rights": 0.4,
+          "lawful_basis": 0.4
+        },
+        "topic_density": 0,
+        "is_operative_for_topic": false,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [
+            24
+          ],
+          "year_counts": [
+            7
+          ],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 24,
+          "month_count_max": 24,
+          "year_count_min": 7,
+          "year_count_max": 7,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "We retain account data for the life of your subscription plus 24 months, billing records for 7 years (tax law), and marketing data until you withdraw consent. After these periods data is securely deleted.",
+        "text_raw": "We retain account data for the life of your subscription plus 24 months, billing records for 7 years (tax law), and marketing data until you withdraw consent. After these periods data is securely deleted.",
+        "text_char_start": 2104,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 204
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 2107,
+        "charLength": 6,
+        "headingPath": "/Privacy Notice — NovaCRM/5. Retention",
+        "charEnd": 2113
+      },
+      "errorMessage": "Rule 'GDPR-G-4-Transparency' failed: At collection the notice must disclose controller identity & contact, recipients, retention period(s), and data-subject rights. Missing retention period or recipients is a gap.",
+      "evidenceQuotes": [
+        "GDPR Arts. 13–14: The controller shall provide the data subject with the identity and contact details of the controller, the recipients of the personal data, and the period for which personal data will be stored."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000005",
+      "remediationText": "Update 5. Retention so it explicitly names the controller identity & contact, the recipients (or a sub-processor list URL), and the retention period for each data category, per Arts. 13–14.",
+      "predicateText": "input1.category == \"transparency\"",
+      "clauseSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 2104,
+        "charLength": 204,
+        "headingPath": "/Privacy Notice — NovaCRM/5. Retention",
+        "charEnd": 2308
+      }
+    },
+    {
+      "id": "lr1:f7b1a780b2f5dd082260c432917c89b136516995efa92d2ad63580f6aedeb62d",
+      "ruleId": "GDPR-G-5-DataSubjectRights",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"access\") && (input1.text.Contains(\"rectif\") || input1.text.Contains(\"correct\")) && (input1.text.Contains(\"eras\") || input1.text.Contains(\"delete\")) && (input1.text.Contains(\"lodge a complaint\") || input1.text.Contains(\"supervisory authority\"))",
+      "evaluatedInput": {
+        "id": "s_00000006",
+        "heading": "6. Your rights",
+        "heading_path": "/Privacy Notice — NovaCRM/6. Your rights",
+        "category": "data_subject_rights",
+        "primary_topic": "data_subject_rights",
+        "topics": [
+          "data_subject_rights",
+          "consent_practices",
+          "lawful_basis"
+        ],
+        "topic_scores": {
+          "data_subject_rights": 0.9,
+          "consent_practices": 0.4,
+          "lawful_basis": 0.4
+        },
+        "topic_density": 6.5574,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [
+            1
+          ],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 1,
+          "month_count_max": 1,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "You have the right to access, rectify, erase, restrict, port, and object to processing of your personal data, and to withdraw consent at any time. You also have the right to lodge a complaint with a supervisory authority (e.g., the Dutch Autoriteit Persoonsgegevens, or the Commission d'accès à l'information du Québec). Exercise any right at privacy@novacrm.example; we respond within one month.",
+        "text_raw": "You have the right to access, rectify, erase, restrict, port, and object to processing of your personal data, and to withdraw consent at any time. You also have the right to lodge a complaint with a supervisory authority (e.g., the Dutch Autoriteit Persoonsgegevens, or the Commission d'accès à l'information du Québec). Exercise any right at privacy@novacrm.example; we respond within one month.",
+        "text_char_start": 2336,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 396
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 2318,
+        "charLength": 17,
+        "headingPath": "/Privacy Notice — NovaCRM/6. Your rights",
+        "charEnd": 2335
+      },
+      "evidenceQuotes": [
+        "GDPR Arts. 15–22 + Art. 77: Data subjects have the right of access, rectification, erasure, restriction, portability, objection, and the right to lodge a complaint with a supervisory authority."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000006",
+      "predicateText": "input1.category == \"data_subject_rights\""
+    },
+    {
+      "id": "lr1:079a10d03f403ff997e7db0c055f5751a85fc98851988cf907ba1b1cee8820ed",
+      "ruleId": "GDPR-G-6-RecordsAndTransfers",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"Standard Contractual Clauses\") || input1.text.Contains(\"SCCs\") || input1.text.Contains(\"adequacy decision\") || input1.text.Contains(\"transfer mechanism\")) && (input1.text.Contains(\"outside the EEA\") || input1.text.Contains(\"outside the EU\") || input1.text.Contains(\"United States\") || input1.text.Contains(\"international transfer\"))",
+      "evaluatedInput": {
+        "id": "s_00000004",
+        "heading": "4. International transfers",
+        "heading_path": "/Privacy Notice — NovaCRM/4. International transfers",
+        "category": "international_transfers",
+        "primary_topic": "international_transfers",
+        "topics": [
+          "international_transfers"
+        ],
+        "topic_scores": {
+          "international_transfers": 0.9
+        },
+        "topic_density": 6.8182,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "Where data is transferred outside the EEA (our email sub-processor operates in the United States), the transfer is protected by the European Commission's Standard Contractual Clauses (SCCs) plus supplementary measures. For Québec data communicated outside the province, we complete a Privacy Impact Assessment beforehand.",
+        "text_raw": "Where data is transferred outside the EEA (our email sub-processor operates in the United States), the transfer is protected by the European Commission's Standard Contractual Clauses (SCCs) plus supplementary measures. For Québec data communicated outside the province, we complete a Privacy Impact Assessment beforehand.",
+        "text_char_start": 1757,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 321
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 1727,
+        "charLength": 29,
+        "headingPath": "/Privacy Notice — NovaCRM/4. International transfers",
+        "charEnd": 1756
+      },
+      "evidenceQuotes": [
+        "GDPR Art. 13(1)(f): The controller shall inform the data subject of the fact that personal data will be transferred to a third country and of the existence or absence of an adequacy decision, or the appropriate safeguards."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000004",
+      "predicateText": "input1.category == \"international_transfers\""
+    },
+    {
+      "id": "lr1:d9c042477f9c73c685134db92006d5bd6359b2f48f625f01c420c05475dc1b1b",
+      "ruleId": "GDPR-G-7-SecurityOfProcessing",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"AES-256\") || input1.text.Contains(\"encryption at rest\")) && (input1.text.Contains(\"TLS 1.2\") || input1.text.Contains(\"TLS 1.3\") || input1.text.Contains(\"encryption in transit\")) && (input1.text.Contains(\"MFA\") || input1.text.Contains(\"multi-factor\") || input1.text.Contains(\"role-based access\") || input1.text.Contains(\"pseudonymisation\") || input1.text.Contains(\"penetration testing\"))",
+      "evaluatedInput": {
+        "id": "s_00000008",
+        "heading": "8. Security (GDPR Art. 32)",
+        "heading_path": "/Privacy Notice — NovaCRM/8. Security (GDPR Art. 32)",
+        "category": "security_of_processing",
+        "primary_topic": "security_of_processing",
+        "topics": [
+          "security_of_processing"
+        ],
+        "topic_scores": {
+          "security_of_processing": 0.9
+        },
+        "topic_density": 7.0175,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "We protect personal data with AES-256 encryption at rest, TLS 1.3 in transit, role-based access control with least privilege, multi-factor authentication for staff, pseudonymisation of analytics data, annual penetration testing, and a documented incident-response plan. We maintain a register of confidentiality incidents and notify affected individuals and the relevant authority where a risk of serious injury exists.",
+        "text_raw": "We protect personal data with AES-256 encryption at rest, TLS 1.3 in transit, role-based access control with least privilege, multi-factor authentication for staff, pseudonymisation of analytics data, annual penetration testing, and a documented incident-response plan. We maintain a register of confidentiality incidents and notify affected individuals and the relevant authority where a risk of serious injury exists.",
+        "text_char_start": 2983,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 419
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+        "charStart": 2953,
+        "charLength": 29,
+        "headingPath": "/Privacy Notice — NovaCRM/8. Security (GDPR Art. 32)",
+        "charEnd": 2982
+      },
+      "evidenceQuotes": [
+        "GDPR Art. 32: The controller and the processor shall implement appropriate technical and organisational measures including pseudonymisation and encryption, the ability to ensure ongoing confidentiality, integrity, availability and resilience, and regular testing."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000008",
+      "predicateText": "input1.category == \"security_of_processing\""
+    }
+  ],
+  "generatedAt": "2000-01-01T00:00:00+00:00",
+  "gaps": 0
+}

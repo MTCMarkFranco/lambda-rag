@@ -1,0 +1,586 @@
+{
+  "documentId": {
+    "value": "lr1:493942daf289d2b32d897aeaba30311df4164d7d3013f09b477e28a2d519437b"
+  },
+  "ruleSetId": "rs_hipaa_security_rule",
+  "ruleSetVersion": "1.0.0",
+  "ruleSetFingerprint": {
+    "value": "lr1:f48b84afaff48275faf583a8b934fc27fefe0d39c74086d1329968256ba61c4f"
+  },
+  "projectorId": "contract",
+  "projectorVersion": "1.5.0",
+  "score": 1,
+  "totalRules": 8,
+  "passed": 8,
+  "failed": 0,
+  "notApplicable": 0,
+  "errored": 0,
+  "verdicts": [
+    {
+      "id": "lr1:10a676ae706b823d5fbb8d8fb28fa262220c2ae1cfdbc675d8fae19077078547",
+      "ruleId": "HIPAA-H-1-RiskAnalysis",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"risk analysis\") || input1.text.Contains(\"risk assessment\")) && (input1.text.Contains(\"annually\") || input1.text.Contains(\"annual\") || input1.text.Contains(\"periodic\") || input1.text.Contains(\"organization-wide\") || input1.text.Contains(\"organisation-wide\")) && !(input1.text.Contains(\"of its primary\") || input1.text.Contains(\"one-time\") || input1.text.Contains(\"in 2024\") || input1.text.Contains(\"in 2025\") || input1.text.Contains(\"in 2023\"))",
+      "evaluatedInput": {
+        "id": "s_00000003",
+        "heading": "B1. Security Management Process",
+        "heading_path": "/Business Associate Agreement & Security Addendum — SummitCare Cloud Services, LLC/Part B — Security Safeguards Addendum/B1. Security Management Process",
+        "category": "risk_analysis",
+        "primary_topic": "risk_analysis",
+        "topics": [
+          "risk_analysis"
+        ],
+        "topic_scores": {
+          "risk_analysis": 0.9
+        },
+        "topic_density": 4.6512,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "SummitCare conducts a documented, organization-wide risk analysis annually and after any material system change, covering every system that creates, receives, maintains, or transmits ePHI. Identified risks are tracked to remediation in a risk register reviewed quarterly by the Security Officer (maps: H-1, H-2).",
+        "text_raw": "SummitCare conducts a documented, organization-wide risk analysis annually and after any material system change, covering every system that creates, receives, maintains, or transmits ePHI. Identified risks are tracked to remediation in a risk register reviewed quarterly by the Security Officer (maps: H-1, H-2).",
+        "text_char_start": 1557,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 312
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:493942daf289d2b32d897aeaba30311df4164d7d3013f09b477e28a2d519437b",
+        "charStart": 1521,
+        "charLength": 35,
+        "headingPath": "/Business Associate Agreement & Security Addendum — SummitCare Cloud Services, LLC/Part B — Security Safeguards Addendum/B1. Security Management Process",
+        "charEnd": 1556
+      },
+      "evidenceQuotes": [
+        "§164.308(a)(1)(ii)(A): Conduct an accurate and thorough assessment of the potential risks and vulnerabilities to the confidentiality, integrity, and availability of all ePHI."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000003",
+      "predicateText": "input1.category == \"risk_analysis\""
+    },
+    {
+      "id": "lr1:c915d4110b7d0bfa3a7812469d1ed7737c36b2c493a9e21b967bc6ecb30bcae4",
+      "ruleId": "HIPAA-H-2-SanctionPolicy",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "input1.text.Contains(\"sanction\") && (input1.text.Contains(\"disciplinary\") || input1.text.Contains(\"violations\") || input1.text.Contains(\"violation\"))",
+      "evaluatedInput": {
+        "id": "s_00000004",
+        "heading": "B2. Sanction Policy",
+        "heading_path": "/Business Associate Agreement & Security Addendum — SummitCare Cloud Services, LLC/Part B — Security Safeguards Addendum/B2. Sanction Policy",
+        "category": "sanction_policy",
+        "primary_topic": "sanction_policy",
+        "topics": [
+          "sanction_policy",
+          "workforce_access"
+        ],
+        "topic_scores": {
+          "sanction_policy": 0.9,
+          "workforce_access": 0.4
+        },
+        "topic_density": 14.2857,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "Workforce members who violate security policies are subject to a documented progressive disciplinary process up to and including termination. Violations and sanctions are logged by HR (maps: H-2).",
+        "text_raw": "Workforce members who violate security policies are subject to a documented progressive disciplinary process up to and including termination. Violations and sanctions are logged by HR (maps: H-2).",
+        "text_char_start": 1901,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 196
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:493942daf289d2b32d897aeaba30311df4164d7d3013f09b477e28a2d519437b",
+        "charStart": 1877,
+        "charLength": 23,
+        "headingPath": "/Business Associate Agreement & Security Addendum — SummitCare Cloud Services, LLC/Part B — Security Safeguards Addendum/B2. Sanction Policy",
+        "charEnd": 1900
+      },
+      "evidenceQuotes": [
+        "§164.308(a)(1)(ii)(C): Apply appropriate sanctions against workforce members who fail to comply with the security policies and procedures."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000004",
+      "predicateText": "input1.category == \"sanction_policy\""
+    },
+    {
+      "id": "lr1:4c1fce0cf9dee7181ca9178d45d125445111ad8983ad5b98d9e51018d7cb7e49",
+      "ruleId": "HIPAA-H-3-WorkforceAccess",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"least privilege\") || input1.text.Contains(\"role-based\")) && (input1.text.Contains(\"deprovisioning\") || input1.text.Contains(\"revoked\") || input1.text.Contains(\"termination\") || input1.text.Contains(\"separation\"))",
+      "evaluatedInput": {
+        "id": "s_00000005",
+        "heading": "B3. Workforce Access — Authorization, Least Privilege, Termination",
+        "heading_path": "/Business Associate Agreement & Security Addendum — SummitCare Cloud Services, LLC/Part B — Security Safeguards Addendum/B3. Workforce Access — Authorization, Least Privilege, Termination",
+        "category": "workforce_access",
+        "primary_topic": "workforce_access",
+        "topics": [
+          "workforce_access"
+        ],
+        "topic_scores": {
+          "workforce_access": 0.9
+        },
+        "topic_density": 9.0909,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "Access to ePHI is role-based and granted on the principle of least privilege. Access requests require manager and Security Officer approval. Upon role change or separation, access is revoked within 4 hours through an automated deprovisioning workflow tied to the HR system (maps: H-3).",
+        "text_raw": "Access to ePHI is role-based and granted on the principle of least privilege. Access requests require manager and Security Officer approval. Upon role change or separation, access is revoked within 4 hours through an automated deprovisioning workflow tied to the HR system (maps: H-3).",
+        "text_char_start": 2172,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 285
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:493942daf289d2b32d897aeaba30311df4164d7d3013f09b477e28a2d519437b",
+        "charStart": 2101,
+        "charLength": 70,
+        "headingPath": "/Business Associate Agreement & Security Addendum — SummitCare Cloud Services, LLC/Part B — Security Safeguards Addendum/B3. Workforce Access — Authorization, Least Privilege, Termination",
+        "charEnd": 2171
+      },
+      "evidenceQuotes": [
+        "§164.308(a)(3)–(a)(4): Implement procedures for authorization, supervision, and termination of access to ePHI."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000005",
+      "predicateText": "input1.category == \"workforce_access\""
+    },
+    {
+      "id": "lr1:90243408530ecf2b196279e67dc5c8fed77898ff6a081dedff0bb1583a78dbf9",
+      "ruleId": "HIPAA-H-4-SecurityTraining",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"annually\") || input1.text.Contains(\"annual\") || input1.text.Contains(\"recurring\") || input1.text.Contains(\"quarterly\")) && !(input1.text.Contains(\"during onboarding\") && !input1.text.Contains(\"annual\"))",
+      "evaluatedInput": {
+        "id": "s_00000006",
+        "heading": "B4. Security Awareness & Training",
+        "heading_path": "/Business Associate Agreement & Security Addendum — SummitCare Cloud Services, LLC/Part B — Security Safeguards Addendum/B4. Security Awareness & Training",
+        "category": "security_training",
+        "primary_topic": "security_training",
+        "topics": [
+          "security_training"
+        ],
+        "topic_scores": {
+          "security_training": 0.9
+        },
+        "topic_density": 10.7143,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "All workforce members complete HIPAA security training at hire and annually thereafter, supplemented by quarterly phishing simulations and periodic security reminders. Completion is tracked and enforced (maps: H-4).",
+        "text_raw": "All workforce members complete HIPAA security training at hire and annually thereafter, supplemented by quarterly phishing simulations and periodic security reminders. Completion is tracked and enforced (maps: H-4).",
+        "text_char_start": 2507,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 215
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:493942daf289d2b32d897aeaba30311df4164d7d3013f09b477e28a2d519437b",
+        "charStart": 2469,
+        "charLength": 37,
+        "headingPath": "/Business Associate Agreement & Security Addendum — SummitCare Cloud Services, LLC/Part B — Security Safeguards Addendum/B4. Security Awareness & Training",
+        "charEnd": 2506
+      },
+      "evidenceQuotes": [
+        "§164.308(a)(5): Implement a security awareness and training program for all members of the workforce."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000006",
+      "predicateText": "input1.category == \"security_training\""
+    },
+    {
+      "id": "lr1:9dbb1aacc81db0b66dae812961da050cc597975dd08fbcdd032244034c3c087a",
+      "ruleId": "HIPAA-H-5-ContingencyPlan",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"backup\") || input1.text.Contains(\"Backup\")) && (input1.text.Contains(\"disaster recovery\") || input1.text.Contains(\"DR plan\") || input1.text.Contains(\"RTO\")) && (input1.text.Contains(\"emergency-mode\") || input1.text.Contains(\"emergency mode\"))",
+      "evaluatedInput": {
+        "id": "s_00000007",
+        "heading": "B5. Contingency Plan",
+        "heading_path": "/Business Associate Agreement & Security Addendum — SummitCare Cloud Services, LLC/Part B — Security Safeguards Addendum/B5. Contingency Plan",
+        "category": "contingency_plan",
+        "primary_topic": "contingency_plan",
+        "topics": [
+          "contingency_plan"
+        ],
+        "topic_scores": {
+          "contingency_plan": 0.9
+        },
+        "topic_density": 11.5385,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [
+            90
+          ],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 90,
+          "day_count_max": 90,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "SummitCare maintains: (a) a data backup plan — encrypted backups every 6 hours, replicated cross-region, retained 90 days; (b) a disaster recovery plan with defined RTO of 4 hours and RPO of 6 hours, tested semi-annually; and (c) an emergency-mode operation plan ensuring continued access to critical ePHI during outages (maps: H-5).",
+        "text_raw": "SummitCare maintains: (a) a data backup plan — encrypted backups every 6 hours, replicated cross-region, retained 90 days; (b) a disaster recovery plan with defined RTO of 4 hours and RPO of 6 hours, tested semi-annually; and (c) an emergency-mode operation plan ensuring continued access to critical ePHI during outages (maps: H-5).",
+        "text_char_start": 2755,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 333
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:493942daf289d2b32d897aeaba30311df4164d7d3013f09b477e28a2d519437b",
+        "charStart": 2730,
+        "charLength": 24,
+        "headingPath": "/Business Associate Agreement & Security Addendum — SummitCare Cloud Services, LLC/Part B — Security Safeguards Addendum/B5. Contingency Plan",
+        "charEnd": 2754
+      },
+      "evidenceQuotes": [
+        "§164.308(a)(7): Establish (and implement as needed) policies and procedures for responding to an emergency or other occurrence (data backup plan, disaster recovery plan, emergency mode operation plan)."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000007",
+      "predicateText": "input1.category == \"contingency_plan\""
+    },
+    {
+      "id": "lr1:370820edcd47dbefd55e0e408b2842b13eb894dcca1b82eabc994db846643f09",
+      "ruleId": "HIPAA-H-6-AccessControl",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"unique identifier\") || input1.text.Contains(\"unique user\")) && (!input1.text.Contains(\"shared account\") || input1.text.Contains(\"prohibit\")) && (!input1.text.Contains(\"generic account\") || input1.text.Contains(\"prohibit\"))",
+      "evaluatedInput": {
+        "id": "s_00000008",
+        "heading": "B6. Access Control",
+        "heading_path": "/Business Associate Agreement & Security Addendum — SummitCare Cloud Services, LLC/Part B — Security Safeguards Addendum/B6. Access Control",
+        "category": "access_control",
+        "primary_topic": "access_control",
+        "topics": [
+          "access_control",
+          "transmission_security"
+        ],
+        "topic_scores": {
+          "access_control": 0.9,
+          "transmission_security": 0.4
+        },
+        "topic_density": 9.6774,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "Every user has a unique identifier; shared or generic accounts are prohibited. Sessions enforce automatic logoff after 15 minutes of inactivity. ePHI is encrypted at rest using AES-256 (maps: H-6, H-8).",
+        "text_raw": "Every user has a unique identifier; shared or generic accounts are prohibited. Sessions enforce automatic logoff after 15 minutes of inactivity. ePHI is encrypted at rest using AES-256 (maps: H-6, H-8).",
+        "text_char_start": 3127,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 202
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:493942daf289d2b32d897aeaba30311df4164d7d3013f09b477e28a2d519437b",
+        "charStart": 3104,
+        "charLength": 22,
+        "headingPath": "/Business Associate Agreement & Security Addendum — SummitCare Cloud Services, LLC/Part B — Security Safeguards Addendum/B6. Access Control",
+        "charEnd": 3126
+      },
+      "evidenceQuotes": [
+        "§164.312(a)(2)(i): Assign a unique name and/or number for identifying and tracking user identity."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000008",
+      "predicateText": "input1.category == \"access_control\""
+    },
+    {
+      "id": "lr1:dae66558135962c0210f61fe17c6d619aa3f6ec709a0b0fbe3fdee1716f9ab55",
+      "ruleId": "HIPAA-H-7-AuditControls",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"audit log\") || input1.text.Contains(\"audit logs\") || input1.text.Contains(\"audit logging\")) && (input1.text.Contains(\"reviewed\") || input1.text.Contains(\"review\") || input1.text.Contains(\"alerting\"))",
+      "evaluatedInput": {
+        "id": "s_00000009",
+        "heading": "B7. Audit Controls",
+        "heading_path": "/Business Associate Agreement & Security Addendum — SummitCare Cloud Services, LLC/Part B — Security Safeguards Addendum/B7. Audit Controls",
+        "category": "audit_controls",
+        "primary_topic": "audit_controls",
+        "topics": [
+          "audit_controls"
+        ],
+        "topic_scores": {
+          "audit_controls": 0.9
+        },
+        "topic_density": 6.25,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "All systems containing ePHI generate immutable audit logs of access and modification events. Logs are centrally aggregated and reviewed weekly by the security team, with automated alerting on anomalous access (maps: H-7).",
+        "text_raw": "All systems containing ePHI generate immutable audit logs of access and modification events. Logs are centrally aggregated and reviewed weekly by the security team, with automated alerting on anomalous access (maps: H-7).",
+        "text_char_start": 3364,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 221
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:493942daf289d2b32d897aeaba30311df4164d7d3013f09b477e28a2d519437b",
+        "charStart": 3341,
+        "charLength": 22,
+        "headingPath": "/Business Associate Agreement & Security Addendum — SummitCare Cloud Services, LLC/Part B — Security Safeguards Addendum/B7. Audit Controls",
+        "charEnd": 3363
+      },
+      "evidenceQuotes": [
+        "§164.312(b): Implement hardware, software, and/or procedural mechanisms that record and examine activity in information systems that contain or use ePHI."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000009",
+      "predicateText": "input1.category == \"audit_controls\""
+    },
+    {
+      "id": "lr1:7b648449909bda3eb9c3ac261efa9e0a9049080446eb1981b33dff8c6ff9d7ad",
+      "ruleId": "HIPAA-H-8-TransmissionSecurity",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"TLS 1.2\") || input1.text.Contains(\"TLS 1.3\")) && (input1.text.Contains(\"AES-256\") || input1.text.Contains(\"encrypted at rest\") || input1.text.Contains(\"at rest using\"))",
+      "evaluatedInput": {
+        "id": "s_00000010",
+        "heading": "B8. Transmission Security",
+        "heading_path": "/Business Associate Agreement & Security Addendum — SummitCare Cloud Services, LLC/Part B — Security Safeguards Addendum/B8. Transmission Security",
+        "category": "transmission_security",
+        "primary_topic": "transmission_security",
+        "topics": [
+          "transmission_security",
+          "business_associate"
+        ],
+        "topic_scores": {
+          "transmission_security": 0.9,
+          "business_associate": 0.4
+        },
+        "topic_density": 5.1282,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "ePHI in transit is protected with TLS 1.3 and integrity controls. ePHI at rest is encrypted with AES-256. Remote administrative access requires VPN plus multi-factor authentication (maps: H-8).\nSigned on behalf of SummitCare Cloud Services, LLC. (Internal reference: SCC-BAA-3.0)",
+        "text_raw": "ePHI in transit is protected with TLS 1.3 and integrity controls. ePHI at rest is encrypted with AES-256. Remote administrative access requires VPN plus multi-factor authentication (maps: H-8).\nSigned on behalf of SummitCare Cloud Services, LLC. (Internal reference: SCC-BAA-3.0)",
+        "text_char_start": 3627,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 193
+          },
+          {
+            "char_start": 194,
+            "char_length": 85
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:493942daf289d2b32d897aeaba30311df4164d7d3013f09b477e28a2d519437b",
+        "charStart": 3597,
+        "charLength": 29,
+        "headingPath": "/Business Associate Agreement & Security Addendum — SummitCare Cloud Services, LLC/Part B — Security Safeguards Addendum/B8. Transmission Security",
+        "charEnd": 3626
+      },
+      "evidenceQuotes": [
+        "§164.312(e): Implement technical security measures to guard against unauthorized access to ePHI transmitted over an electronic communications network."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000010",
+      "predicateText": "input1.category == \"transmission_security\""
+    }
+  ],
+  "generatedAt": "2000-01-01T00:00:00+00:00",
+  "gaps": 0
+}

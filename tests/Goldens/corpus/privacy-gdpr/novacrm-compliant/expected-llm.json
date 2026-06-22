@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-22T16:13:19.8224457+00:00",
+  "model": "gpt-5.3-chat-1",
+  "ruleset_id": "rs_gdpr_privacy_notice",
+  "ruleset_version": "1.0.0",
+  "ruleset_fingerprint": "lr1:4dd7fa8c9a57848be71bf5f1fbd621a6d17887a40e2e5b04f1a1b788600bbc48",
+  "document_hash": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+  "document_path": "privacy-gdpr/novacrm-compliant/source.md",
+  "per_rule": {
+    "GDPR-G-1-PurposeLimitation": {
+      "verdict": "PASS",
+      "evidence": "| Name, business email | Create and administer your account |",
+      "reason": "Each listed data category is tied to a specific, explicit purpose rather than a vague catch\u2011all."
+    },
+    "GDPR-G-3-LawfulBasis": {
+      "verdict": "PASS",
+      "evidence": "Performance of a contract \u2014 Art. 6(1)(b)",
+      "reason": "The notice explicitly identifies specific GDPR Art. 6 lawful bases for each listed processing activity in the table."
+    },
+    "GDPR-G-4-Transparency": {
+      "verdict": "PASS",
+      "evidence": "We retain account data for the life of your subscription plus **24 months**, billing records for **7 years** (tax law), and marketing data until you withdraw consent.",
+      "reason": "The notice discloses controller identity and contact, recipients, specific retention periods, and data-subject rights, satisfying the transparency requirement."
+    },
+    "GDPR-G-5-DataSubjectRights": {
+      "verdict": "PASS",
+      "evidence": "right to access, rectify, erase, restrict, port, and object to processing of your personal data, and to withdraw consent at any time. You also have the right to lodge a complaint with a supervisory authority",
+      "reason": "The notice enumerates all required data-subject rights and explicitly includes the right to lodge a complaint with a supervisory authority."
+    },
+    "GDPR-G-6-RecordsAndTransfers": {
+      "verdict": "PASS",
+      "evidence": "the transfer is protected by the European Commission\u0027s **Standard Contractual Clauses (SCCs)** plus supplementary measures",
+      "reason": "The notice discloses an international transfer to the United States and specifies SCCs as the transfer mechanism."
+    },
+    "GDPR-G-7-SecurityOfProcessing": {
+      "verdict": "PASS",
+      "evidence": "AES-256 encryption at rest, TLS 1.3 in transit",
+      "reason": "The document specifies concrete technical and organisational security measures rather than generic claims."
+    }
+  }
+}

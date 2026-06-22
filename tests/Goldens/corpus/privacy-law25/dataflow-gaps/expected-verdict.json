@@ -1,0 +1,428 @@
+{
+  "documentId": {
+    "value": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557"
+  },
+  "ruleSetId": "rs_quebec_law25",
+  "ruleSetVersion": "1.0.0",
+  "ruleSetFingerprint": {
+    "value": "lr1:59082fb7eb89210678220b1df761d673c9cf7cc02b819146d741a340b7c77adb"
+  },
+  "projectorId": "contract",
+  "projectorVersion": "1.5.0",
+  "score": 0,
+  "totalRules": 7,
+  "passed": 0,
+  "failed": 4,
+  "notApplicable": 0,
+  "errored": 0,
+  "verdicts": [
+    {
+      "id": "lr1:156f02aa3117bc94531242bb4627070794ddbe8045f318285d5ecde7ceece4f4",
+      "ruleId": "QLA25-L-1-PrivacyOfficer",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Gap",
+      "lambdaText": "(input1.text.Contains(\"Person in charge of the protection of personal information\") || input1.text.Contains(\"Privacy Officer\")) && (input1.text.Contains(\"@\") || input1.text.Contains(\"published\") || input1.text.Contains(\"website\"))",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "QLA25-s3-1",
+        "charStart": 0,
+        "charLength": 0,
+        "pageNumber": 1,
+        "headingPath": "/s3.1",
+        "charEnd": 0
+      },
+      "evidenceQuotes": [
+        "Law 25 s. 3.1: The person having the highest authority shall ensure the implementation of and compliance with this Act. That person exercises the function of the person in charge of the protection of personal information."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: The enterprise must designate a Privacy Officer (Person in charge of the protection of personal information) and publish their title/contact on the enterprise's website.",
+      "predicateText": "input1.category == \"privacy_officer\""
+    },
+    {
+      "id": "lr1:7b59b9a03a006f2330653b47786f5ba06ddacdfef8f1abba614c17d192ab8a89",
+      "ruleId": "QLA25-L-2-CollectionTransparency",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"rectif\") || input1.text.Contains(\"access and rectification\")) && (input1.text.Contains(\"withdraw consent\") || input1.text.Contains(\"right to withdraw\"))",
+      "evaluatedInput": {
+        "id": "s_00000002",
+        "heading": "Information we collect",
+        "heading_path": "/Privacy Notice — DataFlow Analytics/Information we collect",
+        "category": "collection_transparency",
+        "primary_topic": "collection_transparency",
+        "topics": [
+          "collection_transparency"
+        ],
+        "topic_scores": {
+          "collection_transparency": 0.9
+        },
+        "topic_density": 0,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "We collect the following information:\nYour name and email address\nYour company name and job title\nYour IP address and approximate location\nPrecise device geolocation\nYour browsing activity across the sites where our analytics tag is installed\nUsage data about how you interact with our dashboard\nWe use this information to improve our services and for general business purposes.",
+        "text_raw": "We collect the following information:\nYour name and email address\nYour company name and job title\nYour IP address and approximate location\nPrecise device geolocation\nYour browsing activity across the sites where our analytics tag is installed\nUsage data about how you interact with our dashboard\nWe use this information to improve our services and for general business purposes.",
+        "text_char_start": 524,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 37
+          },
+          {
+            "char_start": 38,
+            "char_length": 27
+          },
+          {
+            "char_start": 66,
+            "char_length": 31
+          },
+          {
+            "char_start": 98,
+            "char_length": 40
+          },
+          {
+            "char_start": 139,
+            "char_length": 26
+          },
+          {
+            "char_start": 166,
+            "char_length": 76
+          },
+          {
+            "char_start": 243,
+            "char_length": 52
+          },
+          {
+            "char_start": 296,
+            "char_length": 82
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+        "charStart": 498,
+        "charLength": 25,
+        "headingPath": "/Privacy Notice — DataFlow Analytics/Information we collect",
+        "charEnd": 523
+      },
+      "errorMessage": "Rule 'QLA25-L-2-CollectionTransparency' failed: At collection the enterprise must inform the individual of purposes, access/rectification rights, and the right to withdraw consent. Missing rectification or consent-withdrawal route is a gap.",
+      "evidenceQuotes": [
+        "Law 25 s. 8: Any person collecting personal information from the person concerned must inform that person of the purposes, means of collection, rights of access and rectification, and the right to withdraw consent."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000002",
+      "remediationText": "Expand Information we collect to inform individuals at collection of: (a) purposes, (b) the rights of access and rectification, and (c) the route to withdraw consent, per s. 8.",
+      "predicateText": "input1.category == \"collection_transparency\" || input1.category == \"rights_and_complaints\"",
+      "clauseSpan": {
+        "documentId": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+        "charStart": 524,
+        "charLength": 378,
+        "headingPath": "/Privacy Notice — DataFlow Analytics/Information we collect",
+        "charEnd": 902
+      }
+    },
+    {
+      "id": "lr1:36affaf153607b4e8b3d63f55b66681e174b9fa344a5d1d3727d55a15a195a8e",
+      "ruleId": "QLA25-L-2-CollectionTransparency",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"rectif\") || input1.text.Contains(\"access and rectification\")) && (input1.text.Contains(\"withdraw consent\") || input1.text.Contains(\"right to withdraw\"))",
+      "evaluatedInput": {
+        "id": "s_00000005",
+        "heading": "Your choices",
+        "heading_path": "/Privacy Notice — DataFlow Analytics/Your choices",
+        "category": "rights_and_complaints",
+        "primary_topic": "rights_and_complaints",
+        "topics": [
+          "rights_and_complaints"
+        ],
+        "topic_scores": {
+          "rights_and_complaints": 0.9
+        },
+        "topic_density": 0,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "If you would like to access the personal information we hold about you, you can email privacy@dataflowanalytics.example and we will do our best to respond.",
+        "text_raw": "If you would like to access the personal information we hold about you, you can email privacy@dataflowanalytics.example and we will do our best to respond.",
+        "text_char_start": 1281,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 155
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+        "charStart": 1265,
+        "charLength": 15,
+        "headingPath": "/Privacy Notice — DataFlow Analytics/Your choices",
+        "charEnd": 1280
+      },
+      "errorMessage": "Rule 'QLA25-L-2-CollectionTransparency' failed: At collection the enterprise must inform the individual of purposes, access/rectification rights, and the right to withdraw consent. Missing rectification or consent-withdrawal route is a gap.",
+      "evidenceQuotes": [
+        "Law 25 s. 8: Any person collecting personal information from the person concerned must inform that person of the purposes, means of collection, rights of access and rectification, and the right to withdraw consent."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000005",
+      "remediationText": "Expand Your choices to inform individuals at collection of: (a) purposes, (b) the rights of access and rectification, and (c) the route to withdraw consent, per s. 8.",
+      "predicateText": "input1.category == \"collection_transparency\" || input1.category == \"rights_and_complaints\"",
+      "clauseSpan": {
+        "documentId": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+        "charStart": 1281,
+        "charLength": 155,
+        "headingPath": "/Privacy Notice — DataFlow Analytics/Your choices",
+        "charEnd": 1436
+      }
+    },
+    {
+      "id": "lr1:d3f4d0bb3ea6a6a510ae156c4eac2575778d6ee93a77e9e11618c0f12707a10f",
+      "ruleId": "QLA25-L-3-PrivacyByDefault",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Gap",
+      "lambdaText": "(input1.text.Contains(\"highest-confidentiality\") || input1.text.Contains(\"highest confidentiality\") || input1.text.Contains(\"most-protective\")) && input1.text.Contains(\"default\")",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "QLA25-s9-1",
+        "charStart": 0,
+        "charLength": 0,
+        "pageNumber": 1,
+        "headingPath": "/s9.1",
+        "charEnd": 0
+      },
+      "evidenceQuotes": [
+        "Law 25 s. 9.1: An enterprise that collects personal information when offering a technological product or service to the public shall ensure that the parameters of the product or service provide the highest level of confidentiality by default."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: Where a technological product or service is offered to the public, default settings must provide the highest level of confidentiality without any intervention by the individual. Defaults that opt the user into sharing are a gap.",
+      "predicateText": "input1.category == \"privacy_by_default\""
+    },
+    {
+      "id": "lr1:bb5bf3565887704fae7302875aeb9869ac260cd37f80d13e1ccdff457b5f3049",
+      "ruleId": "QLA25-L-4-PrivacyImpactAssessment",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"Privacy Impact Assessment\") || input1.text.Contains(\"PIA\")) && (input1.text.Contains(\"outside Québec\") || input1.text.Contains(\"outside Quebec\") || input1.text.Contains(\"outside the province\") || input1.text.Contains(\"outside the EEA\") || input1.text.Contains(\"system project\") || input1.text.Contains(\"before communicating\") || input1.text.Contains(\"beforehand\") || input1.text.Contains(\"cross-border\"))",
+      "evaluatedInput": {
+        "id": "s_00000007",
+        "heading": "Consent",
+        "heading_path": "/Privacy Notice — DataFlow Analytics/Consent",
+        "category": "consent_cross_border",
+        "primary_topic": "consent_cross_border",
+        "topics": [
+          "consent_cross_border"
+        ],
+        "topic_scores": {
+          "consent_cross_border": 0.9
+        },
+        "topic_density": 5.2632,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "By creating an account, you consent to all of the data collection, use, and sharing described in this notice.",
+        "text_raw": "By creating an account, you consent to all of the data collection, use, and sharing described in this notice.",
+        "text_char_start": 1568,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 109
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+        "charStart": 1557,
+        "charLength": 10,
+        "headingPath": "/Privacy Notice — DataFlow Analytics/Consent",
+        "charEnd": 1567
+      },
+      "errorMessage": "Rule 'QLA25-L-4-PrivacyImpactAssessment' failed: The enterprise must conduct a Privacy Impact Assessment (PIA) for information-system projects involving PI and before communicating PI outside Québec.",
+      "evidenceQuotes": [
+        "Law 25 s. 3.3: A privacy impact assessment must be conducted for any project to acquire, develop or overhaul an information system or electronic service involving personal information. s. 17: Before communicating personal information outside Québec, an assessment of privacy-related factors must be conducted."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000007",
+      "remediationText": "Describe a PIA process in Consent tied to (a) new or overhauled information systems and (b) communications of PI outside Québec, per s. 3.3 and s. 17.",
+      "predicateText": "input1.category == \"privacy_impact_assessment\" || input1.category == \"consent_cross_border\"",
+      "clauseSpan": {
+        "documentId": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+        "charStart": 1568,
+        "charLength": 109,
+        "headingPath": "/Privacy Notice — DataFlow Analytics/Consent",
+        "charEnd": 1677
+      }
+    },
+    {
+      "id": "lr1:050ee965cedc7d96ef040eda6f35144ab4df1db9d0cf5489a65f561963d9b07c",
+      "ruleId": "QLA25-L-5-IncidentRegister",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Gap",
+      "lambdaText": "(input1.text.Contains(\"register of confidentiality incidents\") || input1.text.Contains(\"incident register\")) && (input1.text.Contains(\"Commission d'accès\") || input1.text.Contains(\"CAI\") || input1.text.Contains(\"notify affected\") || input1.text.Contains(\"notify the relevant authority\"))",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "QLA25-s3-5",
+        "charStart": 0,
+        "charLength": 0,
+        "pageNumber": 1,
+        "headingPath": "/s3.5",
+        "charEnd": 0
+      },
+      "evidenceQuotes": [
+        "Law 25 s. 3.5–3.8: Where a confidentiality incident presents a risk of serious injury, the enterprise must promptly notify the Commission and any person whose personal information is concerned, and must keep a register of confidentiality incidents."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: On a confidentiality incident posing a risk of serious injury, the enterprise must notify the Commission d'accès à l'information (CAI) and affected individuals, AND maintain a register of all confidentiality incidents.",
+      "predicateText": "input1.category == \"incident_handling\" || input1.text.Contains(\"register of confidentiality incidents\") || input1.text.Contains(\"incident register\")"
+    },
+    {
+      "id": "lr1:b17285c5cf95e2f79336850018a0c6af211213fefa9e2b8520f937ef4101ace8",
+      "ruleId": "QLA25-L-6-ConsentCrossBorder",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"specific purposes\") || input1.text.Contains(\"manifest\") || input1.text.Contains(\"free and informed\")) && !(input1.text.Contains(\"By creating an account, you consent to all\") || input1.text.Contains(\"consent to all of the\"))",
+      "evaluatedInput": {
+        "id": "s_00000007",
+        "heading": "Consent",
+        "heading_path": "/Privacy Notice — DataFlow Analytics/Consent",
+        "category": "consent_cross_border",
+        "primary_topic": "consent_cross_border",
+        "topics": [
+          "consent_cross_border"
+        ],
+        "topic_scores": {
+          "consent_cross_border": 0.9
+        },
+        "topic_density": 5.2632,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "By creating an account, you consent to all of the data collection, use, and sharing described in this notice.",
+        "text_raw": "By creating an account, you consent to all of the data collection, use, and sharing described in this notice.",
+        "text_char_start": 1568,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 109
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+        "charStart": 1568,
+        "charLength": 42,
+        "headingPath": "/Privacy Notice — DataFlow Analytics/Consent",
+        "charEnd": 1610
+      },
+      "errorMessage": "Rule 'QLA25-L-6-ConsentCrossBorder' failed: Consent must be manifest, free, and informed and given for specific purposes. Blanket / bundled consent is a gap. Communication of PI outside Québec requires a PIA and consideration of the receiving jurisdiction's protections.",
+      "evidenceQuotes": [
+        "Law 25 s. 12: Consent must be manifest, free and informed and be given for specific purposes. s. 17: Before communicating personal information outside Québec, the enterprise must conduct a privacy impact assessment."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000007",
+      "remediationText": "Update Consent so consent is captured for each specific purpose (no blanket / bundled consent) and cross-border communications of PI are paired with a PIA naming the destination's protections, per s. 12 and s. 17.",
+      "predicateText": "input1.category == \"consent_cross_border\"",
+      "clauseSpan": {
+        "documentId": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+        "charStart": 1568,
+        "charLength": 109,
+        "headingPath": "/Privacy Notice — DataFlow Analytics/Consent",
+        "charEnd": 1677
+      }
+    }
+  ],
+  "generatedAt": "2000-01-01T00:00:00+00:00",
+  "gaps": 3
+}
