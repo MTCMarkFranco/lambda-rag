@@ -5,7 +5,7 @@
   "ruleSetId": "rs_gc_cloud_guardrails_v2",
   "ruleSetVersion": "1.0.0",
   "ruleSetFingerprint": {
-    "value": "lr1:59ab8307c1e8ccba9a533ed18bb9033ee230695669c26d21d4bb8dd7e80d193f"
+    "value": "lr1:bd4802b99065ac48c35892c0adb45194dd7ad262a56ca01ecf47bca56322f9c9"
   },
   "projectorId": "contract",
   "projectorVersion": "1.5.0",
@@ -173,7 +173,7 @@
       "ruleId": "GC-CG-06-EncryptionAtRest",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
-      "lambdaText": "input1.text.Contains(\"AES-256\") && (input1.text.Contains(\"FIPS 140\") || input1.text.Contains(\"FIPS-validated\"))",
+      "lambdaText": "input1.text.Contains(\"AES-256\") && (input1.text.Contains(\"FIPS 140\") || input1.text.Contains(\"FIPS140\") || input1.text.Contains(\"FIPS-validated\") || input1.text.Contains(\"FIPS validated\"))",
       "evaluatedInput": {
         "id": "s_00000004",
         "heading": "4. Encryption at Rest",
@@ -248,7 +248,7 @@
       "ruleId": "GC-CG-07-TLS",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
-      "lambdaText": "(input1.text.Contains(\"TLS 1.2\") || input1.text.Contains(\"TLS 1.3\")) && !input1.text.Contains(\"TLS 1.0\") && !input1.text.Contains(\"TLS 1.1\")",
+      "lambdaText": "(input1.text.Contains(\"TLS 1.2\") || input1.text.Contains(\"TLS 1.3\")) && (!(input1.text.Contains(\"TLS 1.0\") || input1.text.Contains(\"TLS 1.1\")) || input1.text.Contains(\"disabled\")) && !input1.text.Contains(\"public-facing\")",
       "evaluatedInput": {
         "id": "s_00000005",
         "heading": "5. TLS 1.2 Configuration",

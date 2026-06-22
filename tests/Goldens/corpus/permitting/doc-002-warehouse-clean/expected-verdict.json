@@ -5,7 +5,7 @@
   "ruleSetId": "rs_can_permitting_v1",
   "ruleSetVersion": "1.0.0",
   "ruleSetFingerprint": {
-    "value": "lr1:d3e4f1fd62da6b02c9771dc1537bc45a196f93ae9cca5866c69eed1983eaa755"
+    "value": "lr1:334c88fe3699a5062defb7903d281e43d018f97604850b60c1c32210a437eb61"
   },
   "projectorId": "contract",
   "projectorVersion": "1.5.0",
@@ -163,7 +163,7 @@
       "ruleId": "PERMIT-FIRE-EGRESS-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
-      "lambdaText": "(input1.text.Contains(\"3.4.2\") || input1.text.Contains(\"OBC 3.4\") || input1.text.Contains(\"travel distance\")) && input1.text.Contains(\"exit\")",
+      "lambdaText": "input1.text.Contains(\"exit\") && (input1.text.Contains(\"3.4.2\") || input1.text.Contains(\"OBC 3.4\")) && (input1.text.Contains(\"in accordance with\") || input1.text.Contains(\"complies with\") || input1.text.Contains(\"compliant\") || input1.text.Contains(\"within the\"))",
       "evaluatedInput": {
         "id": "s_00000003",
         "heading": "Fire Egress",
