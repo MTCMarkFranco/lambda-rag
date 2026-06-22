@@ -141,6 +141,17 @@ public sealed class AccuracyHarness
         ScenarioEvaluation evalCfg)
     {
         var configuration = BuildBenchmarkConfiguration();
+
+        // Load the ruleset first so we can decide whether to wire in
+        // LambdaRag.Authoring. Authoring transitively pulls Azure.Search.Documents
+        // and the RuntimeDeterminismGuardrails guardrail forbids that assembly
+        // from being loaded into the test AppDomain when no anchored rules
+        // are present (issue #74).
+        var rulesetJson = await File.ReadAllTextAsync(rulesetPath);
+        var ruleset = JsonSerializer.Deserialize<RuleSet>(rulesetJson, CanonicalJson.Options)!;
+        var hasAnchoredRules = ruleset.Rules.Any(r =>
+            r.SemanticAnchors is { Count: > 0 });
+
         var services = new ServiceCollection();
         services.AddLogging(b => b.SetMinimumLevel(LogLevel.Warning));
         services.AddSingleton<TimeProvider>(new FrozenTimeProvider(FrozenInstant));
@@ -149,47 +160,26 @@ public sealed class AccuracyHarness
             .AddLambdaRagParsing()
             .AddLambdaRagProjection()
             .AddLambdaRagSelectors()
-            .AddLambdaRagEvaluation()
-            .AddLambdaRagAuthoring(configuration);
+            .AddLambdaRagEvaluation();
+        if (hasAnchoredRules)
+            RegisterAuthoring(services, configuration);
 
         await using var sp = services.BuildServiceProvider();
         var parsers = sp.GetRequiredService<ParserRegistry>();
 
         var topicMap = TopicMapRegistry.Load($"{vertical}.v1");
 
-        var rulesetJson = await File.ReadAllTextAsync(rulesetPath);
-        var ruleset = JsonSerializer.Deserialize<RuleSet>(rulesetJson, CanonicalJson.Options)!;
-
         // Mirror ArbPsaBenchmark's anchor-aware wiring. If the ruleset
         // carries semanticAnchors we build a projector + evaluator that
         // can resolve them; otherwise the simple anchor-free path is fine
         // and avoids paying for the embedder.
-        var hasAnchoredRules = ruleset.Rules.Any(r =>
-            r.SemanticAnchors is { Count: > 0 });
 
         IDocumentProjector projector;
         EvaluationService evaluator;
 
         if (hasAnchoredRules)
         {
-            var ruleEmbedder = sp.GetRequiredService<IRuleEmbedder>();
-            projector = new DeterministicContractProjector(
-                topicMap,
-                ruleSet: ruleset,
-                ruleEmbedder: ruleEmbedder,
-                syntheticCosineThreshold: 0.30,
-                logger: sp.GetService<ILogger<DeterministicContractProjector>>());
-            evaluator = new EvaluationService(
-                sp.GetRequiredService<ISelectorMatcher>(),
-                sp.GetRequiredService<ILogger<EvaluationService>>(),
-                sp.GetService<TimeProvider>(),
-                sp.GetService<ICandidateRuleFilter>(),
-                vectorStore: null,
-                tokenEmbedder: ruleEmbedder,
-                semanticThresholdOffset: evalCfg.SemanticThresholdOffset,
-                minEffectiveSemanticThreshold: evalCfg.MinEffectiveSemanticThreshold,
-                enforceSoftCohesion: evalCfg.EnforceSoftCohesion,
-                minEvidencedAnchors: evalCfg.MinEvidencedAnchors);
+            (projector, evaluator) = BuildAnchoredPipeline(sp, topicMap, ruleset, evalCfg);
         }
         else
         {
@@ -200,6 +190,50 @@ public sealed class AccuracyHarness
         var parsed = await parsers.ParseAsync(sourcePath);
         var projected = await projector.ProjectAsync(parsed);
         return await evaluator.EvaluateAsync(ruleset, projected);
+    }
+
+    /// <summary>
+    /// Wraps <c>AddLambdaRagAuthoring</c> in a helper method so the JIT only
+    /// resolves the LambdaRag.Authoring assembly (and its transitive
+    /// Azure.Search.Documents dependency) when an anchored ruleset actually
+    /// runs. Required to keep the anchor-free corpus path cloud-free per
+    /// RuntimeDeterminismGuardrails (issue #74).
+    /// </summary>
+    private static void RegisterAuthoring(IServiceCollection services, IConfiguration configuration)
+        => services.AddLambdaRagAuthoring(configuration);
+
+    /// <summary>
+    /// Isolates all references to <see cref="IRuleEmbedder"/> (and any other
+    /// LambdaRag.Authoring type) in a separate method so the JIT only resolves
+    /// the Authoring assembly when an anchored ruleset is actually run.
+    /// Keeps Azure.Search.Documents out of the AppDomain for the common
+    /// anchor-free path the RuntimeDeterminismGuardrails enforces (issue #74).
+    /// </summary>
+    private static (IDocumentProjector projector, EvaluationService evaluator) BuildAnchoredPipeline(
+        IServiceProvider sp,
+        TopicMap topicMap,
+        RuleSet ruleset,
+        ScenarioEvaluation evalCfg)
+    {
+        var ruleEmbedder = sp.GetRequiredService<IRuleEmbedder>();
+        var projector = new DeterministicContractProjector(
+            topicMap,
+            ruleSet: ruleset,
+            ruleEmbedder: ruleEmbedder,
+            syntheticCosineThreshold: 0.30,
+            logger: sp.GetService<ILogger<DeterministicContractProjector>>());
+        var evaluator = new EvaluationService(
+            sp.GetRequiredService<ISelectorMatcher>(),
+            sp.GetRequiredService<ILogger<EvaluationService>>(),
+            sp.GetService<TimeProvider>(),
+            sp.GetService<ICandidateRuleFilter>(),
+            vectorStore: null,
+            tokenEmbedder: ruleEmbedder,
+            semanticThresholdOffset: evalCfg.SemanticThresholdOffset,
+            minEffectiveSemanticThreshold: evalCfg.MinEffectiveSemanticThreshold,
+            enforceSoftCohesion: evalCfg.EnforceSoftCohesion,
+            minEvidencedAnchors: evalCfg.MinEvidencedAnchors);
+        return (projector, evaluator);
     }
 
     // ── ground truth + config IO ───────────────────────────────────────
