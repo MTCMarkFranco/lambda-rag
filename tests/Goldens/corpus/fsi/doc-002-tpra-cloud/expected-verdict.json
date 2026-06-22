@@ -5,14 +5,14 @@
   "ruleSetId": "rs_osfi_b10_tprm",
   "ruleSetVersion": "1.0.0",
   "ruleSetFingerprint": {
-    "value": "lr1:bc40e4051d8695407fb3fcf3b823ef052e96b8ef19ff52c48708545ebb8c9861"
+    "value": "lr1:303a9813a62f36e10b49cb79b8b119a1d83c86ac7843349330631f7e1e0da50b"
   },
   "projectorId": "contract",
   "projectorVersion": "1.5.0",
-  "score": 0.25,
+  "score": 0.1875,
   "totalRules": 16,
-  "passed": 4,
-  "failed": 12,
+  "passed": 3,
+  "failed": 13,
   "notApplicable": 0,
   "errored": 0,
   "verdicts": [
@@ -942,7 +942,7 @@
       "ruleId": "OSFI-B10-TPRMF",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
-      "lambdaText": "(input1.text.Contains(\"TPRMF\") || input1.text.Contains(\"Third-Party Risk Management Framework\") || input1.text.Contains(\"third-party risk management framework\")) && (input1.text.Contains(\"risk-tier\") || input1.text.Contains(\"risk tier\") || input1.text.Contains(\"criticality\"))",
+      "lambdaText": "(input1.text.Contains(\"TPRMF\") || input1.text.Contains(\"Third-Party Risk Management Framework\") || input1.text.Contains(\"third-party risk management framework\")) && (input1.text.Contains(\"risk-tier\") || input1.text.Contains(\"risk tier\") || input1.text.Contains(\"criticality\")) && (input1.text.Contains(\"accountabilit\") || input1.text.Contains(\"lifecycle\") || input1.text.Contains(\"policies\"))",
       "evaluatedInput": {
         "id": "s_00000000",
         "heading": "Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)",
@@ -1016,11 +1016,11 @@
       }
     },
     {
-      "id": "lr1:c5dba92ac62501151bd494beb743972bc5f690da284c97b09a5d14be3247bdb1",
+      "id": "lr1:ab491e549475a01fb09255762d05fdf89c293ea128cce9896cc39cadb1194580",
       "ruleId": "OSFI-B10-TPRMF",
       "ruleSetVersion": "1.0.0",
-      "outcome": "Pass",
-      "lambdaText": "(input1.text.Contains(\"TPRMF\") || input1.text.Contains(\"Third-Party Risk Management Framework\") || input1.text.Contains(\"third-party risk management framework\")) && (input1.text.Contains(\"risk-tier\") || input1.text.Contains(\"risk tier\") || input1.text.Contains(\"criticality\"))",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"TPRMF\") || input1.text.Contains(\"Third-Party Risk Management Framework\") || input1.text.Contains(\"third-party risk management framework\")) && (input1.text.Contains(\"risk-tier\") || input1.text.Contains(\"risk tier\") || input1.text.Contains(\"criticality\")) && (input1.text.Contains(\"accountabilit\") || input1.text.Contains(\"lifecycle\") || input1.text.Contains(\"policies\"))",
       "evaluatedInput": {
         "id": "s_00000002",
         "heading": "2. Outsourcing — Governance and Third-Party Risk Management Framework",
@@ -1072,24 +1072,33 @@
       },
       "sourceSpan": {
         "documentId": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
-        "charStart": 459,
-        "charLength": 72,
+        "charStart": 630,
+        "charLength": 5,
         "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)/2. Outsourcing — Governance and Third-Party Risk Management Framework",
-        "charEnd": 531
+        "charEnd": 635
       },
+      "errorMessage": "Rule 'OSFI-B10-TPRMF' failed: The arrangement must be governed by an enterprise-wide Third-Party Risk Management Framework (TPRMF) that sets out clear accountabilities, risk-tiering methodology, and lifecycle policies.",
       "evidenceQuotes": [
         "The FRFI should establish a TPRMF that sets out clear accountabilities, responsibilities, policies, and processes for identifying, managing, mitigating, monitoring and reporting on risks relating to the use of third parties."
       ],
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000002",
-      "predicateText": "input1.category == \"third_party_risk\""
+      "remediationText": "Add to 2. Outsourcing — Governance and Third-Party Risk Management Framework: \"This arrangement is governed by the FRFI's enterprise-wide Third-Party Risk Management Framework (TPRMF), under which the arrangement has been risk-tiered and assessed for criticality, per OSFI Guideline B-10 Principle 2.\"",
+      "predicateText": "input1.category == \"third_party_risk\"",
+      "clauseSpan": {
+        "documentId": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
+        "charStart": 533,
+        "charLength": 361,
+        "headingPath": "/Third-Party Risk Assessment — Cloud SaaS Onboarding (BetaBank Treasury)/2. Outsourcing — Governance and Third-Party Risk Management Framework",
+        "charEnd": 894
+      }
     },
     {
       "id": "lr1:4e9ae327463ca52fa26c53f644729566afea09f44c39f2f50a6aa45218b305cb",
       "ruleId": "OSFI-B10-TPRMF",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
-      "lambdaText": "(input1.text.Contains(\"TPRMF\") || input1.text.Contains(\"Third-Party Risk Management Framework\") || input1.text.Contains(\"third-party risk management framework\")) && (input1.text.Contains(\"risk-tier\") || input1.text.Contains(\"risk tier\") || input1.text.Contains(\"criticality\"))",
+      "lambdaText": "(input1.text.Contains(\"TPRMF\") || input1.text.Contains(\"Third-Party Risk Management Framework\") || input1.text.Contains(\"third-party risk management framework\")) && (input1.text.Contains(\"risk-tier\") || input1.text.Contains(\"risk tier\") || input1.text.Contains(\"criticality\")) && (input1.text.Contains(\"accountabilit\") || input1.text.Contains(\"lifecycle\") || input1.text.Contains(\"policies\"))",
       "evaluatedInput": {
         "id": "s_00000003",
         "heading": "3. Subcontracting and Outsourcing of Services",
@@ -1169,7 +1178,7 @@
       "ruleId": "OSFI-B10-TPRMF",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
-      "lambdaText": "(input1.text.Contains(\"TPRMF\") || input1.text.Contains(\"Third-Party Risk Management Framework\") || input1.text.Contains(\"third-party risk management framework\")) && (input1.text.Contains(\"risk-tier\") || input1.text.Contains(\"risk tier\") || input1.text.Contains(\"criticality\"))",
+      "lambdaText": "(input1.text.Contains(\"TPRMF\") || input1.text.Contains(\"Third-Party Risk Management Framework\") || input1.text.Contains(\"third-party risk management framework\")) && (input1.text.Contains(\"risk-tier\") || input1.text.Contains(\"risk tier\") || input1.text.Contains(\"criticality\")) && (input1.text.Contains(\"accountabilit\") || input1.text.Contains(\"lifecycle\") || input1.text.Contains(\"policies\"))",
       "evaluatedInput": {
         "id": "s_00000004",
         "heading": "4. Audit and Examination — Vendor Risk Oversight",

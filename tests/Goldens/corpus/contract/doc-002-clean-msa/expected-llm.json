@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-22T12:45:34.6294445+00:00",
+  "model": "gpt-5.3-chat-1",
+  "ruleset_id": "rs_canadian_commercial_contract",
+  "ruleset_version": "1.0.0",
+  "ruleset_fingerprint": "lr1:0f7bb1d3e1a76469228d4d43e6e94456345aedec4cca0188f3203006f2778170",
+  "document_hash": "lr1:ec3d1eadd2f4a0d2d851676e1491d49f7df2ee101d48f79d59e01b1f9ae033c1",
+  "document_path": "contract/doc-002-clean-msa/source.md",
+  "per_rule": {
+    "CAN-CONTRACT-GOV-001": {
+      "verdict": "PASS",
+      "evidence": "This Agreement is governed by the laws of the Province of Ontario and the federal laws of Canada applicable therein. The exclusive venue for any dispute is the courts of Ontario.",
+      "reason": "The governing law is a Canadian province and venue is explicitly in Canadian courts."
+    },
+    "CAN-CONTRACT-LIAB-001": {
+      "verdict": "PASS",
+      "evidence": "shall not exceed the fees paid by Customer to Provider in the twelve (12) months preceding the event giving rise to the claim",
+      "reason": "The contract sets a clear aggregate liability cap tied to fees paid in the preceding 12 months."
+    },
+    "CAN-CONTRACT-PAY-001": {
+      "verdict": "PASS",
+      "evidence": "within thirty (30) days (net 30) of receipt of a valid invoice",
+      "reason": "The contract specifies payment within 30 days of invoice receipt, meeting the net-30-or-fewer requirement."
+    },
+    "CAN-CONTRACT-PRIVACY-001": {
+      "verdict": "PASS",
+      "evidence": "in compliance with the *Personal Information Protection and Electronic Documents Act* (PIPEDA)",
+      "reason": "The contract references PIPEDA in the section governing processing of Personal Information."
+    },
+    "CAN-CONTRACT-TERM-001": {
+      "verdict": "PASS",
+      "evidence": "Either party may terminate this Agreement for material uncured breach on thirty (30) days\u0027 written notice. Customer may terminate this Agreement for convenience on ninety (90) days\u0027 written notice.",
+      "reason": "The document includes termination for cause (material breach) and termination for convenience, each with a defined notice period."
+    }
+  }
+}

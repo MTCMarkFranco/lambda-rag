@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-22T16:13:55.0369199+00:00",
+  "model": "gpt-5.3-chat-1",
+  "ruleset_id": "rs_quebec_law25",
+  "ruleset_version": "1.0.0",
+  "ruleset_fingerprint": "lr1:deb1ced5f23d075eebbf574404a2542f78e36e9c2ab803b604e2979741e60645",
+  "document_hash": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+  "document_path": "privacy-law25/dataflow-gaps/source.md",
+  "per_rule": {
+    "QLA25-L-1-PrivacyOfficer": {
+      "verdict": "FAIL",
+      "evidence": "Questions? Email us at privacy@dataflowanalytics.example.",
+      "reason": "The notice provides a general contact email but does not designate or publish the title/contact of a Privacy Officer (person in charge of personal information protection)."
+    },
+    "QLA25-L-2-CollectionTransparency": {
+      "verdict": "FAIL",
+      "evidence": "If you would like to access the personal information we hold about you, you can email privacy@dataflowanalytics.example",
+      "reason": "The notice provides an access route but does not inform individuals of rectification rights or the right to withdraw consent."
+    },
+    "QLA25-L-3-PrivacyByDefault": {
+      "verdict": "FAIL",
+      "evidence": "By continuing to use our website, you agree to our use of cookies.",
+      "reason": "The notice implies tracking is enabled by default unless the user stops using the site, indicating opt\u2011in sharing rather than privacy\u2011protective default settings."
+    },
+    "QLA25-L-4-PrivacyImpactAssessment": {
+      "verdict": "FAIL",
+      "evidence": "Some of these providers are located in other countries.",
+      "reason": "The document indicates personal information may be communicated outside Qu\u00E9bec but contains no mention of conducting a Privacy Impact Assessment (PIA)."
+    },
+    "QLA25-L-5-IncidentRegister": {
+      "verdict": "FAIL",
+      "evidence": "We protect your information using industry-standard measures and are committed to keeping your data safe.",
+      "reason": "The document discusses security generally but contains no statement about notifying the CAI and affected individuals after a serious confidentiality incident or maintaining a register of confidentiality incidents."
+    },
+    "QLA25-L-6-ConsentCrossBorder": {
+      "verdict": "FAIL",
+      "evidence": "you consent to all of the data collection, use, and sharing described in this notice",
+      "reason": "The notice relies on blanket bundled consent rather than specific, informed consent and provides no indication of a PIA or jurisdictional assessment for cross\u2011border data transfers."
+    }
+  }
+}

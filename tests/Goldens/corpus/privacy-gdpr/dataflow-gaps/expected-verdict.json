@@ -1,0 +1,518 @@
+{
+  "documentId": {
+    "value": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557"
+  },
+  "ruleSetId": "rs_gdpr_privacy_notice",
+  "ruleSetVersion": "1.0.0",
+  "ruleSetFingerprint": {
+    "value": "lr1:cd03d44034e409ef89d09d8144b6c4a9362757ef216e07b1e931efb716c21343"
+  },
+  "projectorId": "contract",
+  "projectorVersion": "1.5.0",
+  "score": 0,
+  "totalRules": 7,
+  "passed": 0,
+  "failed": 5,
+  "notApplicable": 0,
+  "errored": 0,
+  "verdicts": [
+    {
+      "id": "lr1:6bf8e97011c8d25456048dc6ddb993aa2ba54f5cc65f8f7dfbeba612b21fb8f7",
+      "ruleId": "GDPR-G-1-PurposeLimitation",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"specific purpose\") || input1.text.Contains(\"purpose limitation\") || input1.text.Contains(\"data minimisation\") || input1.text.Contains(\"only the data necessary\")) && !(input1.text.Contains(\"general business purposes\") || input1.text.Contains(\"to improve our services\"))",
+      "evaluatedInput": {
+        "id": "s_00000002",
+        "heading": "Information we collect",
+        "heading_path": "/Privacy Notice — DataFlow Analytics/Information we collect",
+        "category": "purpose_and_minimisation",
+        "primary_topic": "purpose_and_minimisation",
+        "topics": [
+          "purpose_and_minimisation",
+          "cookies_and_tracking"
+        ],
+        "topic_scores": {
+          "purpose_and_minimisation": 0.9,
+          "cookies_and_tracking": 0.4
+        },
+        "topic_density": 0,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "We collect the following information:\nYour name and email address\nYour company name and job title\nYour IP address and approximate location\nPrecise device geolocation\nYour browsing activity across the sites where our analytics tag is installed\nUsage data about how you interact with our dashboard\nWe use this information to improve our services and for general business purposes.",
+        "text_raw": "We collect the following information:\nYour name and email address\nYour company name and job title\nYour IP address and approximate location\nPrecise device geolocation\nYour browsing activity across the sites where our analytics tag is installed\nUsage data about how you interact with our dashboard\nWe use this information to improve our services and for general business purposes.",
+        "text_char_start": 524,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 37
+          },
+          {
+            "char_start": 38,
+            "char_length": 27
+          },
+          {
+            "char_start": 66,
+            "char_length": 31
+          },
+          {
+            "char_start": 98,
+            "char_length": 40
+          },
+          {
+            "char_start": 139,
+            "char_length": 26
+          },
+          {
+            "char_start": 166,
+            "char_length": 76
+          },
+          {
+            "char_start": 243,
+            "char_length": 52
+          },
+          {
+            "char_start": 296,
+            "char_length": 82
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+        "charStart": 876,
+        "charLength": 25,
+        "headingPath": "/Privacy Notice — DataFlow Analytics/Information we collect",
+        "charEnd": 901
+      },
+      "errorMessage": "Rule 'GDPR-G-1-PurposeLimitation' failed: Personal data must be collected for specified, explicit, and legitimate purposes. Each data category must be tied to a stated, specific purpose. Vague catch-all purposes (e.g., \"to improve our services,\" \"for general business purposes\") are a gap.",
+      "evidenceQuotes": [
+        "GDPR Art. 5(1)(b): Personal data shall be collected for specified, explicit and legitimate purposes and not further processed in a manner that is incompatible with those purposes."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000002",
+      "remediationText": "Restructure Information we collect so each data category is paired with a specified, explicit purpose; remove blanket purposes such as \"to improve our services\" or \"general business purposes\".",
+      "predicateText": "input1.category == \"purpose_and_minimisation\"",
+      "clauseSpan": {
+        "documentId": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+        "charStart": 820,
+        "charLength": 82,
+        "headingPath": "/Privacy Notice — DataFlow Analytics/Information we collect",
+        "charEnd": 902
+      }
+    },
+    {
+      "id": "lr1:3899de1289d3dd4257a9283c2ccaa7b1d1a30c4532a1557cae97bf01bfb7622a",
+      "ruleId": "GDPR-G-3-LawfulBasis",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"lawful basis\") || input1.text.Contains(\"Lawful basis\")) && (input1.text.Contains(\"Art. 6\") || input1.text.Contains(\"Article 6\")) && (input1.text.Contains(\"consent\") || input1.text.Contains(\"contract\") || input1.text.Contains(\"legitimate interests\") || input1.text.Contains(\"legal obligation\"))",
+      "evaluatedInput": {
+        "id": "s_00000002",
+        "heading": "Information we collect",
+        "heading_path": "/Privacy Notice — DataFlow Analytics/Information we collect",
+        "category": "purpose_and_minimisation",
+        "primary_topic": "purpose_and_minimisation",
+        "topics": [
+          "purpose_and_minimisation",
+          "cookies_and_tracking"
+        ],
+        "topic_scores": {
+          "purpose_and_minimisation": 0.9,
+          "cookies_and_tracking": 0.4
+        },
+        "topic_density": 0,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "We collect the following information:\nYour name and email address\nYour company name and job title\nYour IP address and approximate location\nPrecise device geolocation\nYour browsing activity across the sites where our analytics tag is installed\nUsage data about how you interact with our dashboard\nWe use this information to improve our services and for general business purposes.",
+        "text_raw": "We collect the following information:\nYour name and email address\nYour company name and job title\nYour IP address and approximate location\nPrecise device geolocation\nYour browsing activity across the sites where our analytics tag is installed\nUsage data about how you interact with our dashboard\nWe use this information to improve our services and for general business purposes.",
+        "text_char_start": 524,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 37
+          },
+          {
+            "char_start": 38,
+            "char_length": 27
+          },
+          {
+            "char_start": 66,
+            "char_length": 31
+          },
+          {
+            "char_start": 98,
+            "char_length": 40
+          },
+          {
+            "char_start": 139,
+            "char_length": 26
+          },
+          {
+            "char_start": 166,
+            "char_length": 76
+          },
+          {
+            "char_start": 243,
+            "char_length": 52
+          },
+          {
+            "char_start": 296,
+            "char_length": 82
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+        "charStart": 498,
+        "charLength": 25,
+        "headingPath": "/Privacy Notice — DataFlow Analytics/Information we collect",
+        "charEnd": 523
+      },
+      "errorMessage": "Rule 'GDPR-G-3-LawfulBasis' failed: The controller must identify and disclose the specific Art. 6 lawful basis for each processing activity. A privacy notice that lists collected data without naming any Art. 6 basis is a gap.",
+      "evidenceQuotes": [
+        "GDPR Art. 6(1): Processing shall be lawful only if and to the extent that at least one of the following applies — consent, contract, legal obligation, vital interests, public task, or legitimate interests."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000002",
+      "remediationText": "Add a column or paragraph in Information we collect naming the specific Art. 6 lawful basis (e.g., Art. 6(1)(a) consent, Art. 6(1)(b) contract, Art. 6(1)(c) legal obligation, Art. 6(1)(f) legitimate interests) for each processing purpose.",
+      "predicateText": "input1.category == \"lawful_basis\" || input1.category == \"purpose_and_minimisation\"",
+      "clauseSpan": {
+        "documentId": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+        "charStart": 524,
+        "charLength": 378,
+        "headingPath": "/Privacy Notice — DataFlow Analytics/Information we collect",
+        "charEnd": 902
+      }
+    },
+    {
+      "id": "lr1:7002ebbdc42a7ad48c04dd59f026b78a34c9e1eb8628f915e5584bc2fc80bb1d",
+      "ruleId": "GDPR-G-3-LawfulBasis",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"lawful basis\") || input1.text.Contains(\"Lawful basis\")) && (input1.text.Contains(\"Art. 6\") || input1.text.Contains(\"Article 6\")) && (input1.text.Contains(\"consent\") || input1.text.Contains(\"contract\") || input1.text.Contains(\"legitimate interests\") || input1.text.Contains(\"legal obligation\"))",
+      "evaluatedInput": {
+        "id": "s_00000007",
+        "heading": "Consent",
+        "heading_path": "/Privacy Notice — DataFlow Analytics/Consent",
+        "category": "lawful_basis",
+        "primary_topic": "lawful_basis",
+        "topics": [
+          "consent_practices",
+          "lawful_basis"
+        ],
+        "topic_scores": {
+          "consent_practices": 0.9,
+          "lawful_basis": 0.9
+        },
+        "topic_density": 5.2632,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "By creating an account, you consent to all of the data collection, use, and sharing described in this notice.",
+        "text_raw": "By creating an account, you consent to all of the data collection, use, and sharing described in this notice.",
+        "text_char_start": 1568,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 109
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+        "charStart": 1596,
+        "charLength": 7,
+        "headingPath": "/Privacy Notice — DataFlow Analytics/Consent",
+        "charEnd": 1603
+      },
+      "errorMessage": "Rule 'GDPR-G-3-LawfulBasis' failed: The controller must identify and disclose the specific Art. 6 lawful basis for each processing activity. A privacy notice that lists collected data without naming any Art. 6 basis is a gap.",
+      "evidenceQuotes": [
+        "GDPR Art. 6(1): Processing shall be lawful only if and to the extent that at least one of the following applies — consent, contract, legal obligation, vital interests, public task, or legitimate interests."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000007",
+      "remediationText": "Add a column or paragraph in Consent naming the specific Art. 6 lawful basis (e.g., Art. 6(1)(a) consent, Art. 6(1)(b) contract, Art. 6(1)(c) legal obligation, Art. 6(1)(f) legitimate interests) for each processing purpose.",
+      "predicateText": "input1.category == \"lawful_basis\" || input1.category == \"purpose_and_minimisation\"",
+      "clauseSpan": {
+        "documentId": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+        "charStart": 1568,
+        "charLength": 109,
+        "headingPath": "/Privacy Notice — DataFlow Analytics/Consent",
+        "charEnd": 1677
+      }
+    },
+    {
+      "id": "lr1:403f28a13b6aa78cfd94da2c59ce1a73be5b220e2c58c6ac0fb1abf0699580af",
+      "ruleId": "GDPR-G-4-Transparency",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"controller\") && (input1.text.Contains(\"DPO\") || input1.text.Contains(\"Data Protection Officer\") || input1.text.Contains(\"recipients\") || input1.text.Contains(\"retain\") || input1.text.Contains(\"retention\"))",
+      "evaluatedInput": {
+        "id": "s_00000000",
+        "heading": "Privacy Notice — DataFlow Analytics",
+        "heading_path": "/Privacy Notice — DataFlow Analytics",
+        "category": "transparency",
+        "primary_topic": "transparency",
+        "topics": [
+          "transparency"
+        ],
+        "topic_scores": {
+          "transparency": 0.9
+        },
+        "topic_density": 4,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "Document type: SaaS vendor privacy noticeVersion: 2.1 — last updated 2026-02-10Owner: DataFlow Analytics Inc.Test label: INTENTIONAL GAPS — for lambda-rag evaluation against gdpr-privacy-ruleset.md (and quebec-law25-ruleset.md)",
+        "text_raw": "Document type: SaaS vendor privacy noticeVersion: 2.1 — last updated 2026-02-10Owner: DataFlow Analytics Inc.Test label: INTENTIONAL GAPS — for lambda-rag evaluation against gdpr-privacy-ruleset.md (and quebec-law25-ruleset.md)",
+        "text_char_start": 39,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 227
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+        "charStart": 0,
+        "charLength": 37,
+        "headingPath": "/Privacy Notice — DataFlow Analytics",
+        "charEnd": 37
+      },
+      "errorMessage": "Rule 'GDPR-G-4-Transparency' failed: At collection the notice must disclose controller identity & contact, recipients, retention period(s), and data-subject rights. Missing retention period or recipients is a gap.",
+      "evidenceQuotes": [
+        "GDPR Arts. 13–14: The controller shall provide the data subject with the identity and contact details of the controller, the recipients of the personal data, and the period for which personal data will be stored."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000000",
+      "remediationText": "Update Privacy Notice — DataFlow Analytics so it explicitly names the controller identity & contact, the recipients (or a sub-processor list URL), and the retention period for each data category, per Arts. 13–14.",
+      "predicateText": "input1.category == \"transparency\"",
+      "clauseSpan": {
+        "documentId": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+        "charStart": 39,
+        "charLength": 227,
+        "headingPath": "/Privacy Notice — DataFlow Analytics",
+        "charEnd": 266
+      }
+    },
+    {
+      "id": "lr1:46b9ebc6a0d7333517e07fe84ba3217e6fcc11a6f4cd27349f34a8fc696ff3c2",
+      "ruleId": "GDPR-G-5-DataSubjectRights",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Fail",
+      "lambdaText": "input1.text.Contains(\"access\") && (input1.text.Contains(\"rectif\") || input1.text.Contains(\"correct\")) && (input1.text.Contains(\"eras\") || input1.text.Contains(\"delete\")) && (input1.text.Contains(\"lodge a complaint\") || input1.text.Contains(\"supervisory authority\"))",
+      "evaluatedInput": {
+        "id": "s_00000005",
+        "heading": "Your choices",
+        "heading_path": "/Privacy Notice — DataFlow Analytics/Your choices",
+        "category": "data_subject_rights",
+        "primary_topic": "data_subject_rights",
+        "topics": [
+          "data_subject_rights"
+        ],
+        "topic_scores": {
+          "data_subject_rights": 0.9
+        },
+        "topic_density": 0,
+        "is_operative_for_topic": true,
+        "is_country_supplement": false,
+        "text_features": {
+          "day_counts": [],
+          "month_counts": [],
+          "year_counts": [],
+          "percent_values": [],
+          "dollar_amounts": [],
+          "day_count_min": 0,
+          "day_count_max": 0,
+          "month_count_min": 0,
+          "month_count_max": 0,
+          "year_count_min": 0,
+          "year_count_max": 0,
+          "percent_min": 0,
+          "percent_max": 0,
+          "percent_max_per_month": 0,
+          "percent_min_per_month": 0,
+          "dollar_min": 0,
+          "dollar_max": 0,
+          "dollar_for_cyber": 0,
+          "dollar_for_gcl": 0,
+          "dollar_for_professional": 0,
+          "day_count_for_payment": 0,
+          "day_count_for_notice": 0
+        },
+        "text": "If you would like to access the personal information we hold about you, you can email privacy@dataflowanalytics.example and we will do our best to respond.",
+        "text_raw": "If you would like to access the personal information we hold about you, you can email privacy@dataflowanalytics.example and we will do our best to respond.",
+        "text_char_start": 1281,
+        "paragraphs": [
+          {
+            "char_start": 0,
+            "char_length": 155
+          }
+        ]
+      },
+      "sourceSpan": {
+        "documentId": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+        "charStart": 1302,
+        "charLength": 6,
+        "headingPath": "/Privacy Notice — DataFlow Analytics/Your choices",
+        "charEnd": 1308
+      },
+      "errorMessage": "Rule 'GDPR-G-5-DataSubjectRights' failed: The notice must enumerate data-subject rights (access, rectification, erasure, restriction, portability, objection) AND the right to lodge a complaint with a supervisory authority. Only mentioning \"access\" is a gap.",
+      "evidenceQuotes": [
+        "GDPR Arts. 15–22 + Art. 77: Data subjects have the right of access, rectification, erasure, restriction, portability, objection, and the right to lodge a complaint with a supervisory authority."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "matchedSectionId": "s_00000005",
+      "remediationText": "Expand Your choices to enumerate every data-subject right (access, rectification, erasure, restriction, portability, objection, withdrawal of consent) AND the right to lodge a complaint with a supervisory authority, with contact details.",
+      "predicateText": "input1.category == \"data_subject_rights\"",
+      "clauseSpan": {
+        "documentId": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+        "charStart": 1281,
+        "charLength": 155,
+        "headingPath": "/Privacy Notice — DataFlow Analytics/Your choices",
+        "charEnd": 1436
+      }
+    },
+    {
+      "id": "lr1:276d8f772d6062eeb37f54d2cdfe1135a336c82ea900632c6532456bfb3e7133",
+      "ruleId": "GDPR-G-6-RecordsAndTransfers",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Gap",
+      "lambdaText": "(input1.text.Contains(\"Standard Contractual Clauses\") || input1.text.Contains(\"SCCs\") || input1.text.Contains(\"adequacy decision\") || input1.text.Contains(\"transfer mechanism\")) && (input1.text.Contains(\"outside the EEA\") || input1.text.Contains(\"outside the EU\") || input1.text.Contains(\"United States\") || input1.text.Contains(\"international transfer\"))",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "GDPR-Art13-1-f",
+        "charStart": 0,
+        "charLength": 0,
+        "pageNumber": 1,
+        "headingPath": "/Art13",
+        "charEnd": 0
+      },
+      "evidenceQuotes": [
+        "GDPR Art. 13(1)(f): The controller shall inform the data subject of the fact that personal data will be transferred to a third country and of the existence or absence of an adequacy decision, or the appropriate safeguards."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: International transfers of personal data outside the EEA must be disclosed together with the transfer mechanism (e.g., SCCs, adequacy decision). Sending data to third countries with no transfer mechanism is a gap.",
+      "predicateText": "input1.category == \"international_transfers\""
+    },
+    {
+      "id": "lr1:cbcbea40a8a3018cf24fc456caf22efcad45cfd16fab5d82fe218800d2391361",
+      "ruleId": "GDPR-G-7-SecurityOfProcessing",
+      "ruleSetVersion": "1.0.0",
+      "outcome": "Gap",
+      "lambdaText": "(input1.text.Contains(\"AES-256\") || input1.text.Contains(\"encryption at rest\")) && (input1.text.Contains(\"TLS 1.2\") || input1.text.Contains(\"TLS 1.3\") || input1.text.Contains(\"encryption in transit\")) && (input1.text.Contains(\"MFA\") || input1.text.Contains(\"multi-factor\") || input1.text.Contains(\"role-based access\") || input1.text.Contains(\"pseudonymisation\") || input1.text.Contains(\"penetration testing\"))",
+      "evaluatedInput": {},
+      "sourceSpan": {
+        "documentId": "GDPR-Art32",
+        "charStart": 0,
+        "charLength": 0,
+        "pageNumber": 1,
+        "headingPath": "/Art32",
+        "charEnd": 0
+      },
+      "evidenceQuotes": [
+        "GDPR Art. 32: The controller and the processor shall implement appropriate technical and organisational measures including pseudonymisation and encryption, the ability to ensure ongoing confidentiality, integrity, availability and resilience, and regular testing."
+      ],
+      "evaluatedAt": "2000-01-01T00:00:00+00:00",
+      "remediationText": "Document does not address: The controller / processor must implement concrete technical and organisational security measures (encryption, access control, testing). Generic claims like \"industry-standard measures\" or \"we take security seriously\" without specifics are a gap.",
+      "predicateText": "input1.category == \"security_of_processing\""
+    }
+  ],
+  "generatedAt": "2000-01-01T00:00:00+00:00",
+  "gaps": 2
+}

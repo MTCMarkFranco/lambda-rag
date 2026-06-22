@@ -104,17 +104,28 @@ public sealed class RuntimeDeterminismGuardrails
     [Fact]
     public async Task No_banned_assembly_is_loaded_after_evaluation()
     {
+        // Snapshot the AppDomain BEFORE running evaluation so the assertion
+        // measures what evaluation itself causes, not what other test classes
+        // in the same xUnit process may have legitimately loaded (e.g. the
+        // authoring-time ARB-PSA benchmarks). Process-global state would
+        // otherwise make this test order-dependent.
+        var before = new HashSet<string>(
+            AppDomain.CurrentDomain.GetAssemblies()
+                .Select(a => a.GetName().Name ?? string.Empty),
+            StringComparer.Ordinal);
+
         await RunEvaluationAgainstFirstCorpusDocAsync();
 
-        var loaded = AppDomain.CurrentDomain.GetAssemblies()
+        var addedByEvaluation = AppDomain.CurrentDomain.GetAssemblies()
             .Select(a => a.GetName().Name ?? string.Empty)
+            .Where(name => !before.Contains(name))
             .ToArray();
 
         foreach (var banned in BannedPackages)
         {
-            loaded.Should().NotContain(
+            addedByEvaluation.Should().NotContain(
                 a => a.StartsWith(banned, StringComparison.Ordinal),
-                $"no banned assembly ({banned}*) should be loaded after EvaluateAsync " +
+                $"no banned assembly ({banned}*) should be loaded by EvaluateAsync " +
                 "— evaluation must be cloud-free.");
         }
     }

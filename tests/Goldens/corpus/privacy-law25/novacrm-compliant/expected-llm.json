@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-22T16:14:25.1346218+00:00",
+  "model": "gpt-5.3-chat-1",
+  "ruleset_id": "rs_quebec_law25",
+  "ruleset_version": "1.0.0",
+  "ruleset_fingerprint": "lr1:deb1ced5f23d075eebbf574404a2542f78e36e9c2ab803b604e2979741e60645",
+  "document_hash": "lr1:6cfa7ece24527beff89ccbc76ef300dcbae1feac5f16657e1a38dfc893a803a8",
+  "document_path": "privacy-law25/novacrm-compliant/source.md",
+  "per_rule": {
+    "QLA25-L-1-PrivacyOfficer": {
+      "verdict": "PASS",
+      "evidence": "our **Person in charge of the protection of personal information** (Privacy Officer) is the VP of Trust, reachable at privacy-officer@novacrm.example (also published at novacrm.example/privacy)",
+      "reason": "The document designates a Privacy Officer and provides contact information while stating it is published on the website."
+    },
+    "QLA25-L-2-CollectionTransparency": {
+      "verdict": "PASS",
+      "evidence": "You have the right to **access, rectify, erase, restrict, port, and object** to processing of your personal data, and to **withdraw consent** at any time.",
+      "reason": "The notice states processing purposes and informs individuals of access/rectification rights and the right and method to withdraw consent."
+    },
+    "QLA25-L-3-PrivacyByDefault": {
+      "verdict": "PASS",
+      "evidence": "New accounts ship with the highest-confidentiality settings enabled by default \u2014 analytics sharing off, profile private \u2014 with no action required by you.",
+      "reason": "The document explicitly states that default settings provide the highest confidentiality and disable sharing features by default."
+    },
+    "QLA25-L-4-PrivacyImpactAssessment": {
+      "verdict": "PASS",
+      "evidence": "we complete a **Privacy Impact Assessment** beforehand",
+      "reason": "The document states that a Privacy Impact Assessment is completed before communicating Qu\u00E9bec data outside the province."
+    },
+    "QLA25-L-5-IncidentRegister": {
+      "verdict": "PASS",
+      "evidence": "We maintain a register of confidentiality incidents and notify affected individuals and the relevant authority where a risk of serious injury exists.",
+      "reason": "The document states that a register of confidentiality incidents is maintained and that affected individuals and the relevant authority are notified when a risk of serious injury exists."
+    },
+    "QLA25-L-6-ConsentCrossBorder": {
+      "verdict": "FAIL",
+      "evidence": "For Qu\u00E9bec data communicated outside the province, we complete a Privacy Impact Assessment beforehand.",
+      "reason": "The document mentions conducting a PIA for cross\u2011border transfers but does not state that the protections of the receiving jurisdiction are assessed, which Law 25 requires."
+    }
+  }
+}

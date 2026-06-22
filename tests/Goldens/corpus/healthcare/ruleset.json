@@ -1,0 +1,175 @@
+{
+  "id": "rs_hipaa_security_rule",
+  "version": "1.0.0",
+  "domain": "healthcare",
+  "publishedAt": "2026-06-22T00:00:00Z",
+  "metadata": {
+    "source": "HIPAA Security Rule — 45 CFR §164.308–§164.312 (administrative, physical, and technical safeguards for ePHI).",
+    "sourceUrl": "https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-C",
+    "sourceLicense": "U.S. public domain (federal regulation).",
+    "topicMap": "healthcare.v1",
+    "intendedFor": "Covered-entity and business-associate security policy and BAA review for ePHI safeguards."
+  },
+  "rules": [
+    {
+      "id": "HIPAA-H-1-RiskAnalysis",
+      "version": "1.0.0",
+      "naturalLanguage": "The entity must conduct an accurate and thorough, periodic, documented risk analysis covering all systems handling ePHI. A one-time or single-system assessment is a gap.",
+      "severity": "Critical",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"risk_analysis\"",
+      "lambda": "(input1.text.Contains(\"risk analysis\") || input1.text.Contains(\"risk assessment\")) && (input1.text.Contains(\"annually\") || input1.text.Contains(\"annual\") || input1.text.Contains(\"periodic\") || input1.text.Contains(\"organization-wide\") || input1.text.Contains(\"organisation-wide\")) && !(input1.text.Contains(\"of its primary\") || input1.text.Contains(\"one-time\") || input1.text.Contains(\"in 2024\") || input1.text.Contains(\"in 2025\") || input1.text.Contains(\"in 2023\"))",
+      "remediation": "Update {section.heading} to describe a periodic (e.g., annual) organization-wide documented risk analysis covering every system that creates, receives, maintains, or transmits ePHI, per §164.308(a)(1)(ii)(A).",
+      "evidenceQuote": "§164.308(a)(1)(ii)(A): Conduct an accurate and thorough assessment of the potential risks and vulnerabilities to the confidentiality, integrity, and availability of all ePHI.",
+      "sourceContent": "Security Management Process — Risk Analysis (REQUIRED).",
+      "sourceSpan": { "documentId": "HIPAA-164.308-1-ii-A", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/164.308/RiskAnalysis" },
+      "metadata": { "cite": "§164.308(a)(1)(ii)(A)", "classification": "REQUIRED" }
+    },
+    {
+      "id": "HIPAA-H-2-SanctionPolicy",
+      "version": "1.0.0",
+      "naturalLanguage": "The entity must apply sanctions against workforce members who fail to comply with security policies. A documented sanction / disciplinary policy must be present.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"sanction_policy\"",
+      "lambda": "input1.text.Contains(\"sanction\") && (input1.text.Contains(\"disciplinary\") || input1.text.Contains(\"violations\") || input1.text.Contains(\"violation\"))",
+      "remediation": "Add a {section.heading} sub-clause describing a documented workforce sanction / progressive disciplinary policy with HR tracking, per §164.308(a)(1)(ii)(C).",
+      "evidenceQuote": "§164.308(a)(1)(ii)(C): Apply appropriate sanctions against workforce members who fail to comply with the security policies and procedures.",
+      "sourceContent": "Security Management Process — Sanction Policy (REQUIRED).",
+      "sourceSpan": { "documentId": "HIPAA-164.308-1-ii-C", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/164.308/SanctionPolicy" },
+      "metadata": { "cite": "§164.308(a)(1)(ii)(C)", "classification": "REQUIRED" }
+    },
+    {
+      "id": "HIPAA-H-3-WorkforceAccess",
+      "version": "1.0.0",
+      "naturalLanguage": "Access to ePHI must be role-based with documented procedures for granting AND terminating access. Granting access without a termination/deprovisioning procedure is a gap.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"workforce_access\"",
+      "lambda": "(input1.text.Contains(\"least privilege\") || input1.text.Contains(\"role-based\")) && (input1.text.Contains(\"deprovisioning\") || input1.text.Contains(\"revoked\") || input1.text.Contains(\"termination\") || input1.text.Contains(\"separation\"))",
+      "remediation": "Update {section.heading} to describe role-based access on least privilege AND a documented termination/deprovisioning workflow tied to HR, per §164.308(a)(3)–(a)(4).",
+      "evidenceQuote": "§164.308(a)(3)–(a)(4): Implement procedures for authorization, supervision, and termination of access to ePHI.",
+      "sourceContent": "Workforce Security & Access Authorization (ADDRESSABLE).",
+      "sourceSpan": { "documentId": "HIPAA-164.308-3-4", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/164.308/WorkforceAccess" },
+      "metadata": { "cite": "§164.308(a)(3)–(a)(4)", "classification": "ADDRESSABLE" }
+    },
+    {
+      "id": "HIPAA-H-4-SecurityTraining",
+      "version": "1.0.0",
+      "naturalLanguage": "The entity must implement recurring security awareness and training for all workforce members. Training only at hire / one-time orientation is a gap.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"security_training\"",
+      "lambda": "(input1.text.Contains(\"annually\") || input1.text.Contains(\"annual\") || input1.text.Contains(\"recurring\") || input1.text.Contains(\"quarterly\")) && !(input1.text.Contains(\"during onboarding\") && !input1.text.Contains(\"annual\"))",
+      "remediation": "Update {section.heading} to require recurring (at least annual) HIPAA security training for all workforce members with periodic phishing/security reminders, per §164.308(a)(5).",
+      "evidenceQuote": "§164.308(a)(5): Implement a security awareness and training program for all members of the workforce.",
+      "sourceContent": "Security Awareness & Training (ADDRESSABLE).",
+      "sourceSpan": { "documentId": "HIPAA-164.308-5", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/164.308/SecurityTraining" },
+      "metadata": { "cite": "§164.308(a)(5)", "classification": "ADDRESSABLE" }
+    },
+    {
+      "id": "HIPAA-H-5-ContingencyPlan",
+      "version": "1.0.0",
+      "naturalLanguage": "The entity must address backup, disaster recovery, AND emergency-mode operation. Backups alone are not sufficient.",
+      "severity": "Critical",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"contingency_plan\"",
+      "lambda": "(input1.text.Contains(\"backup\") || input1.text.Contains(\"Backup\")) && (input1.text.Contains(\"disaster recovery\") || input1.text.Contains(\"DR plan\") || input1.text.Contains(\"RTO\")) && (input1.text.Contains(\"emergency-mode\") || input1.text.Contains(\"emergency mode\"))",
+      "remediation": "Expand {section.heading} to cover all three components: data backup plan, disaster recovery plan with defined RTO/RPO, and emergency-mode operation plan, per §164.308(a)(7).",
+      "evidenceQuote": "§164.308(a)(7): Establish (and implement as needed) policies and procedures for responding to an emergency or other occurrence (data backup plan, disaster recovery plan, emergency mode operation plan).",
+      "sourceContent": "Contingency Plan (REQUIRED).",
+      "sourceSpan": { "documentId": "HIPAA-164.308-7", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/164.308/ContingencyPlan" },
+      "metadata": { "cite": "§164.308(a)(7)", "classification": "REQUIRED" }
+    },
+    {
+      "id": "HIPAA-H-6-AccessControl",
+      "version": "1.0.0",
+      "naturalLanguage": "Each user must have a unique identifier; shared or generic accounts on ePHI systems are a gap. Automatic logoff is addressable but should be present or documented as an alternative.",
+      "severity": "Critical",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"access_control\"",
+      "lambda": "(input1.text.Contains(\"unique identifier\") || input1.text.Contains(\"unique user\")) && (!input1.text.Contains(\"shared account\") || input1.text.Contains(\"prohibit\")) && (!input1.text.Contains(\"generic account\") || input1.text.Contains(\"prohibit\"))",
+      "remediation": "Update {section.heading} to enforce unique user identifiers, prohibit shared/generic accounts, and add an automatic logoff (or document a justified alternative), per §164.312(a)(1).",
+      "evidenceQuote": "§164.312(a)(2)(i): Assign a unique name and/or number for identifying and tracking user identity.",
+      "sourceContent": "Access Control: Unique User ID & Automatic Logoff (REQUIRED / ADDRESSABLE).",
+      "sourceSpan": { "documentId": "HIPAA-164.312-a-1", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/164.312/AccessControl" },
+      "metadata": { "cite": "§164.312(a)(1)", "classification": "REQUIRED+ADDRESSABLE" }
+    },
+    {
+      "id": "HIPAA-H-7-AuditControls",
+      "version": "1.0.0",
+      "naturalLanguage": "The entity must implement audit logging on ePHI systems with periodic review. Logs collected but never reviewed is a gap.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"audit_controls\"",
+      "lambda": "(input1.text.Contains(\"audit log\") || input1.text.Contains(\"audit logs\") || input1.text.Contains(\"audit logging\")) && (input1.text.Contains(\"reviewed\") || input1.text.Contains(\"review\") || input1.text.Contains(\"alerting\"))",
+      "remediation": "Update {section.heading} to require audit logging on every system containing ePHI AND a periodic review (e.g., weekly) with alerting on anomalies, per §164.312(b).",
+      "evidenceQuote": "§164.312(b): Implement hardware, software, and/or procedural mechanisms that record and examine activity in information systems that contain or use ePHI.",
+      "sourceContent": "Audit Controls (REQUIRED).",
+      "sourceSpan": { "documentId": "HIPAA-164.312-b", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/164.312/AuditControls" },
+      "metadata": { "cite": "§164.312(b)", "classification": "REQUIRED" }
+    },
+    {
+      "id": "HIPAA-H-8-TransmissionSecurity",
+      "version": "1.0.0",
+      "naturalLanguage": "ePHI must be encrypted in transit (TLS 1.2+) AND at rest (e.g., AES-256), or a documented equivalent measure. Encryption in transit only with PHI unencrypted at rest is a gap.",
+      "severity": "Critical",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"transmission_security\"",
+      "lambda": "(input1.text.Contains(\"TLS 1.2\") || input1.text.Contains(\"TLS 1.3\")) && (input1.text.Contains(\"AES-256\") || input1.text.Contains(\"encrypted at rest\") || input1.text.Contains(\"at rest using\"))",
+      "remediation": "Update {section.heading} to commit to TLS 1.2+ in transit AND AES-256 (or equivalent CSE-approved) encryption at rest for all ePHI, per §164.312(e).",
+      "evidenceQuote": "§164.312(e): Implement technical security measures to guard against unauthorized access to ePHI transmitted over an electronic communications network.",
+      "sourceContent": "Transmission Security & Encryption (ADDRESSABLE).",
+      "sourceSpan": { "documentId": "HIPAA-164.312-e", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/164.312/TransmissionSecurity" },
+      "metadata": { "cite": "§164.312(e)", "classification": "ADDRESSABLE" }
+    }
+  ]
+}

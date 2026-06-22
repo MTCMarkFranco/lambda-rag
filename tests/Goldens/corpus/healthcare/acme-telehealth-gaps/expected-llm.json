@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-22T16:11:47.89989+00:00",
+  "model": "gpt-5.3-chat-1",
+  "ruleset_id": "rs_hipaa_security_rule",
+  "ruleset_version": "1.0.0",
+  "ruleset_fingerprint": "lr1:97e6fdd867b89beb725c8abef571458e0fe4f2fee2089921cca7c61f2abc6ba3",
+  "document_hash": "lr1:ab4506c9dfb5b06d39081b5bf8a0a25f2cf538ff6221ddcd7c6efa0cece4a79c",
+  "document_path": "healthcare/acme-telehealth-gaps/source.md",
+  "per_rule": {
+    "HIPAA-H-1-RiskAnalysis": {
+      "verdict": "FAIL",
+      "evidence": "risk assessment of its primary patient-records database in 2024",
+      "reason": "The document describes a one-time assessment of a single system rather than a periodic, comprehensive risk analysis covering all ePHI systems."
+    },
+    "HIPAA-H-2-SanctionPolicy": {
+      "verdict": "FAIL",
+      "evidence": "(no relevant span)",
+      "reason": "The policy contains no documented sanction or disciplinary policy for workforce members who violate security policies."
+    },
+    "HIPAA-H-3-WorkforceAccess": {
+      "verdict": "FAIL",
+      "evidence": "All Acme engineers receive access to the production environment on their first day.",
+      "reason": "The policy describes granting access but provides no role-based control or documented procedure for terminating/deprovisioning access."
+    },
+    "HIPAA-H-4-SecurityTraining": {
+      "verdict": "FAIL",
+      "evidence": "New hires complete a 45-minute HIPAA security orientation during onboarding week",
+      "reason": "The policy describes only a one-time onboarding training and does not specify recurring security awareness training for the workforce."
+    },
+    "HIPAA-H-5-ContingencyPlan": {
+      "verdict": "FAIL",
+      "evidence": "Production databases are backed up nightly to a second cloud region.",
+      "reason": "The document addresses backups but does not mention disaster recovery or emergency-mode operations as required by the rule."
+    },
+    "HIPAA-H-6-AccessControl": {
+      "verdict": "FAIL",
+      "evidence": "shared \u0022oncall-admin\u0022 and \u0022support-readonly\u0022 accounts are used",
+      "reason": "The policy explicitly allows shared accounts, which violates the requirement for unique user identifiers on ePHI systems."
+    },
+    "HIPAA-H-7-AuditControls": {
+      "verdict": "FAIL",
+      "evidence": "(no relevant span)",
+      "reason": "The policy describes security controls but contains no mention of audit logging for ePHI systems or any periodic log review."
+    },
+    "HIPAA-H-8-TransmissionSecurity": {
+      "verdict": "FAIL",
+      "evidence": "encrypted in transit using TLS 1.2",
+      "reason": "The document specifies encryption in transit but provides no indication that ePHI is encrypted at rest."
+    }
+  }
+}

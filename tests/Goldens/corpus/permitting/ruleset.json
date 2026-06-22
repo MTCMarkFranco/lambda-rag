@@ -50,7 +50,7 @@
       },
       "selector": { "kind": "path", "path": "$.sections[*]" },
       "predicate": "input1.category == \"fire_egress\"",
-      "lambda": "(input1.text.Contains(\"3.4.2\") || input1.text.Contains(\"OBC 3.4\") || input1.text.Contains(\"travel distance\")) && input1.text.Contains(\"exit\")",
+      "lambda": "input1.text.Contains(\"exit\") && (input1.text.Contains(\"3.4.2\") || input1.text.Contains(\"OBC 3.4\")) && (input1.text.Contains(\"in accordance with\") || input1.text.Contains(\"complies with\") || input1.text.Contains(\"compliant\") || input1.text.Contains(\"within the\"))",
       "remediation": "Add to {section.heading}: state the maximum travel distance from any point in the floor area to the nearest exit and confirm conformance with OBC 3.4.2.",
       "evidenceQuote": "Except as permitted by Sentences (2) to (8), the travel distance to the nearest exit shall be not more than ...",
       "sourceContent": "Ontario Building Code, O. Reg. 332/12, s. 3.4.2 Exits — limits on travel distance to an exit.",

@@ -1,0 +1,18 @@
+{
+  "domain": "healthcare",
+  "version": "1.0.0",
+  "description": "HIPAA Security Rule safeguards (45 CFR §164.308–§164.312). Use cases: covered-entity / business-associate security policy review, BAA gap analysis, vendor ePHI security policy assessment.",
+  "topics": [
+    { "id": "risk_analysis",         "keywords": ["risk analysis", "risk assessment", "vulnerabilities", "risk register", "security management process"] },
+    { "id": "sanction_policy",       "keywords": ["sanction", "sanctions", "disciplinary", "violations"] },
+    { "id": "workforce_access",      "keywords": ["workforce access", "access management", "deprovisioning", "onboarding", "least privilege", "role-based", "termination", "separation"] },
+    { "id": "security_training",     "keywords": ["security training", "security awareness", "hipaa security training", "phishing simulation", "training program", "security orientation"] },
+    { "id": "contingency_plan",      "keywords": ["contingency plan", "disaster recovery", "backups", "backup plan", "emergency-mode", "emergency mode", "rto", "rpo"] },
+    { "id": "access_control",        "keywords": ["access control", "unique identifier", "unique user", "automatic logoff", "shared account", "generic account", "session timeout"] },
+    { "id": "audit_controls",        "keywords": ["audit controls", "audit log", "audit logs", "audit logging", "log review", "immutable log", "siem"] },
+    { "id": "transmission_security", "keywords": ["transmission security", "encryption in transit", "tls 1.2", "tls 1.3", "encrypted at rest", "aes-256", "ephi encrypted"] },
+    { "id": "incident_response",     "keywords": ["incident response", "breach notification", "security incident", "triage"] },
+    { "id": "business_associate",    "keywords": ["business associate", "baa", "subcontractor", "flow-down"] },
+    { "id": "permitted_use",         "keywords": ["permitted uses", "permitted use", "use or disclose"] }
+  ]
+}

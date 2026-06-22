@@ -1,0 +1,135 @@
+{
+  "id": "rs_gdpr_privacy_notice",
+  "version": "1.0.0",
+  "domain": "privacy-gdpr",
+  "publishedAt": "2026-06-22T00:00:00Z",
+  "metadata": {
+    "source": "Regulation (EU) 2016/679 (GDPR) — Articles 5 (principles), 6 (lawful basis), 13–14 (transparency), 30 (records), 32 (security of processing).",
+    "sourceUrl": "https://eur-lex.europa.eu/eli/reg/2016/679/oj",
+    "sourceLicense": "© European Union, 1998–. Reuse permitted under Commission Decision 2011/833/EU.",
+    "topicMap": "privacy-gdpr.v1",
+    "intendedFor": "SaaS / vendor privacy notice review under GDPR — controller obligations to data subjects."
+  },
+  "rules": [
+    {
+      "id": "GDPR-G-1-PurposeLimitation",
+      "version": "1.0.0",
+      "naturalLanguage": "Personal data must be collected for specified, explicit, and legitimate purposes. Each data category must be tied to a stated, specific purpose. Vague catch-all purposes (e.g., \"to improve our services,\" \"for general business purposes\") are a gap.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"purpose_and_minimisation\"",
+      "lambda": "(input1.text.Contains(\"specific purpose\") || input1.text.Contains(\"purpose limitation\") || input1.text.Contains(\"data minimisation\") || input1.text.Contains(\"only the data necessary\")) && !(input1.text.Contains(\"general business purposes\") || input1.text.Contains(\"to improve our services\"))",
+      "remediation": "Restructure {section.heading} so each data category is paired with a specified, explicit purpose; remove blanket purposes such as \"to improve our services\" or \"general business purposes\".",
+      "evidenceQuote": "GDPR Art. 5(1)(b): Personal data shall be collected for specified, explicit and legitimate purposes and not further processed in a manner that is incompatible with those purposes.",
+      "sourceContent": "Purpose limitation and data minimisation (Art. 5(1)(b)–(c)).",
+      "sourceSpan": { "documentId": "GDPR-Art5", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/Art5" },
+      "metadata": { "cite": "Art. 5(1)(b)", "classification": "SEMANTIC" }
+    },
+    {
+      "id": "GDPR-G-3-LawfulBasis",
+      "version": "1.0.0",
+      "naturalLanguage": "The controller must identify and disclose the specific Art. 6 lawful basis for each processing activity. A privacy notice that lists collected data without naming any Art. 6 basis is a gap.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"lawful_basis\" || input1.category == \"purpose_and_minimisation\"",
+      "lambda": "(input1.text.Contains(\"lawful basis\") || input1.text.Contains(\"Lawful basis\")) && (input1.text.Contains(\"Art. 6\") || input1.text.Contains(\"Article 6\")) && (input1.text.Contains(\"consent\") || input1.text.Contains(\"contract\") || input1.text.Contains(\"legitimate interests\") || input1.text.Contains(\"legal obligation\"))",
+      "remediation": "Add a column or paragraph in {section.heading} naming the specific Art. 6 lawful basis (e.g., Art. 6(1)(a) consent, Art. 6(1)(b) contract, Art. 6(1)(c) legal obligation, Art. 6(1)(f) legitimate interests) for each processing purpose.",
+      "evidenceQuote": "GDPR Art. 6(1): Processing shall be lawful only if and to the extent that at least one of the following applies — consent, contract, legal obligation, vital interests, public task, or legitimate interests.",
+      "sourceContent": "Lawful basis disclosure (Art. 6 + Art. 13(1)(c)).",
+      "sourceSpan": { "documentId": "GDPR-Art6", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/Art6" },
+      "metadata": { "cite": "Art. 6, Art. 13(1)(c)", "classification": "REQUIRED" }
+    },
+    {
+      "id": "GDPR-G-4-Transparency",
+      "version": "1.0.0",
+      "naturalLanguage": "At collection the notice must disclose controller identity & contact, recipients, retention period(s), and data-subject rights. Missing retention period or recipients is a gap.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"transparency\"",
+      "lambda": "input1.text.Contains(\"controller\") && (input1.text.Contains(\"DPO\") || input1.text.Contains(\"Data Protection Officer\") || input1.text.Contains(\"recipients\") || input1.text.Contains(\"retain\") || input1.text.Contains(\"retention\"))",
+      "remediation": "Update {section.heading} so it explicitly names the controller identity & contact, the recipients (or a sub-processor list URL), and the retention period for each data category, per Arts. 13–14.",
+      "evidenceQuote": "GDPR Arts. 13–14: The controller shall provide the data subject with the identity and contact details of the controller, the recipients of the personal data, and the period for which personal data will be stored.",
+      "sourceContent": "Transparency / Information to Data Subjects (Arts. 13–14).",
+      "sourceSpan": { "documentId": "GDPR-Art13-14", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/Art13" },
+      "metadata": { "cite": "Art. 13, Art. 14", "classification": "REQUIRED" }
+    },
+    {
+      "id": "GDPR-G-5-DataSubjectRights",
+      "version": "1.0.0",
+      "naturalLanguage": "The notice must enumerate data-subject rights (access, rectification, erasure, restriction, portability, objection) AND the right to lodge a complaint with a supervisory authority. Only mentioning \"access\" is a gap.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"data_subject_rights\"",
+      "lambda": "input1.text.Contains(\"access\") && (input1.text.Contains(\"rectif\") || input1.text.Contains(\"correct\")) && (input1.text.Contains(\"eras\") || input1.text.Contains(\"delete\")) && (input1.text.Contains(\"lodge a complaint\") || input1.text.Contains(\"supervisory authority\"))",
+      "remediation": "Expand {section.heading} to enumerate every data-subject right (access, rectification, erasure, restriction, portability, objection, withdrawal of consent) AND the right to lodge a complaint with a supervisory authority, with contact details.",
+      "evidenceQuote": "GDPR Arts. 15–22 + Art. 77: Data subjects have the right of access, rectification, erasure, restriction, portability, objection, and the right to lodge a complaint with a supervisory authority.",
+      "sourceContent": "Data Subject Rights (Arts. 13(2)(b)–(d), 15–22).",
+      "sourceSpan": { "documentId": "GDPR-Art15-22", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/Arts15-22" },
+      "metadata": { "cite": "Arts. 15–22, Art. 77", "classification": "REQUIRED" }
+    },
+    {
+      "id": "GDPR-G-6-RecordsAndTransfers",
+      "version": "1.0.0",
+      "naturalLanguage": "International transfers of personal data outside the EEA must be disclosed together with the transfer mechanism (e.g., SCCs, adequacy decision). Sending data to third countries with no transfer mechanism is a gap.",
+      "severity": "Critical",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"international_transfers\"",
+      "lambda": "(input1.text.Contains(\"Standard Contractual Clauses\") || input1.text.Contains(\"SCCs\") || input1.text.Contains(\"adequacy decision\") || input1.text.Contains(\"transfer mechanism\")) && (input1.text.Contains(\"outside the EEA\") || input1.text.Contains(\"outside the EU\") || input1.text.Contains(\"United States\") || input1.text.Contains(\"international transfer\"))",
+      "remediation": "Update {section.heading} to disclose every cross-border transfer of personal data with its safeguard (e.g., Commission SCCs + supplementary measures, or an adequacy decision), per Art. 13(1)(f).",
+      "evidenceQuote": "GDPR Art. 13(1)(f): The controller shall inform the data subject of the fact that personal data will be transferred to a third country and of the existence or absence of an adequacy decision, or the appropriate safeguards.",
+      "sourceContent": "Records of Processing & International Transfers (Art. 30 + Art. 13(1)(f)).",
+      "sourceSpan": { "documentId": "GDPR-Art13-1-f", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/Art13" },
+      "metadata": { "cite": "Art. 30, Art. 13(1)(f)", "classification": "REQUIRED" }
+    },
+    {
+      "id": "GDPR-G-7-SecurityOfProcessing",
+      "version": "1.0.0",
+      "naturalLanguage": "The controller / processor must implement concrete technical and organisational security measures (encryption, access control, testing). Generic claims like \"industry-standard measures\" or \"we take security seriously\" without specifics are a gap.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"security_of_processing\"",
+      "lambda": "(input1.text.Contains(\"AES-256\") || input1.text.Contains(\"encryption at rest\")) && (input1.text.Contains(\"TLS 1.2\") || input1.text.Contains(\"TLS 1.3\") || input1.text.Contains(\"encryption in transit\")) && (input1.text.Contains(\"MFA\") || input1.text.Contains(\"multi-factor\") || input1.text.Contains(\"role-based access\") || input1.text.Contains(\"pseudonymisation\") || input1.text.Contains(\"penetration testing\"))",
+      "remediation": "Replace generic security language in {section.heading} with concrete Art. 32 measures (e.g., AES-256 at rest, TLS 1.3 in transit, role-based access control, MFA for staff, pseudonymisation of analytics, annual penetration testing).",
+      "evidenceQuote": "GDPR Art. 32: The controller and the processor shall implement appropriate technical and organisational measures including pseudonymisation and encryption, the ability to ensure ongoing confidentiality, integrity, availability and resilience, and regular testing.",
+      "sourceContent": "Security of Processing (Art. 32).",
+      "sourceSpan": { "documentId": "GDPR-Art32", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/Art32" },
+      "metadata": { "cite": "Art. 32", "classification": "REQUIRED" }
+    }
+  ]
+}

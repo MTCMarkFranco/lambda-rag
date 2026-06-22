@@ -5,14 +5,14 @@
   "ruleSetId": "rs_canadian_commercial_contract",
   "ruleSetVersion": "1.0.0",
   "ruleSetFingerprint": {
-    "value": "lr1:2f541ac2024e20889677c0ff2e16188e1cb936daf685f953c3d67a8178e92d03"
+    "value": "lr1:36ca2a4d734e8021a44418aed626d0bde8348dcce4fc7df2c8f98c6dec42efb2"
   },
   "projectorId": "contract",
   "projectorVersion": "1.5.0",
-  "score": 0.8,
+  "score": 1,
   "totalRules": 5,
-  "passed": 4,
-  "failed": 1,
+  "passed": 5,
+  "failed": 0,
   "notApplicable": 0,
   "errored": 0,
   "verdicts": [
@@ -301,11 +301,11 @@
       "predicateText": "input1.category == \"privacy\""
     },
     {
-      "id": "lr1:d64c792bb523a690fac51c6b47513e3bfa1b10155194f45e54b86c4abc7f0d97",
+      "id": "lr1:86c18ae6d8f87173ab52c10f2c0edffdcc8073586ebe0f967158a226b9adfbf8",
       "ruleId": "CAN-CONTRACT-TERM-001",
       "ruleSetVersion": "1.0.0",
-      "outcome": "Fail",
-      "lambdaText": "(input1.text.Contains(\"material breach\") || input1.text.Contains(\"for cause\")) && (input1.text.Contains(\"convenience\") || input1.text.Contains(\"without cause\")) && (input1.text.Contains(\"days\") || input1.text.Contains(\"notice\"))",
+      "outcome": "Pass",
+      "lambdaText": "(input1.text.Contains(\"material breach\") || input1.text.Contains(\"uncured breach\") || input1.text.Contains(\"for cause\")) && (input1.text.Contains(\"convenience\") || input1.text.Contains(\"without cause\")) && (input1.text.Contains(\"days\") || input1.text.Contains(\"notice\"))",
       "evaluatedInput": {
         "id": "s_00000006",
         "heading": "6. Termination",
@@ -361,26 +361,17 @@
       },
       "sourceSpan": {
         "documentId": "lr1:ec3d1eadd2f4a0d2d851676e1491d49f7df2ee101d48f79d59e01b1f9ae033c1",
-        "charStart": 1699,
-        "charLength": 11,
+        "charStart": 1514,
+        "charLength": 17,
         "headingPath": "/Master Services Agreement — Canadian Commercial Customer - Canadian-Law Vendor/6. Termination",
-        "charEnd": 1710
+        "charEnd": 1531
       },
-      "errorMessage": "Rule 'CAN-CONTRACT-TERM-001' failed: The contract must include both a termination-for-cause clause and a termination-for-convenience clause with a defined notice period.",
       "evidenceQuotes": [
         "SACC general conditions: contracts include both termination-for-cause and termination-for-convenience clauses."
       ],
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000006",
-      "remediationText": "Update 6. Termination to include both: (a) termination for material uncured breach on stated notice; and (b) termination for convenience by Customer on a defined notice period (typically 30–90 days), per SACC general-conditions baselines.",
-      "predicateText": "input1.category == \"termination\"",
-      "clauseSpan": {
-        "documentId": "lr1:ec3d1eadd2f4a0d2d851676e1491d49f7df2ee101d48f79d59e01b1f9ae033c1",
-        "charStart": 1533,
-        "charLength": 214,
-        "headingPath": "/Master Services Agreement — Canadian Commercial Customer - Canadian-Law Vendor/6. Termination",
-        "charEnd": 1747
-      }
+      "predicateText": "input1.category == \"termination\""
     }
   ],
   "generatedAt": "2000-01-01T00:00:00+00:00",

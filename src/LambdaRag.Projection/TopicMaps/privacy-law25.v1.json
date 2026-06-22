@@ -1,0 +1,16 @@
+{
+  "domain": "privacy-law25",
+  "version": "1.0.0",
+  "description": "Québec Law 25 (Act respecting the protection of personal information in the private sector, as amended). Use cases: Québec privacy compliance review, PIA gap analysis, cross-border transfer assessment for Québec residents.",
+  "topics": [
+    { "id": "privacy_officer",         "keywords": ["privacy officer", "person in charge of the protection of personal information", "person in charge", "highest authority", "data protection officer", "dpo", "who we are"] },
+    { "id": "collection_transparency", "keywords": ["at collection", "purposes of collection", "rectification", "withdraw consent", "right to withdraw", "access and rectification", "what we collect", "information we collect"] },
+    { "id": "privacy_by_default",      "keywords": ["privacy by default", "highest-confidentiality", "highest confidentiality", "default settings", "most-protective", "opt in", "opt-in"] },
+    { "id": "privacy_impact_assessment","keywords": ["privacy impact assessment", "pia", "system project", "before communicating"] },
+    { "id": "incident_handling",       "keywords": ["confidentiality incident", "incident register", "register of confidentiality incidents", "commission d'accès", "cai", "breach notification", "serious injury"] },
+    { "id": "consent_cross_border",    "keywords": ["consent", "manifest", "free and informed", "specific purposes", "outside québec", "outside quebec", "cross-border", "international transfer", "outside the eea", "standard contractual clauses"] },
+    { "id": "international_transfers", "keywords": ["outside the eea", "outside the eu", "other countries", "located in other countries", "transfer mechanism"] },
+    { "id": "rights_and_complaints",   "keywords": ["lodge a complaint", "supervisory authority", "your rights", "your choices"] },
+    { "id": "security_measures",       "keywords": ["encryption", "aes-256", "tls", "industry-standard", "security measures", "access control"] }
+  ]
+}
