@@ -5,23 +5,23 @@
   "ruleSetId": "rs_can_oil_gas_v1",
   "ruleSetVersion": "1.0.0",
   "ruleSetFingerprint": {
-    "value": "lr1:21c578c23044d212b4d998147ba3daf1973df84e5fbee41894a6ece68f1ccfe4"
+    "value": "lr1:569b482ab603361a2c25b30b58f574bbb364c6293d301d9264edc603150bfe96"
   },
   "projectorId": "contract",
   "projectorVersion": "1.5.0",
-  "score": 0.6,
+  "score": 0.2,
   "totalRules": 5,
-  "passed": 3,
-  "failed": 0,
+  "passed": 1,
+  "failed": 2,
   "notApplicable": 0,
   "errored": 0,
   "verdicts": [
     {
-      "id": "lr1:37714deb461223fb5e62fba5a2744b602d660ef708c1b8fc339183f634f8df2c",
+      "id": "lr1:e3395ee35f8439b796c2e37ba1f1a62b45042395d9fa19c2780f584ff771d227",
       "ruleId": "OG-DECOM-001",
       "ruleSetVersion": "1.0.0",
-      "outcome": "Pass",
-      "lambdaText": "(input1.text.Contains(\"decommissioning\") || input1.text.Contains(\"abandonment\")) && (input1.text.Contains(\"financial assurance\") || input1.text.Contains(\"abandonment funding\") || input1.text.Contains(\"Liability Management Rating\") || input1.text.Contains(\"LMR\"))",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"decommissioning\") || input1.text.Contains(\"abandonment\")) && (input1.text.Contains(\"financial assurance\") || input1.text.Contains(\"abandonment funding\") || input1.text.Contains(\"Liability Management Rating\") || input1.text.Contains(\"LMR\")) && !input1.text.Contains(\"does not address\") && !input1.text.Contains(\"not addressed\") && !input1.text.Contains(\"not yet established\") && !input1.text.Contains(\"to be filed\")",
       "evaluatedInput": {
         "id": "s_00000004",
         "heading": "Decommissioning",
@@ -75,24 +75,33 @@
       },
       "sourceSpan": {
         "documentId": "lr1:4d0a0fe4f2df1f88001d5ca597fb2dc4b2b7551e25bf95aaa9d15463854a89eb",
-        "charStart": 1190,
-        "charLength": 18,
+        "charStart": 1222,
+        "charLength": 15,
         "headingPath": "/Operations Manual — Acme Pipeline Co. NPS 24 Crude Oil System/Decommissioning",
-        "charEnd": 1208
+        "charEnd": 1237
       },
+      "errorMessage": "Rule 'OG-DECOM-001' failed: A documented decommissioning / abandonment plan with demonstrated financial assurance is required before a pipeline or well reaches end of life.",
       "evidenceQuotes": [
         "A company shall provide ... mechanisms to ensure that funds are available to pay for abandonment."
       ],
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000004",
-      "predicateText": "input1.category == \"decommissioning\""
+      "remediationText": "Add to Decommissioning: an explicit financial-assurance description (CER abandonment-funding mechanism, AER LMR, or BCER equivalent) tied to the decommissioning / abandonment plan.",
+      "predicateText": "input1.category == \"decommissioning\"",
+      "clauseSpan": {
+        "documentId": "lr1:4d0a0fe4f2df1f88001d5ca597fb2dc4b2b7551e25bf95aaa9d15463854a89eb",
+        "charStart": 1210,
+        "charLength": 189,
+        "headingPath": "/Operations Manual — Acme Pipeline Co. NPS 24 Crude Oil System/Decommissioning",
+        "charEnd": 1399
+      }
     },
     {
-      "id": "lr1:4779b2f5a567db9d5284dcb85a9f41aec7a1fa2a335b033167de8cbf96d8c75e",
+      "id": "lr1:8a144596fcc1ac516ed1e5f4d08a7b7b842f3991bd3f27ad5a52ef2afae9d53f",
       "ruleId": "OG-EMERGENCY-001",
       "ruleSetVersion": "1.0.0",
-      "outcome": "Pass",
-      "lambdaText": "input1.text.Contains(\"emergency management program\") || input1.text.Contains(\"emergency response plan\") || input1.text.Contains(\"ERP\") || input1.text.Contains(\"Directive 071\") || input1.text.Contains(\"D-071\") || input1.text.Contains(\"OPR s. 32\")",
+      "outcome": "Fail",
+      "lambdaText": "(input1.text.Contains(\"emergency management program\") || (input1.text.Contains(\"emergency response plan\") && (input1.text.Contains(\"anticipat\") || input1.text.Contains(\"prevent\") || input1.text.Contains(\"mitigat\"))) || input1.text.Contains(\"Directive 071\") || input1.text.Contains(\"D-071\"))",
       "evaluatedInput": {
         "id": "s_00000002",
         "heading": "Emergency Response Plan",
@@ -144,17 +153,26 @@
       },
       "sourceSpan": {
         "documentId": "lr1:4d0a0fe4f2df1f88001d5ca597fb2dc4b2b7551e25bf95aaa9d15463854a89eb",
-        "charStart": 755,
-        "charLength": 26,
+        "charStart": 787,
+        "charLength": 23,
         "headingPath": "/Operations Manual — Acme Pipeline Co. NPS 24 Crude Oil System/Emergency Response Plan",
-        "charEnd": 781
+        "charEnd": 810
       },
+      "errorMessage": "Rule 'OG-EMERGENCY-001' failed: A company must develop, implement and maintain an emergency management program that anticipates, prevents, manages and mitigates emergencies. AER Directive 071 imposes equivalent requirements on Alberta operators.",
       "evidenceQuotes": [
         "A company shall develop, implement and maintain an emergency management program that anticipates, prevents, manages and mitigates conditions during an emergency ..."
       ],
       "evaluatedAt": "2000-01-01T00:00:00+00:00",
       "matchedSectionId": "s_00000002",
-      "predicateText": "input1.category == \"emergency_response\""
+      "remediationText": "Add to Emergency Response Plan: include ICS command structure, 24/7 notification matrix, and reference to CER OPR s. 32 (and AER Directive 071 in Alberta).",
+      "predicateText": "input1.category == \"emergency_response\"",
+      "clauseSpan": {
+        "documentId": "lr1:4d0a0fe4f2df1f88001d5ca597fb2dc4b2b7551e25bf95aaa9d15463854a89eb",
+        "charStart": 783,
+        "charLength": 222,
+        "headingPath": "/Operations Manual — Acme Pipeline Co. NPS 24 Crude Oil System/Emergency Response Plan",
+        "charEnd": 1005
+      }
     },
     {
       "id": "lr1:e1aae25d12b3ae025bd4c33330c24e4a1928a7710dcbadbb8384fcb61e24a214",

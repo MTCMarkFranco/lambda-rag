@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-22T12:48:42.1565257+00:00",
+  "model": "gpt-5.3-chat-1",
+  "ruleset_id": "rs_can_permitting_v1",
+  "ruleset_version": "1.0.0",
+  "ruleset_fingerprint": "lr1:5402fb6a4398f4b80b080c641f524145ad560bdd8c73ee870f3f98842c5423d1",
+  "document_hash": "lr1:0b2f9f8f83e5362b92375771d71c28a3b6126d721154acc481b0a82e81020478",
+  "document_path": "permitting/doc-001-condo-permit-with-gaps/source.md",
+  "per_rule": {
+    "PERMIT-AODA-001": {
+      "verdict": "FAIL",
+      "evidence": "A 38-storey residential condominium tower with two levels of underground parking and street-level commercial.",
+      "reason": "The application describes new construction but nowhere explicitly states conformance with IASR / AODA Part IV.1 Design of Public Spaces standards."
+    },
+    "PERMIT-EIA-001": {
+      "verdict": "FAIL",
+      "evidence": "Building Permit Application \u2014 245 Bay Tower, Toronto, ON",
+      "reason": "The document is a project permit application but nowhere states whether the project is a designated project under the Impact Assessment Act or attests to IAA compliance."
+    },
+    "PERMIT-FIRE-EGRESS-001": {
+      "verdict": "FAIL",
+      "evidence": "The travel distance from the most remote point on each floor to the nearest exit door is 24.0 m.",
+      "reason": "The document provides a travel distance value but does not demonstrate or state that it complies with Ontario Building Code 3.4.2 limits."
+    },
+    "PERMIT-FIRE-SPRINK-001": {
+      "verdict": "FAIL",
+      "evidence": "A wet-pipe sprinkler system is provided throughout the building.",
+      "reason": "The document states sprinklers are provided but does not specify that the system is designed to NFPA 13 as required by the rule."
+    },
+    "PERMIT-INDIG-001": {
+      "verdict": "FAIL",
+      "evidence": "Building Permit Application \u2014 245 Bay Tower, Toronto, ON",
+      "reason": "The document is a permit application but contains no discussion of Aboriginal or treaty rights or consultation under s. 35."
+    }
+  }
+}

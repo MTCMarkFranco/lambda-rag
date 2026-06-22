@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-22T12:45:13.3676757+00:00",
+  "model": "gpt-5.3-chat-1",
+  "ruleset_id": "rs_canadian_commercial_contract",
+  "ruleset_version": "1.0.0",
+  "ruleset_fingerprint": "lr1:0f7bb1d3e1a76469228d4d43e6e94456345aedec4cca0188f3203006f2778170",
+  "document_hash": "lr1:24fcc4fa49136a1aafbc3840470d8779cac6246dc2ffa9fb4db20809d13c6f69",
+  "document_path": "contract/doc-001-msa-with-gaps/source.md",
+  "per_rule": {
+    "CAN-CONTRACT-GOV-001": {
+      "verdict": "FAIL",
+      "evidence": "governed by the laws of the State of Delaware",
+      "reason": "The agreement specifies Delaware law and venue in Delaware rather than a Canadian jurisdiction with venue in Canada."
+    },
+    "CAN-CONTRACT-LIAB-001": {
+      "verdict": "FAIL",
+      "evidence": "The parties\u0027 respective liabilities shall be determined under applicable law.",
+      "reason": "The contract contains no quantified cap on aggregate liability tied to fees or any defined period."
+    },
+    "CAN-CONTRACT-PAY-001": {
+      "verdict": "FAIL",
+      "evidence": "within forty-five (45) days of receipt",
+      "reason": "The contract requires payment within 45 days, exceeding the rule\u2019s maximum of net 30 days from receipt of an undisputed invoice."
+    },
+    "CAN-CONTRACT-PRIVACY-001": {
+      "verdict": "FAIL",
+      "evidence": "process Personal Data in accordance with the General Data Protection Regulation (GDPR)",
+      "reason": "The contract processes personal data but references GDPR instead of PIPEDA or similar Canadian privacy legislation."
+    },
+    "CAN-CONTRACT-TERM-001": {
+      "verdict": "FAIL",
+      "evidence": "Either party may terminate this Agreement for material uncured breach upon thirty (30) days\u0027 written notice.",
+      "reason": "The document includes termination for cause but does not include a termination-for-convenience clause with a defined notice period."
+    }
+  }
+}

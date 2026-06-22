@@ -5,7 +5,7 @@
   "ruleSetId": "rs_can_oil_gas_v1",
   "ruleSetVersion": "1.0.0",
   "ruleSetFingerprint": {
-    "value": "lr1:21c578c23044d212b4d998147ba3daf1973df84e5fbee41894a6ece68f1ccfe4"
+    "value": "lr1:569b482ab603361a2c25b30b58f574bbb364c6293d301d9264edc603150bfe96"
   },
   "projectorId": "contract",
   "projectorVersion": "1.5.0",
@@ -21,7 +21,7 @@
       "ruleId": "OG-DECOM-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
-      "lambdaText": "(input1.text.Contains(\"decommissioning\") || input1.text.Contains(\"abandonment\")) && (input1.text.Contains(\"financial assurance\") || input1.text.Contains(\"abandonment funding\") || input1.text.Contains(\"Liability Management Rating\") || input1.text.Contains(\"LMR\"))",
+      "lambdaText": "(input1.text.Contains(\"decommissioning\") || input1.text.Contains(\"abandonment\")) && (input1.text.Contains(\"financial assurance\") || input1.text.Contains(\"abandonment funding\") || input1.text.Contains(\"Liability Management Rating\") || input1.text.Contains(\"LMR\")) && !input1.text.Contains(\"does not address\") && !input1.text.Contains(\"not addressed\") && !input1.text.Contains(\"not yet established\") && !input1.text.Contains(\"to be filed\")",
       "evaluatedInput": {
         "id": "s_00000004",
         "heading": "Decommissioning / Abandonment",
@@ -96,7 +96,7 @@
       "ruleId": "OG-EMERGENCY-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Pass",
-      "lambdaText": "input1.text.Contains(\"emergency management program\") || input1.text.Contains(\"emergency response plan\") || input1.text.Contains(\"ERP\") || input1.text.Contains(\"Directive 071\") || input1.text.Contains(\"D-071\") || input1.text.Contains(\"OPR s. 32\")",
+      "lambdaText": "(input1.text.Contains(\"emergency management program\") || (input1.text.Contains(\"emergency response plan\") && (input1.text.Contains(\"anticipat\") || input1.text.Contains(\"prevent\") || input1.text.Contains(\"mitigat\"))) || input1.text.Contains(\"Directive 071\") || input1.text.Contains(\"D-071\"))",
       "evaluatedInput": {
         "id": "s_00000002",
         "heading": "Emergency Response Plan — Emergency Management Program",

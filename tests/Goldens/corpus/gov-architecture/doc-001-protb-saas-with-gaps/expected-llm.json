@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-22T12:46:44.8556602+00:00",
+  "model": "gpt-5.3-chat-1",
+  "ruleset_id": "rs_gc_cloud_guardrails_v2",
+  "ruleset_version": "1.0.0",
+  "ruleset_fingerprint": "lr1:6262764e3336316fbb6e15b73d126729f380bfc0b12d373da87b040098f9d700",
+  "document_hash": "lr1:0e84ec02a44f39abddf1efb2116bb1203f7dca6c25e40129f79c633b80aee5d8",
+  "document_path": "gov-architecture/doc-001-protb-saas-with-gaps/source.md",
+  "per_rule": {
+    "GC-CG-01-MFA": {
+      "verdict": "FAIL",
+      "evidence": "Time-based one-time passwords (TOTP) delivered via the vendor\u0027s mobile authenticator app are the standard second factor for all administrators.",
+      "reason": "The document specifies TOTP (and SMS backup) instead of explicitly identifying phishing\u2011resistant MFA mechanisms such as FIDO2, PIV-derived, or smart card MFA."
+    },
+    "GC-CG-05-DataResidency": {
+      "verdict": "FAIL",
+      "evidence": "The system is hosted on a major commercial cloud provider",
+      "reason": "The document describes hosting but does not commit to a Canadian data-centre region for Protected B data."
+    },
+    "GC-CG-06-EncryptionAtRest": {
+      "verdict": "FAIL",
+      "evidence": "The exact algorithm and key length are managed entirely by the platform and are not customer-configurable in this tier.",
+      "reason": "The document does not reference AES-256 or any FIPS 140 validation status for encryption at rest as required."
+    },
+    "GC-CG-07-TLS": {
+      "verdict": "FAIL",
+      "evidence": "fall back to TLS 1.0",
+      "reason": "The architecture allows fallback to TLS 1.0 instead of enforcing TLS 1.2 or higher for communications."
+    },
+    "GC-CG-11-AuditLogging": {
+      "verdict": "FAIL",
+      "evidence": "Platform audit log streams are enabled by default.",
+      "reason": "The document mentions audit logs and retention but does not specify that sign-in, configuration-change, and resource-provisioning events are captured."
+    }
+  }
+}

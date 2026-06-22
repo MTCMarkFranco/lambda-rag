@@ -1,0 +1,16 @@
+{
+  "domain": "privacy-gdpr",
+  "version": "1.0.0",
+  "description": "GDPR (Regulation (EU) 2016/679) — privacy notice & processing obligations. Articles 5, 6, 13, 14, 30, 32. Use cases: SaaS privacy notice review, controller/processor compliance review, Art. 30 records audit.",
+  "topics": [
+    { "id": "purpose_and_minimisation", "keywords": ["purpose limitation", "data minimisation", "specific purpose", "only the data necessary", "proportionate", "what we collect", "information we collect"] },
+    { "id": "lawful_basis",             "keywords": ["lawful basis", "art. 6", "article 6", "consent", "legitimate interests", "performance of a contract", "legal obligation"] },
+    { "id": "transparency",             "keywords": ["controller", "data protection officer", "dpo", "recipients", "retention", "who we are", "privacy notice"] },
+    { "id": "data_subject_rights",      "keywords": ["data subject rights", "right to access", "rectification", "erasure", "portability", "withdraw consent", "your rights", "your choices", "supervisory authority", "lodge a complaint"] },
+    { "id": "international_transfers",  "keywords": ["international transfers", "outside the eea", "outside the eu", "standard contractual clauses", "scc", "adequacy decision", "transfer mechanism", "other countries"] },
+    { "id": "records_of_processing",    "keywords": ["records of processing", "art. 30", "article 30", "ropa", "sub-processors", "sub-processor list"] },
+    { "id": "security_of_processing",   "keywords": ["security of processing", "art. 32", "article 32", "encryption", "pseudonymisation", "industry-standard", "security measures", "tls", "aes"] },
+    { "id": "cookies_and_tracking",     "keywords": ["cookies", "tracking technologies", "analytics tag"] },
+    { "id": "consent_practices",        "keywords": ["consent", "by creating an account", "by continuing to use"] }
+  ]
+}

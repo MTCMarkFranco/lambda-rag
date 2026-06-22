@@ -119,7 +119,7 @@
       },
       "selector": { "kind": "path", "path": "$.sections[*]" },
       "predicate": "input1.category == \"termination\"",
-      "lambda": "(input1.text.Contains(\"material breach\") || input1.text.Contains(\"for cause\")) && (input1.text.Contains(\"convenience\") || input1.text.Contains(\"without cause\")) && (input1.text.Contains(\"days\") || input1.text.Contains(\"notice\"))",
+      "lambda": "(input1.text.Contains(\"material breach\") || input1.text.Contains(\"uncured breach\") || input1.text.Contains(\"for cause\")) && (input1.text.Contains(\"convenience\") || input1.text.Contains(\"without cause\")) && (input1.text.Contains(\"days\") || input1.text.Contains(\"notice\"))",
       "remediation": "Update {section.heading} to include both: (a) termination for material uncured breach on stated notice; and (b) termination for convenience by Customer on a defined notice period (typically 30–90 days), per SACC general-conditions baselines.",
       "evidenceQuote": "SACC general conditions: contracts include both termination-for-cause and termination-for-convenience clauses.",
       "sourceContent": "SACC general conditions and standard Canadian commercial-contract drafting include both termination for material uncured breach and termination for convenience by the customer on a defined notice period.",

@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-22T16:12:49.0991377+00:00",
+  "model": "gpt-5.3-chat-1",
+  "ruleset_id": "rs_gdpr_privacy_notice",
+  "ruleset_version": "1.0.0",
+  "ruleset_fingerprint": "lr1:4dd7fa8c9a57848be71bf5f1fbd621a6d17887a40e2e5b04f1a1b788600bbc48",
+  "document_hash": "lr1:571cd3933e9851b2e9df56f1de6e8390d54791580efcf31d28c0fea112095557",
+  "document_path": "privacy-gdpr/dataflow-gaps/source.md",
+  "per_rule": {
+    "GDPR-G-1-PurposeLimitation": {
+      "verdict": "FAIL",
+      "evidence": "to improve our services and for general business purposes",
+      "reason": "The document uses vague catch\u2011all purposes rather than specifying explicit purposes tied to each data category."
+    },
+    "GDPR-G-3-LawfulBasis": {
+      "verdict": "FAIL",
+      "evidence": "By creating an account, you consent to all of the data collection, use, and sharing described in this notice.",
+      "reason": "The notice describes data collection and processing but does not identify specific GDPR Art. 6 lawful bases for each processing activity."
+    },
+    "GDPR-G-4-Transparency": {
+      "verdict": "FAIL",
+      "evidence": "We share your information with our trusted partners and service providers who help us operate the platform.",
+      "reason": "The notice lacks any disclosure of data retention period(s), which the rule requires at collection."
+    },
+    "GDPR-G-5-DataSubjectRights": {
+      "verdict": "FAIL",
+      "evidence": "If you would like to access the personal information we hold about you",
+      "reason": "The notice only mentions the right of access and does not enumerate rectification, erasure, restriction, portability, objection, or the right to lodge a complaint with a supervisory authority."
+    },
+    "GDPR-G-6-RecordsAndTransfers": {
+      "verdict": "FAIL",
+      "evidence": "Some of these providers are located in other countries.",
+      "reason": "The notice discloses international data sharing but does not specify any transfer mechanism such as SCCs or an adequacy decision."
+    },
+    "GDPR-G-7-SecurityOfProcessing": {
+      "verdict": "FAIL",
+      "evidence": "industry-standard measures",
+      "reason": "The document only provides a generic claim about security without specifying concrete technical or organisational measures such as encryption, access controls, or testing."
+    }
+  }
+}

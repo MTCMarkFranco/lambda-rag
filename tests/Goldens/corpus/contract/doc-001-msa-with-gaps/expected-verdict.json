@@ -5,7 +5,7 @@
   "ruleSetId": "rs_canadian_commercial_contract",
   "ruleSetVersion": "1.0.0",
   "ruleSetFingerprint": {
-    "value": "lr1:2f541ac2024e20889677c0ff2e16188e1cb936daf685f953c3d67a8178e92d03"
+    "value": "lr1:36ca2a4d734e8021a44418aed626d0bde8348dcce4fc7df2c8f98c6dec42efb2"
   },
   "projectorId": "contract",
   "projectorVersion": "1.5.0",
@@ -337,11 +337,11 @@
       }
     },
     {
-      "id": "lr1:834e5f2393fc9ab7700526607346e7f7501219aee688ec0ed27e9b1172216a30",
+      "id": "lr1:0cd69ab885b84333534faa6c58267118701263fcb3dd4146de23b766b1f91578",
       "ruleId": "CAN-CONTRACT-TERM-001",
       "ruleSetVersion": "1.0.0",
       "outcome": "Fail",
-      "lambdaText": "(input1.text.Contains(\"material breach\") || input1.text.Contains(\"for cause\")) && (input1.text.Contains(\"convenience\") || input1.text.Contains(\"without cause\")) && (input1.text.Contains(\"days\") || input1.text.Contains(\"notice\"))",
+      "lambdaText": "(input1.text.Contains(\"material breach\") || input1.text.Contains(\"uncured breach\") || input1.text.Contains(\"for cause\")) && (input1.text.Contains(\"convenience\") || input1.text.Contains(\"without cause\")) && (input1.text.Contains(\"days\") || input1.text.Contains(\"notice\"))",
       "evaluatedInput": {
         "id": "s_00000006",
         "heading": "6. Termination",
@@ -399,10 +399,10 @@
       },
       "sourceSpan": {
         "documentId": "lr1:24fcc4fa49136a1aafbc3840470d8779cac6246dc2ffa9fb4db20809d13c6f69",
-        "charStart": 1265,
-        "charLength": 4,
+        "charStart": 1234,
+        "charLength": 14,
         "headingPath": "/Master Services Agreement — Canadian Customer - US-Drafted Vendor Template/6. Termination",
-        "charEnd": 1269
+        "charEnd": 1248
       },
       "errorMessage": "Rule 'CAN-CONTRACT-TERM-001' failed: The contract must include both a termination-for-cause clause and a termination-for-convenience clause with a defined notice period.",
       "evidenceQuotes": [

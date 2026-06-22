@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-22T12:47:28.3354149+00:00",
+  "model": "gpt-5.3-chat-1",
+  "ruleset_id": "rs_gc_cloud_guardrails_v2",
+  "ruleset_version": "1.0.0",
+  "ruleset_fingerprint": "lr1:6262764e3336316fbb6e15b73d126729f380bfc0b12d373da87b040098f9d700",
+  "document_hash": "lr1:38741365ce07b15823fb3faf67ae917863dcc5eda3604fe5f372a7b746180c54",
+  "document_path": "gov-architecture/doc-003-fully-compliant/source.md",
+  "per_rule": {
+    "GC-CG-01-MFA": {
+      "verdict": "PASS",
+      "evidence": "All administrative access \u2014 including the two registered global administrators \u2014 is gated by phishing-resistant MFA. The supported authenticators are FIDO2 security keys and PIV-derived smart card credentials",
+      "reason": "The document states that all administrative access requires phishing-resistant MFA and explicitly names FIDO2 and PIV-derived smart card mechanisms."
+    },
+    "GC-CG-05-DataResidency": {
+      "verdict": "PASS",
+      "evidence": "pinned to the provider\u0027s Canada Central region (Toronto)",
+      "reason": "The architecture explicitly commits to hosting resources in Canadian data-centre regions."
+    },
+    "GC-CG-06-EncryptionAtRest": {
+      "verdict": "PASS",
+      "evidence": "AES-256 using a FIPS 140-2 validated cryptographic module",
+      "reason": "The document specifies AES-256 for encryption at rest and references FIPS 140 validation as required."
+    },
+    "GC-CG-07-TLS": {
+      "verdict": "PASS",
+      "evidence": "minimum negotiated TLS version of TLS 1.2; TLS 1.3 is preferred",
+      "reason": "The architecture explicitly enforces TLS 1.2 or higher for traffic, satisfying the requirement for encrypted data in transit."
+    },
+    "GC-CG-11-AuditLogging": {
+      "verdict": "PASS",
+      "evidence": "retained for 365 days online with a further 7 years in tiered immutable storage. The log pipeline captures sign-in events (interactive and non-interactive), configuration changes, and resource provisioning activities.",
+      "reason": "The document specifies enabled audit logging capturing required event types and defines retention periods."
+    }
+  }
+}

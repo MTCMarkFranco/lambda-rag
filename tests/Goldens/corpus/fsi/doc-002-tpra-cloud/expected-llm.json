@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-22T12:46:18.4641458+00:00",
+  "model": "gpt-5.3-chat-1",
+  "ruleset_id": "rs_osfi_b10_tprm",
+  "ruleset_version": "1.0.0",
+  "ruleset_fingerprint": "lr1:e5d678f17815d131fc3e04c5c2e39ac8fd8fb82bd4a3dbe8aec30eed2a4c6d36",
+  "document_hash": "lr1:f2accf47f91dfe6d68da21ddf4188486d05d1418d370a5123b4ab4d17762783d",
+  "document_path": "fsi/doc-002-tpra-cloud/source.md",
+  "per_rule": {
+    "OSFI-B10-AuditAccess": {
+      "verdict": "PASS",
+      "evidence": "The contract preserves audit and examination rights for BetaBank, its internal and external auditors, and OSFI, upon reasonable notice.",
+      "reason": "The document explicitly preserves audit and examination rights for both the FRFI (BetaBank) and OSFI with access to relevant information."
+    },
+    "OSFI-B10-BCP": {
+      "verdict": "PASS",
+      "evidence": "Recovery Time Objective (RTO) of 4 hours and a Recovery Point Objective (RPO) of 15 minutes",
+      "reason": "The document includes business continuity provisions and explicitly states RTO and RPO recovery objectives for the service."
+    },
+    "OSFI-B10-ExitPlan": {
+      "verdict": "PASS",
+      "evidence": "invocation triggers covering both planned exit (e.g. contract non-renewal, change of strategic direction) and stressed exit (e.g. provider insolvency, sustained service degradation). The exit plan includes 180 days of transition assistance and a certified data return / destruction obligation.",
+      "reason": "The document explicitly states an exit plan with triggers for both planned and stressed exits plus transition assistance and data return/destruction."
+    },
+    "OSFI-B10-Subcontracting": {
+      "verdict": "FAIL",
+      "evidence": "NorthStar will keep BetaBank informed of changes through the standard quarterly service review.",
+      "reason": "The document only requires post\u2011facto notification of subcontractor changes and does not require prior notice/consent or extension of FRFI rights through the subcontracting chain."
+    },
+    "OSFI-B10-TPRMF": {
+      "verdict": "FAIL",
+      "evidence": "governed by BetaBank\u0027s enterprise-wide Third-Party Risk Management Framework (TPRMF)",
+      "reason": "The document states the arrangement is governed by an enterprise-wide TPRMF and risk-tiered, but it does not show that the framework sets clear accountabilities and lifecycle policies as required."
+    }
+  }
+}
