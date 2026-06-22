@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-22T12:49:01.7811511+00:00",
+  "model": "gpt-5.3-chat-1",
+  "ruleset_id": "rs_can_permitting_v1",
+  "ruleset_version": "1.0.0",
+  "ruleset_fingerprint": "lr1:5402fb6a4398f4b80b080c641f524145ad560bdd8c73ee870f3f98842c5423d1",
+  "document_hash": "lr1:64aedd11a4a586cce2ed39bbfda5c83c6f14ae894d1407192468c79085bc7bb9",
+  "document_path": "permitting/doc-002-warehouse-clean/source.md",
+  "per_rule": {
+    "PERMIT-AODA-001": {
+      "verdict": "PASS",
+      "evidence": "The application explicitly attests to AODA / IASR conformance for all elements within the regulation\u0027s scope.",
+      "reason": "The document explicitly states conformance with IASR (O. Reg. 191/11) Part IV.1 for exterior paths of travel and attests to AODA/IASR compliance."
+    },
+    "PERMIT-EIA-001": {
+      "verdict": "PASS",
+      "evidence": "The proposed warehouse is not a \u0022designated project\u0022 listed in the Physical Activities Regulations (SOR/2019-285), and accordingly no federal impact assessment is triggered.",
+      "reason": "The application explicitly addresses whether the project is designated under the Impact Assessment Act and documents the determination that it is not, satisfying the rule."
+    },
+    "PERMIT-FIRE-EGRESS-001": {
+      "verdict": "PASS",
+      "evidence": "31.0 m, within the 45 m allowable for sprinklered Group F-2 occupancies",
+      "reason": "The document specifies a travel distance within the allowable OBC 3.4.2 limit, indicating compliance."
+    },
+    "PERMIT-FIRE-SPRINK-001": {
+      "verdict": "PASS",
+      "evidence": "A fully-supervised wet-pipe sprinkler system designed and installed in accordance with NFPA 13 is provided throughout the warehouse and office.",
+      "reason": "The document explicitly states that the building has a sprinkler system designed and installed in accordance with NFPA 13."
+    },
+    "PERMIT-INDIG-001": {
+      "verdict": "PASS",
+      "evidence": "acknowledges the Crown\u0027s duty to consult under section 35 of the Constitution Act, 1982 and Haida Nation v. British Columbia (Minister of Forests), 2004 SCC 73",
+      "reason": "The application explicitly acknowledges the Crown\u2019s duty to consult and documents engagement with an affected First Nation."
+    }
+  }
+}

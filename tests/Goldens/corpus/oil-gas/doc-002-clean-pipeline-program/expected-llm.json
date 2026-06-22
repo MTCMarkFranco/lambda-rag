@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-22T12:48:07.9088465+00:00",
+  "model": "gpt-5.3-chat-1",
+  "ruleset_id": "rs_can_oil_gas_v1",
+  "ruleset_version": "1.0.0",
+  "ruleset_fingerprint": "lr1:25caaf371cd0236bf49439eedbbe18a56e8dd4e721f2df71ae22693f02249af9",
+  "document_hash": "lr1:090eace3635a662a87414bf06c5328f671ebf5ae720c7fe30f6df40c9571923f",
+  "document_path": "oil-gas/doc-002-clean-pipeline-program/source.md",
+  "per_rule": {
+    "OG-DECOM-001": {
+      "verdict": "PASS",
+      "evidence": "The decommissioning and abandonment plan is filed and updated annually. Financial assurance is provided through the CER abandonment-funding mechanism",
+      "reason": "The document explicitly states that a decommissioning/abandonment plan exists and that financial assurance mechanisms are in place."
+    },
+    "OG-EMERGENCY-001": {
+      "verdict": "PASS",
+      "evidence": "A documented emergency management program (EMP / ERP) is maintained per CER OPR s. 32.",
+      "reason": "The document explicitly states that an emergency management program is maintained and describes its implementation and components."
+    },
+    "OG-INDIG-001": {
+      "verdict": "PASS",
+      "evidence": "acknowledges the Crown\u0027s duty to consult under section 35 of the Constitution Act, 1982 (*Haida Nation v. British Columbia (Minister of Forests)*, 2004 SCC 73; *Tsleil-Waututh Nation v. Canada*, 2018 FCA 153)",
+      "reason": "The document explicitly recognizes the Crown\u0027s duty to consult under s.35 and cites Tsleil-Waututh Nation v. Canada (2018 FCA 153) for energy projects."
+    },
+    "OG-METHANE-001": {
+      "verdict": "PASS",
+      "evidence": "a leak-detection-and-repair (LDAR) program with quarterly screening using OGI cameras",
+      "reason": "The document explicitly implements SOR/2018-66 and includes an LDAR program and venting controls required by the regulation."
+    },
+    "OG-PIM-001": {
+      "verdict": "PASS",
+      "evidence": "- threat-identification (CSA Z662 Annex H threat list)\n- annual ILI for high-consequence segments (cleanliness \u002B MFL \u002B caliper\n  per API 1163)\n- monitoring via 12-month close-interval cathodic protection surveys\n- corrective-action triggers with documented engineering critical\n  assessment",
+      "reason": "The document explicitly describes a Pipeline Integrity Management Program covering threat identification, monitoring, in-line inspection, and corrective action."
+    }
+  }
+}

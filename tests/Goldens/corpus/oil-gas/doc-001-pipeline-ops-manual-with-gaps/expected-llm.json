@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-22T12:47:51.570203+00:00",
+  "model": "gpt-5.3-chat-1",
+  "ruleset_id": "rs_can_oil_gas_v1",
+  "ruleset_version": "1.0.0",
+  "ruleset_fingerprint": "lr1:25caaf371cd0236bf49439eedbbe18a56e8dd4e721f2df71ae22693f02249af9",
+  "document_hash": "lr1:4d0a0fe4f2df1f88001d5ca597fb2dc4b2b7551e25bf95aaa9d15463854a89eb",
+  "document_path": "oil-gas/doc-001-pipeline-ops-manual-with-gaps/source.md",
+  "per_rule": {
+    "OG-DECOM-001": {
+      "verdict": "FAIL",
+      "evidence": "The current operations manual does not address financial assurance.",
+      "reason": "The rule requires a documented decommissioning/abandonment plan with financial assurance, which the document explicitly states it does not include."
+    },
+    "OG-EMERGENCY-001": {
+      "verdict": "FAIL",
+      "evidence": "The emergency response plan (ERP) is maintained in accordance with CER OPR s. 32 and reviewed annually.",
+      "reason": "The document mentions an emergency response plan but does not demonstrate a full emergency management program that anticipates, prevents, manages, and mitigates emergencies."
+    },
+    "OG-INDIG-001": {
+      "verdict": "FAIL",
+      "evidence": "Acme NPS 24 crude oil system",
+      "reason": "The document concerns linear pipeline infrastructure but contains no reference to the Crown\u2019s duty to consult Indigenous peoples under s.35 or related jurisprudence such as Tsleil-Waututh."
+    },
+    "OG-METHANE-001": {
+      "verdict": "NOT_APPLICABLE",
+      "evidence": "Operations Manual \u2014 Acme Pipeline Co. NPS 24 Crude Oil System",
+      "reason": "The rule applies to upstream oil and gas facilities and methane venting/LDAR, while the document concerns a crude oil pipeline system governed by pipeline regulations."
+    },
+    "OG-PIM-001": {
+      "verdict": "PASS",
+      "evidence": "The program covers:\n\n- threat identification\n- ILI scheduling on a five-year cadence\n- monitoring via cathodic protection surveys\n- corrective-action triggers",
+      "reason": "The document explicitly describes a pipeline integrity management program including threat identification, in-line inspection, monitoring, and corrective action."
+    }
+  }
+}
