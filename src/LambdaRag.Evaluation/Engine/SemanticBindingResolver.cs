@@ -28,6 +28,8 @@ namespace LambdaRag.Evaluation.Engine;
 public sealed class SemanticBindingResolver
 {
     private readonly ITokenEmbedder _embedder;
+    private readonly double _thresholdOffset;
+    private readonly double _minEffectiveThreshold;
 
     // Per-process in-memory caches. The embedder itself is expected to be
     // file-backed for cross-run determinism; these dictionaries just avoid
@@ -38,8 +40,41 @@ public sealed class SemanticBindingResolver
         = new(StringComparer.Ordinal);
 
     public SemanticBindingResolver(ITokenEmbedder embedder)
+        : this(embedder, thresholdOffset: 0.0, minEffectiveThreshold: 0.0)
+    {
+    }
+
+    /// <summary>
+    /// Pillar 9 — calibration lever ported from policy-compiler-spike v0.1.1.
+    /// <para>
+    /// Per-anchor cosine threshold is computed at evaluation time as
+    /// <c>effective = Math.Max(minEffectiveThreshold, anchor.Threshold - thresholdOffset)</c>.
+    /// This compensates for the cosine-register drift between the embedding
+    /// model and the LLM-calibrated authored thresholds (OpenAI's
+    /// <c>text-embedding-3-large</c> in particular produces cosines that
+    /// cluster differently than the human intuition behind a "0.78" anchor).
+    /// </para>
+    /// <para>
+    /// Defaults preserve byte-identity with prior runs:
+    /// <c>thresholdOffset=0.0</c>, <c>minEffectiveThreshold=0.0</c> ⇒
+    /// <c>effective == anchor.Threshold</c> (i.e. unchanged from the
+    /// pre-calibration code path).
+    /// </para>
+    /// </summary>
+    public SemanticBindingResolver(
+        ITokenEmbedder embedder,
+        double thresholdOffset,
+        double minEffectiveThreshold = 0.0)
     {
         _embedder = embedder ?? throw new ArgumentNullException(nameof(embedder));
+        if (double.IsNaN(thresholdOffset) || thresholdOffset < 0.0)
+            throw new ArgumentOutOfRangeException(nameof(thresholdOffset),
+                "thresholdOffset must be a non-negative finite number.");
+        if (double.IsNaN(minEffectiveThreshold) || minEffectiveThreshold < 0.0)
+            throw new ArgumentOutOfRangeException(nameof(minEffectiveThreshold),
+                "minEffectiveThreshold must be a non-negative finite number.");
+        _thresholdOffset = thresholdOffset;
+        _minEffectiveThreshold = minEffectiveThreshold;
     }
 
     /// <summary>
@@ -106,12 +141,18 @@ public sealed class SemanticBindingResolver
                 : new HashSet<int>(anchor.Ngram);
 
             var matches = new List<TokenMatch>();
+            // Pillar 9 — apply calibration offset to the per-anchor
+            // threshold. With default-zero offset this is identical to
+            // anchor.Threshold and byte-identity is preserved.
+            var effectiveThreshold = Math.Max(
+                _minEffectiveThreshold,
+                anchor.Threshold - _thresholdOffset);
             foreach (var t in tokens)
             {
                 if (!allowedOrders.Contains(t.Ngram)) continue;
                 if (!tokenVecs.TryGetValue(t.Text, out var tv)) continue;
                 var cos = SemanticFunctions.Cosine(anchorVec, tv);
-                if (cos < anchor.Threshold) continue;
+                if (cos < effectiveThreshold) continue;
                 matches.Add(new TokenMatch(t.Text, cos, t.CharStart, t.CharLength));
             }
 
