@@ -1,0 +1,135 @@
+{
+  "id": "rs_quebec_law25",
+  "version": "1.0.0",
+  "domain": "privacy-law25",
+  "publishedAt": "2026-06-22T00:00:00Z",
+  "metadata": {
+    "source": "Act respecting the protection of personal information in the private sector (Québec), as amended by Law 25 (formerly Bill 64). Sections 3.1, 3.3, 3.5–3.8, 8, 9.1, 12, 17.",
+    "sourceUrl": "https://www.legisquebec.gouv.qc.ca/en/document/cs/p-39.1",
+    "sourceLicense": "© Éditeur officiel du Québec — reproduction permitted for non-commercial / compliance use.",
+    "topicMap": "privacy-law25.v1",
+    "intendedFor": "Privacy notice review against Québec Law 25 obligations (Privacy Officer, PIA, privacy-by-default, incident register)."
+  },
+  "rules": [
+    {
+      "id": "QLA25-L-1-PrivacyOfficer",
+      "version": "1.0.0",
+      "naturalLanguage": "The enterprise must designate a Privacy Officer (Person in charge of the protection of personal information) and publish their title/contact on the enterprise's website.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"privacy_officer\"",
+      "lambda": "(input1.text.Contains(\"Person in charge of the protection of personal information\") || input1.text.Contains(\"Privacy Officer\")) && (input1.text.Contains(\"@\") || input1.text.Contains(\"published\") || input1.text.Contains(\"website\"))",
+      "remediation": "Name the Privacy Officer (Person in charge of the protection of personal information) in {section.heading}, publish their contact details on the enterprise website, per s. 3.1.",
+      "evidenceQuote": "Law 25 s. 3.1: The person having the highest authority shall ensure the implementation of and compliance with this Act. That person exercises the function of the person in charge of the protection of personal information.",
+      "sourceContent": "Designation of a Privacy Officer.",
+      "sourceSpan": { "documentId": "QLA25-s3-1", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/s3.1" },
+      "metadata": { "cite": "s. 3.1", "classification": "REQUIRED" }
+    },
+    {
+      "id": "QLA25-L-2-CollectionTransparency",
+      "version": "1.0.0",
+      "naturalLanguage": "At collection the enterprise must inform the individual of purposes, access/rectification rights, and the right to withdraw consent. Missing rectification or consent-withdrawal route is a gap.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"collection_transparency\" || input1.category == \"rights_and_complaints\"",
+      "lambda": "(input1.text.Contains(\"rectif\") || input1.text.Contains(\"access and rectification\")) && (input1.text.Contains(\"withdraw consent\") || input1.text.Contains(\"right to withdraw\"))",
+      "remediation": "Expand {section.heading} to inform individuals at collection of: (a) purposes, (b) the rights of access and rectification, and (c) the route to withdraw consent, per s. 8.",
+      "evidenceQuote": "Law 25 s. 8: Any person collecting personal information from the person concerned must inform that person of the purposes, means of collection, rights of access and rectification, and the right to withdraw consent.",
+      "sourceContent": "Transparency & purpose at collection.",
+      "sourceSpan": { "documentId": "QLA25-s8", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/s8" },
+      "metadata": { "cite": "s. 8", "classification": "REQUIRED" }
+    },
+    {
+      "id": "QLA25-L-3-PrivacyByDefault",
+      "version": "1.0.0",
+      "naturalLanguage": "Where a technological product or service is offered to the public, default settings must provide the highest level of confidentiality without any intervention by the individual. Defaults that opt the user into sharing are a gap.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"privacy_by_default\"",
+      "lambda": "(input1.text.Contains(\"highest-confidentiality\") || input1.text.Contains(\"highest confidentiality\") || input1.text.Contains(\"most-protective\")) && input1.text.Contains(\"default\")",
+      "remediation": "Update {section.heading} so the technological product / service ships with the highest-confidentiality settings enabled by default — no individual action required — per s. 9.1.",
+      "evidenceQuote": "Law 25 s. 9.1: An enterprise that collects personal information when offering a technological product or service to the public shall ensure that the parameters of the product or service provide the highest level of confidentiality by default.",
+      "sourceContent": "Privacy by default.",
+      "sourceSpan": { "documentId": "QLA25-s9-1", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/s9.1" },
+      "metadata": { "cite": "s. 9.1", "classification": "REQUIRED" }
+    },
+    {
+      "id": "QLA25-L-4-PrivacyImpactAssessment",
+      "version": "1.0.0",
+      "naturalLanguage": "The enterprise must conduct a Privacy Impact Assessment (PIA) for information-system projects involving PI and before communicating PI outside Québec.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"privacy_impact_assessment\" || input1.category == \"consent_cross_border\"",
+      "lambda": "(input1.text.Contains(\"Privacy Impact Assessment\") || input1.text.Contains(\"PIA\")) && (input1.text.Contains(\"outside Québec\") || input1.text.Contains(\"outside Quebec\") || input1.text.Contains(\"outside the province\") || input1.text.Contains(\"outside the EEA\") || input1.text.Contains(\"system project\") || input1.text.Contains(\"before communicating\") || input1.text.Contains(\"beforehand\") || input1.text.Contains(\"cross-border\"))",
+      "remediation": "Describe a PIA process in {section.heading} tied to (a) new or overhauled information systems and (b) communications of PI outside Québec, per s. 3.3 and s. 17.",
+      "evidenceQuote": "Law 25 s. 3.3: A privacy impact assessment must be conducted for any project to acquire, develop or overhaul an information system or electronic service involving personal information. s. 17: Before communicating personal information outside Québec, an assessment of privacy-related factors must be conducted.",
+      "sourceContent": "Privacy Impact Assessment.",
+      "sourceSpan": { "documentId": "QLA25-s3-3", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/s3.3" },
+      "metadata": { "cite": "s. 3.3, s. 17", "classification": "REQUIRED" }
+    },
+    {
+      "id": "QLA25-L-5-IncidentRegister",
+      "version": "1.0.0",
+      "naturalLanguage": "On a confidentiality incident posing a risk of serious injury, the enterprise must notify the Commission d'accès à l'information (CAI) and affected individuals, AND maintain a register of all confidentiality incidents.",
+      "severity": "Critical",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"incident_handling\" || input1.text.Contains(\"register of confidentiality incidents\") || input1.text.Contains(\"incident register\")",
+      "lambda": "(input1.text.Contains(\"register of confidentiality incidents\") || input1.text.Contains(\"incident register\")) && (input1.text.Contains(\"Commission d'accès\") || input1.text.Contains(\"CAI\") || input1.text.Contains(\"notify affected\") || input1.text.Contains(\"notify the relevant authority\"))",
+      "remediation": "Add to {section.heading}: (a) a documented incident register, and (b) a CAI + affected-individual notification path triggered when a confidentiality incident presents a risk of serious injury, per s. 3.5–3.8.",
+      "evidenceQuote": "Law 25 s. 3.5–3.8: Where a confidentiality incident presents a risk of serious injury, the enterprise must promptly notify the Commission and any person whose personal information is concerned, and must keep a register of confidentiality incidents.",
+      "sourceContent": "Confidentiality incident handling and register.",
+      "sourceSpan": { "documentId": "QLA25-s3-5", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/s3.5" },
+      "metadata": { "cite": "s. 3.5–3.8", "classification": "REQUIRED" }
+    },
+    {
+      "id": "QLA25-L-6-ConsentCrossBorder",
+      "version": "1.0.0",
+      "naturalLanguage": "Consent must be manifest, free, and informed and given for specific purposes. Blanket / bundled consent is a gap. Communication of PI outside Québec requires a PIA and consideration of the receiving jurisdiction's protections.",
+      "severity": "Violation",
+      "applicability": "Mandatory",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": { "text": { "type": "string" }, "category": { "type": "string" } },
+        "required": ["text", "category"]
+      },
+      "selector": { "kind": "path", "path": "$.sections[*]" },
+      "predicate": "input1.category == \"consent_cross_border\"",
+      "lambda": "(input1.text.Contains(\"specific purposes\") || input1.text.Contains(\"manifest\") || input1.text.Contains(\"free and informed\")) && !(input1.text.Contains(\"By creating an account, you consent to all\") || input1.text.Contains(\"consent to all of the\"))",
+      "remediation": "Update {section.heading} so consent is captured for each specific purpose (no blanket / bundled consent) and cross-border communications of PI are paired with a PIA naming the destination's protections, per s. 12 and s. 17.",
+      "evidenceQuote": "Law 25 s. 12: Consent must be manifest, free and informed and be given for specific purposes. s. 17: Before communicating personal information outside Québec, the enterprise must conduct a privacy impact assessment.",
+      "sourceContent": "Consent and cross-border communication.",
+      "sourceSpan": { "documentId": "QLA25-s12", "charStart": 0, "charLength": 0, "pageNumber": 1, "headingPath": "/s12" },
+      "metadata": { "cite": "s. 12, s. 17", "classification": "REQUIRED+SEMANTIC" }
+    }
+  ]
+}
