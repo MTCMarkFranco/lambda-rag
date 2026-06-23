@@ -64,6 +64,9 @@ against:
 | `gov-architecture.v1` | Government cloud architecture review |
 | `permitting.v1` | Government permit / planning application review |
 | `arb-psa.v1` | Architecture Review Board — Project Solution Architecture review (12 dims) |
+| `healthcare.v1` | Healthcare / HIPAA (PHI safeguards, BAAs, breach notification, telehealth, …) |
+| `privacy-gdpr.v1` | EU GDPR (lawful basis, DPIA, data subject rights, cross-border transfers, …) |
+| `privacy-law25.v1` | Québec Law 25 (consent, PIA, automated decisions, data residency, …) |
 
 List them at any time:
 
@@ -197,6 +200,38 @@ dotnet run --project src/LambdaRag.Cli -- review `
   --out      out/acme `
   --mode     both
 ```
+
+### Promote it into the regression corpus (recommended)
+
+Once a new ruleset + sample document pair works end-to-end, freeze it
+under `tests/Goldens/corpus/<vertical>/` so every future change is
+checked against it on CI:
+
+```
+tests/Goldens/corpus/<vertical>/
+  ruleset.json                              ← the ruleset you authored above
+  <doc-id>/
+    source.md                               ← the test document (markdown)
+    expected-verdict.json                   ← frozen runtime output (byte-identical replay)
+    expected-llm.json                       ← LLM ground-truth verdicts per rule
+```
+
+Then both gates run on it automatically:
+
+```pwsh
+# Byte-identical replay (CorpusRegression + RuntimeDeterminismGuardrails)
+dotnet test tests/LambdaRag.IdempotencyTests --filter "FullyQualifiedName~CorpusRegression"
+
+# LLM-level accuracy gate (AccuracyHarness — recall ≥0.85, FP=0, F1 ≥0.85)
+dotnet test tests/LambdaRag.IdempotencyTests --filter "FullyQualifiedName~AccuracyHarness"
+```
+
+Generating `expected-llm.json` for a new scenario: run the
+`tools/LlmGroundTruth` helper (Azure OpenAI) against your `source.md`
++ `ruleset.json`; it emits the per-rule TRUE/FALSE/NA labels the
+AccuracyHarness compares the runtime against. Each AccuracyHarness
+run also appends a row to `bench-results/cross-industry-ledger.csv`
+so you can sweep the Pillar-9 dials and pick the best operating point.
 
 ### Adding a brand-new industry topic map
 
@@ -418,16 +453,20 @@ wrong-path-search-index.md         Postmortem: why the runtime never reads rules
 > [`CHANGELOG.md`](CHANGELOG.md) and the
 > [phase-0 backlog filter](https://github.com/MTCMarkFranco/lambda-rag/issues?q=is%3Aissue+label%3Aphase-0-credibility).
 
-> **P1.8 (golden test corpus) — ✅ shipped (5 verticals).** A
+> **P1.8 (golden test corpus) — ✅ shipped (8 verticals).** A
 > public-source-grounded regression corpus lives under
-> [`tests/Goldens/corpus/`](tests/Goldens/corpus/) with five verticals:
+> [`tests/Goldens/corpus/`](tests/Goldens/corpus/) with eight verticals:
 > *gov-architecture* (Government of Canada Cloud Guardrails v2.0),
 > *fsi* (OSFI Guideline B-10), *contract* (TBS SACC + PIPEDA),
 > *permitting* (Ontario Building Code O.Reg.332/12 + IASR/AODA O.Reg.191/11
-> + Impact Assessment Act S.C.2019 c.28 + Constitution Act 1982 s.35), and
+> + Impact Assessment Act S.C.2019 c.28 + Constitution Act 1982 s.35),
 > *oil-gas* (CER Onshore Pipeline Regulations SOR/99-294 + Methane Regulations
-> SOR/2018-66 + AER Directive 071 + s.35). 11 candidate documents, 25 rules,
-> frozen `expected-verdict.json` snapshots, and a
+> SOR/2018-66 + AER Directive 071 + s.35), *healthcare* (HIPAA Security &
+> Privacy Rules + HITECH breach notification), *privacy-gdpr* (EU GDPR Arts.
+> 5/6/13/30/35/44), and *privacy-law25* (Québec Law 25 / Act respecting the
+> protection of personal information in the private sector). 17 candidate
+> documents, frozen `expected-verdict.json` snapshots, paired LLM ground
+> truth (`expected-llm.json`), and a
 > [`corpus-regression`](.github/workflows/corpus-regression.yml)
 > GitHub Actions job that fails the build on any drift.
 
