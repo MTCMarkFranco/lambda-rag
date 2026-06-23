@@ -367,7 +367,7 @@ docs/                              ARCHITECTURE.md, DETERMINISM.md, SELECTORS.md
 
 ## Feuille de route
 
-> **Phase 0 (clôture de crédibilité) — ✅ complète.** Analyse d'écarts Contoso,
+> **Phase 0 (clôture de crédibilité) — ✅ complète.** Analyse d'écarts Phase 0,
 > idempotence par étalon-or de `reviewed.docx`, cadrage défendable de la
 > précision, [`what-lambda-rag-is-not.md`](docs/what-lambda-rag-is-not.md)
 > et un [plan de contingence Roslyn-scripting](docs/dependencies/rules-engine-risk.md)

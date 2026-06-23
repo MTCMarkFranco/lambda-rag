@@ -219,21 +219,6 @@
       "metadata": { "reviewer": "contoso-security" }
     },
     {
-      "id": "REMOVED-RULE",
-      "version": "1.0.0",
-      "naturalLanguage": "Personal data of personal data must remain in Canada (Contoso policy).",
-      "predicate": "input1.category == \"privacy\"",
-      "lambda": "!(input1.text.Contains(\"any country\") || input1.text.Contains(\"any other country\") || input1.text.Contains(\"transfer outside\") || input1.text.Contains(\"transferred to\") || input1.text.Contains(\"transferred, stored and processed\") || input1.text.Contains(\"processed outside Canada\") || input1.text.Contains(\"United States or any\"))",
-      "appliesToSchema": { "type": "object" },
-      "selector": { "kind": "path", "path": "$.sections[*]" },
-      "severity": "Violation",
-      "sourceSpan": { "documentId": "contoso-policy", "charStart": 0, "charLength": 1, "pageNumber": 1, "headingPath": null },
-      "evidenceQuote": "Data residency",
-      "anchor": "any country[^\\n]*|transfer(?:red)?\\s+(?:to|outside)[^\\n]*",
-      "remediation": "Restrict cross-border transfer of Canadian personal data in the {section.heading} clause: data must be stored and processed in Canada per Contoso policy.",
-      "metadata": { "reviewer": "contoso-privacy" }
-    },
-    {
       "id": "CTSO-PRIV-72H-Contoso",
       "version": "1.1.0",
       "naturalLanguage": "Privacy breach must be notified to Contoso and the Privacy Commissioner of Canada (PIPEDA: as soon as feasible).",

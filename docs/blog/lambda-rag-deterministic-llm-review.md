@@ -370,7 +370,7 @@ fires; the strike-through doesn't.
 
 ---
 
-## Case study — CTC ARB-PSA review (the accuracy uplift)
+## Case study — ARB-PSA review (the accuracy uplift)
 
 A field test caught lambda-rag in the act of *correctly* executing the
 *wrong* rules. A customer's contract-style ruleset (confidentiality

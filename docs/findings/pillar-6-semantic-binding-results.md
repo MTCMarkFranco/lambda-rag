@@ -1,7 +1,7 @@
 # Pillar 6 — Semantic Keyword Binding: Results & Status
 
 > Scope: Engineering delivery of Pillar 6 (semantic anchor binding) plus a
-> first pass of anchors on the CTC ARB-PSA ruleset.  
+> first pass of anchors on the ARB-PSA ruleset.  
 > Branch: `branch-lambda-semantic-binding-2` · Issue: #124 · Status: ENGINEERING SHIPPED, ACCURACY GATES PENDING REAL EMBEDDER
 
 ## What shipped
@@ -17,7 +17,7 @@
   - `SemanticBindingTests` — threshold sweep, zero-binding, no-anchor passthrough, scope-less safety.
   - `AdditiveGuaranteeTests` — Pillar 6 must produce byte-identical reports on rulesets without anchors (proves no regression risk on production rulesets).
 
-## CTC ARB-PSA benchmark
+## ARB-PSA benchmark
 
 | Metric | Pre-Pillar-6 | Post-Pillar-6 (mock embedder) | Notes |
 |---|---|---|---|

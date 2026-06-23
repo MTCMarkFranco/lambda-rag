@@ -14,7 +14,7 @@ the diff.
 | `docs/PIPELINE.md` | Insert a step between Project and Evaluate: "Resolve doc kind". |
 | `docs/DETERMINISM.md` | Add `LambdaPrimitives` to the "registered custom types" list; note that phrasebooks are part of the ruleset fingerprint when present. |
 | `docs/manifesto.md` | No change required (the pattern is unchanged). |
-| `docs/blog/lambda-rag-deterministic-llm-review.md` | Update the CTC PSA case study with the new before/after numbers. |
+| `docs/blog/lambda-rag-deterministic-llm-review.md` | Update the ARB-PSA case study with the new before/after numbers. |
 
 The before/after numbers will be filled in from the benchmark output —
 where the benchmark can run (i.e. with the local PSA sample available).

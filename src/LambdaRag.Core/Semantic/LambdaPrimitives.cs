@@ -187,7 +187,7 @@ public static class LambdaPrimitives
         RegexTimeout);
 
     // (ARB-1), (ARB-2), (ARB-1 & ARB-2), (ARB-2 if required), with various
-    // unicode dashes — matches the CTC PSA template tag pattern.
+    // unicode dashes — matches the ARB-PSA template tag pattern.
     private static readonly Regex ArbTagRe = new(
         @"\(ARB[\u2010\u2011\u2012\u2013\u2014\u2015\-]?[12](\s*&\s*ARB[\u2010-\u2015\-]?2)?(\s+if\s+required)?\)",
         RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,

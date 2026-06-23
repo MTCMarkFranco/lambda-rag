@@ -54,9 +54,9 @@ it reaches `1.0.0`.
     mapping docs flag that explicitly. Test count: **174 → 179** unit
     tests; idempotency tests unchanged at 15.
 
-- **19 new CTSO-aligned rules + domain-agnostic `text_features` extractor** ([#TBD]):
-  Closes the Contoso discrepancy backlog identified in
-  `docs/comparison/lambda-rag-vs-contoso.md`. Adds 19 new rules to
+- **19 new sample-aligned rules + domain-agnostic `text_features` extractor** ([#TBD]):
+  Closes the contract-rule backlog identified in the earlier comparison run.
+  Adds 19 new rules to
   `samples/contracts/contoso-demo-ruleset.json` (now v2.0.0, 24 rules total)
   covering payment terms, IP/work-for-hire, liability carve-outs,
   insurance limits, security/cryptography, privacy obligations
@@ -135,19 +135,14 @@ it reaches `1.0.0`.
   - New CLI: `lambda-rag rules synopsize --ruleset <path> [--out <path>]
     [--cache-dir <path>] [--force] [--endpoint <url>] [--deployment <name>]`.
   - Sample env: `samples/.env.synopsis.example`.
-- **Cross-repo discrepancy analysis vs Contoso agentic reviewer**
-  ([#TBD]): full finding-by-finding audit captured in
-  `docs/comparison/lambda-rag-vs-contoso.md` plus JSON sidecar at
-  `out/comparison-vs-contoso/discrepancy-matrix.json`. On the byte-identical
-  Contoso sample contract, Contoso emits 29 comments vs lambda-rag's 5-rule demo
-  ruleset emitting 2; classification of the 27-finding gap shows
-  ~78 % are real coverage misses (no rule authored — the planned
-  `out/dev-full/policies-ruleset.json` is not yet produced),
-  ~17 % are Contoso LLM hallucinations / mis-citations (PIPEDA residency
-  myth, GDPR-vs-PIPEDA breach-notification timer, MCSA §5.1 services-
-  tax-vs-income-tax confusion, signature-page nits), ~7 % are Contoso
-  duplicates (governing-law clause flagged twice). Headline: lambda-rag
-  is more accurate, not less thorough.
+- **Cross-repo discrepancy analysis** ([#TBD]): finding-by-finding
+  comparison of lambda-rag verdicts against a third-party agentic
+  reviewer on the same sample contract. Classification of the gap
+  showed the majority were real coverage misses (no rule authored —
+  the planned `out/dev-full/policies-ruleset.json` was not yet
+  produced), a smaller share were third-party LLM hallucinations /
+  mis-citations, and the rest were duplicate firings. Headline:
+  lambda-rag is more accurate, not less thorough.
 
 ### Fixed
 
@@ -174,8 +169,8 @@ it reaches `1.0.0`.
   End-to-end re-run vs the Contoso sample contract: verdicts now read
   `pass=4 fail=1 gap=1` (was `pass=3 fail=0 gap=2`); §9 now correctly
   Fails on IP indemnity, §9 + §11 both Pass on the explicit cap, §9's
-  spurious liability Gap is gone, and the legitimate `CTSO-WAR-001` Gap
-  (the contract has no warranty section — a defect Contoso missed) remains.
+  (the contract has no warranty section — a defect the third-party
+  reviewer missed) remains.
 
 ### Tests
 
@@ -209,12 +204,11 @@ it reaches `1.0.0`.
 
 ### Fixed
 
-- Contoso test contract `CTSO-2011-000PAY-001` projector-side defect documented
-  in `docs/findings/contoso-gap-analysis.md` is now addressable on the
+- Phase 0 gap analysis (since removed) documented the projector-side
+  `CTSO-2011-000PAY-001` defect; it is now addressable on the
   projector side via `is_operative_for_topic`. Rule lambda fix
-  (`30 calendar days` phrasing) is a per-rule authoring task — see the
-  updated findings doc. End-to-end verification on the Contoso contract
-  defers to P1.8 (golden corpus addition).
+  (`30 calendar days` phrasing) is a per-rule authoring task. End-to-end
+  verification on the sample contract defers to P1.8 (golden corpus addition).
 
 ### Added
 
@@ -271,8 +265,8 @@ it reaches `1.0.0`.
   `corpus-regression` that runs the corpus + the full idempotency suite
   on every push and PR touching the corpus, projector, evaluator, or
   workflow. Drift fails the build before merge.
-- `docs/findings/contoso-gap-analysis.md` — Contoso PAY-001 / DPA-001 gap
-  investigation closing Phase 0 issue #6. Documents PAY-001 as an
+- `docs/findings/` — Phase 0 PAY-001 / DPA-001 gap investigation
+  (since removed) closed Phase 0 issue #6. Documented PAY-001 as an
   authoring-side defect (lambda phrasing + projector heading binding) vs.
   DPA-001 as a real, well-flagged compliance gap. Filed follow-up #44 to
   fix PAY-001.
