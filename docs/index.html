@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Lambda-RAG — Deterministic, legal-grade document review</title>
+<style>
+  :root{
+    --bg:#0a0d14;
+    --bg-2:#0e131d;
+    --panel:#121826;
+    --panel-2:#161d2e;
+    --line:#222c42;
+    --line-soft:#1a2236;
+    --ink:#eef2fb;
+    --ink-2:#aeb8d0;
+    --ink-3:#7f8aa6;
+    --violet:#8b5cff;
+    --cyan:#28d8f0;
+    --gold:#f0bd4e;
+    --green:#34e1a4;
+    --red:#ff6b81;
+    --grad:linear-gradient(120deg,#8b5cff 0%,#28d8f0 100%);
+    --grad-gold:linear-gradient(120deg,#f0bd4e 0%,#ff9d5c 100%);
+    --radius:16px;
+    --shadow:0 18px 50px rgba(0,0,0,.45);
+    --mono:"SFMono-Regular",ui-monospace,"JetBrains Mono","Cascadia Code",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--sans);
+    color:var(--ink);
+    background:
+      radial-gradient(1100px 620px at 12% -8%,rgba(139,92,255,.20),transparent 60%),
+      radial-gradient(1000px 600px at 92% 0%,rgba(40,216,240,.16),transparent 55%),
+      var(--bg);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1140px;margin:0 auto;padding:0 28px}
+  section{padding:54px 0;border-top:1px solid var(--line-soft)}
+  h1,h2,h3{line-height:1.12;margin:0}
+  p{margin:0 0 14px}
+  a{color:var(--cyan);text-decoration:none}
+  code,kbd,pre{font-family:var(--mono)}
+  .em{color:var(--cyan)}
+  .gold{color:var(--gold)}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+  /* ---------- eyebrow ---------- */
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:9px;
+    font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink-3);margin:0 0 18px;
+  }
+  .eyebrow::before{content:"";width:26px;height:2px;border-radius:2px;background:var(--grad)}
+
+  /* ---------- hero ---------- */
+  .hero{
+    padding:64px 0 50px;border-top:none;position:relative;overflow:hidden;
+  }
+  .hero-grid{display:grid;grid-template-columns:1.55fr .95fr;gap:40px;align-items:center}
+  .mark{display:flex;align-items:center;gap:16px;margin-bottom:22px}
+  .mark .lam{
+    width:62px;height:62px;border-radius:16px;flex:none;
+    display:grid;place-items:center;
+    background:var(--panel);border:1px solid var(--line);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.02),0 10px 30px rgba(139,92,255,.25);
+  }
+  .mark .lam svg{width:34px;height:34px}
+  .mark .word{font-size:15px;font-weight:700;letter-spacing:.04em;color:var(--ink-2)}
+  .mark .word b{display:block;font-size:22px;letter-spacing:0;color:var(--ink)}
+  h1{font-size:48px;font-weight:800;letter-spacing:-.02em;margin-bottom:18px}
+  .lede{font-size:19px;color:var(--ink-2);max-width:60ch;margin-bottom:8px}
+  .lede strong{color:var(--ink)}
+  .stamp{
+    margin-top:26px;display:inline-flex;align-items:center;gap:12px;flex-wrap:wrap;
+  }
+  .pill{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:7px 13px;border-radius:999px;
+    background:var(--panel);border:1px solid var(--line);
+    font-size:12.5px;font-weight:700;color:var(--ink-2);
+  }
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+  .pill.v .dot{background:var(--violet)}
+  .pill.c .dot{background:var(--cyan)}
+  .pill.g .dot{background:var(--gold)}
+
+  /* hero side equation card */
+  .eqcard{
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));
+    border:1px solid var(--line);border-radius:20px;padding:26px;box-shadow:var(--shadow);
+  }
+  .eqcard .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);font-weight:700}
+  .eq{font-family:var(--mono);font-size:20px;margin:14px 0;color:var(--ink);line-height:1.5}
+  .eq .arrow{color:var(--cyan)}
+  .eq .same{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700}
+  .eqcard hr{border:none;border-top:1px dashed var(--line);margin:18px 0}
+  .eqcard .foot{font-size:13px;color:var(--ink-3);margin:0}
+
+  /* ---------- generic blocks ---------- */
+  .kicker{font-size:14px;font-weight:700;color:var(--cyan);margin-bottom:10px;letter-spacing:.02em}
+  h2{font-size:30px;font-weight:800;letter-spacing:-.01em;margin-bottom:14px}
+  .sub{color:var(--ink-2);max-width:74ch;font-size:16.5px;margin-bottom:26px}
+  .sub.big{font-size:19px;color:var(--ink)}
+
+  .grid{display:grid;gap:18px}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px;position:relative;
+  }
+  .card h3{font-size:17px;font-weight:750;margin-bottom:8px}
+  .card p{font-size:14.5px;color:var(--ink-2);margin:0}
+  .card .num{
+    font-family:var(--mono);font-size:12px;font-weight:700;color:var(--violet);
+    display:inline-block;margin-bottom:10px;letter-spacing:.05em;
+  }
+  .req .ic{font-size:22px;line-height:1;margin-bottom:12px;display:block}
+  .verdict-fail{
+    margin-top:22px;padding:14px 18px;border-radius:12px;
+    border:1px solid rgba(255,107,129,.32);background:rgba(255,107,129,.08);
+    font-size:15px;color:var(--ink);
+  }
+  .verdict-fail b{color:var(--red)}
+  .verdict-fail .ok{color:var(--green)}
+
+  /* ---------- two-phase table ---------- */
+  .phases{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;margin-bottom:20px}
+  .phase{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;
+  }
+  .phase.authoring{border-top:3px solid var(--violet)}
+  .phase.runtime{border-top:3px solid var(--cyan)}
+  .phase .tag{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:800;color:var(--ink-3)}
+  .phase h3{font-size:20px;margin:6px 0 4px}
+  .phase .when{font-size:13px;color:var(--ink-3);margin-bottom:14px}
+  .phase ul{margin:0;padding-inline-start:18px;color:var(--ink-2);font-size:14px}
+  .phase ul li{margin:5px 0}
+  .phase .out{
+    margin-top:16px;padding-top:14px;border-top:1px dashed var(--line);
+    font-size:13px;color:var(--ink-2)
+  }
+  .phase .out b{color:var(--ink)}
+  .boundary{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+    padding:0 22px;text-align:center;
+  }
+  .boundary .chip{
+    font-family:var(--mono);font-size:12px;font-weight:700;color:#0a0d14;
+    background:var(--grad-gold);padding:8px 12px;border-radius:9px;white-space:nowrap;
+  }
+  .boundary .arr{font-size:26px;color:var(--gold)}
+  .boundary .cap{font-size:11.5px;color:var(--ink-3);max-width:14ch}
+  .note{
+    border-inline-start:3px solid var(--cyan);background:var(--panel);
+    padding:16px 20px;border-radius:0 12px 12px 0;color:var(--ink-2);font-size:14.5px;
+  }
+  .note b{color:var(--ink)}
+
+  /* ---------- lineage ---------- */
+  .lin h3{display:flex;align-items:baseline;gap:10px}
+  .lin .n{font-family:var(--mono);background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;font-size:19px}
+  .lin p{font-size:14px}
+  .lin p .t{color:var(--ink);font-weight:650}
+  .provenance{
+    margin-top:22px;background:linear-gradient(180deg,rgba(240,189,78,.07),transparent);
+    border:1px solid rgba(240,189,78,.28);border-radius:14px;padding:20px 22px;
+  }
+  .provenance .h{font-weight:800;color:var(--gold);font-size:14px;letter-spacing:.02em;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .provenance p{font-size:14.5px;color:var(--ink-2);margin:0}
+  .provenance code{color:var(--ink);background:var(--panel-2);padding:1px 6px;border-radius:5px;font-size:13px}
+
+  /* ---------- flow ---------- */
+  .flow{display:grid;grid-template-columns:1fr;gap:16px}
+  .flow-row{display:grid;grid-template-columns:170px 1fr;gap:18px;align-items:center}
+  .flow-in{
+    font-family:var(--mono);font-size:12.5px;color:var(--ink-2);
+    background:var(--panel);border:1px dashed var(--line);border-radius:12px;padding:14px;text-align:center;
+  }
+  .flow-in b{display:block;color:var(--ink);font-size:13px;margin-bottom:3px}
+  .flow-box{
+    border-radius:14px;padding:18px 20px;border:1px solid var(--line);position:relative;
+  }
+  .flow-box.auth{background:linear-gradient(120deg,rgba(139,92,255,.12),var(--panel));border-color:rgba(139,92,255,.4)}
+  .flow-box.run{background:linear-gradient(120deg,rgba(40,216,240,.10),var(--panel));border-color:rgba(40,216,240,.4)}
+  .flow-box .ttl{font-weight:800;font-size:15px;margin-bottom:4px}
+  .flow-box .ttl span{font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-inline-start:8px}
+  .flow-box .steps{font-size:13.5px;color:var(--ink-2);font-family:var(--mono)}
+  .ai-free{color:var(--cyan);font-weight:800}
+  .flow-mid{
+    text-align:center;color:var(--gold);font-family:var(--mono);font-size:13px;font-weight:700;
+    padding:6px 0;
+  }
+  .flow-mid .rs{background:var(--grad-gold);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .out-chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .out-chip{
+    font-family:var(--mono);font-size:12.5px;color:var(--ink);
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 13px;
+  }
+  .out-chip b{color:var(--cyan)}
+  .carry{
+    margin-top:18px;font-size:14.5px;color:var(--ink-2);
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;
+  }
+  .carry .terms{font-family:var(--mono);color:var(--ink);font-size:13.5px;display:block;margin-top:8px;line-height:1.9}
+  .carry .terms span{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:6px;padding:2px 8px;display:inline-block;margin:2px 2px}
+
+  /* ---------- comparison table ---------- */
+  .cmp{width:100%;border-collapse:separate;border-spacing:0;font-size:14.5px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .cmp th,.cmp td{padding:14px 18px;text-align:start;vertical-align:top;border-bottom:1px solid var(--line-soft)}
+  .cmp thead th{background:var(--panel-2);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:800}
+  .cmp thead th.lr{color:var(--cyan)}
+  .cmp tbody tr:last-child td{border-bottom:none}
+  .cmp td.prop{font-weight:700;color:var(--ink);width:30%}
+  .cmp td.llm{color:var(--ink-2);width:35%}
+  .cmp td.lr{color:var(--ink);width:35%;background:rgba(40,216,240,.04)}
+  .x{color:var(--red);font-weight:800;margin-inline-end:6px}
+  .ch{color:var(--green);font-weight:800;margin-inline-end:6px}
+  .gate{
+    margin-top:20px;border:1px solid rgba(52,225,164,.3);background:rgba(52,225,164,.06);
+    border-radius:14px;padding:18px 20px;font-size:15px;color:var(--ink-2);
+  }
+  .gate b{color:var(--ink)}
+  .gate .metrics{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .gate .metrics span{font-family:var(--mono);font-size:12.5px;color:var(--green);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 11px}
+  .gate code{color:var(--ink);background:var(--panel-2);padding:1px 6px;border-radius:5px;font-size:12.5px}
+
+  /* ---------- code block ---------- */
+  pre.code{
+    background:#070a11;border:1px solid var(--line);border-radius:14px;
+    padding:20px 22px;overflow-x:auto;font-size:13px;line-height:1.7;color:#cfe0f5;margin:0;
+  }
+  pre.code .cm{color:var(--ink-3)}
+  pre.code .cmd{color:var(--green)}
+  pre.code .fl{color:var(--gold)}
+  pre.code .vl{color:var(--cyan)}
+  .byo-note{font-size:14.5px;color:var(--ink-2);margin-top:16px}
+  .byo-note b{color:var(--ink)}
+  .steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .step .s{font-family:var(--mono);font-weight:800;font-size:13px;color:var(--violet);margin-bottom:6px}
+  .step p{font-size:13.5px;color:var(--ink-2);margin:0}
+
+  /* ---------- is-not ---------- */
+  .isnot .card{border-color:var(--line);background:linear-gradient(180deg,var(--panel),var(--bg-2))}
+  .isnot h3{color:var(--ink);font-size:16px}
+  .isnot h3 .no{color:var(--red);margin-inline-end:7px;font-weight:800}
+  .isnot p{font-size:14px}
+  .closing{
+    margin-top:22px;text-align:center;font-size:18px;color:var(--ink);
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;
+  }
+  .closing b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+  /* ---------- read more / footer ---------- */
+  .docs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .doc{
+    display:flex;gap:14px;align-items:flex-start;
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 17px;
+  }
+  .doc .path{font-family:var(--mono);font-size:12.5px;color:var(--cyan);font-weight:700}
+  .doc .d{font-size:13.5px;color:var(--ink-2);margin-top:3px}
+  .doc .ix{font-family:var(--mono);color:var(--ink-3);font-weight:800;font-size:13px;flex:none;margin-top:1px}
+
+  footer{border-top:1px solid var(--line);padding:34px 0 48px;text-align:center}
+  .cta{
+    display:inline-block;margin-bottom:18px;
+    background:var(--grad);color:#08101a;font-weight:800;font-size:15px;
+    padding:14px 28px;border-radius:12px;letter-spacing:.01em;
+    box-shadow:0 12px 34px rgba(40,216,240,.28);
+  }
+  footer .lic{font-size:14px;color:var(--ink-2)}
+  footer .lic b{color:var(--ink)}
+  footer .meta{font-size:12.5px;color:var(--ink-3);margin-top:10px}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:880px){
+    .hero-grid{grid-template-columns:1fr}
+    .g4{grid-template-columns:repeat(2,1fr)}
+    .g3,.g2,.steps3,.docs{grid-template-columns:1fr}
+    .phases{grid-template-columns:1fr}
+    .boundary{flex-direction:row;padding:14px 0}
+    .boundary .arr{transform:rotate(90deg)}
+    .flow-row{grid-template-columns:1fr}
+    h1{font-size:36px}
+    h2{font-size:25px}
+  }
+
+  /* dark-MQ contract (document is dark-first) */
+  @media (prefers-color-scheme: dark){
+    :root{color-scheme:dark}
+  }
+  @media (prefers-color-scheme: light){
+    :root{color-scheme:dark} /* brand is intentionally dark in all environments */
+  }
+
+  /* print */
+  @media print{
+    body{background:#fff;color:#10131a}
+    section{border-color:#e4e7ee;padding:22px 0}
+    .card,.phase,.flow-box,.cmp,.doc,.step,.eqcard,.closing,.note,.gate,.provenance,.verdict-fail,.carry{box-shadow:none}
+    .cta{box-shadow:none}
+    .grad-text,.closing b,.lin .n,.boundary .chip,.flow-mid .rs{-webkit-text-fill-color:initial;color:#5b3df0}
+  }
+</style>
+</head>
+<body id="top">
+
+<!-- ===================== HERO ===================== -->
+<header class="hero">
+  <div class="wrap">
+    <div class="mark">
+      <span class="lam" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="lg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#8b5cff"/><stop offset="1" stop-color="#28d8f0"/>
+            </linearGradient>
+          </defs>
+          <path d="M7 27 L15.2 6.2 C15.7 5 17.4 5 17.9 6.2 L26 27" stroke="url(#lg)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M11.6 16.4 L4.7 27" stroke="url(#lg)" stroke-width="3.2" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="word">a primer on<b>lambda&#8209;rag</b></span>
+    </div>
+
+    <div class="hero-grid">
+      <div>
+        <h1>Decisions you can <span class="grad-text">re-run in 18 months</span> and get the same answer.</h1>
+        <p class="lede"><strong>Lambda-RAG</strong> is a deterministic, legal-grade engine for evaluating documents against industry or custom policies. It separates the AI work from the <em>deciding</em> step — so every verdict is reproducible, cited, perturbation-proof, and defensible to a regulator.</p>
+        <div class="stamp">
+          <span class="pill"><span class="dot"></span>MIT-licensed</span>
+          <span class="pill v"><span class="dot"></span>.NET 9 production codebase</span>
+          <span class="pill c"><span class="dot"></span>8 industries · 17 corpus docs</span>
+          <span class="pill g"><span class="dot"></span>AI-free at decision time</span>
+        </div>
+      </div>
+
+      <aside class="eqcard" aria-label="determinism guarantee">
+        <span class="lbl">The guarantee</span>
+        <p class="eq"><span class="same">Same inputs</span><br><span class="arrow">→</span> same verdict<br><span class="arrow">→</span> byte-identical<br><span class="arrow">→</span> forever.</p>
+        <hr>
+        <p class="foot">Runtime never calls a model. It loads a signed ruleset, projects the document into a typed graph, and evaluates each rule as a pure function over that graph.</p>
+      </aside>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== THE PROBLEM ===================== -->
+<section id="problem">
+  <div class="wrap">
+    <div class="eyebrow">The problem</div>
+    <h2>LLMs are <span class="grad-text">spectacular at reading</span> documents — and terrible at deciding things about them.</h2>
+    <p class="sub big">The same prompt run twice yields different verdicts. Citations are produced by the same generative process that produced the verdict — so they can hallucinate. Trivial reordering of paragraphs flips the answer. None of these are bugs. They are inherent to the architecture: an autoregressive sampler over a high-dimensional probability distribution is <em>not a function</em> in the mathematical sense.</p>
+
+    <p class="sub" style="margin-bottom:18px">For <strong style="color:var(--ink)">regulator-facing review</strong> — contract review, HIPAA / GDPR / Law&nbsp;25 privacy assessment, OSFI model-risk attestation, government cloud architecture review, permit assessment, pipeline-safety conformance — the <em>deciding</em> step has four non-negotiable obligations:</p>
+
+    <div class="grid g4 req">
+      <div class="card">
+        <span class="ic">♻️</span>
+        <h3>Reproduce</h3>
+        <p>Same inputs → same verdict, byte-identical, forever.</p>
+      </div>
+      <div class="card">
+        <span class="ic">📎</span>
+        <h3>Cite</h3>
+        <p>Every verdict points to a rule, a source span, and the exact inputs used.</p>
+      </div>
+      <div class="card">
+        <span class="ic">🛡️</span>
+        <h3>Survive perturbation</h3>
+        <p>Whitespace, capitalisation, paragraph re-order ⇒ no change to the verdict.</p>
+      </div>
+      <div class="card">
+        <span class="ic">⚖️</span>
+        <h3>Be defensible</h3>
+        <p>A regulator can re-run it in 18 months and get the same answer.</p>
+      </div>
+    </div>
+
+    <div class="verdict-fail">
+      <b>✕ Pure RAG-on-LLM fails all four.</b> &nbsp;<span class="ok">✓ Lambda-RAG was built specifically to satisfy all four.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== THE IDEA ===================== -->
+<section id="idea">
+  <div class="wrap">
+    <div class="eyebrow">The idea · rule projection</div>
+    <h2>Two phases of AI work that <span class="grad-text">never overlap at runtime</span>.</h2>
+    <p class="sub">Lambda-RAG splits the system at a single boundary — a fingerprinted ruleset that crosses in one direction, once.</p>
+
+    <div class="phases">
+      <div class="phase authoring">
+        <span class="tag">Authoring · offline · AI-heavy</span>
+        <h3>Where the intelligence lives</h3>
+        <p class="when">Runs only when a policy changes.</p>
+        <ul>
+          <li>LLMs &amp; embeddings</li>
+          <li>AI Search retrieval</li>
+          <li>Human review &amp; sign-off</li>
+        </ul>
+        <p class="out">Output: a signed, fingerprinted <b>RuleSet.json</b></p>
+      </div>
+
+      <div class="boundary" aria-hidden="true">
+        <span class="chip">RuleSet.json</span>
+        <span class="arr">→</span>
+        <span class="cap">one direction · one boundary · once</span>
+      </div>
+
+      <div class="phase runtime">
+        <span class="tag">Runtime · online · AI-FREE</span>
+        <h3>Where the decision happens</h3>
+        <p class="when">Runs on every single document review.</p>
+        <ul>
+          <li>Deterministic projector</li>
+          <li>Compiled λ-rules</li>
+          <li>No model is ever called</li>
+        </ul>
+        <p class="out">Output: verdict report + redlined <b>.docx</b></p>
+      </div>
+    </div>
+
+    <div class="note">
+      Optional LLM-driven <b>rewrite</b> (the <code>--rewrite</code> flag in markup mode) is a strictly <b>post-verdict</b> editorial layer. The verdict was already decided before the model was consulted — and if the LLM is unavailable, the verdict and redlined comments are still produced. The CLI simply tells you the rewrite path was skipped, and why.
+    </div>
+  </div>
+</section>
+
+<!-- ===================== LINEAGE ===================== -->
+<section id="lineage" class="lin">
+  <div class="wrap">
+    <div class="eyebrow">The intellectual lineage</div>
+    <h2>Not a new invention — a <span class="grad-text">recombination of three settled engineering ideas</span>.</h2>
+    <p class="sub">Each idea is load-bearing. Together they make reproducibility a property of the architecture, not a feature bolted on top.</p>
+
+    <div class="grid g3">
+      <div class="card">
+        <h3><span class="n">λ</span> Typed functional evaluation</h3>
+        <p><span class="t">Lambda calculus.</span> Each compliance rule is a small, pure, <em>total</em> function over a typed projection of the document. The runtime is, by construction, a referentially-transparent evaluator — the only known class of system that gives reproducibility <em>for free</em>. The "lambda" in lambda-rag is literal.</p>
+      </div>
+      <div class="card">
+        <h3><span class="n">⊢</span> Elaboration vs evaluation</h3>
+        <p><span class="t">Compiler-style separation.</span> Authoring is <em>elaboration</em> — typing, expansion, macro hygiene. Runtime is <em>evaluation</em> — running the elaborated core. The same discipline that lets a compiler emit byte-identical binaries lets lambda-rag emit byte-identical verdict reports.</p>
+      </div>
+      <div class="card">
+        <h3><span class="n">⚭</span> Neuro-symbolic split</h3>
+        <p><span class="t">Decomposition.</span> The neural side reads messy prose, surfaces candidate obligations, and writes natural-language remediation. The symbolic side makes exact, auditable, deterministic decisions over a structured representation. <em>The handoff is the ruleset.</em></p>
+      </div>
+    </div>
+
+    <div class="provenance">
+      <div class="h">ⓘ&nbsp; Compiler-spike provenance</div>
+      <p>This pattern was first prototyped in the internal <code>compiler-spike</code> repo (Python, ~Spring 2026) as a research probe: could deterministic rule evaluation match an LLM-only baseline on accuracy while <em>gaining</em> idempotency and citation faithfulness? The spike concluded <b style="color:var(--green)">yes</b> on a single-vertical corpus (ARB-PSA architecture review). Lambda-RAG ports those v0.1.1 invariants to a production-grade .NET&nbsp;9 codebase and extends them to <b style="color:var(--ink)">8 industries, 17 corpus documents, and an LLM-vs-runtime accuracy harness</b>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== HOW IT WORKS ===================== -->
+<section id="how">
+  <div class="wrap">
+    <div class="eyebrow">How it works · 60 seconds</div>
+    <h2>Policy in once. <span class="grad-text">Deterministic verdicts out</span>, every review after.</h2>
+
+    <div class="flow">
+      <div class="flow-row">
+        <div class="flow-in"><b>Policy docs</b>PDF · DOCX · standards</div>
+        <div class="flow-box auth">
+          <div class="ttl">Authoring <span>offline · LLM + human</span></div>
+          <div class="steps">topic-map elaboration · rule extraction + lambdas · semantic-anchor binding · human review &amp; sign-off</div>
+        </div>
+      </div>
+
+      <div class="flow-mid">▼ &nbsp; signed, fingerprinted <span class="rs">RuleSet.json</span> &nbsp; — one direction, one boundary &nbsp; ▼</div>
+
+      <div class="flow-row">
+        <div class="flow-in"><b>Customer doc</b>.docx · .md · .pdf</div>
+        <div class="flow-box run">
+          <div class="ttl">Runtime <span class="ai-free" style="font-size:11px">online · AI-FREE</span></div>
+          <div class="steps">parse → canonical text · project → typed graph · evaluate <span class="ai-free">λ-rules</span> over graph · emit verdicts + citations</div>
+          <div class="out-chips">
+            <div class="out-chip"><b>→</b> verdict report &nbsp;<span style="color:var(--ink-3)">(JSON, byte-identical)</span></div>
+            <div class="out-chip"><b>→</b> reviewed.docx &nbsp;<span style="color:var(--ink-3)">(comments + tracked changes, optional rewrite)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="carry">
+      Every verdict carries everything a regulator needs to re-evaluate it independently, offline:
+      <span class="terms">
+        <span>rule id</span><span>outcome</span><span>source span (file:char-offset)</span><span>evidence quotes</span><span>rule-text citation</span><span>ruleset fingerprint</span>
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== COMPARISON ===================== -->
+<section id="vs">
+  <div class="wrap">
+    <div class="eyebrow">Lambda-RAG vs. an LLM-only review</div>
+    <h2>Better at <span class="grad-text">deciding</span> — provably, not aspirationally.</h2>
+    <p class="sub">An LLM is dramatically better at <em>reading</em>. Lambda-RAG is dramatically better at <em>deciding</em>, once a human-reviewed policy has been compiled into rules.</p>
+
+    <table class="cmp">
+      <thead>
+        <tr>
+          <th class="prop">Property</th>
+          <th>LLM-only review</th>
+          <th class="lr">Lambda-RAG</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="prop">Same input → same output</td>
+          <td class="llm"><span class="x">✕</span>Stochastic sampler</td>
+          <td class="lr"><span class="ch">✓</span>Pure function over typed graph</td>
+        </tr>
+        <tr>
+          <td class="prop">Citation fidelity</td>
+          <td class="llm"><span class="x">✕</span>Generated alongside text — hallucinates</td>
+          <td class="lr"><span class="ch">✓</span>Captured at authoring, matched at runtime</td>
+        </tr>
+        <tr>
+          <td class="prop">Stability under text perturbation</td>
+          <td class="llm"><span class="x">✕</span>Re-ordering flips verdicts</td>
+          <td class="lr"><span class="ch">✓</span>Topology-invariant projector + canonicalised JSON</td>
+        </tr>
+        <tr>
+          <td class="prop">Auditability after 18 months</td>
+          <td class="llm"><span class="x">✕</span>Model version drifts</td>
+          <td class="lr"><span class="ch">✓</span>Ruleset fingerprint + frozen golden corpus on CI</td>
+        </tr>
+        <tr>
+          <td class="prop">Cost per document</td>
+          <td class="llm"><span class="x">✕</span><b style="color:var(--ink-2)">$$</b> per token</td>
+          <td class="lr"><span class="ch">✓</span><b style="color:var(--green)">$</b> CPU-only at runtime</td>
+        </tr>
+        <tr>
+          <td class="prop">Cloud dependency at decision time</td>
+          <td class="llm"><span class="x">✕</span>☁ Required</td>
+          <td class="lr"><span class="ch">✓</span>🚫 Banned — CI guardrail enforces it</td>
+        </tr>
+        <tr>
+          <td class="prop">Accuracy on the 8-industry corpus</td>
+          <td class="llm">LLM ground truth = our gate</td>
+          <td class="lr"><span class="ch">✓</span><b>≥ LLM baseline</b> — 17 / 17 scenarios pass <code style="font-family:var(--mono);font-size:12.5px">recall ≥ 0.85</code>, <code style="font-family:var(--mono);font-size:12.5px">FP = 0</code>, <code style="font-family:var(--mono);font-size:12.5px">F1 ≥ 0.85</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="gate">
+      <b>The accuracy claim is enforced, not asserted.</b> The <code>AccuracyHarness</code> CI gate (<code>tests/LambdaRag.IdempotencyTests/AccuracyHarness.cs</code>) compares the deterministic runtime's verdicts against LLM ground truth <b>on every commit</b>, across all eight verticals:
+      <div class="metrics">
+        <span>contract</span><span>FSI</span><span>gov-architecture</span><span>oil-gas</span><span>permitting</span><span>healthcare (HIPAA)</span><span>privacy-gdpr</span><span>privacy-law25</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BYO POLICY ===================== -->
+<section id="byo">
+  <div class="wrap">
+    <div class="eyebrow">Bring your own policy</div>
+    <h2>The same path that produced the 8 bundled industries — <span class="grad-text">end-to-end on your machine</span>.</h2>
+    <p class="sub">There is no "import to SaaS" step. Your policy documents never leave your machine.</p>
+
+    <div class="steps3">
+      <div class="step"><div class="s">01 · extract</div><p>Pull a ruleset from a folder of policy documents — LLM-assisted authoring.</p></div>
+      <div class="step"><div class="s">02 · review</div><p>Evaluate a target document against it — deterministic runtime, no LLM.</p></div>
+      <div class="step"><div class="s">03 · promote</div><p>Optionally fold it into the regression corpus so every future build is gated on it.</p></div>
+    </div>
+
+<pre class="code"><span class="cm"># 1. Extract a ruleset from a folder of policy documents (LLM-assisted authoring)</span>
+<span class="cmd">dotnet run</span> --project src/LambdaRag.Cli -- ruleset extract \
+  <span class="fl">--policy-folder</span> <span class="vl">./my-policies/</span> \
+  <span class="fl">--topic-map</span>     <span class="vl">contract.v1</span> \
+  <span class="fl">--out</span>           <span class="vl">rulesets/my-industry/ruleset.json</span>
+
+<span class="cm"># 2. Review a target document against it (deterministic runtime, no LLM)</span>
+<span class="cmd">dotnet run</span> --project src/LambdaRag.Cli -- review \
+  <span class="fl">--document</span>  <span class="vl">customer-doc.docx</span> \
+  <span class="fl">--ruleset</span>   <span class="vl">rulesets/my-industry/ruleset.json</span> \
+  <span class="fl">--out</span>       <span class="vl">out/customer-review</span> \
+  <span class="fl">--mode</span>      <span class="vl">both</span> \
+  <span class="fl">--annotate-pass</span>
+
+<span class="cm"># 3. (Optional) Promote it into the regression corpus so every future build is gated on it.</span>
+<span class="cm">#    See README &rarr; "Promote it into the regression corpus".</span></pre>
+
+    <p class="byo-note">If the standard topic maps don't fit your domain, clone <code style="color:var(--cyan)">contract.v1.json</code> to <code style="color:var(--cyan)">my-industry.v1.json</code>, list your headings &amp; aliases, and rebuild — <b>full instructions in the README</b>.</p>
+  </div>
+</section>
+
+<!-- ===================== WHAT IT IS NOT ===================== -->
+<section id="isnot" class="isnot">
+  <div class="wrap">
+    <div class="eyebrow">What lambda-rag is not</div>
+    <h2>Honest boundaries — <span class="grad-text">so you deploy it where it wins</span>.</h2>
+
+    <div class="grid g2">
+      <div class="card">
+        <h3><span class="no">✕</span>Not a chatbot</h3>
+        <p>It does not answer free-form questions about a document.</p>
+      </div>
+      <div class="card">
+        <h3><span class="no">✕</span>Not a rule editor</h3>
+        <p>Rules cannot be hand-edited at runtime. They are re-extracted, diffed, and signed. Governance is by overlay, not by mutation.</p>
+      </div>
+      <div class="card">
+        <h3><span class="no">✕</span>Not a one-size-fits-all classifier</h3>
+        <p>It needs a written policy. Where the policy lives only in someone's head, lambda-rag is the wrong tool.</p>
+      </div>
+      <div class="card">
+        <h3><span class="no">✕</span>Not better than an LLM at <em>reading</em></h3>
+        <p>It is dramatically better than an LLM at <em>deciding</em> — once a human-reviewed policy has been compiled into rules.</p>
+      </div>
+    </div>
+
+    <div class="closing">
+      The neural side reads. The symbolic side decides. <b>The handoff is the ruleset — and that boundary is the whole product.</b>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== READ MORE ===================== -->
+<section id="more">
+  <div class="wrap">
+    <div class="eyebrow">Where to read more</div>
+    <h2>Go deeper.</h2>
+    <div class="docs">
+      <div class="doc"><span class="ix">›</span><div><span class="path">docs/manifesto.md</span><div class="d">The five tenets of rule projection, in full.</div></div></div>
+      <div class="doc"><span class="ix">›</span><div><span class="path">docs/ARCHITECTURE.md</span><div class="d">Runtime / authoring split, services, dependencies.</div></div></div>
+      <div class="doc"><span class="ix">›</span><div><span class="path">docs/DETERMINISM.md</span><div class="d">The determinism contract, byte-identity proofs, CI guardrails.</div></div></div>
+      <div class="doc"><span class="ix">›</span><div><span class="path">docs/blog/lambda-rag-deterministic-llm-review.md</span><div class="d">Long-form narrative.</div></div></div>
+      <div class="doc"><span class="ix">›</span><div><span class="path">docs/what-lambda-rag-is-not.md</span><div class="d">Explicit non-goals.</div></div></div>
+      <div class="doc"><span class="ix">›</span><div><span class="path">tests/Goldens/corpus/</span><div class="d">The 8-industry / 17-document frozen regression corpus.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <div class="wrap">
+    <a class="cta" href="#byo">Compile a policy into rules &rarr;</a>
+    <p class="lic"><b>Lambda-RAG is MIT-licensed.</b> &nbsp;Issues and PRs welcome.</p>
+    <p class="meta">Deterministic · cited · perturbation-proof · defensible — the deciding step, done right.</p>
+  </div>
+</footer>
+
+</body>
+</html>
