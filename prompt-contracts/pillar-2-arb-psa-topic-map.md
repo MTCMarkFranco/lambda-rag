@@ -10,7 +10,7 @@ labels PSA sections with the `contract` vocabulary and predicates like
   Risks, Decision Records, Technology Standards, Design Patterns, Data Security,
   Integrations, Infrastructure Architecture, Security Architecture, Information
   Governance, DR & Resiliency.
-- CTC PSA template heading conventions (from the sample PDF).
+- ARB-PSA template heading conventions (from the sample PDF).
 
 **Outputs.**
 - `src/LambdaRag.Projection/TopicMaps/arb-psa.v1.json` covering 12 primary topics

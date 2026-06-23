@@ -21,7 +21,7 @@ using Xunit.Abstractions;
 namespace LambdaRag.IdempotencyTests;
 
 /// <summary>
-/// End-to-end CTC PSA accuracy benchmark (#121).
+/// End-to-end ARB-PSA accuracy benchmark (#121).
 ///
 /// Reproduces the user's original prompt programmatically and validates the
 /// three acceptance gates from
@@ -89,7 +89,7 @@ public sealed class ArbPsaBenchmark
             $"ARB-PSA ruleset must exist at {RulesetPath}");
         if (!File.Exists(PsaSamplePath))
         {
-            // The CTC PSA sample is customer-sensitive and stays out of git
+            // The ARB-PSA sample PDF is not bundled in git (see /samples/architecture/*
             // (see /samples/architecture/* in .gitignore). On CI without the
             // sample, the benchmark just records the absence rather than
             // failing — local runs against the real file still gate accuracy.

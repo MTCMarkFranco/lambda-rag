@@ -1,4 +1,4 @@
-# Pillar Benchmark — End-to-end CTC PSA accuracy benchmark (#121)
+# Pillar Benchmark — End-to-end ARB-PSA accuracy benchmark (#121)
 
 **Intent.** Programmatically reproduce the user's original prompt — review
 `samples/architecture/Example PSA - 16614 Shipping 360 ARB2 v2.1.pdf` against the

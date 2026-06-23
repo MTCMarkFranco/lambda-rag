@@ -488,15 +488,13 @@ _reference/
 *.db
 *.db-journal
 
-# Policy source and specific sample document
-/policies/sample/
-# CTC-specific architecture-review rulesets stay local; the generic
-# Pillar 4 ARB-PSA ruleset (arb-psa.json) is shippable and re-included
-# below so the new benchmark can find it on CI.
+# Customer policy sources stay local; only the generic Pillar 4 ARB-PSA
+# ruleset (arb-psa.json) is shippable and re-included below.
+/policies/
 /rulesets/architecture-review
 !/rulesets/architecture-review/
 !/rulesets/architecture-review/arb-psa.json
-/samples/architecture/Example PSA - 16614 Shipping 360 ARB2 v2.1.pdf
+/samples/architecture/*.pdf
 
 
 out/

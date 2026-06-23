@@ -445,7 +445,7 @@ wrong-path-search-index.md         Postmortem: why the runtime never reads rules
 
 ## Roadmap
 
-> **Phase 0 (credibility close-out) — ✅ complete.** Contoso gap analysis,
+> **Phase 0 (credibility close-out) — ✅ complete.** Phase 0 gap analysis,
 > reviewed.docx golden-master idempotency, defensible accuracy framing,
 > [`what-lambda-rag-is-not.md`](docs/what-lambda-rag-is-not.md), and a
 > [Roslyn-scripting contingency](docs/dependencies/rules-engine-risk.md)
