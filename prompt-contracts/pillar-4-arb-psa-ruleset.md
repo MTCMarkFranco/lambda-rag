@@ -5,7 +5,7 @@ Beats the LLM baseline on PSA review (`out/analysis-llm.md`: 7 PASS, 5 FAIL acro
 12 dims) while staying deterministic.
 
 **Inputs.**
-- `policies/CTC/CTC EA Information-all-policies.pdf` — source policy.
+- `policies/sample/sample-ea-policy.pdf` — source policy.
 - `out/analysis-llm.md` — the 12 dimensions and what "PASS" means for each.
 - ARB-PSA topic map (Pillar 2): every section the projector emits carries
   `category` ∈ {12 dimensions}, so predicates can be written as

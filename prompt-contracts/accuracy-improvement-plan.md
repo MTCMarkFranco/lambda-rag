@@ -1,7 +1,7 @@
 # Lambda-RAG Accuracy Improvement Plan
 
 > Goal: close the **44-point accuracy gap** vs LLM-only (14.3% → ≥ LLM 58.3%, target ≥ 75%)
-> on the CTC PSA review, **without sacrificing** determinism or idempotency.
+> on the ARB-PSA review, **without sacrificing** determinism or idempotency.
 > Branch when work starts: `branch-lambda-accuracy-1` (per workflow rule, do NOT push to master).
 
 ---
@@ -13,10 +13,10 @@ given, exactly as designed. The mismatch lives in 4 places, in order of impact:
 
 | # | Failure mode | Evidence in this experiment | Where it lives in the code |
 |---|---|---|---|
-| **A** | **Wrong rule profile for the artifact.** Rules CTC-3195-000CONF-001 and -055PAY-001 are *contract clauses* applied to a *PSA architecture doc*. | 3 of 9 verdicts are contract-style false negatives. | `rulesets/architecture-review/ctc-arb.json` was extracted but never gated by doc kind |
+| **A** | **Wrong rule profile for the artifact.** Rules ARB-PSA-3195-000CONF-001 and -055PAY-001 are *contract clauses* applied to a *PSA architecture doc*. | 3 of 9 verdicts are contract-style false negatives. | `rulesets/architecture-review/arb-psa.json` was extracted but never gated by doc kind |
 | **B** | **Predicate doesn't fire → N/A inflation.** `predicate: input1.category == "confidentiality"` requires the projector to label sections "confidentiality". The PSA has *no* such sections, so every selected section is gated out and the rule emits N/A instead of a real verdict. | 2 of 9 are `NOT APPLICABLE` (Backup/Restore, Encryption-at-Rest) even though the PSA covers both topics under different headings. | `DeterministicContractProjector` uses `contract.v1` topic map even for ARB docs |
 | **C** | **Lambdas are keyword soup.** `Contains("year")` passed on "yearly basis" → a *false positive*. Conversely, real RTO/RPO content phrased as "4 hour recovery objective" misses on `"rpo"`. | The 1 PASS is a false positive; the 2 N/As hide real evidence. | `Rule.Lambda` strings are RulesEngine bool expressions over raw text |
-| **D** | **Coverage is sparse.** 6 rules cannot adjudicate a 12-dimension PSA. Anything outside those 6 is silently absent from the report. | LLM judged 12 dimensions; rules judged 6 (and 5 of those badly). | `ctc-arb.json` was authored once from the CTC policy PDF and never expanded |
+| **D** | **Coverage is sparse.** 6 rules cannot adjudicate a 12-dimension PSA. Anything outside those 6 is silently absent from the report. | LLM judged 12 dimensions; rules judged 6 (and 5 of those badly). | `arb-psa.json` was authored once from the source policy PDF and never expanded |
 
 Determinism is fine. **Coverage + classification + matching are the problem.**
 
@@ -97,7 +97,7 @@ predicate gates so the remaining 6 rules actually run.
 The third primitive is the key one — it lets us say "the section talks about *DR
 RPO* even if the wording differs" without ever calling an LLM at runtime. The
 authoring pipeline already produces `sourceEmbedding` on every rule (see
-`ctc-arb.json` line 48+); we just need to actually use it in evaluation.
+`arb-psa.json` line 48+); we just need to actually use it in evaluation.
 
 **Determinism cost:** zero **if** we freeze the embedding model id + version in the
 ruleset header (already part of `RuleSetEmbedder` design) and refuse to evaluate
@@ -154,7 +154,7 @@ reproducible test.
 
 Each pillar ships with a **golden-master test** under `tests/`:
 
-1. **Re-run the exact CTC PSA case** as a baseline test. Target:
+1. **Re-run the exact ARB-PSA case** as a baseline test. Target:
    - ≥ 8/12 PASS where the LLM also passed (recall ≥ 67%)
    - 0 false positives on the LLM's clear FAILs (precision = 100% on the FAIL set)
    - Same input → byte-identical `report.json` across 100 runs (existing

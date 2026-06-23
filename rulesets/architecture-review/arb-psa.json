@@ -1,5 +1,5 @@
 {
-  "id": "rs_ctc_arb_psa",
+  "id": "rs_arb_psa",
   "version": "1.0.0",
   "domain": "architecture-review",
   "publishedAt": "1970-01-01T00:00:00+00:00",
@@ -18,7 +18,7 @@
       },
       "severity": "Violation",
       "sourceSpan": {
-        "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
+        "documentId": "policies/sample/sample-ea-policy.pdf",
         "charStart": 0,
         "charLength": 1,
         "pageNumber": 31,
@@ -6217,7 +6217,7 @@
       },
       "severity": "Violation",
       "sourceSpan": {
-        "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
+        "documentId": "policies/sample/sample-ea-policy.pdf",
         "charStart": 1,
         "charLength": 1,
         "pageNumber": 31,
@@ -12416,7 +12416,7 @@
       },
       "severity": "Violation",
       "sourceSpan": {
-        "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
+        "documentId": "policies/sample/sample-ea-policy.pdf",
         "charStart": 2,
         "charLength": 1,
         "pageNumber": 31,
@@ -21698,7 +21698,7 @@
       },
       "severity": "Violation",
       "sourceSpan": {
-        "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
+        "documentId": "policies/sample/sample-ea-policy.pdf",
         "charStart": 3,
         "charLength": 1,
         "pageNumber": 31,
@@ -30980,7 +30980,7 @@
       },
       "severity": "Violation",
       "sourceSpan": {
-        "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
+        "documentId": "policies/sample/sample-ea-policy.pdf",
         "charStart": 4,
         "charLength": 1,
         "pageNumber": 56,
@@ -37179,7 +37179,7 @@
       },
       "severity": "Violation",
       "sourceSpan": {
-        "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
+        "documentId": "policies/sample/sample-ea-policy.pdf",
         "charStart": 5,
         "charLength": 1,
         "pageNumber": 57,
@@ -43378,7 +43378,7 @@
       },
       "severity": "Violation",
       "sourceSpan": {
-        "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
+        "documentId": "policies/sample/sample-ea-policy.pdf",
         "charStart": 6,
         "charLength": 1,
         "pageNumber": 31,
@@ -52660,7 +52660,7 @@
       },
       "severity": "Violation",
       "sourceSpan": {
-        "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
+        "documentId": "policies/sample/sample-ea-policy.pdf",
         "charStart": 7,
         "charLength": 1,
         "pageNumber": 31,
@@ -61942,7 +61942,7 @@
       },
       "severity": "Violation",
       "sourceSpan": {
-        "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
+        "documentId": "policies/sample/sample-ea-policy.pdf",
         "charStart": 8,
         "charLength": 1,
         "pageNumber": 31,
@@ -68141,7 +68141,7 @@
       },
       "severity": "Violation",
       "sourceSpan": {
-        "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
+        "documentId": "policies/sample/sample-ea-policy.pdf",
         "charStart": 9,
         "charLength": 1,
         "pageNumber": 31,
@@ -77423,7 +77423,7 @@
       },
       "severity": "Violation",
       "sourceSpan": {
-        "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
+        "documentId": "policies/sample/sample-ea-policy.pdf",
         "charStart": 10,
         "charLength": 1,
         "pageNumber": 31,
@@ -86705,7 +86705,7 @@
       },
       "severity": "Violation",
       "sourceSpan": {
-        "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
+        "documentId": "policies/sample/sample-ea-policy.pdf",
         "charStart": 11,
         "charLength": 1,
         "pageNumber": 31,
@@ -95987,7 +95987,7 @@
       },
       "severity": "Deviation",
       "sourceSpan": {
-        "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
+        "documentId": "policies/sample/sample-ea-policy.pdf",
         "charStart": 12,
         "charLength": 1,
         "pageNumber": 31,
@@ -102186,7 +102186,7 @@
       },
       "severity": "Suggestion",
       "sourceSpan": {
-        "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
+        "documentId": "policies/sample/sample-ea-policy.pdf",
         "charStart": 13,
         "charLength": 1,
         "pageNumber": 57,
@@ -105302,7 +105302,7 @@
       },
       "severity": "Deviation",
       "sourceSpan": {
-        "documentId": "policies/CTC/CTC EA Information-all-policies.pdf",
+        "documentId": "policies/sample/sample-ea-policy.pdf",
         "charStart": 14,
         "charLength": 1,
         "pageNumber": 56,
