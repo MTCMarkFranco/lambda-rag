@@ -38,13 +38,13 @@ Optional LLM-driven *rewrite* (the `--rewrite` flag in markup mode) is a strictl
 
 ## The intellectual lineage
 
-Rule projection is a recombination of three settled bodies of research, not a new invention:
+Rule projection is a recombination of three settled engineering ideas, not a new invention:
 
 1. **Lambda calculus and typed functional evaluation.** Each compliance rule is a small, pure, total function over a typed projection of the document. The runtime is, by construction, a referentially-transparent evaluator — which is the only known class of system that gives you reproducibility *for free*. The "lambda" in lambda-rag is literal.
-2. **Compiler theory and the separation between *elaboration* (typing, expansion, macro hygiene) and *evaluation* (running the elaborated core).** Authoring is elaboration; runtime is evaluation. The same pattern that lets a compiler emit byte-identical binaries lets lambda-rag emit byte-identical verdict reports.
-3. **Neuro-symbolic AI.** The neural side (the LLM) is used for what it is good at — reading messy prose, surfacing candidate obligations, generating natural-language remediation. The symbolic side (the projector + rule engine) is used for what *it* is good at — exact, auditable, deterministic decisions over a structured representation. The handoff is the ruleset.
+2. **Compiler-style separation between *elaboration* (typing, expansion, macro hygiene) and *evaluation* (running the elaborated core).** Authoring is elaboration; runtime is evaluation. The same discipline that lets a compiler emit byte-identical binaries lets lambda-rag emit byte-identical verdict reports.
+3. **Neuro-symbolic decomposition.** The neural side (the LLM) is used for what it is good at — reading messy prose, surfacing candidate obligations, generating natural-language remediation. The symbolic side (the projector + rule engine) is used for what *it* is good at — exact, auditable, deterministic decisions over a structured representation. The handoff is the ruleset.
 
-> ⓘ **Compiler-spike provenance.** This pattern was first prototyped in the internal `compiler-spike` repo (Python, ~Spring 2026) as a research probe into whether deterministic rule evaluation could match an LLM-only baseline on accuracy while gaining idempotency and citation faithfulness. The spike concluded *yes* on a single-vertical corpus (ARB-PSA architecture review). Lambda-RAG ports those v0.1.1 invariants to a production-grade .NET 9 codebase and extends them to 8 industries, 17 corpus documents, and an LLM-vs-runtime accuracy harness. Foundational academic references that informed the spike's design are pending re-attachment (`[CITATION NEEDED]` — to be filled from the spike's bibliography).
+> ⓘ **Compiler-spike provenance.** This pattern was first prototyped in the internal `compiler-spike` repo (Python, ~Spring 2026) as a research probe into whether deterministic rule evaluation could match an LLM-only baseline on accuracy while gaining idempotency and citation faithfulness. The spike concluded *yes* on a single-vertical corpus (ARB-PSA architecture review). Lambda-RAG ports those v0.1.1 invariants to a production-grade .NET 9 codebase and extends them to 8 industries, 17 corpus documents, and an LLM-vs-runtime accuracy harness.
 
 ---
 
