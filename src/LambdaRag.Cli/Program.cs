@@ -282,6 +282,15 @@ static class CliEntry
         }
 
         string? markupPath = null;
+        // Hoisted rewrite-status — surfaced in the Final Summary regardless of
+        // which code path the rewrite request hit (Noop rewriter, non-docx
+        // source, --mode report, or per-rule LLM errors).
+        var rewriteRequested = enableRewrite;
+        var rewriteRan = false;
+        string? rewriteUnavailableReason = null;
+        var rewriteAttempted = 0;
+        var rewriteEmitted = 0;
+        var rewriteFailureCounts = new Dictionary<string, int>(StringComparer.Ordinal);
         if (emitMarkup)
         {
             // Markup mode requires a .docx source so OpenXmlMarkupService can
@@ -290,6 +299,8 @@ static class CliEntry
             if (!documentPath.EndsWith(".docx", StringComparison.OrdinalIgnoreCase))
             {
                 Console.WriteLine($"Markup:    skipped — --mode {mode} requires a .docx source (got '{Path.GetExtension(documentPath)}')");
+                if (rewriteRequested)
+                    rewriteUnavailableReason = $"--rewrite skipped: markup requires a .docx source (got '{Path.GetExtension(documentPath)}').";
             }
             else
             {
@@ -298,9 +309,16 @@ static class CliEntry
                 List<Annotation> annotations;
                 if (enableRewrite)
                 {
+                    rewriteRan = true;
                     var rewriter = sp.GetRequiredService<IClauseRewriter>();
                     if (rewriter is NoopClauseRewriter)
                     {
+                        rewriteUnavailableReason =
+                            "No LLM editor agent is configured. Set LAMBDA_RAG_FOUNDRY_EDIT_ENDPOINT, "
+                          + "LAMBDA_RAG_FOUNDRY_EDIT_DEPLOYMENT, and LAMBDA_RAG_FOUNDRY_EDIT_API_KEY "
+                          + "(or the matching LambdaRag:Foundry:Edit:* config keys) to enable the "
+                          + "ComplianceEditor agent. Tracked-change replacements were not emitted; "
+                          + "fail verdicts appear as comments only.";
                         Console.WriteLine(
                             "Rewrite:   --rewrite requested but no LLM editor agent is configured. "
                           + "No tracked-change replacements will be emitted; fail verdicts will appear as comments only.");
@@ -393,7 +411,9 @@ static class CliEntry
                                 catch (OperationCanceledException) { throw; }
                                 catch (Exception ex)
                                 {
-                                    skipReasons.Add((ruleId, $"LLM error: {ex.GetType().Name}"));
+                                    var kind = ex.GetType().Name;
+                                    skipReasons.Add((ruleId, $"LLM error: {kind}: {ex.Message}"));
+                                    rewriteFailureCounts[kind] = rewriteFailureCounts.GetValueOrDefault(kind) + 1;
                                 }
 
                                 if (!string.IsNullOrWhiteSpace(rewrite))
@@ -413,6 +433,24 @@ static class CliEntry
                         });
 
                     Console.WriteLine($"Rewrite:   {rewrites} clause rewrite(s) emitted by {rewriter.GetType().Name}");
+                    rewriteAttempted = failVerdicts.Count;
+                    rewriteEmitted = rewrites;
+                    // If the user asked for --rewrite but ZERO rewrites were
+                    // emitted and at least one LLM-call error occurred, treat
+                    // the editor as effectively unavailable in the summary.
+                    if (rewriteUnavailableReason is null
+                        && rewriteAttempted > 0
+                        && rewriteEmitted == 0
+                        && rewriteFailureCounts.Count > 0)
+                    {
+                        var topKind = rewriteFailureCounts
+                            .OrderByDescending(kv => kv.Value)
+                            .First();
+                        rewriteUnavailableReason =
+                            $"LLM editor agent ({rewriter.GetType().Name}) returned no rewrites — "
+                          + $"every attempt failed with {topKind.Key} ({topKind.Value} of {rewriteAttempted}). "
+                          + "Check the editor endpoint credentials, network reachability, and deployment name.";
+                    }
                     if (skipReasons.Count > 0)
                     {
                         AnsiConsole.WriteLine();
@@ -437,6 +475,13 @@ static class CliEntry
             }
         }
 
+        // If --rewrite was requested but emitMarkup is false (--mode report),
+        // mark it unavailable up front — rewrite has nowhere to apply.
+        if (rewriteRequested && !emitMarkup && rewriteUnavailableReason is null)
+        {
+            rewriteUnavailableReason = $"--rewrite has no effect with --mode {mode} (markup not emitted). Use --mode markup or --mode both.";
+        }
+
         // ── Final Summary ─────────────────────────────────────────────
         AnsiConsole.WriteLine();
         AnsiConsole.Write(new Spectre.Console.Rule("[bold]Review Summary[/]").LeftJustified());
@@ -458,7 +503,30 @@ static class CliEntry
         var withRemediation = report.Verdicts.Count(v => !string.IsNullOrEmpty(v.RemediationText));
         if (withRemediation > 0)
             verdictTable.AddRow("Remediations", $"[blue]{withRemediation}[/]");
+        if (rewriteRequested)
+        {
+            string rewriteCell;
+            if (rewriteUnavailableReason is not null)
+                rewriteCell = $"[red]unavailable[/] ({rewriteEmitted}/{rewriteAttempted} emitted)";
+            else if (rewriteRan && rewriteAttempted == 0)
+                rewriteCell = "[dim]n/a — no Fail verdicts[/]";
+            else
+                rewriteCell = $"[green]{rewriteEmitted}[/] / {rewriteAttempted} clause rewrite(s) emitted";
+            verdictTable.AddRow("Rewrite (LLM)", rewriteCell);
+        }
         AnsiConsole.Write(verdictTable);
+
+        // Rewrite status callout — surfaces LLM unavailability with reason.
+        if (rewriteRequested && rewriteUnavailableReason is not null)
+        {
+            AnsiConsole.WriteLine();
+            var panel = new Panel(
+                new Markup($"[bold]LLM rewrite was not applied.[/]\n\n{Markup.Escape(rewriteUnavailableReason)}"))
+                .Header("[yellow]⚠ Rewrite unavailable[/]")
+                .Border(BoxBorder.Rounded)
+                .BorderColor(Color.Yellow);
+            AnsiConsole.Write(panel);
+        }
 
         // Per-verdict detail table
         AnsiConsole.WriteLine();
