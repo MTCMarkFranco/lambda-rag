@@ -490,5 +490,5 @@ governance + tooling, ecosystem) live as labelled GitHub issues. Near-term:
 
 ## License
 
-MIT.
+Apache License 2.0 — see [`LICENSE`](LICENSE) for the full text.
 
