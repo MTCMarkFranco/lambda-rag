@@ -1,0 +1,1080 @@
+{
+  "id": "rs_enterprise_architecture_v1",
+  "version": "1.0.0",
+  "domain": "architecture",
+  "publishedAt": "1970-01-01T00:00:00+00:00",
+  "rules": [
+    {
+      "id": "EA--1870-000CONF-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Confidentiality clause must define a survival period or be perpetual.",
+      "lambda": "input1.text.Contains(\"year\") || input1.text.Contains(\"years\") || input1.text.Contains(\"perpetual\") || input1.text.Contains(\"survive\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:a42b4aab347a44432e4badf366dc987e60048ec5f8478eb0ce5fe7705724f59c",
+        "charStart": 49,
+        "charLength": 281,
+        "headingPath": "/Enterprise Cloud Architecture Policy & Standards",
+        "charEnd": 330
+      },
+      "evidenceQuote": "Confidentiality survival",
+      "metadata": {
+        "minYears": "5"
+      },
+      "predicate": "input1.category == \"confidentiality\"",
+      "applicability": "Mandatory",
+      "remediation": "Add an explicit survival period to the {section.heading} clause: \"obligations survive for {meta.minYears} years from termination.\"",
+      "sourceContent": "Version: 1.0.0 Effective Date: 2026-06-30 Owner: Enterprise Architecture Review Board (ARB) Classification: Internal — Mandatory Review Cadence: Annual; minor revisions quarterly Applies To: All workloads operated on Microsoft Azure, Amazon Web Services, and Google Cloud Platform.",
+      "sourceEmbedding": [
+        -0.02544682,
+        0.052940305,
+        -0.1187161,
+        -0.3128955,
+        0.067890674,
+        0.3010931,
+        -0.09630028,
+        -0.035855554,
+        0.22273521,
+        0.3161604,
+        0.1749603,
+        0.24951723,
+        -0.055220865,
+        -0.04715117,
+        0.21215105,
+        -0.1534606,
+        -0.209812,
+        -0.08004395,
+        0.2935984,
+        0.20316523,
+        -0.1959142,
+        0.18527156,
+        -0.10911628,
+        -0.1585675,
+        0.0609905,
+        -0.024433235,
+        0.012484632,
+        0.14047892,
+        -0.12146446,
+        -0.2753929,
+        0.13883184,
+        0.20179105
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "EA--1870-001DPA-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Data protection clause must reference an industry security standard.",
+      "lambda": "input1.text.Contains(\"ISO 27001\") || input1.text.Contains(\"SOC 2\") || input1.text.Contains(\"NIST\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:a42b4aab347a44432e4badf366dc987e60048ec5f8478eb0ce5fe7705724f59c",
+        "charStart": 942,
+        "charLength": 614,
+        "headingPath": "/Enterprise Cloud Architecture Policy & Standards/Authority and Enforcement",
+        "charEnd": 1556
+      },
+      "evidenceQuote": "data protection",
+      "metadata": {
+        "requiredStandard": "ISO 27001 or SOC 2"
+      },
+      "predicate": "input1.category == \"privacy\"",
+      "applicability": "Mandatory",
+      "remediation": "Add to the {section.heading} clause: \"Provider shall maintain security controls aligned with {meta.requiredStandard}.\"",
+      "sourceContent": "This document is issued under the authority of the Chief Technology Officer and the Chief Information Security Officer. Compliance is mandatory for every production workload, every non-production environment that processes real customer data, and every shared platform service. Where this document conflicts with an older standard, this document supersedes the older standard. Where this document conflicts with a regulatory obligation (for example, sectoral privacy law or financial-services prudential rules), the regulatory obligation prevails and the team SHALL document the override in the exception register.",
+      "sourceEmbedding": [
+        0.15583748,
+        0.21180701,
+        0.18259406,
+        0.13420409,
+        -0.28417265,
+        0.03477481,
+        -0.22193943,
+        0.18620841,
+        0.13088803,
+        -0.23672137,
+        -0.10922834,
+        0.030599024,
+        0.1374763,
+        -0.26847836,
+        0.18580486,
+        0.103324346,
+        -0.16189936,
+        -0.23537913,
+        1.7545311E-05,
+        -0.079796076,
+        0.22972955,
+        -0.27167162,
+        0.16212747,
+        0.21056129,
+        0.2603549,
+        -0.21739519,
+        0.07676951,
+        -0.039608542,
+        -0.11562361,
+        0.015939916,
+        0.16332054,
+        -0.20833303
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "EA--1870-003DR-BACKUP-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Backup, restore and DR must have stated RPO and RTO.",
+      "lambda": "input1.text.ToLower().Contains(\"rpo\") || input1.text.ToLower().Contains(\"rto\") || input1.text.ToLower().Contains(\"recovery point\") || input1.text.ToLower().Contains(\"recovery time\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:a42b4aab347a44432e4badf366dc987e60048ec5f8478eb0ce5fe7705724f59c",
+        "charStart": 2512,
+        "charLength": 333,
+        "headingPath": "/Enterprise Cloud Architecture Policy & Standards/Scope",
+        "charEnd": 2845
+      },
+      "evidenceQuote": "backup_restore",
+      "metadata": {
+        "topic": "backup_restore"
+      },
+      "predicate": "input1.category == \"backup_restore\"",
+      "applicability": "Mandatory",
+      "remediation": "State explicit RPO and RTO targets and the test cadence for restore drills.",
+      "sourceContent": "This policy does not govern end-user device security (covered by the Endpoint Security Standard), physical premises security (covered by the Corporate Security Policy), or human-resources access lifecycle (covered by the Joiner-Mover-Leaver Standard). However, it interfaces with each of those standards at clearly identified points.",
+      "sourceEmbedding": [
+        -0.1369228,
+        -0.26126653,
+        0.2772715,
+        -0.1869776,
+        0.25837237,
+        0.20708843,
+        0.21491657,
+        0.122391045,
+        -0.20059405,
+        0.17864385,
+        -0.010234123,
+        0.060053557,
+        0.11647199,
+        0.006956414,
+        -0.03151308,
+        0.1777111,
+        0.04321171,
+        0.1877796,
+        0.25332505,
+        0.2687547,
+        0.17149565,
+        0.2505704,
+        0.069285184,
+        -0.09052056,
+        0.18862517,
+        -0.18084933,
+        0.009214197,
+        0.012334995,
+        -0.2734882,
+        -0.07632878,
+        -0.07739228,
+        0.2728257
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "EA--1870-006TRM-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Termination clause must specify a written-notice period.",
+      "lambda": "input1.text.Contains(\"30 days\") || input1.text.Contains(\"60 days\") || input1.text.Contains(\"90 days\") || input1.text.Contains(\"30 calendar days\") || input1.text.Contains(\"60 calendar days\") || input1.text.Contains(\"90 calendar days\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:a42b4aab347a44432e4badf366dc987e60048ec5f8478eb0ce5fe7705724f59c",
+        "charStart": 3747,
+        "charLength": 277,
+        "headingPath": "/Enterprise Cloud Architecture Policy & Standards/Corporate Restrictive Overlays (Summary)",
+        "charEnd": 4024
+      },
+      "evidenceQuote": "Termination notice",
+      "metadata": {
+        "minNoticeDays": "60"
+      },
+      "predicate": "input1.category == \"termination\"",
+      "applicability": "Mandatory",
+      "remediation": "Update the {section.heading} clause to require at least {meta.minNoticeDays} calendar days prior written notice to terminate for convenience.",
+      "sourceContent": "No public direct endpoints. Every workload that accepts ingress from the public internet SHALL terminate that ingress at a managed Web Application Firewall and reverse-proxy layer. Direct exposure of compute, storage, or database endpoints to the public internet is prohibited.",
+      "sourceEmbedding": [
+        0.11681139,
+        -0.029193832,
+        -0.0034891947,
+        -0.018230366,
+        -0.11043707,
+        -0.11926374,
+        -0.18963368,
+        -0.2939669,
+        -0.28494188,
+        -0.135177,
+        0.11577454,
+        -0.11306073,
+        -0.2521687,
+        -0.29067606,
+        0.24408133,
+        -0.002497434,
+        0.21365231,
+        -0.1008801,
+        0.17871529,
+        -0.046170972,
+        0.12919939,
+        -0.027156213,
+        -0.26038226,
+        0.13505979,
+        -0.29439968,
+        0.26582795,
+        0.13957681,
+        0.19590881,
+        -0.11205994,
+        -0.15457945,
+        0.07589675,
+        -0.2286279
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "EA--1870-014IDENT-MFA-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Privileged and remote access must require phishing-resistant MFA.",
+      "lambda": "input1.text.ToLower().Contains(\"mfa\") || input1.text.ToLower().Contains(\"multi-factor\") || input1.text.ToLower().Contains(\"fido2\") || input1.text.ToLower().Contains(\"passkey\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:a42b4aab347a44432e4badf366dc987e60048ec5f8478eb0ce5fe7705724f59c",
+        "charStart": 9097,
+        "charLength": 221,
+        "headingPath": "/Enterprise Cloud Architecture Policy & Standards/Chapter 1 — Identity & Access Management/Mandatory Controls",
+        "charEnd": 9318
+      },
+      "evidenceQuote": "security_iam",
+      "metadata": {
+        "topic": "security_iam"
+      },
+      "predicate": "input1.category == \"security_iam\"",
+      "applicability": "Mandatory",
+      "remediation": "Add a clause requiring phishing-resistant MFA (FIDO2 / passkeys) for privileged and remote access.",
+      "sourceContent": "Multi-factor authentication using a phishing-resistant factor (FIDO2 security key, platform passkey, or Microsoft Authenticator with number-match) SHALL be enforced on every interactive sign-in to any cloud control plane.",
+      "sourceEmbedding": [
+        -0.10921571,
+        -0.019915318,
+        0.07403501,
+        -0.22706938,
+        0.06217021,
+        0.23040377,
+        0.10914124,
+        0.16351742,
+        -0.1808099,
+        -0.15188429,
+        0.058339387,
+        0.24107711,
+        0.06291486,
+        -0.028784957,
+        -0.13311078,
+        0.25705403,
+        -0.0033343884,
+        -0.1638401,
+        0.20079969,
+        -0.17261873,
+        -0.2506004,
+        0.16423725,
+        0.20255376,
+        0.048915397,
+        -0.21882027,
+        0.18397053,
+        -0.173835,
+        -0.2466372,
+        -0.26844722,
+        0.24685231,
+        -0.27081355,
+        0.14101236
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "EA--1870-019AUDIT-LOG-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Control-plane and data-plane audit logs must be forwarded to a tamper-resistant SIEM with the documented retention.",
+      "lambda": "input1.text.ToLower().Contains(\"sentinel\") || input1.text.ToLower().Contains(\"log analytics\") || input1.text.ToLower().Contains(\"siem\") || input1.text.ToLower().Contains(\"audit log\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:a42b4aab347a44432e4badf366dc987e60048ec5f8478eb0ce5fe7705724f59c",
+        "charStart": 10567,
+        "charLength": 366,
+        "headingPath": "/Enterprise Cloud Architecture Policy & Standards/Chapter 1 — Identity & Access Management/Mandatory Controls",
+        "charEnd": 10933
+      },
+      "evidenceQuote": "audit_logging",
+      "metadata": {
+        "topic": "audit_logging"
+      },
+      "predicate": "input1.category == \"audit_logging\"",
+      "applicability": "Mandatory",
+      "remediation": "Forward control-plane and data-plane audit logs to Microsoft Sentinel (or equivalent SIEM) with a defined retention policy.",
+      "sourceContent": "Service Control Policies (AWS Organizations), Management Group policies (Azure), and Organization Policies (GCP) SHALL enforce a corporate guardrail set that, at minimum, denies disabling of CloudTrail / Activity Logs / Cloud Audit Logs, denies creation of public S3 buckets / public storage accounts / public GCS buckets, and denies sign-in from sanctioned regions.",
+      "sourceEmbedding": [
+        0.1456768,
+        0.15876432,
+        -0.15967919,
+        0.011633343,
+        0.08829977,
+        -0.24839306,
+        0.19614895,
+        0.0034668902,
+        0.3010705,
+        -0.069068156,
+        0.2826575,
+        0.06911631,
+        -0.015552855,
+        -0.18534382,
+        -0.15665528,
+        0.29790217,
+        -0.03191465,
+        0.21888597,
+        0.15483516,
+        -0.16552477,
+        -0.276706,
+        0.07972885,
+        -0.311346,
+        -0.11464813,
+        -0.058802314,
+        0.3121357,
+        0.08441878,
+        0.02494235,
+        -0.1211004,
+        0.16810566,
+        -0.16403206,
+        0.14219065
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "EA--1870-038NET-PRIVATE-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Public PaaS data planes must be reached via Private Endpoint / PrivateLink (no public network access).",
+      "lambda": "input1.text.ToLower().Contains(\"private endpoint\") || input1.text.ToLower().Contains(\"privatelink\") || input1.text.ToLower().Contains(\"private link\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:a42b4aab347a44432e4badf366dc987e60048ec5f8478eb0ce5fe7705724f59c",
+        "charStart": 20630,
+        "charLength": 292,
+        "headingPath": "/Enterprise Cloud Architecture Policy & Standards/Chapter 2 — Network Architecture & Edge Protection/Intent",
+        "charEnd": 20922
+      },
+      "evidenceQuote": "network_segmentation",
+      "metadata": {
+        "topic": "network_segmentation"
+      },
+      "predicate": "input1.category == \"network_segmentation\"",
+      "applicability": "Mandatory",
+      "remediation": "Replace public-internet access with a Private Endpoint and disable the public network access flag on the resource.",
+      "sourceContent": "The chapter further governs the design of the private network fabric inside each cloud — the hub-and-spoke topology, the use of private endpoints to keep traffic to managed services off the public internet, the partitioning of environments by trust zone, and the inspection of egress traffic.",
+      "sourceEmbedding": [
+        0.033105195,
+        -0.32150292,
+        -0.06504395,
+        0.09493648,
+        0.06276049,
+        -0.016260987,
+        -0.15058959,
+        0.06802925,
+        -0.25057736,
+        -0.032947034,
+        0.15971354,
+        0.20333646,
+        0.19532955,
+        -0.13871759,
+        -0.12779455,
+        0.06627958,
+        0.20869419,
+        0.3103229,
+        0.18169798,
+        0.30783185,
+        0.26761925,
+        -0.137047,
+        0.21310295,
+        -0.0048535834,
+        -0.017852489,
+        0.21237145,
+        -0.31313026,
+        -0.2189747,
+        0.14557783,
+        -0.00016804667,
+        -0.05739288,
+        0.15021396
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "EA--1870-045ENCRYPT-TRANSIT-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Data in transit must be protected by TLS 1.2 or higher.",
+      "lambda": "input1.text.Contains(\"TLS 1.2\") || input1.text.Contains(\"TLS 1.3\") || input1.text.Contains(\"TLS1.2\") || input1.text.Contains(\"TLS1.3\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:a42b4aab347a44432e4badf366dc987e60048ec5f8478eb0ce5fe7705724f59c",
+        "charStart": 23216,
+        "charLength": 266,
+        "headingPath": "/Enterprise Cloud Architecture Policy & Standards/Chapter 2 — Network Architecture & Edge Protection/Mandatory Controls",
+        "charEnd": 23482
+      },
+      "evidenceQuote": "encryption_in_transit",
+      "metadata": {
+        "topic": "encryption_in_transit"
+      },
+      "predicate": "input1.category == \"encryption_in_transit\"",
+      "applicability": "Mandatory",
+      "remediation": "State the minimum TLS version explicitly (TLS 1.2 or TLS 1.3).",
+      "sourceContent": "Egress to the public internet from any spoke SHALL transit a corporate egress inspection point (Azure Firewall Premium, AWS Network Firewall, or GCP Cloud NGFW) that performs DNS resolution logging, TLS-inspection where lawful, and policy-based domain allow-listing.",
+      "sourceEmbedding": [
+        0.075603515,
+        -0.28518727,
+        -0.14308403,
+        -0.062264338,
+        -0.07802881,
+        -0.16456403,
+        -0.096619844,
+        -0.14499219,
+        0.08406533,
+        -0.15032429,
+        0.28864688,
+        0.2742823,
+        -0.16173747,
+        -0.09580844,
+        0.12840737,
+        0.27716234,
+        0.07463161,
+        0.2483886,
+        -0.08798861,
+        -0.23841098,
+        0.24900384,
+        -0.08164894,
+        0.17949036,
+        0.0069192504,
+        -0.15782312,
+        -0.17851844,
+        0.17060055,
+        -0.20282498,
+        0.039500363,
+        -0.28517833,
+        -0.24323484,
+        0.079776466
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "EA--1870-068ENCRYPT-REST-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Data at rest must be encrypted using customer-managed keys (CMK) or platform-managed keys with documented rotation.",
+      "lambda": "input1.text.Contains(\"AES-256\") || input1.text.ToLower().Contains(\"customer-managed\") || input1.text.ToLower().Contains(\"platform-managed\") || input1.text.Contains(\"TDE\") || input1.text.ToLower().Contains(\"cmk\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:a42b4aab347a44432e4badf366dc987e60048ec5f8478eb0ce5fe7705724f59c",
+        "charStart": 33743,
+        "charLength": 220,
+        "headingPath": "/Enterprise Cloud Architecture Policy & Standards/Chapter 3 — Secrets, Keys & Certificates/Mandatory Controls",
+        "charEnd": 33963
+      },
+      "evidenceQuote": "encryption_at_rest",
+      "metadata": {
+        "topic": "encryption_at_rest"
+      },
+      "predicate": "input1.category == \"encryption_at_rest\"",
+      "applicability": "Mandatory",
+      "remediation": "Specify the encryption algorithm and key management model (e.g., \"AES-256 with customer-managed keys in Azure Key Vault\").",
+      "sourceContent": "Cryptographic keys used to encrypt data at rest SHALL be rotated automatically at least every three hundred sixty-five (365) days; keys used to sign authentication tokens SHALL be rotated at least every ninety (90) days.",
+      "sourceEmbedding": [
+        -0.20215912,
+        0.00789734,
+        0.20844673,
+        0.09240922,
+        0.10006749,
+        0.05062744,
+        0.20122676,
+        0.2252455,
+        -0.21683016,
+        0.046005387,
+        0.23021021,
+        -0.12290682,
+        0.10397234,
+        0.08313324,
+        -0.16973303,
+        0.25438038,
+        0.148615,
+        0.2045897,
+        0.14265417,
+        -0.20384061,
+        0.1953934,
+        -0.15228875,
+        -0.2513123,
+        0.10322324,
+        0.13037384,
+        -0.092385314,
+        0.23478445,
+        0.18850017,
+        -0.24421984,
+        0.22852078,
+        -0.26029342,
+        0.1340396
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "EA--1870-070IAC-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Infrastructure must be deployed via Infrastructure-as-Code with policy-as-code guardrails.",
+      "lambda": "input1.text.ToLower().Contains(\"terraform\") || input1.text.ToLower().Contains(\"bicep\") || input1.text.ToLower().Contains(\"arm template\") || input1.text.ToLower().Contains(\"infrastructure as code\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:a42b4aab347a44432e4badf366dc987e60048ec5f8478eb0ce5fe7705724f59c",
+        "charStart": 35019,
+        "charLength": 205,
+        "headingPath": "/Enterprise Cloud Architecture Policy & Standards/Chapter 3 — Secrets, Keys & Certificates/Mandatory Controls",
+        "charEnd": 35224
+      },
+      "evidenceQuote": "infra_as_code",
+      "metadata": {
+        "topic": "infra_as_code"
+      },
+      "predicate": "input1.category == \"infra_as_code\"",
+      "applicability": "Mandatory",
+      "remediation": "Adopt Terraform or Bicep with PR-gated CI and Azure Policy / OPA as policy-as-code.",
+      "sourceContent": "Secrets created outside the IaC pipeline — for example, manually through the portal — SHALL be flagged for review weekly and SHALL either be brought under IaC management or deleted within thirty (30) days.",
+      "sourceEmbedding": [
+        0.14465743,
+        0.29885882,
+        -0.17179161,
+        0.23677376,
+        0.08024377,
+        0.21442795,
+        0.048955254,
+        -0.0075214864,
+        -0.17145272,
+        0.14317061,
+        0.0767126,
+        -0.1014854,
+        0.0108012045,
+        -0.1282151,
+        -0.11481199,
+        0.0313869,
+        -0.16040008,
+        0.25543535,
+        0.21153086,
+        -0.24933508,
+        0.27439213,
+        0.16456531,
+        0.29040807,
+        0.11193677,
+        0.062981516,
+        -0.23255385,
+        0.12190711,
+        -0.30882916,
+        -0.1271984,
+        0.18245071,
+        0.036853094,
+        0.19045322
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "EA--1870-080WAR-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Warranties must include a defined remedy or cure period.",
+      "lambda": "input1.text.Contains(\"days\") || input1.text.Contains(\"remedy\") || input1.text.Contains(\"replace\") || input1.text.Contains(\"refund\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Deviation",
+      "sourceSpan": {
+        "documentId": "lr1:a42b4aab347a44432e4badf366dc987e60048ec5f8478eb0ce5fe7705724f59c",
+        "charStart": 41139,
+        "charLength": 696,
+        "headingPath": "/Enterprise Cloud Architecture Policy & Standards/Chapter 4 — Data Protection/Intent",
+        "charEnd": 41835
+      },
+      "evidenceQuote": "Warranty remedy",
+      "metadata": {
+        "cureDays": "30"
+      },
+      "predicate": "input1.category == \"warranty\"",
+      "applicability": "Conditional",
+      "remediation": "Specify a cure window in the {section.heading} clause: \"Provider shall correct non-conforming Services within {meta.cureDays} days.\"",
+      "sourceContent": "Data is the corporation’s most consequential asset and the asset most likely to attract adversaries. This chapter governs how data is classified, encrypted, transmitted, masked, and de-identified across all corporate workloads on Microsoft Azure, Amazon Web Services, and Google Cloud Platform. The chapter assumes the controls of Chapter 1 (Identity) and Chapter 3 (Keys) and concentrates on the protections that apply to the data itself: encryption at rest with customer-managed keys, encryption in transit with modern TLS, tokenization or format-preserving encryption for high-sensitivity fields, and protection in use through confidential-computing primitives where the threat model warrants.",
+      "sourceEmbedding": [
+        0.018527865,
+        -0.22640553,
+        -0.069116004,
+        -0.046039253,
+        0.30689374,
+        0.022110889,
+        0.18086478,
+        0.0126704015,
+        -0.14536689,
+        -0.06795282,
+        0.29111806,
+        -0.16830862,
+        0.076427445,
+        -0.06468136,
+        0.22358064,
+        -0.08339617,
+        0.036349513,
+        -0.05900045,
+        -0.23842165,
+        -0.08051936,
+        -0.3116088,
+        0.049206853,
+        0.27876958,
+        -0.12374412,
+        0.3074961,
+        -0.029505417,
+        0.16972107,
+        -0.1290927,
+        -0.326564,
+        -0.27353528,
+        0.134919,
+        -0.08318846
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "EA--1870-085PAY-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Payment terms must be 30 days or fewer.",
+      "lambda": "input1.text.Contains(\"30 days\") || input1.text.Contains(\"15 days\") || input1.text.Contains(\"net 30\") || input1.text.Contains(\"Net 30\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:a42b4aab347a44432e4badf366dc987e60048ec5f8478eb0ce5fe7705724f59c",
+        "charStart": 44221,
+        "charLength": 263,
+        "headingPath": "/Enterprise Cloud Architecture Policy & Standards/Chapter 4 — Data Protection/Mandatory Controls",
+        "charEnd": 44484
+      },
+      "evidenceQuote": "Payment terms",
+      "metadata": {
+        "maxDays": "30"
+      },
+      "predicate": "input1.category == \"payment_terms\"",
+      "applicability": "Mandatory",
+      "remediation": "Replace the {section.heading} clause with: \"Customer shall pay all undisputed invoices within {meta.maxDays} days of the invoice date.\"",
+      "sourceContent": "Database fields that store unique direct identifiers (national identifier, payment-card primary account number, government health identifier) SHALL use format-preserving encryption or tokenization so that the canonical-form value never lands in cleartext on disk.",
+      "sourceEmbedding": [
+        -0.18129264,
+        -0.06753272,
+        0.2698331,
+        0.22616696,
+        0.27189216,
+        0.04044986,
+        -0.27634215,
+        0.20667379,
+        -0.26671892,
+        0.15486494,
+        -0.021339558,
+        -0.13173006,
+        -0.24829783,
+        -0.05952613,
+        0.18855897,
+        -0.03578715,
+        -0.16896367,
+        -0.23530519,
+        0.07124247,
+        -0.075717986,
+        -0.034715068,
+        0.23607098,
+        -0.11841412,
+        -0.27525303,
+        0.042594027,
+        -0.2694417,
+        -0.12115388,
+        -0.11310475,
+        0.16807029,
+        -0.07237411,
+        -0.1663175,
+        -0.15662622
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "EA--1870-137DATA-RES-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Customer data must remain in the contracted residency region.",
+      "lambda": "input1.text.ToLower().Contains(\"canada\") || input1.text.ToLower().Contains(\"residency\") || input1.text.Contains(\"region\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Violation",
+      "sourceSpan": {
+        "documentId": "lr1:a42b4aab347a44432e4badf366dc987e60048ec5f8478eb0ce5fe7705724f59c",
+        "charStart": 73327,
+        "charLength": 216,
+        "headingPath": "/Enterprise Cloud Architecture Policy & Standards/Chapter 7 — Compute & Hosting Patterns/Mandatory Controls",
+        "charEnd": 73543
+      },
+      "evidenceQuote": "data_residency",
+      "metadata": {
+        "topic": "data_residency"
+      },
+      "predicate": "input1.category == \"data_residency\"",
+      "applicability": "Mandatory",
+      "remediation": "Pin the workload region(s) explicitly (e.g., Canada Central + Canada East) and disable cross-region replication for protected data.",
+      "sourceContent": "Workloads SHALL be regionally pinned to the closest region permitted by the Data Residency Standard (Chapter 18); for multi-region workloads, the primary and secondary regions SHALL be in the same residency boundary.",
+      "sourceEmbedding": [
+        0.25784373,
+        -0.07043836,
+        -0.31598008,
+        -0.2474095,
+        -0.09430897,
+        -0.25397122,
+        0.08087259,
+        0.12389055,
+        -0.10387287,
+        -0.2716615,
+        0.07048726,
+        -0.25289553,
+        -0.28874546,
+        -0.035771698,
+        -0.31803367,
+        -0.03089196,
+        -0.17555319,
+        -0.0889794,
+        0.058488388,
+        0.07397837,
+        0.044445697,
+        -0.21409233,
+        0.14164928,
+        -0.056669485,
+        -0.023547908,
+        0.13407052,
+        0.12211076,
+        -0.18774763,
+        0.034001693,
+        -0.2431654,
+        -0.08918477,
+        -0.27622828
+      ],
+      "gateThreshold": 0
+    },
+    {
+      "id": "EA--1870-316GOV-001",
+      "version": "1.0.0",
+      "naturalLanguage": "Governing law must be a U.S. jurisdiction.",
+      "lambda": "input1.text.Contains(\"United States\") || input1.text.Contains(\"Delaware\") || input1.text.Contains(\"New York\") || input1.text.Contains(\"California\")",
+      "appliesToSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "selector": {
+        "kind": "path",
+        "path": "$.sections[*]"
+      },
+      "severity": "Deviation",
+      "sourceSpan": {
+        "documentId": "lr1:a42b4aab347a44432e4badf366dc987e60048ec5f8478eb0ce5fe7705724f59c",
+        "charStart": 173361,
+        "charLength": 732,
+        "headingPath": "/Enterprise Cloud Architecture Policy & Standards/Chapter 18 — Privacy, Data Residency & Compliance/Intent",
+        "charEnd": 174093
+      },
+      "evidenceQuote": "governing law",
+      "metadata": {
+        "requiredJurisdiction": "Delaware, USA"
+      },
+      "predicate": "input1.category == \"governing_law\"",
+      "applicability": "Mandatory",
+      "remediation": "Replace the {section.heading} clause with: \"This Agreement is governed by the laws of the State of {meta.requiredJurisdiction}.\"",
+      "sourceContent": "The corporation operates in jurisdictions whose privacy and data-protection regimes — Canadian PIPEDA and Québec’s Law 25, European Union GDPR, California’s CCPA / CPRA, and various sectoral regulations — impose specific obligations on how personal data is collected, stored, processed, transferred, retained, and deleted. This chapter governs how cloud architecture supports compliance with those obligations. The objective is to ensure that every system processing personal data classifies its data correctly, places it in a region permitted by residency rules, encrypts it appropriately (Chapter 4), retains it only as long as necessary, supports data-subject rights, and produces audit evidence sufficient to satisfy regulators.",
+      "sourceEmbedding": [
+        0.008783755,
+        0.27131495,
+        0.3025736,
+        -0.02090851,
+        -0.26151994,
+        -0.049014542,
+        -0.072104126,
+        0.28966564,
+        -0.16484907,
+        -0.14205691,
+        -0.13970731,
+        -0.007881586,
+        0.10538523,
+        -0.19970651,
+        -0.029464245,
+        0.021800766,
+        0.00025776256,
+        0.25072366,
+        -0.27262357,
+        0.19071457,
+        0.022336118,
+        0.14328624,
+        -0.2912618,
+        0.2625312,
+        -0.009864375,
+        0.050214134,
+        -0.31817815,
+        -0.09335962,
+        0.16834868,
+        -0.0034996225,
+        0.25547245,
+        0.024884002
+      ],
+      "gateThreshold": 0
+    }
+  ],
+  "metadata": {
+    "source_dir": "samples\\policies\\enterprise-architecture",
+    "files_processed": "1",
+    "blocks_examined": "445",
+    "blocks_skipped_short": "986",
+    "raw_suggestions": "372",
+    "dedup_count": "358"
+  }
+}
