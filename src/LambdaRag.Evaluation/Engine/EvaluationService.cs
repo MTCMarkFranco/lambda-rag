@@ -40,6 +40,8 @@ public sealed class EvaluationService
 
     private readonly bool _enforceSoftCohesion;
     private readonly int _minEvidencedAnchors;
+    private readonly double _applicabilityFloor;
+    private readonly bool _emitRuleLevelStats;
 
     public EvaluationService(
         ISelectorMatcher matcher,
@@ -51,7 +53,9 @@ public sealed class EvaluationService
         double semanticThresholdOffset = 0.0,
         double minEffectiveSemanticThreshold = 0.0,
         bool enforceSoftCohesion = false,
-        int minEvidencedAnchors = 2)
+        int minEvidencedAnchors = 2,
+        double applicabilityFloor = 0.0,
+        bool emitRuleLevelStats = false)
     {
         _matcher = matcher;
         _logger = logger;
@@ -69,6 +73,14 @@ public sealed class EvaluationService
             throw new ArgumentOutOfRangeException(nameof(minEvidencedAnchors),
                 "minEvidencedAnchors must be at least 1.");
         _minEvidencedAnchors = minEvidencedAnchors;
+        if (applicabilityFloor < 0.0 || applicabilityFloor > 1.0)
+            throw new ArgumentOutOfRangeException(nameof(applicabilityFloor),
+                "applicabilityFloor must be between 0.0 and 1.0 (inclusive).");
+        _applicabilityFloor = applicabilityFloor;
+        // Rule-level stats auto-enable whenever the applicability floor is
+        // in play — the whole point of the floor is to make rule-level
+        // scoring honest, and emitting one without the other is confusing.
+        _emitRuleLevelStats = emitRuleLevelStats || applicabilityFloor > 0.0;
     }
 
     public async Task<ComplianceReport> EvaluateAsync(
@@ -153,6 +165,7 @@ public sealed class EvaluationService
             }
 
             var emittedForRule = 0;
+            var floorFilteredSections = 0;
             foreach (var section in matches)
             {
                 // Strict-superset pre-filter: if a candidate filter is wired up
@@ -178,6 +191,27 @@ public sealed class EvaluationService
                 if (rule.GateThreshold > 0 &&
                     !PassesApplicabilityGate(rule, section))
                 {
+                    continue;
+                }
+
+                // Pillar 10 (#152) — lexical applicability floor. When the
+                // ruleset has no semantic gate configured (GateThreshold=0
+                // and predicate=="true" — the FoundryRuleAuthoringAgent
+                // default) every section that matches the selector would
+                // otherwise Fail the lambda, drowning genuine gaps in noise.
+                // The floor computes an offline token-overlap ratio between
+                // the rule's topic (evidenceQuote + topicSlug) and the
+                // section text; sections below the floor are treated as
+                // "topic not present here" and skipped, exactly as if the
+                // predicate had returned false. Deterministic, no LLM, no
+                // embeddings. Default 0.0 → gate off → byte-identity
+                // preserved for all existing golden masters.
+                if (_applicabilityFloor > 0.0
+                    && rule.GateThreshold <= 0
+                    && string.Equals(rule.Predicate, "true", StringComparison.Ordinal)
+                    && !PassesLexicalFloor(rule, section))
+                {
+                    floorFilteredSections++;
                     continue;
                 }
 
@@ -236,14 +270,31 @@ public sealed class EvaluationService
 
             if (emittedForRule == 0)
             {
+                // Pillar 10 (#152) — if the lexical applicability floor was
+                // active AND filtered out at least one candidate section,
+                // the correct signal is NotApplicable (the doc is silent
+                // on this rule's topic), not Gap (which would claim the
+                // Mandatory rule was violated by omission). This flips the
+                // outcome only for the applicability-floor path so the
+                // classic "selector matched nothing" case still emits Gap
+                // for Mandatory rules exactly as before.
+                var noMatchOutcome = floorFilteredSections > 0
+                    ? VerdictOutcome.NotApplicable
+                    : NoMatchOutcome(rule);
+                var noMatchRemediation = floorFilteredSections > 0
+                    ? null
+                    : NoMatchRemediation(rule);
+                var noMatchError = floorFilteredSections > 0
+                    ? $"applicability_floor:no_relevant_section (filtered {floorFilteredSections} candidate section(s))"
+                    : null;
                 verdicts.Add(BuildVerdict(
                     rule, ruleSet,
-                    outcome: NoMatchOutcome(rule),
+                    outcome: noMatchOutcome,
                     section: null,
                     input: new JsonObject(),
                     span: rule.SourceSpan,
-                    error: null,
-                    remediationText: NoMatchRemediation(rule)));
+                    error: noMatchError,
+                    remediationText: noMatchRemediation));
             }
         }
 
@@ -429,9 +480,7 @@ public sealed class EvaluationService
         if (_vectorStore is NotConfiguredSemanticVectorStore) return true;
         if (section.Node is not JsonObject obj) return true;
         if (obj["id"] is not JsonValue idVal || !idVal.TryGetValue<string>(out var sectionId))
-            return true;
-
-        IReadOnlyList<float>? sectionVec = null;
+            return true;        IReadOnlyList<float>? sectionVec = null;
         IReadOnlyList<float>? ruleVec = null;
         try
         {
@@ -449,6 +498,104 @@ public sealed class EvaluationService
         var cosine = SemanticFunctions.Cosine(ruleVec!, sectionVec!);
         return cosine >= rule.GateThreshold;
     }
+
+    /// <summary>
+    /// Pillar 10 (#152) — deterministic lexical relevance floor. Answers
+    /// "does this section even mention the rule's topic?" without any
+    /// embeddings, LLM, or vector store dependency, so it works on the
+    /// FoundryRuleAuthoringAgent-generated rulesets which set
+    /// <c>gateThreshold: 0</c> and <c>predicate: "true"</c> for every rule.
+    ///
+    /// Score = |topic_tokens ∩ section_tokens| / |topic_tokens|.
+    ///
+    /// Topic tokens are extracted from the rule's <c>EvidenceQuote</c>
+    /// (falling back to <c>NaturalLanguage</c>) plus any <c>topicSlug</c>
+    /// in the rule's metadata: lowercase, ASCII-punctuation stripped, English
+    /// stopwords removed, tokens shorter than three characters dropped.
+    /// Both the topic-token set and the section-token set are extracted
+    /// with the same code path so the ratio is symmetric and repeatable.
+    ///
+    /// The floor is inclusive: <c>ratio &gt;= _applicabilityFloor</c>
+    /// passes. Rules whose topic tokens degenerate to the empty set (very
+    /// short evidence quotes) always pass — better to fall through to
+    /// the existing predicate/lambda than to silently gate everything out.
+    /// </summary>
+    private bool PassesLexicalFloor(Rule rule, MatchedSection section)
+    {
+        var topicTokens = ExtractTopicTokens(rule);
+        if (topicTokens.Count == 0) return true;
+        var sectionText = section.Node is JsonObject obj
+            && obj["text"] is JsonValue tv
+            && tv.TryGetValue<string>(out var t)
+                ? t
+                : string.Empty;
+        if (string.IsNullOrEmpty(sectionText)) return false;
+        var sectionTokens = TokenizeForFloor(sectionText);
+        var overlap = 0;
+        foreach (var token in topicTokens)
+            if (sectionTokens.Contains(token)) overlap++;
+        var ratio = (double)overlap / topicTokens.Count;
+        return ratio >= _applicabilityFloor;
+    }
+
+    private static HashSet<string> ExtractTopicTokens(Rule rule)
+    {
+        var seed = !string.IsNullOrWhiteSpace(rule.EvidenceQuote)
+            ? rule.EvidenceQuote
+            : rule.NaturalLanguage ?? string.Empty;
+        var tokens = TokenizeForFloor(seed);
+        if (rule.Metadata is { Count: > 0 } md
+            && md.TryGetValue("topicSlug", out var slug)
+            && !string.IsNullOrWhiteSpace(slug))
+        {
+            foreach (var t in TokenizeForFloor(slug))
+                tokens.Add(t);
+        }
+        return tokens;
+    }
+
+    private static HashSet<string> TokenizeForFloor(string text)
+    {
+        var result = new HashSet<string>(StringComparer.Ordinal);
+        if (string.IsNullOrEmpty(text)) return result;
+        var buf = new System.Text.StringBuilder();
+        foreach (var ch in text)
+        {
+            if (char.IsLetterOrDigit(ch))
+            {
+                buf.Append(char.ToLowerInvariant(ch));
+            }
+            else
+            {
+                if (buf.Length > 0)
+                {
+                    var tok = buf.ToString();
+                    if (tok.Length >= 3 && !FloorStopwords.Contains(tok))
+                        result.Add(tok);
+                    buf.Clear();
+                }
+            }
+        }
+        if (buf.Length > 0)
+        {
+            var tok = buf.ToString();
+            if (tok.Length >= 3 && !FloorStopwords.Contains(tok))
+                result.Add(tok);
+        }
+        return result;
+    }
+
+    // Ordinal-lowercase stopword list scoped to the lexical floor only.
+    // Intentionally minimal: we want topical nouns (adr, aks, retry, secret)
+    // to survive, so aggressive stemming or a full-nlp list would over-prune.
+    private static readonly HashSet<string> FloorStopwords = new(StringComparer.Ordinal)
+    {
+        "the","and","for","are","but","not","you","all","any","can","had","has",
+        "have","was","were","been","being","from","that","this","with","which",
+        "shall","should","must","will","may","upon","into","onto","also","only",
+        "such","than","then","when","where","while","these","those","their",
+        "there","them","they","been","because","however","therefore","upon",
+    };
 
     private static bool IsRuntimeException(string? exceptionMessage)
     {
@@ -720,6 +867,29 @@ public sealed class EvaluationService
         var wrongProfile = verdicts.Count > 0
             && skipped == verdicts.Count;
 
+        // Pillar 10 (#152) — rule-level rollup. Opt-in: null-defaulted
+        // fields preserve byte-identity for pre-Pillar-10 golden masters.
+        // Aggregation precedence (per rule): Pass > Fail > Error > Gap >
+        // NotApplicable > Skipped — any single Pass wins, a Fail with real
+        // evidence beats a silent Gap, and Skipped is the weakest signal
+        // so it only surfaces when a rule was uniformly excluded.
+        IReadOnlyList<RuleSummary>? summaries = null;
+        int? totalUnique = null, rp = null, rf = null, rna = null, rg = null, re_ = null, rs = null;
+        double? ruleScore = null;
+        if (_emitRuleLevelStats)
+        {
+            summaries = BuildRuleSummaries(verdicts);
+            totalUnique = summaries.Count;
+            rp = summaries.Count(s => s.AggregateOutcome == VerdictOutcome.Pass);
+            rf = summaries.Count(s => s.AggregateOutcome == VerdictOutcome.Fail);
+            rna = summaries.Count(s => s.AggregateOutcome == VerdictOutcome.NotApplicable);
+            rg = summaries.Count(s => s.AggregateOutcome == VerdictOutcome.Gap);
+            re_ = summaries.Count(s => s.AggregateOutcome == VerdictOutcome.Error);
+            rs = summaries.Count(s => s.AggregateOutcome == VerdictOutcome.Skipped);
+            var ruleDenom = rp.Value + rf.Value + rg.Value;
+            ruleScore = ruleDenom == 0 ? 1.0 : (double)rp.Value / ruleDenom;
+        }
+
         return new ComplianceReport(
             DocumentId: document.SourceId,
             RuleSetId: ruleSet.Id,
@@ -746,6 +916,75 @@ public sealed class EvaluationService
             // byte-identical. The fields appear only when actually relevant.
             Skipped = skipped > 0 ? skipped : null,
             WrongProfile = wrongProfile ? true : null,
+            // Pillar 10 (#152) — rule-level fields default to null so any
+            // caller that doesn't opt into rule-level stats keeps identical
+            // report JSON output.
+            TotalUniqueRules = totalUnique,
+            RulesPassed = rp,
+            RulesFailed = rf,
+            RulesNotApplicable = rna,
+            RulesGap = rg,
+            RulesErrored = re_,
+            RulesSkipped = rs,
+            RuleScore = ruleScore,
+            RuleSummaries = summaries,
         };
+    }
+
+    /// <summary>
+    /// Pillar 10 (#152) — aggregate per-rule verdicts into one
+    /// <see cref="RuleSummary"/> per distinct rule. Precedence:
+    /// Pass &gt; Fail &gt; Error &gt; Gap &gt; NotApplicable &gt; Skipped.
+    /// The representative verdict id points at the strongest signal:
+    /// the first Pass if any, else the first Fail with evidence, else the
+    /// first verdict emitted for the rule (in the verdict list's order).
+    /// </summary>
+    private static IReadOnlyList<RuleSummary> BuildRuleSummaries(List<Verdict> verdicts)
+    {
+        var grouped = new Dictionary<string, List<Verdict>>(StringComparer.Ordinal);
+        foreach (var v in verdicts)
+        {
+            if (!grouped.TryGetValue(v.RuleId, out var list))
+            {
+                list = new List<Verdict>();
+                grouped[v.RuleId] = list;
+            }
+            list.Add(v);
+        }
+        var result = new List<RuleSummary>(grouped.Count);
+        foreach (var (ruleId, list) in grouped.OrderBy(kv => kv.Key, StringComparer.Ordinal))
+        {
+            var pass = list.Count(v => v.Outcome == VerdictOutcome.Pass);
+            var fail = list.Count(v => v.Outcome == VerdictOutcome.Fail);
+            var na = list.Count(v => v.Outcome == VerdictOutcome.NotApplicable);
+            var gap = list.Count(v => v.Outcome == VerdictOutcome.Gap);
+            var err = list.Count(v => v.Outcome == VerdictOutcome.Error);
+            var sk = list.Count(v => v.Outcome == VerdictOutcome.Skipped);
+            VerdictOutcome agg = pass > 0 ? VerdictOutcome.Pass
+                : fail > 0 ? VerdictOutcome.Fail
+                : err > 0 ? VerdictOutcome.Error
+                : gap > 0 ? VerdictOutcome.Gap
+                : na > 0 ? VerdictOutcome.NotApplicable
+                : VerdictOutcome.Skipped;
+            var rep = list.FirstOrDefault(v => v.Outcome == agg) ?? list[0];
+            // Sections evaluated = verdicts tied to an actual matched
+            // section (excludes single-slot NoMatch / floor-filtered
+            // synthesized verdicts which have MatchedSectionId == null).
+            var sectionsEvaluated = list.Count(v => v.MatchedSectionId is not null);
+            result.Add(new RuleSummary(
+                RuleId: ruleId,
+                AggregateOutcome: agg,
+                PassCount: pass,
+                FailCount: fail,
+                NotApplicableCount: na,
+                GapCount: gap,
+                ErrorCount: err,
+                SkippedCount: sk,
+                SectionsEvaluated: sectionsEvaluated)
+            {
+                RepresentativeVerdictId = rep.Id,
+            });
+        }
+        return result;
     }
 }

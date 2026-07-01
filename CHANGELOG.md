@@ -5,6 +5,52 @@ All notable changes to lambda-rag are documented here. The format follows
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) once
 it reaches `1.0.0`.
 
+## [Unreleased]
+
+### Added
+
+- **Pillar 10 — lexical applicability floor + rule-level rollup (#152)**.
+  Two related changes to make evaluation reports honest against broad
+  auto-generated rulesets (e.g. `FoundryRuleAuthoringAgent` output where
+  every rule ships with `gateThreshold: 0`, `predicate: "true"`, and
+  `selector: $.sections[*]`). Both features are **off by default** so
+  every pre-Pillar-10 golden master stays byte-identical.
+
+  - `EvaluationService(applicabilityFloor: <0..1>)` — deterministic,
+    offline, embedding-free relevance gate. For rules whose semantic gate
+    isn't configured, computes the token-overlap ratio between the rule's
+    evidence quote / `topicSlug` and each candidate section text. Sections
+    below the floor are skipped exactly as if the predicate had returned
+    false. When the floor filters *every* candidate for a Mandatory rule,
+    the engine now emits a single `NotApplicable` verdict (with
+    `errorMessage: applicability_floor:no_relevant_section`) instead of
+    a `Gap`, so a ruleset that spans 24 domains against a document that
+    only covers 3 no longer gets penalised on the 21 silent domains.
+
+  - `EvaluationService(emitRuleLevelStats: true)` — populates new
+    nullable fields on `ComplianceReport`:
+    - `TotalUniqueRules`, `RulesPassed`, `RulesFailed`,
+      `RulesNotApplicable`, `RulesGap`, `RulesErrored`, `RulesSkipped`,
+      `RuleScore = rulesPassed / (rulesPassed + rulesFailed + rulesGap)`.
+    - `RuleSummaries[]` — one entry per distinct rule with
+      `AggregateOutcome` (precedence: Pass › Fail › Error › Gap ›
+      NotApplicable › Skipped), per-outcome counts, sections evaluated,
+      and a `RepresentativeVerdictId` pointer for direct navigation.
+    - Rule-level stats auto-enable when `applicabilityFloor > 0.0` —
+      the two features are only meaningful together.
+
+  - `lambda-rag review --applicability-floor <0.0..1.0> [--rule-level-stats]`
+    surfaces the flags on the CLI. Existing invocations produce identical
+    JSON output. `--applicability-floor` alone is enough; the CLI adds
+    `--rule-level-stats` for callers that want the rule-level rollup
+    without the floor.
+
+  Coverage: `ApplicabilityFloorTests` (5 new tests) asserts the byte-
+  identity contract when off, correct silent-topic → NotApplicable
+  behaviour, correct topic-matched → Pass evaluation, and rule-level
+  aggregation arithmetic (per-verdict Pass count of 1/3 aggregates to a
+  rule-level Pass, `RuleScore = 1.0`).
+
 ## [1.1.0] — 2026-07-01
 
 ### Added
