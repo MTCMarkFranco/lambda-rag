@@ -71,7 +71,7 @@ static class CliEntry
             lambda-rag — deterministic rules-over-documents
 
             Usage:
-              lambda-rag review   --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>] [--annotate-pass] [--rewrite]
+              lambda-rag review   --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>] [--annotate-pass] [--rewrite] [--applicability-floor <0.0-1.0>] [--rule-level-stats]
               lambda-rag project  --document <path> --out <path>
               lambda-rag parse    --document <path> --out <path>
               lambda-rag coverage --document <path> --ruleset <path> --out <path>
@@ -169,6 +169,21 @@ static class CliEntry
             throw new ArgumentException("--mode must be one of: report, markup, both");
         var annotatePass = HasFlag(args, "annotate-pass");
         var enableRewrite = HasFlag(args, "rewrite");
+        // Pillar 10 (#152) — optional lexical applicability floor + rule-level
+        // stats. Off by default so existing golden-master reports stay
+        // byte-identical. When --applicability-floor is passed, rule-level
+        // stats auto-enable inside the evaluator (see EvaluationService ctor).
+        var applicabilityFloor = 0.0;
+        if (f.TryGetValue("applicability-floor", out var floorRaw))
+        {
+            if (!double.TryParse(floorRaw, System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture, out applicabilityFloor)
+                || applicabilityFloor < 0.0 || applicabilityFloor > 1.0)
+            {
+                throw new ArgumentException("--applicability-floor must be a number between 0.0 and 1.0.");
+            }
+        }
+        var ruleLevelStats = HasFlag(args, "rule-level-stats");
         Directory.CreateDirectory(outDir);
 
         await using var sp = (ServiceProvider)BuildServices();
@@ -221,7 +236,9 @@ static class CliEntry
         var needsTokenEmbedder = ruleset.Rules.Any(r => r.SemanticAnchors is { Count: > 0 });
         var effectiveEvaluator = evaluator;
         InMemorySemanticVectorStore? store = null;
-        if (needsVectors || needsTokenEmbedder)
+        var needsCustomEvaluator = needsVectors || needsTokenEmbedder
+            || applicabilityFloor > 0.0 || ruleLevelStats;
+        if (needsCustomEvaluator)
         {
             if (needsVectors)
             {
@@ -249,8 +266,14 @@ static class CliEntry
                 sp.GetService<TimeProvider>(),
                 sp.GetService<ICandidateRuleFilter>(),
                 jitStore as LambdaRag.Core.Semantic.ISemanticVectorStore,
-                tokenEmbedder: needsTokenEmbedder ? ruleEmbedder : null);
+                tokenEmbedder: needsTokenEmbedder ? ruleEmbedder : null,
+                applicabilityFloor: applicabilityFloor,
+                emitRuleLevelStats: ruleLevelStats);
             AnsiConsole.MarkupLine($"[dim]Vectors:[/]   embedder={Markup.Escape(ruleEmbedder.EmbedderId)} dims={ruleEmbedder.Dimensions}{(needsTokenEmbedder ? " [[bound-anchors]]" : string.Empty)}");
+            if (applicabilityFloor > 0.0)
+                AnsiConsole.MarkupLine($"[dim]Floor:[/]     applicability={applicabilityFloor.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)} (lexical, offline)");
+            if (ruleLevelStats || applicabilityFloor > 0.0)
+                AnsiConsole.MarkupLine("[dim]Stats:[/]     rule-level rollup enabled");
         }
 
         // ── Phase 4: Evaluate ───────────────────────────────────────────
