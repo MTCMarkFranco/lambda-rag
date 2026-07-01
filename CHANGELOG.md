@@ -5,7 +5,7 @@ All notable changes to lambda-rag are documented here. The format follows
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) once
 it reaches `1.0.0`.
 
-## [Unreleased]
+## [1.1.0] — 2026-07-01
 
 ### Added
 
@@ -26,17 +26,31 @@ it reaches `1.0.0`.
     document.
   - **Topical rule IDs** — the agent tags each suggestion with a
     3-6-letter topic slug (IAM, NET, SECR, CNTR, AKS, LOG, MON, TRACE,
-    EXC, RETRY, CICD, IAC, SVC, COST, PRIV, SRE, SFI, DATA, COMP) in
+    EXC, RETRY, CICD, IAC, SVC, COST, PRIV, SRE, SFI, DATA, COMP,
+    AUDIT, ARCH, API, THRT, ADR, SLO) in
     `Rule.Metadata["topicSlug"]`. The extraction pipeline
     (`LambdaRag.Cli extract-rules`) now maintains per-topic counters and
     stamps `{prefix}{TOPIC}-{NNN:D3}` IDs like `EA-IAM-001`. Agents that
     don't participate in topical numbering (e.g. the legacy
     `DeterministicMockAuthoringAgent`, which pre-stamps its own IDs)
     pass through unchanged.
-  - **Structured JSON output** validated against a hand-rolled schema;
-    invalid entries (bad topic slug, off-DSL predicate, missing fields)
-    are logged and dropped so a single bad rule can't kill a whole
-    policy pass.
+  - **Aligned to the `gpt-5.x` supported request schema** — `Temperature`
+    and `Seed` intentionally omitted (rejected / ignored by the
+    deployment). Uses `MaxOutputTokens=8000` for bounded output and
+    `ChatResponseFormat.ForJsonSchema` for server-side shape enforcement.
+    `AdditionalProperties["user"]="lambda-rag-authoring"` for Foundry-side
+    telemetry / rate-limit isolation.
+  - **Defensibility validator (Pillar 3)** — every emitted rule's
+    `sourceQuote` MUST be a byte-for-byte substring of the source chunk.
+    Candidates whose quotes are paraphrased are dropped so that every
+    verdict remains regulator-replayable. The system prompt explicitly
+    requires verbatim quotes and instructs the model to SKIP the rule
+    if no verbatim excerpt can be found.
+  - **Structured JSON output** validated against a JSON schema
+    server-side AND revalidated locally; invalid entries (bad topic
+    slug, off-DSL predicate, missing fields, non-verbatim quote) are
+    logged and dropped so a single bad rule can't kill a whole policy
+    pass.
   - **Concurrency & resilience** — pipeline-wide `SemaphoreSlim(4)` keeps
     Foundry rate limits happy; transient failures (HTTP 408/429/5xx,
     network errors, timeouts) retry up to 3× with exponential backoff +
@@ -48,9 +62,26 @@ it reaches `1.0.0`.
     behavior change for environments without a Foundry deployment
     configured.
   - **Impact** — on the enterprise-architecture policy sample the
-    ruleset grows from 14 (deterministic mock) to ~400 rules
-    (Foundry-backed), a 28× coverage lift with every predicate still
-    executable by the deterministic runtime.
+    ruleset grows from 14 (deterministic mock) to **364 unique rules
+    across 25 topics** (Foundry-backed), a 26× coverage lift with every
+    predicate still executable by the deterministic runtime and every
+    quote byte-verbatim against the source document.
+
+- **`samples/policies/enterprise-architecture/enterprise-architecture-policy-v1.docx`**
+  (new): 103-page, 32.6k-word enterprise cloud architecture policy
+  covering IAM, networking + edge protection (WAF mandate), secrets,
+  data protection, containerization, AKS/Kubernetes, compute, storage,
+  logging, monitoring, tracing, exception handling, retry/resilience,
+  CI/CD supply chain, IaC, service-to-service comms, FinOps, privacy,
+  SRE, and Microsoft SFI alignment. Sourced from Microsoft Learn, AWS
+  Well-Architected, GCP Architecture Framework, NIST, OWASP, and CNCF
+  with ~150 real citations. Includes 20 chapters + 3 appendices.
+
+- **`rulesets/architecture-review/enterprise-architecture-v1.json`**
+  (new): 364-rule extracted ruleset from the policy above, emitted by
+  `FoundryRuleAuthoringAgent`.
+
+## [Unreleased]
 
 ### Added
 
