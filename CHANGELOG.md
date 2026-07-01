@@ -9,6 +9,51 @@ it reaches `1.0.0`.
 
 ### Added
 
+- **`FoundryRuleAuthoringAgent` — LLM-backed rule extraction**: New
+  `IRuleAuthoringAgent` implementation that calls the configured Azure
+  Foundry chat deployment (via `IChatClient` on top of `AzureOpenAIClient`
+  + `DefaultAzureCredential`, mirroring `ComplianceEditorFactory`).
+  - **Constrained predicate DSL** — the model may only emit predicates
+    built from `input1.text.Contains("...")`,
+    `input1.text.ToLower().Contains("...")`, `||`, `&&` and parentheses.
+    Everything else is rejected by a tokenizer before the rule is
+    emitted, so the runtime evaluation path stays LLM-free and
+    deterministic.
+  - **One rule per SHALL / MUST / SHALL NOT / MUST NOT clause**, with
+    an explicit prompt instruction to skip meta-governance clauses
+    ("This policy SHALL be reviewed annually", "Exceptions SHALL be
+    time-boxed to 90 days" etc.) that aren't testable against a target
+    document.
+  - **Topical rule IDs** — the agent tags each suggestion with a
+    3-6-letter topic slug (IAM, NET, SECR, CNTR, AKS, LOG, MON, TRACE,
+    EXC, RETRY, CICD, IAC, SVC, COST, PRIV, SRE, SFI, DATA, COMP) in
+    `Rule.Metadata["topicSlug"]`. The extraction pipeline
+    (`LambdaRag.Cli extract-rules`) now maintains per-topic counters and
+    stamps `{prefix}{TOPIC}-{NNN:D3}` IDs like `EA-IAM-001`. Agents that
+    don't participate in topical numbering (e.g. the legacy
+    `DeterministicMockAuthoringAgent`, which pre-stamps its own IDs)
+    pass through unchanged.
+  - **Structured JSON output** validated against a hand-rolled schema;
+    invalid entries (bad topic slug, off-DSL predicate, missing fields)
+    are logged and dropped so a single bad rule can't kill a whole
+    policy pass.
+  - **Concurrency & resilience** — pipeline-wide `SemaphoreSlim(4)` keeps
+    Foundry rate limits happy; transient failures (HTTP 408/429/5xx,
+    network errors, timeouts) retry up to 3× with exponential backoff +
+    jitter.
+  - **Selection** — `FoundryRuleAuthoringAgentFactory.TryCreate(...)`
+    returns `null` when `LambdaRag:Foundry:Edit:Endpoint`/`Deployment`
+    are unset, so `AddLambdaRagAuthoring` still falls back to
+    `DeterministicMockAuthoringAgent` for offline / unit-test runs. No
+    behavior change for environments without a Foundry deployment
+    configured.
+  - **Impact** — on the enterprise-architecture policy sample the
+    ruleset grows from 14 (deterministic mock) to ~400 rules
+    (Foundry-backed), a 28× coverage lift with every predicate still
+    executable by the deterministic runtime.
+
+### Added
+
 - **P1.4 — Quebec Law 25 / Loi 25 regulatory mapping (EN + FR)** ([#14], [#51]):
   Bilingual clause-by-clause mapping of Quebec's _Loi modernisant des
   dispositions législatives en matière de protection des renseignements

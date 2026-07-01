@@ -1030,8 +1030,15 @@ static class CliEntry
                 continue;
             }
 
-            var docPrefix = $"{prefix}-{Math.Abs(file.GetHashCode()) % 10000:D4}";
+            var docPrefix = $"{prefix}{Math.Abs(file.GetHashCode()) % 10000:D4}-";
             var idx = 0;
+            // Per-document, per-topic counters for topical rule IDs. When the
+            // authoring agent (e.g. FoundryRuleAuthoringAgent) tags each
+            // suggestion with a Metadata["topicSlug"], we stamp the final
+            // {prefix}{TOPIC}-{NNN:D3} id here so counter state can span
+            // chunks. Legacy agents that don't tag topics keep their pre-
+            // stamped ids untouched.
+            var topicCounters = new Dictionary<string, int>(StringComparer.Ordinal);
             foreach (var block in parsed.Blocks)
             {
                 if (string.IsNullOrWhiteSpace(block.Text) || block.Text.Length < minChars) { skipped++; continue; }
@@ -1050,7 +1057,7 @@ static class CliEntry
                     suggestions = await agent.AuthorAsync(new RuleAuthoringRequest(
                         SourceContent: block.Text,
                         Domain: domain,
-                        RuleIdPrefix: $"{docPrefix}-{idx:D3}",
+                        RuleIdPrefix: docPrefix,
                         SourceSpan: span));
                 }
                 catch (Exception ex)
@@ -1061,7 +1068,8 @@ static class CliEntry
 
                 foreach (var s in suggestions)
                 {
-                    allRules.Add(s.Rule);
+                    var finalRule = StampTopicalId(s.Rule, prefix, topicCounters);
+                    allRules.Add(finalRule);
                     emitted++;
                 }
                 idx++;
@@ -1099,6 +1107,28 @@ static class CliEntry
         Console.WriteLine($"Final ruleset: {deduped.Count} unique rules");
         Console.WriteLine($"Wrote:        {outPath}");
         return 0;
+    }
+
+    /// <summary>
+    /// When an authoring agent tags its suggestion with a topic slug in
+    /// <c>Rule.Metadata["topicSlug"]</c>, stamp a topical, per-topic-counter
+    /// id of the form <c>{prefix}{TOPIC}-{NNN:D3}</c>. Agents that don't
+    /// participate in topical numbering (e.g. the legacy deterministic
+    /// mock, which pre-stamps its own ids) pass through unchanged.
+    /// </summary>
+    internal static Rule StampTopicalId(Rule rule, string prefix, Dictionary<string, int> topicCounters)
+    {
+        if (!rule.Metadata.TryGetValue(FoundryRuleAuthoringAgent.TopicSlugMetadataKey, out var topic)
+            || string.IsNullOrWhiteSpace(topic))
+        {
+            return rule;
+        }
+
+        topicCounters.TryGetValue(topic, out var current);
+        current++;
+        topicCounters[topic] = current;
+        var finalId = $"{prefix}{topic}-{current:D3}";
+        return rule with { Id = finalId };
     }
 
     static Task<int> TopicMapAsync(string[] args)
