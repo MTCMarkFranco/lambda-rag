@@ -90,12 +90,29 @@ projected graph.
   `IClauseRewriter` consumes `ComplianceEditor` output to render
   concrete `w:del`/`w:ins` replacements for Fail verdicts when
   `--rewrite` is set.
-- `LambdaRag.Authoring` — Microsoft Agent Framework agents that read a
-  policy document and emit `RuleCandidate`s with selectors, lambdas,
-  applies-to schemas, and source spans. Locked prompts; temperature=0;
-  schema-validated output. Also hosts `ComplianceEditor` /
-  `DeterministicMockClauseRewriter`, which render the
-  remediated-clause text the markup stage swaps in under `--rewrite`.
+- `LambdaRag.Authoring` — agents that read a policy document and emit
+  `RuleCandidate`s with selectors, lambdas, applies-to schemas, and
+  source spans. Two implementations behind `IRuleAuthoringAgent`:
+  - **`FoundryRuleAuthoringAgent`** (LLM-backed, default when
+    `LambdaRag:Foundry:Edit:*` is configured) — calls the configured
+    Azure Foundry chat deployment via `IChatClient`. Emits one rule per
+    SHALL / MUST / SHALL NOT / MUST NOT clause. Constrained predicate
+    DSL: predicates must be `input1.text.Contains("…")` /
+    `input1.text.ToLower().Contains("…")` combined with `||`, `&&`, and
+    parentheses — nothing else. Response shape enforced server-side via
+    `ChatResponseFormat.ForJsonSchema`; `MaxOutputTokens` bounded;
+    verbatim-quote defensibility validator drops any candidate whose
+    `sourceQuote` is not a byte-for-byte substring of the source chunk.
+    `Temperature` / `Seed` intentionally omitted (unsupported by
+    `gpt-5.x` deployments).
+  - **`DeterministicMockAuthoringAgent`** (fallback, no cloud creds
+    required) — pattern-based, used by unit tests and offline replays.
+  - `ServiceCollectionExtensions.AddLambdaRagAuthoring` wires the
+    factory-based selection (`FoundryRuleAuthoringAgentFactory.TryCreate`
+    → mock fallback), mirroring the embedder and clause-rewriter
+    patterns. Also hosts `ComplianceEditor` /
+    `DeterministicMockClauseRewriter`, which render the
+    remediated-clause text the markup stage swaps in under `--rewrite`.
 - `LambdaRag.Authoring.ExtractFunction` — Azure Function exposing the
   rule-extraction agent as a Web API custom skill, suitable for
   indexer-driven authoring pipelines. **Authoring-side only.**
