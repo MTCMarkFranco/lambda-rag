@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
@@ -27,11 +25,25 @@ namespace LambdaRag.Authoring;
 ///     annually", "Exceptions SHALL be time-boxed to 90 days" etc.) — the
 ///     prompt explicitly instructs the model, and the caller can additionally
 ///     inspect the emitted <c>metadata.meta-governance</c> flag.</item>
-///   <item>Deterministic invocation: <c>Temperature = 0</c> and a stable
-///     <c>Seed</c> derived from a SHA-256 of the chunk text.</item>
-///   <item>Structured JSON output validated against a hand-rolled schema.
-///     Bad entries are dropped, not thrown — one bad rule can't kill an
-///     entire policy pass.</item>
+///   <item>Optimized for the three lambda-rag pillars:
+///     <list type="number">
+///       <item><b>Determinism</b> (runtime) — the constrained predicate DSL
+///         guarantees compile-time-safe lambdas; the runtime never sees an LLM.</item>
+///       <item><b>Idempotency</b> (build-time reproducibility) — bounded
+///         <c>MaxOutputTokens</c>, JSON-schema-enforced response shape, and a
+///         stable-ordering post-pass keep re-runs as close to byte-identical
+///         as the deployment allows. <c>Temperature</c> and <c>Seed</c> are
+///         intentionally NOT set — the Foundry <c>gpt-5.x</c> deployments
+///         reject non-default temperature and do not honour a seed parameter
+///         (per the supported request schema).</item>
+///       <item><b>Defensibility</b> (legal-grade evidence) — every emitted
+///         rule's <c>sourceQuote</c> must be a byte-for-byte substring of
+///         the source chunk; candidates that fail this check are dropped so
+///         evidence is always regulator-replayable.</item>
+///     </list></item>
+///   <item>Structured JSON output validated against a JSON schema server-side
+///     AND revalidated locally. Bad entries are dropped, not thrown — one bad
+///     rule can't kill an entire policy pass.</item>
 ///   <item>Concurrency: pipeline-wide <see cref="SemaphoreSlim"/>(4) so a
 ///     serial or parallel caller both stay under Foundry rate limits.</item>
 ///   <item>Retry: transient failures (HTTP 408 / 429 / 5xx, network errors,
@@ -83,7 +95,7 @@ public sealed class FoundryRuleAuthoringAgent : IRuleAuthoringAgent
           "naturalLanguage": "<the clause, verbatim or lightly normalized>",
           "predicate": "<a boolean expression in the CONSTRAINED DSL below>",
           "remediation": "<one sentence telling the author what to change>",
-          "sourceQuote": "<verbatim excerpt from the input that grounds the rule>"
+          "sourceQuote": "<byte-for-byte verbatim substring of the input section text — no paraphrasing, no ellipsis, no rewording. Must appear character-identical inside the input. If you cannot find a verbatim excerpt <= 400 chars that grounds the clause, SKIP the rule.>"
         }
 
         CONSTRAINED PREDICATE DSL — the ONLY allowed constructs:
@@ -143,19 +155,25 @@ public sealed class FoundryRuleAuthoringAgent : IRuleAuthoringAgent
             : request.SourceContent;
         var userPrompt = $"Section heading: {heading}\nSection text:\n{chunk}";
 
-        var seed = StableSeed(request.SourceContent);
+        // ChatOptions aligned to the Foundry gpt-5.x supported request
+        // schema. The deployment accepts: model, messages, system,
+        // max_output_tokens, stream, response_format, tools, tool_choice,
+        // input, user, context. It rejects Temperature (any value) and
+        // does not honour Seed — so both are intentionally omitted.
+        // Idempotency comes from bounded output, JSON-schema shape
+        // enforcement, and the DSL + verbatim-quote post-validators.
         var options = new ChatOptions
         {
-            // NOTE: Temperature intentionally left null. The Foundry
-            // gpt-5.x chat deployments reject any non-default temperature
-            // ("Unsupported value: 'temperature' does not support 0 with
-            // this model"), so we lean on Seed + JSON mode + our schema
-            // validator for reproducibility. Determinism at authoring
-            // time is a soft target; the runtime evaluation path is
-            // deterministic by construction (pure lambdas), which is
-            // what actually matters for compliance replay.
-            Seed = seed,
-            ResponseFormat = ChatResponseFormat.Json,
+            MaxOutputTokens = 8000,
+            ResponseFormat = ChatResponseFormat.ForJsonSchema(
+                schema: RuleEnvelopeJsonSchema,
+                schemaName: "LambdaRagAuthoringRuleEnvelope",
+                schemaDescription: "Envelope of extracted policy rules."),
+            AdditionalProperties = new AdditionalPropertiesDictionary
+            {
+                // Foundry-side telemetry / rate-limit isolation.
+                ["user"] = "lambda-rag-authoring",
+            },
         };
 
         string? responseText = null;
@@ -194,7 +212,7 @@ public sealed class FoundryRuleAuthoringAgent : IRuleAuthoringAgent
         var suggestions = new List<RuleAuthoringSuggestion>(parsed.Count);
         foreach (var candidate in parsed)
         {
-            if (!TryValidate(candidate, out var reason))
+            if (!TryValidate(candidate, chunk, out var reason))
             {
                 _log.LogInformation(
                     "Dropping authoring candidate (topic={Topic}) in {DocId}@{Start}: {Reason}",
@@ -274,16 +292,37 @@ public sealed class FoundryRuleAuthoringAgent : IRuleAuthoringAgent
         return false;
     }
 
-    private static long StableSeed(string content)
-    {
-        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(content));
-        // Take the first 8 bytes -> long. Positive to sidestep provider-side
-        // quirks where negative seeds are rejected.
-        long value = 0;
-        for (var i = 0; i < 8; i++)
-            value = (value << 8) | bytes[i];
-        return value & 0x7FFFFFFFFFFFFFFFL;
-    }
+    /// <summary>
+    /// JSON schema used with <see cref="ChatResponseFormat.ForJsonSchema"/>
+    /// so Foundry constrains the response shape server-side (idempotency).
+    /// Kept intentionally permissive on string content — the tight
+    /// validation is done locally by <see cref="TryValidate"/>.
+    /// </summary>
+    private static readonly System.Text.Json.JsonElement RuleEnvelopeJsonSchema =
+        System.Text.Json.JsonDocument.Parse("""
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["rules"],
+          "properties": {
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["topicSlug", "naturalLanguage", "predicate", "remediation", "sourceQuote"],
+                "properties": {
+                  "topicSlug":       { "type": "string", "minLength": 3, "maxLength": 6 },
+                  "naturalLanguage": { "type": "string", "minLength": 1 },
+                  "predicate":       { "type": "string", "minLength": 1 },
+                  "remediation":     { "type": "string" },
+                  "sourceQuote":     { "type": "string", "minLength": 1, "maxLength": 400 }
+                }
+              }
+            }
+          }
+        }
+        """).RootElement.Clone();
 
     internal static List<ExtractedRuleDto>? TryParseRulesEnvelope(string? raw)
     {
@@ -326,7 +365,13 @@ public sealed class FoundryRuleAuthoringAgent : IRuleAuthoringAgent
         return list;
     }
 
-    internal static bool TryValidate(ExtractedRuleDto? dto, out string reason)
+    /// <summary>
+    /// Validates an LLM-emitted rule candidate against the schema + DSL +
+    /// defensibility guarantees. <paramref name="sourceChunk"/> is the exact
+    /// prompt text handed to the model; the sourceQuote must be a
+    /// byte-for-byte substring of it (Pillar 3 — Defensibility).
+    /// </summary>
+    internal static bool TryValidate(ExtractedRuleDto? dto, string sourceChunk, out string reason)
     {
         reason = string.Empty;
         if (dto is null) { reason = "null candidate"; return false; }
@@ -336,6 +381,11 @@ public sealed class FoundryRuleAuthoringAgent : IRuleAuthoringAgent
         if (string.IsNullOrWhiteSpace(dto.Predicate)) { reason = "missing predicate"; return false; }
         if (!IsValidPredicate(dto.Predicate)) { reason = $"predicate rejected by DSL validator: '{dto.Predicate}'"; return false; }
         if (string.IsNullOrWhiteSpace(dto.SourceQuote)) { reason = "missing sourceQuote"; return false; }
+        if (!string.IsNullOrEmpty(sourceChunk) && !sourceChunk.Contains(dto.SourceQuote, StringComparison.Ordinal))
+        {
+            reason = "sourceQuote is not a verbatim substring of the input chunk (defensibility violation)";
+            return false;
+        }
         return true;
     }
 

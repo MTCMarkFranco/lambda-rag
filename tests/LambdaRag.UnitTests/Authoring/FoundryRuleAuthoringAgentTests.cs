@@ -44,6 +44,9 @@ public class FoundryRuleAuthoringAgentTests
     [Fact]
     public async Task HappyPath_emits_one_rule_per_normative_clause()
     {
+        // Input contains all 3 quotes verbatim so the defensibility validator passes.
+        var input = "Privileged access SHALL require MFA. All public ingress SHALL traverse a WAF in prevention mode. Audit logs SHALL be forwarded to a tamper-resistant SIEM.";
+
         var json = """
         {
           "rules": [
@@ -73,7 +76,7 @@ public class FoundryRuleAuthoringAgentTests
         """;
 
         var agent = new FoundryRuleAuthoringAgent(new FakeChatClient(json), new DeterministicHashEmbedder());
-        var result = await agent.AuthorAsync(RequestWith("Privileged access SHALL require MFA. Public ingress SHALL traverse a WAF. Audit logs SHALL be forwarded to a SIEM."));
+        var result = await agent.AuthorAsync(RequestWith(input));
 
         result.Should().HaveCount(3);
         result.Select(r => r.Rule.Metadata["topicSlug"]).Should().Equal("IAM", "LOG", "NET"); // ordered by topic slug
@@ -87,6 +90,11 @@ public class FoundryRuleAuthoringAgentTests
     [Fact]
     public async Task BadPredicate_is_dropped_but_valid_siblings_survive()
     {
+        // Only the "Good." quote is verbatim in the input — the survivor must
+        // clear BOTH the DSL check (its predicate is legal) AND the
+        // defensibility check (its quote appears in the input).
+        var input = "Something Good. Something Bad. Also bad.";
+
         var json = """
         {
           "rules": [
@@ -116,10 +124,39 @@ public class FoundryRuleAuthoringAgentTests
         """;
 
         var agent = new FoundryRuleAuthoringAgent(new FakeChatClient(json), new DeterministicHashEmbedder());
-        var result = await agent.AuthorAsync(RequestWith("something"));
+        var result = await agent.AuthorAsync(RequestWith(input));
 
         result.Should().HaveCount(1);
         result[0].Rule.NaturalLanguage.Should().Be("Good rule.");
+    }
+
+    // ============ defensibility — non-verbatim quotes are dropped ============
+
+    [Fact]
+    public async Task NonVerbatimSourceQuote_isDropped_evenIfEverythingElseIsValid()
+    {
+        // The LLM paraphrased the quote instead of copying verbatim. This
+        // breaks regulator-replayable evidence, so the rule MUST be dropped.
+        var input = "Privileged access SHALL require phishing-resistant MFA.";
+
+        var json = """
+        {
+          "rules": [
+            {
+              "topicSlug": "IAM",
+              "naturalLanguage": "MFA required.",
+              "predicate": "input1.text.ToLower().Contains(\"mfa\")",
+              "remediation": "Add MFA.",
+              "sourceQuote": "All privileged users need MFA."
+            }
+          ]
+        }
+        """;
+
+        var agent = new FoundryRuleAuthoringAgent(new FakeChatClient(json), new DeterministicHashEmbedder());
+        var result = await agent.AuthorAsync(RequestWith(input));
+
+        result.Should().BeEmpty();
     }
 
     // ============ empty content short-circuit ============
@@ -158,6 +195,8 @@ public class FoundryRuleAuthoringAgentTests
     [Fact]
     public async Task Transient429_is_retried_and_eventually_succeeds()
     {
+        // Quote "q" must appear verbatim in the input for the defensibility
+        // validator to admit it.
         var good = """
         {"rules":[{"topicSlug":"IAM","naturalLanguage":"n","predicate":"input1.text.Contains(\"x\")","remediation":"r","sourceQuote":"q"}]}
         """;
@@ -168,7 +207,7 @@ public class FoundryRuleAuthoringAgentTests
             () => good,
         }));
         var agent = new FoundryRuleAuthoringAgent(chat, new DeterministicHashEmbedder(), log: null, maxRetries: 3);
-        var result = await agent.AuthorAsync(RequestWith("Something SHALL be done."));
+        var result = await agent.AuthorAsync(RequestWith("Something SHALL be q done."));
 
         result.Should().HaveCount(1);
         chat.Calls.Should().Be(3);
@@ -206,6 +245,13 @@ public class FoundryRuleAuthoringAgentTests
         FoundryRuleAuthoringAgent.SystemPrompt.Should().Contain("CONSTRAINED PREDICATE DSL");
         FoundryRuleAuthoringAgent.SystemPrompt.Should().Contain("input1.text.Contains");
         FoundryRuleAuthoringAgent.SystemPrompt.Should().Contain("input1.text.ToLower().Contains");
+    }
+
+    [Fact]
+    public void SystemPrompt_requires_verbatim_sourceQuote()
+    {
+        FoundryRuleAuthoringAgent.SystemPrompt.Should().Contain("byte-for-byte verbatim");
+        FoundryRuleAuthoringAgent.SystemPrompt.Should().Contain("SKIP the rule");
     }
 
     // ============ helpers ============
