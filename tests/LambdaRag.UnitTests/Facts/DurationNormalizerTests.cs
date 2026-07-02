@@ -68,6 +68,6 @@ public class DurationNormalizerTests
         var a = DurationNormalizer.Default.TableHash.Value;
         var b = DurationNormalizer.Default.TableHash.Value;
         b.Should().Be(a);
-        DurationNormalizer.Default.Version.Should().Be("1");
+        DurationNormalizer.Default.Version.Should().Be("2");
     }
 }

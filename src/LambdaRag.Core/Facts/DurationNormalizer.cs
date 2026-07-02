@@ -40,8 +40,14 @@ public sealed class DurationNormalizer
 
     private static readonly Regex EveryNDays =
         new(@"^\s*every\s+(\d{1,4})[\-\s]?day", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    // Pillar 4 (Flexibility): match "on a N-day <anything>" including
+    // "cycle", "rotation", "window", "cadence", "interval", "period",
+    // "retention window", etc. Policy language uses many trailing
+    // nouns; the cadence is fully specified by "N-day" so the trailing
+    // noun is decorative. Bumping normalizer.Version invalidates any
+    // stale sidecar cached against the narrower v1 grammar.
     private static readonly Regex OnANDayCycle =
-        new(@"^\s*on\s+a\s+(\d{1,4})[\-\s]?day\s+cycle", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        new(@"^\s*on\s+a\s+(\d{1,4})[\-\s]?day\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private DurationNormalizer(
         string version,
