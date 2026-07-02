@@ -79,6 +79,54 @@ it reaches `1.0.0`.
   null-handling, sidecar disk round-trip + fingerprint-drift throw).
   Full suite: 534/534 green.
 
+- **Pillar 12 — Flexibility gates (#153)**. Two falsifiable test
+  harnesses that prove the fact-mode evaluation path generalises
+  beyond the CTC doc the schema was hand-fitted to. Both must pass
+  before Pillar 12 is considered production-ready per the manifesto.
+
+  - **Phase C — Adversarial paraphrase invariance corpus.**
+    `tests/LambdaRag.UnitTests/Facts/ParaphraseCorpus/ParaphraseCorpus.cs`
+    — 13 concept groups × ≥11 phrasings each (booleans, enums,
+    integers, durations), authored from policy language rather than
+    from any single sample doc's vocabulary. Three layers of assertion
+    in `ParaphraseInvarianceTests`:
+    1. **Normalizer-only** — every duration phrasing in a group flows
+       through `DurationNormalizer` and lands on the same ISO-8601
+       value. Fully deterministic, no LLM.
+    2. **Extraction-contract** — given a correct Pass-1 emission,
+       sidecar merge + rule evaluation are byte-identical across
+       paraphrases. Uses `RecordedFactExtractor` (in-memory
+       `IFactExtractor`) so tests stay offline and CI-safe.
+    3. **LLM integration scaffold** (env-gated
+       `LAMBDA_RAG_LLM_TESTS=1`, `[Trait("Category","LLM")]`) — hits
+       the real Foundry extractor when explicitly opted-in. No-op in
+       normal CI.
+    171 new unit tests, 100% green.
+
+  - **Phase D — Wrong-ruleset anti-overfit gate.**
+    `tests/LambdaRag.IdempotencyTests/WrongRulesetAntiOverfitTests.cs`
+    runs the enterprise-architecture ruleset against two out-of-domain
+    goldens (healthcare/acme-telehealth-gaps,
+    contract/doc-002-clean-msa) with an empty-bags `IFactExtractor`
+    stub (the honest LLM outcome for an out-of-domain doc) and
+    asserts the report distribution meets the manifesto's flexibility
+    thresholds: `NA + Skipped ≥ 80%`, `Pass ≤ 5%`, `Fail ≤ 5%`,
+    `Gap ≤ 5%`. Both scenarios pass with `Fail < 1%`, `NA > 99%`.
+    Uses `applicabilityFloor: 0.35` — documented at the test constant
+    as the cross-industry setting (in-domain review runs at 0.20).
+
+  Bug uncovered and fixed in-branch: `DurationNormalizer.OnANDayCycle`
+  regex was scoped to the trailing noun `cycle`, dropping common
+  phrasings like "on a 90-day rotation" and "on a 90-day retention
+  window". Broadened to `on\s+a\s+(\d+)[\-\s]?day\b`. Bumped
+  `normalizer.v1.json` version 1 → 2 per the Pillar 12 fingerprint
+  contract — this invalidates every cached sidecar loudly on next
+  load, exactly as designed. `DurationNormalizerTests` version
+  assertion updated.
+
+  Full unit suite: 705/705 green (534 + 171). Integration suite: all
+  new Phase D tests green.
+
 - **Pillar 10 — lexical applicability floor + rule-level rollup (#152)**.
   Two related changes to make evaluation reports honest against broad
   auto-generated rulesets (e.g. `FoundryRuleAuthoringAgent` output where
