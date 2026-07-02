@@ -9,6 +9,31 @@ it reaches `1.0.0`.
 
 ### Added
 
+- **Fact-mode conversion, first batch (issue #154)**. Added two new
+  concepts to `enterprise-architecture-v1.json` `factSchema` (bumped
+  schema version `1` → `2`, which invalidates all existing sidecars —
+  intentional loud invalidation) and converted the two rules from the
+  top-of-Fail leaderboard that cross-reference them:
+
+  | Concept | Type | Rule converted |
+  |---|---|---|
+  | `secrets_vaulted` | Boolean | EA-DATA-018 |
+  | `credential_rotation_days` | Integer (via duration normalizer) | EA-DATA-019 |
+
+  Ratchet movement (production-floor test, `EmptyBagsFactExtractor`):
+
+  | Scenario | Before | After | Rules removed |
+  |---|---|---|---|
+  | `healthcare/acme-telehealth-gaps` | 9.34% (34/364) | **8.79% (32/364)** | 2 |
+  | `contract/doc-002-clean-msa`      | 4.67% (17/364) | **4.12% (15/364)** | 2 |
+
+  Ratchet ceilings tightened: healthcare `10% → 9%`, contract `10% → 5%`.
+
+  `EA-SECR-007` was on the top-leaderboard but requires two additional
+  concepts (`secrets_iac_managed` + `orphan_secret_deletion_days`) to
+  model its compound requirement honestly; deferred to the next batch
+  rather than forced into this one.
+
 - **Flexibility ratchet gate at production applicability floor (issue #154)**.
   Adds `Arch_Ruleset_Against_OutOfDomain_Doc_At_Production_Floor_Ratchet`
   (`tests/LambdaRag.IdempotencyTests/WrongRulesetAntiOverfitTests.cs`) as a
@@ -23,10 +48,10 @@ it reaches `1.0.0`.
 
   Ratchet ledger (tighten only when classic rules migrate to fact-mode):
 
-  | Scenario | Measured 2026-07-02 | Ceiling |
+  | Scenario | Measured 2026-07-02 | Ceiling (post-batch-1) |
   |---|---|---|
-  | `healthcare/acme-telehealth-gaps` | 9.34% Fail (34/364) | 10% |
-  | `contract/doc-002-clean-msa`      | 4.67% Fail (17/364) | 10% |
+  | `healthcare/acme-telehealth-gaps` | 8.79% Fail (32/364) | 9% |
+  | `contract/doc-002-clean-msa`      | 4.12% Fail (15/364) | 5% |
 
   Do not raise the ceiling to make a failing build green. Convert classic
   rules to fact-mode instead, then tighten the ceiling in this ledger.

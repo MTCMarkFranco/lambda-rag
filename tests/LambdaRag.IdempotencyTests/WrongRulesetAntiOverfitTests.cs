@@ -186,10 +186,14 @@ public sealed class WrongRulesetAntiOverfitTests
 
     public static IEnumerable<object[]> WrongRulesetScenariosAtProductionFloor()
     {
-        // scenario, ceilingFailRatio — captured 2026-07-02, ratchet only
-        // downward. See docs/FOUR-PILLARS.md Flexibility section.
-        yield return new object[] { "healthcare", "acme-telehealth-gaps", 0.10 };
-        yield return new object[] { "contract",   "doc-002-clean-msa",    0.10 };
+        // scenario, ceilingFailRatio — ratchet ledger (see CHANGELOG.md
+        // "Flexibility ratchet gate" entry). Tighten only when classic
+        // rules migrate to fact-mode; never raise to make a build green.
+        //   2026-07-02: initial ceiling 0.10 (healthcare 9.34%, contract 4.67%)
+        //   2026-07-02: tightened after EA-DATA-018 + EA-DATA-019 → fact-mode
+        //               (healthcare 8.79%, contract 4.12%)
+        yield return new object[] { "healthcare", "acme-telehealth-gaps", 0.09 };
+        yield return new object[] { "contract",   "doc-002-clean-msa",    0.05 };
     }
 
     [Theory]
