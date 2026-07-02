@@ -3,4 +3,7 @@
     <PackageReference Include="System.Text.Json" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Facts\normalizer.v1.json" />
+  </ItemGroup>
 </Project>
