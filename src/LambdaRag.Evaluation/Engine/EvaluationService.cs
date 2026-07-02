@@ -42,6 +42,7 @@ public sealed class EvaluationService
     private readonly int _minEvidencedAnchors;
     private readonly double _applicabilityFloor;
     private readonly bool _emitRuleLevelStats;
+    private readonly LambdaRag.Core.Facts.IFactExtractor? _factExtractor;
 
     public EvaluationService(
         ISelectorMatcher matcher,
@@ -55,7 +56,8 @@ public sealed class EvaluationService
         bool enforceSoftCohesion = false,
         int minEvidencedAnchors = 2,
         double applicabilityFloor = 0.0,
-        bool emitRuleLevelStats = false)
+        bool emitRuleLevelStats = false,
+        LambdaRag.Core.Facts.IFactExtractor? factExtractor = null)
     {
         _matcher = matcher;
         _logger = logger;
@@ -81,6 +83,7 @@ public sealed class EvaluationService
         // in play — the whole point of the floor is to make rule-level
         // scoring honest, and emitting one without the other is confusing.
         _emitRuleLevelStats = emitRuleLevelStats || applicabilityFloor > 0.0;
+        _factExtractor = factExtractor;
     }
 
     public async Task<ComplianceReport> EvaluateAsync(
@@ -126,6 +129,21 @@ public sealed class EvaluationService
         using var _phrasebookScope = PhrasebookAccessor.Push(
             new DictionaryPhrasebookStore(ruleSet.Phrasebooks));
 
+        // Pillar 12 (#153) — one-shot Pass-1 extraction. Runs when the
+        // ruleset declares a FactSchema, an IFactExtractor is wired, and at
+        // least one rule opts into EvaluationMode="facts". Extractor
+        // implementations own their own caching (the sidecar); this call is
+        // idempotent given a byte-identical (doc, schema, model, prompt).
+        LambdaRag.Core.Facts.SectionFactSidecar? factSidecar = null;
+        if (ruleSet.FactSchema is not null
+            && _factExtractor is not null
+            && ruleSet.Rules.Any(r => IsFactRule(r)))
+        {
+            factSidecar = await _factExtractor
+                .ExtractAsync(document, ruleSet.FactSchema, ct)
+                .ConfigureAwait(false);
+        }
+
         var verdicts = new List<Verdict>();
         foreach (var rule in ruleSet.Rules.OrderBy(r => r.Id, StringComparer.Ordinal))
         {
@@ -146,6 +164,19 @@ public sealed class EvaluationService
                     span: rule.SourceSpan,
                     error: $"doc_kind_mismatch:{docKind}",
                     remediationText: null));
+                continue;
+            }
+
+            // Pillar 12 (#153) — fact-mode rules follow a wholly separate
+            // path: no per-section selector loop, no predicate gate, no
+            // lambda-per-section. The lambda is compiled once against the
+            // union fact bag built from the sidecar. Byte-identity for
+            // classic rules is preserved because IsFactRule(r) requires
+            // EvaluationMode="facts" (null on every pre-Pillar-12 rule).
+            if (IsFactRule(rule))
+            {
+                verdicts.Add(await EvaluateFactRuleAsync(
+                    rule, ruleSet, document, factSidecar, ct).ConfigureAwait(false));
                 continue;
             }
 
@@ -986,5 +1017,205 @@ public sealed class EvaluationService
             });
         }
         return result;
+    }
+
+    private static bool IsFactRule(Rule rule)
+        => string.Equals(rule.EvaluationMode, "facts", StringComparison.Ordinal);
+
+    /// <summary>
+    /// Pillar 12 (#153) — evaluate a fact-mode rule. Steps:
+    /// <list type="number">
+    ///   <item>Resolve the rule's section scope from the sidecar's
+    ///     <c>ruleScope</c> map, falling back to any section whose fact
+    ///     bag makes at least one <c>RequiredFacts</c> concept non-null.</item>
+    ///   <item>Union the scoped sections into a single <see cref="FactBag"/>
+    ///     using the documented merge semantics.</item>
+    ///   <item>Bind the bag as a named RulesEngine parameter <c>facts</c>
+    ///     and execute the rule's lambda once.</item>
+    ///   <item>Emit exactly one verdict (never per-section).</item>
+    /// </list>
+    /// When no sidecar was provided but the rule declared fact mode, emit
+    /// an Error verdict — the fail-loud principle applies.
+    /// </summary>
+    private async Task<Verdict> EvaluateFactRuleAsync(
+        Rule rule,
+        RuleSet ruleSet,
+        ProjectedDocument document,
+        LambdaRag.Core.Facts.SectionFactSidecar? sidecar,
+        CancellationToken ct)
+    {
+        if (ruleSet.FactSchema is null)
+        {
+            return BuildVerdict(rule, ruleSet, VerdictOutcome.Error,
+                section: null, input: new JsonObject(), span: rule.SourceSpan,
+                error: "fact_mode:ruleset_has_no_fact_schema", remediationText: null);
+        }
+        if (sidecar is null)
+        {
+            return BuildVerdict(rule, ruleSet, VerdictOutcome.Error,
+                section: null, input: new JsonObject(), span: rule.SourceSpan,
+                error: "fact_mode:no_fact_extractor_configured", remediationText: null);
+        }
+
+        var scope = ResolveFactScope(rule, sidecar);
+        if (scope.Count == 0)
+        {
+            return BuildVerdict(rule, ruleSet, NoMatchOutcome(rule),
+                section: null, input: new JsonObject(), span: rule.SourceSpan,
+                error: "fact_mode:no_scoped_sections",
+                remediationText: NoMatchRemediation(rule));
+        }
+
+        var bag = new LambdaRag.Core.Facts.FactBag();
+        foreach (var sectionId in scope.OrderBy(s => s, StringComparer.Ordinal))
+        {
+            if (sidecar.Sections.TryGetValue(sectionId, out var sf))
+                bag.Merge(sectionId, sf, ruleSet.FactSchema);
+        }
+
+        // Contract null-handling: when any RequiredFact is null in the union
+        // bag, the document is silent on the concept and the rule cannot
+        // adjudicate. Mandatory rules surface a Gap; Optional / Conditional
+        // rules produce NotApplicable. This runs BEFORE lambda evaluation
+        // so a genuinely absent concept can never silently pass through a
+        // permissive `== null` comparison.
+        if (rule.RequiredFacts is { Count: > 0 })
+        {
+            var missing = rule.RequiredFacts.Where(rf => bag.Get(rf) is null).ToList();
+            if (missing.Count > 0)
+            {
+                return BuildVerdict(rule, ruleSet, NoMatchOutcome(rule),
+                    section: null,
+                    input: new JsonObject { ["_missing_facts"] = new JsonArray(missing.Select(m => (JsonNode?)JsonValue.Create(m)).ToArray()) },
+                    span: rule.SourceSpan,
+                    error: "fact_mode:missing_required_facts:" + string.Join(",", missing),
+                    remediationText: NoMatchRemediation(rule));
+            }
+        }
+
+        // Build the facts input as an ExpandoObject so the RulesEngine
+        // dynamic binder resolves `facts.<concept>` cleanly. Every schema
+        // concept appears — null when the union bag left it undecided.
+        var facts = new System.Dynamic.ExpandoObject();
+        var factsDict = (IDictionary<string, object?>)facts;
+        foreach (var concept in ruleSet.FactSchema.Concepts)
+            factsDict[concept.Name] = bag.Get(concept.Name);
+
+        // Mirror the fact bag into a JsonObject for verdict.EvaluatedInput
+        // so audit trails can reproduce the exact bag the lambda ran against.
+        var evalInput = new JsonObject();
+        foreach (var (k, v) in factsDict)
+            evalInput[k] = v switch
+            {
+                null => null,
+                bool b => JsonValue.Create(b),
+                long l => JsonValue.Create(l),
+                int i => JsonValue.Create(i),
+                double d => JsonValue.Create(d),
+                _ => JsonValue.Create(v.ToString()),
+            };
+        if (bag.Conflicts.Count > 0)
+        {
+            var conflicts = new JsonArray();
+            foreach (var c in bag.Conflicts)
+            {
+                conflicts.Add(new JsonObject
+                {
+                    ["concept"] = c.ConceptName,
+                    ["resolver"] = c.Resolver,
+                    ["existing"] = c.Existing?.ToString(),
+                    ["incoming"] = c.Incoming.ToString(),
+                    ["incomingSection"] = c.IncomingSectionId,
+                    ["resolved"] = c.Resolved?.ToString(),
+                });
+            }
+            evalInput["_conflicts"] = conflicts;
+        }
+        evalInput["_scope"] = new JsonArray(scope
+            .OrderBy(s => s, StringComparer.Ordinal)
+            .Select(s => (JsonNode?)JsonValue.Create(s))
+            .ToArray());
+
+        // Pick a representative span for markup: prefer the first scoped
+        // section's span from the SpanMap; fall back to the rule's authored
+        // span so markup does not lose its anchor.
+        var repSectionId = scope.OrderBy(s => s, StringComparer.Ordinal).First();
+        var span = document.SpanMap.TryGetValue(repSectionId, out var sp) ? sp : rule.SourceSpan;
+
+        try
+        {
+            var workflow = WorkflowFactory.ForRule(rule);
+            var engine = new RE.RulesEngine([workflow], WorkflowFactory.CreateReSettings());
+            using var _ = VectorStoreAccessor.Push(_vectorStore);
+            var factsParam = new RE.Models.RuleParameter("facts", facts);
+            var results = await engine
+                .ExecuteAllRulesAsync(WorkflowFactory.WorkflowName, factsParam)
+                .ConfigureAwait(false);
+            var result = results.Single();
+
+            if (!result.IsSuccess && IsRuntimeException(result.ExceptionMessage))
+            {
+                return BuildVerdict(rule, ruleSet, VerdictOutcome.Error,
+                    section: null, input: evalInput, span: span,
+                    error: result.ExceptionMessage, remediationText: null);
+            }
+
+            var outcome = result.IsSuccess ? VerdictOutcome.Pass : VerdictOutcome.Fail;
+            var remediationText = outcome == VerdictOutcome.Fail
+                ? (rule.Remediation ?? $"Document does not satisfy: {rule.NaturalLanguage}")
+                : null;
+
+            return BuildVerdict(rule, ruleSet, outcome,
+                section: null, input: evalInput, span: span,
+                error: result.IsSuccess ? null : result.ExceptionMessage,
+                remediationText: remediationText);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Fact-mode rule {RuleId} ({RuleVersion}) errored: {Message}",
+                rule.Id, rule.Version, ex.Message);
+            return BuildVerdict(rule, ruleSet, VerdictOutcome.Error,
+                section: null, input: evalInput, span: span,
+                error: ex.Message, remediationText: null);
+        }
+    }
+
+    /// <summary>
+    /// Resolve the section-id scope for a fact-mode rule. Prefers the
+    /// sidecar's explicit <c>RuleScope</c> map when present; otherwise
+    /// scans <see cref="SectionFactSidecar.Sections"/> for any section
+    /// whose fact bag makes at least one <see cref="Rule.RequiredFacts"/>
+    /// concept non-null. Returns an empty set when the rule has no
+    /// declared required facts and no explicit scope.
+    /// </summary>
+    private static HashSet<string> ResolveFactScope(
+        Rule rule,
+        LambdaRag.Core.Facts.SectionFactSidecar sidecar)
+    {
+        var scope = new HashSet<string>(StringComparer.Ordinal);
+        if (sidecar.RuleScope is not null
+            && sidecar.RuleScope.TryGetValue(rule.Id, out var explicitScope)
+            && explicitScope is { Count: > 0 })
+        {
+            foreach (var s in explicitScope) scope.Add(s);
+            return scope;
+        }
+        if (rule.RequiredFacts is null || rule.RequiredFacts.Count == 0)
+            return scope;
+        var required = new HashSet<string>(rule.RequiredFacts, StringComparer.Ordinal);
+        foreach (var (sectionId, facts) in sidecar.Sections)
+        {
+            foreach (var (conceptName, value) in facts)
+            {
+                if (value is null) continue;
+                if (required.Contains(conceptName))
+                {
+                    scope.Add(sectionId);
+                    break;
+                }
+            }
+        }
+        return scope;
     }
 }
