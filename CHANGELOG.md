@@ -9,6 +9,61 @@ it reaches `1.0.0`.
 
 ### Added
 
+- **Pillar 12 — Section-fact projection (#153)**. Second pass over the same
+  document that populates a typed, closed **`FactSchema`** of concepts
+  (booleans, enums, integers, durations, verbatim text) once per section,
+  then evaluates `evaluationMode: "facts"` rules against the **union** of
+  the scoped section fact bags — one lambda over one merged bag, not
+  N lambdas over N sections. This is the mechanism that lets a rule like
+  "AES-256 encryption AND ≤90-day key rotation" resolve on a real policy
+  doc where the two facts live in different paragraphs.
+
+  Ships in three composable layers, all opt-in and byte-identity-preserving
+  against every pre-Pillar-12 golden (nullable-defaulted fields, folded
+  into `Rule.Fingerprint()` / `RuleSet.Fingerprint()` only when non-null,
+  mirroring the `SemanticAnchors` / `Phrasebooks` opt-in pattern):
+
+  - `LambdaRag.Core.Domain.FactSchema` + `FactConcept` + `FactType` enum
+    (`Boolean | Enum | Integer | Duration | Text`).
+  - `LambdaRag.Core.Facts.DurationNormalizer` with embedded, versioned
+    phrase→ISO-8601 mapping (`normalizer.v1.json`).
+  - `LambdaRag.Core.Facts.FactBag` cross-section merge: Boolean OR,
+    Duration/Integer MIN, Enum/Text first-non-null. Conflicts logged on
+    verdict's `evaluatedInput._conflicts`.
+  - Rule-level opt-in via `Rule.EvaluationMode = "facts"` +
+    `Rule.RequiredFacts`. When set, the evaluator skips the per-section
+    selector/predicate/gate/floor entirely, resolves scope, merges bags
+    to a single `FactBag`, and evaluates the lambda ONCE with a named
+    `facts` binding
+    (`facts.encryption_declared == true && facts.key_rotation_days <= 90`).
+    Missing-fact semantics: any `RequiredFact` null → `NotApplicable`
+    (Advisory) / `Gap` (Mandatory).
+  - `LambdaRag.Core.Facts.IFactExtractor` — Pass-1 seam.
+    `EvaluationService` takes an optional `factExtractor` ctor param;
+    default `null` preserves byte-identity.
+  - `LambdaRag.Authoring.FoundrySectionFactExtractor` — Foundry-backed
+    Pass 1. Reuses `FoundryRuleAuthoringAgent` wiring
+    (`SemaphoreSlim(4)`, retry+jitter, `response_format: json_object`).
+    Hallucination defense: every non-null fact requires a
+    `supporting_quote` that appears byte-for-byte in the section text;
+    otherwise values are dropped and a warning is recorded.
+  - `LambdaRag.Authoring.SectionFactSidecarIO` — canonical-JSON sidecar
+    IO. Cache at
+    `%USERPROFILE%\.lambda-rag\facts\<docHash>.<factSchemaHash>.facts.json`
+    (overridable). Fingerprint =
+    `(docHash × factSchemaHash × modelId × promptHash × sectionOrderingHash)`;
+    load-time mismatch throws `SectionFactSidecarMismatchException`
+    naming the drifted component + `--refresh-facts` hint. No silent
+    recompute.
+  - CLI: `--refresh-facts` and `--facts-cache-dir <path>` flags on
+    `review`. Pass 1 auto-enables when the ruleset carries a
+    `factSchema` and at least one `evaluationMode: "facts"` rule.
+
+  Tests: 57 new unit tests (schema fingerprint stability, normalizer
+  edge cases, fact-bag merge, fact-mode compound lambdas with
+  null-handling, sidecar disk round-trip + fingerprint-drift throw).
+  Full suite: 534/534 green.
+
 - **Pillar 10 — lexical applicability floor + rule-level rollup (#152)**.
   Two related changes to make evaluation reports honest against broad
   auto-generated rulesets (e.g. `FoundryRuleAuthoringAgent` output where

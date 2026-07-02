@@ -71,7 +71,7 @@ static class CliEntry
             lambda-rag — deterministic rules-over-documents
 
             Usage:
-              lambda-rag review   --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>] [--annotate-pass] [--rewrite] [--applicability-floor <0.0-1.0>] [--rule-level-stats]
+              lambda-rag review   --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>] [--annotate-pass] [--rewrite] [--applicability-floor <0.0-1.0>] [--rule-level-stats] [--refresh-facts] [--facts-cache-dir <path>]
               lambda-rag project  --document <path> --out <path>
               lambda-rag parse    --document <path> --out <path>
               lambda-rag coverage --document <path> --ruleset <path> --out <path>
@@ -184,6 +184,11 @@ static class CliEntry
             }
         }
         var ruleLevelStats = HasFlag(args, "rule-level-stats");
+        // Pillar 12 (#153) — fact-mode wiring. --refresh-facts forces
+        // re-extraction even on cache hit. --facts-cache-dir overrides
+        // %USERPROFILE%\.lambda-rag\facts\.
+        var refreshFacts = HasFlag(args, "refresh-facts");
+        var factsCacheDir = f.GetValueOrDefault("facts-cache-dir");
         Directory.CreateDirectory(outDir);
 
         await using var sp = (ServiceProvider)BuildServices();
@@ -234,10 +239,35 @@ static class CliEntry
         // embedder (re-uses the same IRuleEmbedder so the same cache
         // and signed model id apply).
         var needsTokenEmbedder = ruleset.Rules.Any(r => r.SemanticAnchors is { Count: > 0 });
+        // Pillar 12 (#153) — auto-enable fact extractor when ruleset ships a
+        // FactSchema. When absent, factExtractor stays null and byte-identity
+        // is preserved for every existing golden.
+        var needsFacts = ruleset.FactSchema is not null
+            && ruleset.Rules.Any(r => string.Equals(r.EvaluationMode, "facts", StringComparison.Ordinal));
+        LambdaRag.Core.Facts.IFactExtractor? factExtractor = null;
+        if (needsFacts)
+        {
+#pragma warning disable OPENAI001
+            factExtractor = FoundrySectionFactExtractorFactory.TryCreate(
+                sp.GetService<IConfiguration>(),
+                sp.GetService<ILoggerFactory>(),
+                cacheDirOverride: factsCacheDir,
+                refresh: refreshFacts);
+#pragma warning restore OPENAI001
+            if (factExtractor is null)
+            {
+                AnsiConsole.MarkupLine("[red]Facts:[/]     ruleset has factSchema but Foundry Edit endpoint is not configured (LAMBDA_RAG_FOUNDRY_EDIT_ENDPOINT/DEPLOYMENT). Fact-mode rules will Error.");
+            }
+            else
+            {
+                var cacheDirDisplay = LambdaRag.Authoring.SectionFactSidecarIO.ResolveCacheDir(factsCacheDir);
+                AnsiConsole.MarkupLine($"[dim]Facts:[/]     model={Markup.Escape(factExtractor.ModelId)} cache={Markup.Escape(cacheDirDisplay)}{(refreshFacts ? " (refresh)" : string.Empty)}");
+            }
+        }
         var effectiveEvaluator = evaluator;
         InMemorySemanticVectorStore? store = null;
         var needsCustomEvaluator = needsVectors || needsTokenEmbedder
-            || applicabilityFloor > 0.0 || ruleLevelStats;
+            || applicabilityFloor > 0.0 || ruleLevelStats || needsFacts;
         if (needsCustomEvaluator)
         {
             if (needsVectors)
@@ -268,7 +298,8 @@ static class CliEntry
                 jitStore as LambdaRag.Core.Semantic.ISemanticVectorStore,
                 tokenEmbedder: needsTokenEmbedder ? ruleEmbedder : null,
                 applicabilityFloor: applicabilityFloor,
-                emitRuleLevelStats: ruleLevelStats);
+                emitRuleLevelStats: ruleLevelStats,
+                factExtractor: factExtractor);
             AnsiConsole.MarkupLine($"[dim]Vectors:[/]   embedder={Markup.Escape(ruleEmbedder.EmbedderId)} dims={ruleEmbedder.Dimensions}{(needsTokenEmbedder ? " [[bound-anchors]]" : string.Empty)}");
             if (applicabilityFloor > 0.0)
                 AnsiConsole.MarkupLine($"[dim]Floor:[/]     applicability={applicabilityFloor.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)} (lexical, offline)");
