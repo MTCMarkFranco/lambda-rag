@@ -12,8 +12,10 @@
 Pillars 1–8 all pushed the same architecture forward: a deterministic
 runtime that takes hand-authored lambdas, projects them over document
 sections, and produces byte-identical reports. That runtime is stable. The
-remaining bottleneck on the three pillars (idempotency, 100% determinism,
-≥90% accuracy) is **not** the runtime — it is the **manual authoring of
+remaining bottleneck on the four pillars (determinism, idempotency,
+≥90% accuracy, flexibility across documents — see
+[`/docs/FOUR-PILLARS.md`](../docs/FOUR-PILLARS.md)) is **not** the
+runtime — it is the **manual authoring of
 the lambdas**. Encoding ARB-PSA's 15 rules by hand got recall from 0/7 →
 3/7 over four pillars of work; manual rule authoring will not scale and
 will not cross the 90% accuracy bar in reasonable time.

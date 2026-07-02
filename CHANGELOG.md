@@ -9,6 +9,124 @@ it reaches `1.0.0`.
 
 ### Added
 
+- **Fourth engineering pillar — Flexibility** (`docs/FOUR-PILLARS.md`).
+  Elevated from an implicit norm to a first-class, tested property
+  alongside Determinism, Idempotency, and Accuracy. Every future feature
+  must state, up front, how it defends flexibility across arbitrary
+  documents (adversarial-paraphrase invariance, wrong-ruleset ≥80% NA,
+  cross-industry corpus stability). Manifesto + Pillar 9 + Pillar 12
+  contracts updated to reference the canonical doc.
+
+- **Pillar 12 — Section-fact projection (#153)**. Second pass over the same
+  document that populates a typed, closed **`FactSchema`** of concepts
+  (booleans, enums, integers, durations, verbatim text) once per section,
+  then evaluates `evaluationMode: "facts"` rules against the **union** of
+  the scoped section fact bags — one lambda over one merged bag, not
+  N lambdas over N sections. This is the mechanism that lets a rule like
+  "AES-256 encryption AND ≤90-day key rotation" resolve on a real policy
+  doc where the two facts live in different paragraphs.
+
+  Ships in three composable layers, all opt-in and byte-identity-preserving
+  against every pre-Pillar-12 golden (nullable-defaulted fields, folded
+  into `Rule.Fingerprint()` / `RuleSet.Fingerprint()` only when non-null,
+  mirroring the `SemanticAnchors` / `Phrasebooks` opt-in pattern):
+
+  - `LambdaRag.Core.Domain.FactSchema` + `FactConcept` + `FactType` enum
+    (`Boolean | Enum | Integer | Duration | Text`).
+  - `LambdaRag.Core.Facts.DurationNormalizer` with embedded, versioned
+    phrase→ISO-8601 mapping (`normalizer.v1.json`).
+  - `LambdaRag.Core.Facts.FactBag` cross-section merge: Boolean OR,
+    Duration/Integer MIN, Enum/Text first-non-null. Conflicts logged on
+    verdict's `evaluatedInput._conflicts`.
+  - Rule-level opt-in via `Rule.EvaluationMode = "facts"` +
+    `Rule.RequiredFacts`. When set, the evaluator skips the per-section
+    selector/predicate/gate/floor entirely, resolves scope, merges bags
+    to a single `FactBag`, and evaluates the lambda ONCE with a named
+    `facts` binding
+    (`facts.encryption_declared == true && facts.key_rotation_days <= 90`).
+    Missing-fact semantics: any `RequiredFact` null in the union bag →
+    `NotApplicable` (advisory) regardless of rule applicability. Empty
+    scope (no section discusses any of the rule's `RequiredFacts`) also
+    resolves to `NotApplicable`. This is intentionally softer than `Gap`
+    because a fact-mode "the doc is silent on this concept" is a
+    scope-outside-doc signal, not a silent-missing-required-item signal;
+    the classic-lambda Gap semantics remain unchanged. Diagnostic tags
+    (`fact_mode:no_scoped_sections`, `fact_mode:missing_required_facts:<list>`)
+    are preserved in `verdict.errorMessage` for audit.
+  - `LambdaRag.Core.Facts.IFactExtractor` — Pass-1 seam.
+    `EvaluationService` takes an optional `factExtractor` ctor param;
+    default `null` preserves byte-identity.
+  - `LambdaRag.Authoring.FoundrySectionFactExtractor` — Foundry-backed
+    Pass 1. Reuses `FoundryRuleAuthoringAgent` wiring
+    (`SemaphoreSlim(4)`, retry+jitter, `response_format: json_object`).
+    Hallucination defense: every non-null fact requires a
+    `supporting_quote` that appears byte-for-byte in the section text;
+    otherwise values are dropped and a warning is recorded.
+  - `LambdaRag.Authoring.SectionFactSidecarIO` — canonical-JSON sidecar
+    IO. Cache at
+    `%USERPROFILE%\.lambda-rag\facts\<docHash>.<factSchemaHash>.facts.json`
+    (overridable). Fingerprint =
+    `(docHash × factSchemaHash × modelId × promptHash × sectionOrderingHash)`;
+    load-time mismatch throws `SectionFactSidecarMismatchException`
+    naming the drifted component + `--refresh-facts` hint. No silent
+    recompute.
+  - CLI: `--refresh-facts` and `--facts-cache-dir <path>` flags on
+    `review`. Pass 1 auto-enables when the ruleset carries a
+    `factSchema` and at least one `evaluationMode: "facts"` rule.
+
+  Tests: 57 new unit tests (schema fingerprint stability, normalizer
+  edge cases, fact-bag merge, fact-mode compound lambdas with
+  null-handling, sidecar disk round-trip + fingerprint-drift throw).
+  Full suite: 534/534 green.
+
+- **Pillar 12 — Flexibility gates (#153)**. Two falsifiable test
+  harnesses that prove the fact-mode evaluation path generalises
+  beyond the CTC doc the schema was hand-fitted to. Both must pass
+  before Pillar 12 is considered production-ready per the manifesto.
+
+  - **Phase C — Adversarial paraphrase invariance corpus.**
+    `tests/LambdaRag.UnitTests/Facts/ParaphraseCorpus/ParaphraseCorpus.cs`
+    — 13 concept groups × ≥11 phrasings each (booleans, enums,
+    integers, durations), authored from policy language rather than
+    from any single sample doc's vocabulary. Three layers of assertion
+    in `ParaphraseInvarianceTests`:
+    1. **Normalizer-only** — every duration phrasing in a group flows
+       through `DurationNormalizer` and lands on the same ISO-8601
+       value. Fully deterministic, no LLM.
+    2. **Extraction-contract** — given a correct Pass-1 emission,
+       sidecar merge + rule evaluation are byte-identical across
+       paraphrases. Uses `RecordedFactExtractor` (in-memory
+       `IFactExtractor`) so tests stay offline and CI-safe.
+    3. **LLM integration scaffold** (env-gated
+       `LAMBDA_RAG_LLM_TESTS=1`, `[Trait("Category","LLM")]`) — hits
+       the real Foundry extractor when explicitly opted-in. No-op in
+       normal CI.
+    171 new unit tests, 100% green.
+
+  - **Phase D — Wrong-ruleset anti-overfit gate.**
+    `tests/LambdaRag.IdempotencyTests/WrongRulesetAntiOverfitTests.cs`
+    runs the enterprise-architecture ruleset against two out-of-domain
+    goldens (healthcare/acme-telehealth-gaps,
+    contract/doc-002-clean-msa) with an empty-bags `IFactExtractor`
+    stub (the honest LLM outcome for an out-of-domain doc) and
+    asserts the report distribution meets the manifesto's flexibility
+    thresholds: `NA + Skipped ≥ 80%`, `Pass ≤ 5%`, `Fail ≤ 5%`,
+    `Gap ≤ 5%`. Both scenarios pass with `Fail < 1%`, `NA > 99%`.
+    Uses `applicabilityFloor: 0.35` — documented at the test constant
+    as the cross-industry setting (in-domain review runs at 0.20).
+
+  Bug uncovered and fixed in-branch: `DurationNormalizer.OnANDayCycle`
+  regex was scoped to the trailing noun `cycle`, dropping common
+  phrasings like "on a 90-day rotation" and "on a 90-day retention
+  window". Broadened to `on\s+a\s+(\d+)[\-\s]?day\b`. Bumped
+  `normalizer.v1.json` version 1 → 2 per the Pillar 12 fingerprint
+  contract — this invalidates every cached sidecar loudly on next
+  load, exactly as designed. `DurationNormalizerTests` version
+  assertion updated.
+
+  Full unit suite: 705/705 green (534 + 171). Integration suite: all
+  new Phase D tests green.
+
 - **Pillar 10 — lexical applicability floor + rule-level rollup (#152)**.
   Two related changes to make evaluation reports honest against broad
   auto-generated rulesets (e.g. `FoundryRuleAuthoringAgent` output where

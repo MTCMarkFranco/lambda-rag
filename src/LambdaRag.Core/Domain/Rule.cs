@@ -163,6 +163,23 @@ public sealed record Rule(
     /// </summary>
     public IReadOnlyList<string>? AppliesToDocKinds { get; init; }
 
+    /// <summary>
+    /// Pillar 12 (#153) — when non-null, this rule is evaluated in the
+    /// fact-based path. The lambda operates on <c>facts.&lt;concept&gt;</c>
+    /// instead of <c>input1.text.Contains(...)</c>. Null = classic path
+    /// (unchanged, byte-identical replay). Only <c>"facts"</c> is recognized
+    /// today; other values reserved for future modes.
+    /// </summary>
+    public string? EvaluationMode { get; init; }
+
+    /// <summary>
+    /// Pillar 12 (#153) — the fact concept names this rule reads. Used by
+    /// Pass 2 to build the cross-section union: any section whose fact bag
+    /// makes at least one of these concepts non-null participates. Only
+    /// meaningful when <see cref="EvaluationMode"/> is <c>"facts"</c>.
+    /// </summary>
+    public IReadOnlyList<string>? RequiredFacts { get; init; }
+
     /// <summary>SHA-256 of the predicate expression. Changes if the gate changes.</summary>
      public ContentHash PredicateHash() => ContentHash.OfString(Predicate);
 
@@ -231,6 +248,17 @@ public sealed record Rule(
                 parts.Add($"anchor:{a.Name}|{a.AnchorText}|{a.Threshold.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}|{ng}");
             }
         }
+        // Pillar 12 — EvaluationMode / RequiredFacts fold in only when set
+        // so pre-Pillar-12 rules keep byte-identical fingerprints.
+        if (!string.IsNullOrEmpty(EvaluationMode))
+            parts.Add("evaluationMode:" + EvaluationMode);
+        if (RequiredFacts is { Count: > 0 })
+        {
+            var facts = RequiredFacts
+                .Where(f => !string.IsNullOrWhiteSpace(f))
+                .OrderBy(f => f, StringComparer.Ordinal);
+            parts.Add("requiredFacts:" + string.Join("\u001f", facts));
+        }
         return ContentHash.Compose(parts.ToArray());
     }
 }
@@ -277,6 +305,15 @@ public sealed record RuleSet(
     /// </summary>
     public string? EmbedderId { get; init; }
 
+    /// <summary>
+    /// Pillar 12 (#153) — optional closed fact schema. When non-null, rules
+    /// in this set MAY opt into <c>EvaluationMode = "facts"</c>; when null
+    /// the fact path is off and every rule runs the classic
+    /// <c>input1.text.Contains(...)</c> path (byte-identical replay).
+    /// Folded into <see cref="Fingerprint"/> only when non-null.
+    /// </summary>
+    public FactSchema? FactSchema { get; init; }
+
     public ContentHash Fingerprint()
     {
         var parts = new List<string> { Id, Version, Domain };
@@ -300,6 +337,10 @@ public sealed record RuleSet(
         }
         if (!string.IsNullOrWhiteSpace(EmbedderId))
             parts.Add("embedderId:" + EmbedderId);
+        // Pillar 12 — the schema fingerprint folds in only when the ruleset
+        // declares a schema, so pre-Pillar-12 rulesets keep byte-identity.
+        if (FactSchema is not null)
+            parts.Add("factSchema:" + FactSchema.Fingerprint().Value);
         return ContentHash.Compose(parts.ToArray());
     }
 }

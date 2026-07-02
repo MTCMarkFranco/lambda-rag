@@ -1,0 +1,41 @@
+{
+  "version": "2",
+  "durations": {
+    "every 30 days": "P30D",
+    "every thirty (30) days": "P30D",
+    "on a 30-day cycle": "P30D",
+    "monthly": "P30D",
+    "every month": "P30D",
+
+    "every 60 days": "P60D",
+    "every sixty (60) days": "P60D",
+    "on a 60-day cycle": "P60D",
+    "bi-monthly": "P60D",
+    "bimonthly": "P60D",
+
+    "every 90 days": "P90D",
+    "every ninety (90) days": "P90D",
+    "on a 90-day cycle": "P90D",
+    "on a 90 day cycle": "P90D",
+    "quarterly": "P90D",
+    "every quarter": "P90D",
+
+    "every 180 days": "P180D",
+    "on a 180-day cycle": "P180D",
+    "semi-annually": "P180D",
+    "semiannually": "P180D",
+    "every six months": "P180D",
+    "every 6 months": "P180D",
+
+    "every 365 days": "P365D",
+    "on a 365-day cycle": "P365D",
+    "annually": "P365D",
+    "yearly": "P365D",
+    "every year": "P365D",
+
+    "every 730 days": "P730D",
+    "biennially": "P730D",
+    "every two years": "P730D",
+    "every 2 years": "P730D"
+  }
+}
