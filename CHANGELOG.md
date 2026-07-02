@@ -9,6 +9,14 @@ it reaches `1.0.0`.
 
 ### Added
 
+- **Fourth engineering pillar — Flexibility** (`docs/FOUR-PILLARS.md`).
+  Elevated from an implicit norm to a first-class, tested property
+  alongside Determinism, Idempotency, and Accuracy. Every future feature
+  must state, up front, how it defends flexibility across arbitrary
+  documents (adversarial-paraphrase invariance, wrong-ruleset ≥80% NA,
+  cross-industry corpus stability). Manifesto + Pillar 9 + Pillar 12
+  contracts updated to reference the canonical doc.
+
 - **Pillar 12 — Section-fact projection (#153)**. Second pass over the same
   document that populates a typed, closed **`FactSchema`** of concepts
   (booleans, enums, integers, durations, verbatim text) once per section,

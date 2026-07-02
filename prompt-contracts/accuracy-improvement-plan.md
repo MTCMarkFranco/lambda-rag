@@ -201,6 +201,8 @@ PR → user review/merge. Nothing pushed to master.
 | Catches template-boilerplate | ✅ | ❌ | ✅ |
 | Runs in <1s with no API key | ❌ | ✅ | ✅ |
 
-**Net:** we keep all three pillars LLM-only cannot deliver (determinism,
-idempotency, defensibility) and we close the accuracy gap by attacking
-classification and coverage — not by adding inference at runtime.
+**Net:** we keep all four pillars LLM-only cannot deliver (determinism,
+idempotency, defensibility, flexibility across documents — see
+[`/docs/FOUR-PILLARS.md`](../docs/FOUR-PILLARS.md)) and we close the
+accuracy gap by attacking classification and coverage — not by adding
+inference at runtime.

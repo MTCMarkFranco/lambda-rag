@@ -5,6 +5,10 @@
 > Pillar 6 (semantic bindings), Pillar 10 (applicability floor).
 > **Status:** Proposal — no implementation until this is reviewed and approved.
 > **Depends on:** the merged Pillar 10 baseline (PR #152 / commit `0904702`).
+> **Measured against the four pillars** ([`/docs/FOUR-PILLARS.md`](../docs/FOUR-PILLARS.md)):
+> Determinism, Idempotency, Accuracy, and — added on 2026-07-02 in direct
+> response to the Pillar 12 overfit review — **Flexibility**. Every design
+> choice below must be defensible against all four, not just the first three.
 
 ---
 

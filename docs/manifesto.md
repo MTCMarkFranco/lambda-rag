@@ -27,6 +27,11 @@ not (online, in deciding). The handoff between the two halves is a
 **signed, fingerprinted ruleset** that crosses one boundary, in one
 direction, and never reaches back.
 
+Every feature in lambda-rag is evaluated against **four non-negotiable
+pillars** — Determinism, Idempotency, Accuracy, and Flexibility. See
+[`docs/FOUR-PILLARS.md`](FOUR-PILLARS.md) for the definitions and the
+falsifiable tests each pillar imposes on new work.
+
 This document explains what the pattern is, why it works, where it
 applies, where it doesn't, and how lambda-rag implements it as a
 reference architecture.
