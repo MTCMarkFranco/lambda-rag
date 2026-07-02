@@ -9,6 +9,39 @@ it reaches `1.0.0`.
 
 ### Added
 
+- **Fact-mode conversion, batch 2 (issue #154)**. Added two new concepts
+  to `enterprise-architecture-v1.json` `factSchema` (bumped schema
+  version `2` → `3` — loudly invalidates cached sidecars). Concept
+  selection followed the Flexibility rule from batch 1: only convert
+  rules whose concepts leak across **both** out-of-domain scenarios
+  (healthcare AND contract), never single-scenario surface.
+
+  | Concept | Type | Rule converted |
+  |---|---|---|
+  | `untagged_principal_disable_days` | Integer | EA-IAM-023 (30-day cap) |
+  | `break_glass_audited` | Boolean | EA-CICD-011 |
+
+  Ratchet movement (production-floor test, `EmptyBagsFactExtractor`):
+
+  | Scenario | Batch 1 | Batch 2 | Rules removed |
+  |---|---|---|---|
+  | `healthcare/acme-telehealth-gaps` | 8.79% (32/364) | **8.24% (30/364)** | 2 |
+  | `contract/doc-002-clean-msa`      | 4.12% (15/364) | **3.57% (13/364)** | 2 |
+
+  Ratchet ceilings tightened: healthcare `9% → 8.5%`, contract `5% → 4%`.
+
+  Bonus: cross-industry test at floor `0.35` also tightened for contract
+  scenario (`0.82% → 0.55%`); `EA-IAM-023` was firing at that floor too.
+  The floor-0.35 threshold (5%) remains unchanged — it tracks
+  "architectural generalization" rather than progressive conversion.
+
+  Deferred to batch 3+: `EA-SECR-007` (compound OR-requirement — needs
+  a small engine feature for `requiredFactsAny` semantics before it can
+  be modeled honestly); `EA-IAC-001/003` (healthcare-only in the current
+  corpus — waiting for a second scenario to earn a schema slot);
+  Group-B temporary-console-action rules (`EA-IAC-013/014/015` — bespoke
+  concepts per rule, low leverage until we add more docs).
+
 - **Fact-mode conversion, first batch (issue #154)**. Added two new
   concepts to `enterprise-architecture-v1.json` `factSchema` (bumped
   schema version `1` → `2`, which invalidates all existing sidecars —
@@ -48,10 +81,10 @@ it reaches `1.0.0`.
 
   Ratchet ledger (tighten only when classic rules migrate to fact-mode):
 
-  | Scenario | Measured 2026-07-02 | Ceiling (post-batch-1) |
+  | Scenario | Latest measurement | Current ceiling |
   |---|---|---|
-  | `healthcare/acme-telehealth-gaps` | 8.79% Fail (32/364) | 9% |
-  | `contract/doc-002-clean-msa`      | 4.12% Fail (15/364) | 5% |
+  | `healthcare/acme-telehealth-gaps` | 8.24% Fail (30/364, batch 2) | 8.5% |
+  | `contract/doc-002-clean-msa`      | 3.57% Fail (13/364, batch 2) | 4% |
 
   Do not raise the ceiling to make a failing build green. Convert classic
   rules to fact-mode instead, then tighten the ceiling in this ledger.

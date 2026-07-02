@@ -190,10 +190,12 @@ public sealed class WrongRulesetAntiOverfitTests
         // "Flexibility ratchet gate" entry). Tighten only when classic
         // rules migrate to fact-mode; never raise to make a build green.
         //   2026-07-02: initial ceiling 0.10 (healthcare 9.34%, contract 4.67%)
-        //   2026-07-02: tightened after EA-DATA-018 + EA-DATA-019 → fact-mode
-        //               (healthcare 8.79%, contract 4.12%)
-        yield return new object[] { "healthcare", "acme-telehealth-gaps", 0.09 };
-        yield return new object[] { "contract",   "doc-002-clean-msa",    0.05 };
+        //   2026-07-02: batch 1 — EA-DATA-018 + EA-DATA-019 → fact-mode
+        //               (healthcare 8.79% ≤ 0.09, contract 4.12% ≤ 0.05)
+        //   2026-07-02: batch 2 — EA-CICD-011 + EA-IAM-023 → fact-mode
+        //               (healthcare 8.24% ≤ 0.085, contract 3.57% ≤ 0.04)
+        yield return new object[] { "healthcare", "acme-telehealth-gaps", 0.085 };
+        yield return new object[] { "contract",   "doc-002-clean-msa",    0.04 };
     }
 
     [Theory]
