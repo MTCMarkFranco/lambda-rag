@@ -9,6 +9,52 @@ it reaches `1.0.0`.
 
 ### Added
 
+- **`RequiredFactsAny` engine primitive + fact-mode conversion, batch 3
+  (issue #154).** New OR-semantics NA gate on `Rule.RequiredFactsAny`,
+  companion to the existing AND-semantics `RequiredFacts`. Fires
+  `NotApplicable` only when ALL listed concepts are null in the union
+  fact bag; if any single alternative is set, the lambda evaluates and
+  decides Pass/Fail over the facts that ARE set. Motivator: compound
+  requirements like *"X SHALL either be brought under IaC OR be deleted
+  within 30 days"* — the existing AND-gate could not model these
+  without incorrectly demanding both alternatives be documented.
+
+  Both gates coexist on a single rule (AND first, then OR). Scope
+  inference now considers concepts from either list. Diagnostic tag
+  `fact_mode:missing_required_facts_any:<a,b,...>` is emitted in
+  `verdict.ErrorMessage` for audit. Fingerprints fold under a distinct
+  `requiredFactsAny:` prefix — AND-gate on `{a,b}` never hashes
+  identically to an OR-gate on `{a,b}`. Byte-identity preserved for
+  all pre-existing rules (`RequiredFactsAny` is nullable, folds only
+  when non-null).
+
+  First user: `EA-SECR-007`. Added two concepts to
+  `enterprise-architecture-v1.json` `factSchema` (bumped schema
+  version `3` → `4` — loudly invalidates cached sidecars):
+
+  | Concept | Type | Rule converted |
+  |---|---|---|
+  | `secrets_iac_managed`         | Boolean | EA-SECR-007 (OR-branch A: brought under IaC) |
+  | `orphan_secret_deletion_days` | Integer | EA-SECR-007 (OR-branch B: deleted ≤ 30 days) |
+
+  Flexibility justification: unlike batches 1 + 2 where each concept
+  had to leak across BOTH out-of-domain scenarios, batch 3's cross-
+  scenario Flexibility credit comes from the **engine primitive**
+  itself — every future OR-compound rule benefits, regardless of which
+  scenarios currently surface it. `EA-SECR-007` is the first user, not
+  the last.
+
+  Ratchet movement (production-floor test, `EmptyBagsFactExtractor`):
+
+  | Scenario | Batch 2 | Batch 3 | Rules removed |
+  |---|---|---|---|
+  | `healthcare/acme-telehealth-gaps` | 8.24% (30/364) | **8.24% (30/364)** | 0 (rule not in top-25) |
+  | `contract/doc-002-clean-msa`      | 3.57% (13/364) | **3.30% (12/364)** | 1 |
+
+  Contract ratchet ceiling tightened `0.04` → `0.036`. Healthcare
+  ceiling unchanged at `0.085`. Fact-mode NAs: 24 → 25 across both
+  scenarios. Total fact-mode-converted rules: 25 out of 364 (~6.9%).
+
 - **Fact-mode conversion, batch 2 (issue #154)**. Added two new concepts
   to `enterprise-architecture-v1.json` `factSchema` (bumped schema
   version `2` → `3` — loudly invalidates cached sidecars). Concept

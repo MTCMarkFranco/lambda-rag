@@ -177,8 +177,30 @@ public sealed record Rule(
     /// Pass 2 to build the cross-section union: any section whose fact bag
     /// makes at least one of these concepts non-null participates. Only
     /// meaningful when <see cref="EvaluationMode"/> is <c>"facts"</c>.
+    ///
+    /// Semantics: <b>AND</b>. If <em>any</em> concept in the union bag is
+    /// null after cross-section merge, the rule resolves to
+    /// <c>NotApplicable</c> — the document is silent on a concept the
+    /// rule requires. Use <see cref="RequiredFactsAny"/> for compound
+    /// OR-requirements (e.g. "X SHALL either be brought under IaC OR be
+    /// deleted within 30 days") where the rule is satisfied when any
+    /// single alternative is documented.
     /// </summary>
     public IReadOnlyList<string>? RequiredFacts { get; init; }
+
+    /// <summary>
+    /// Pillar 12 batch 3 (#154) — the fact concept names this rule may
+    /// read as <b>alternatives</b>. NA fires only when <em>all</em>
+    /// listed concepts are null in the union bag. Use this for
+    /// OR-compound requirements where any single alternative satisfies
+    /// the rule.
+    ///
+    /// Both <see cref="RequiredFacts"/> and <see cref="RequiredFactsAny"/>
+    /// may be set on the same rule; both gates apply (AND-facts must
+    /// all be non-null, then at-least-one Any-fact must be non-null).
+    /// The lambda still adjudicates Pass/Fail over the resulting bag.
+    /// </summary>
+    public IReadOnlyList<string>? RequiredFactsAny { get; init; }
 
     /// <summary>SHA-256 of the predicate expression. Changes if the gate changes.</summary>
      public ContentHash PredicateHash() => ContentHash.OfString(Predicate);
@@ -248,8 +270,9 @@ public sealed record Rule(
                 parts.Add($"anchor:{a.Name}|{a.AnchorText}|{a.Threshold.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}|{ng}");
             }
         }
-        // Pillar 12 — EvaluationMode / RequiredFacts fold in only when set
-        // so pre-Pillar-12 rules keep byte-identical fingerprints.
+        // Pillar 12 — EvaluationMode / RequiredFacts / RequiredFactsAny
+        // fold in only when set so pre-Pillar-12 rules keep byte-identical
+        // fingerprints.
         if (!string.IsNullOrEmpty(EvaluationMode))
             parts.Add("evaluationMode:" + EvaluationMode);
         if (RequiredFacts is { Count: > 0 })
@@ -258,6 +281,13 @@ public sealed record Rule(
                 .Where(f => !string.IsNullOrWhiteSpace(f))
                 .OrderBy(f => f, StringComparer.Ordinal);
             parts.Add("requiredFacts:" + string.Join("\u001f", facts));
+        }
+        if (RequiredFactsAny is { Count: > 0 })
+        {
+            var facts = RequiredFactsAny
+                .Where(f => !string.IsNullOrWhiteSpace(f))
+                .OrderBy(f => f, StringComparer.Ordinal);
+            parts.Add("requiredFactsAny:" + string.Join("\u001f", facts));
         }
         return ContentHash.Compose(parts.ToArray());
     }

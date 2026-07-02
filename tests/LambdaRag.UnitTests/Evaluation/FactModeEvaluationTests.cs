@@ -100,6 +100,23 @@ public class FactModeEvaluationTests
         RequiredFacts = requiredFacts,
     };
 
+    private static Rule FactRuleAny(string id, string lambda, string[]? requiredFacts = null, string[]? requiredFactsAny = null) => new(
+        Id: id,
+        Version: "1.0.0",
+        NaturalLanguage: "Fact-mode rule " + id,
+        Lambda: lambda,
+        AppliesToSchema: new JsonObject(),
+        Selector: new PathSelector("$"),
+        Severity: RuleSeverity.Violation,
+        SourceSpan: new SourceSpan("doc-1", 0, 0, null, null),
+        EvidenceQuote: "",
+        Metadata: new Dictionary<string, string>())
+    {
+        EvaluationMode = "facts",
+        RequiredFacts = requiredFacts,
+        RequiredFactsAny = requiredFactsAny,
+    };
+
     private static RuleSet Set(params Rule[] rules) => new(
         Id: "rs", Version: "1.0", Domain: "test",
         PublishedAt: DateTimeOffset.UnixEpoch,
@@ -167,6 +184,105 @@ public class FactModeEvaluationTests
         // than Gap. Diagnostic tag preserved in ErrorMessage.
         report.Verdicts[0].Outcome.Should().Be(VerdictOutcome.NotApplicable);
         report.Verdicts[0].ErrorMessage.Should().Contain("encryption_declared");
+    }
+
+    // ── RequiredFactsAny (batch 3, issue #154) ─────────────────────────────
+
+    [Fact]
+    public async Task RequiredFactsAny_All_Null_Yields_NotApplicable()
+    {
+        // Section is in scope (explicit RuleScope), but none of the
+        // OR-alternatives are decided by the doc — Any-gate fires NA
+        // with the missing_required_facts_any diagnostic.
+        var sidecar = Sidecar(
+            sections: new()
+            {
+                ["s1"] = new() { ["key_rotation_days"] = 90L },
+            },
+            ruleScope: new() { ["R-any-1"] = new() { "s1" } });
+        var rule = FactRuleAny("R-any-1",
+            lambda: "facts.encryption_declared == true || facts.data_classification == \"Confidential\"",
+            requiredFactsAny: new[] { "encryption_declared", "data_classification" });
+        var svc = Build(sidecar);
+        var report = await svc.EvaluateAsync(Set(rule), Doc());
+        report.Verdicts[0].Outcome.Should().Be(VerdictOutcome.NotApplicable);
+        report.Verdicts[0].ErrorMessage.Should().Contain("missing_required_facts_any");
+        report.Verdicts[0].ErrorMessage.Should().Contain("encryption_declared");
+        report.Verdicts[0].ErrorMessage.Should().Contain("data_classification");
+    }
+
+    [Fact]
+    public async Task RequiredFactsAny_One_Set_Runs_Lambda_And_Passes_When_Satisfied()
+    {
+        // Only one alternative documented — lambda still evaluates and
+        // resolves Pass over the specific fact(s) that ARE set.
+        var sidecar = Sidecar(new()
+        {
+            ["s1"] = new() { ["encryption_declared"] = true },
+        });
+        var rule = FactRuleAny("R-any-2",
+            lambda: "facts.encryption_declared == true || facts.data_classification == \"Confidential\"",
+            requiredFactsAny: new[] { "encryption_declared", "data_classification" });
+        var svc = Build(sidecar);
+        var report = await svc.EvaluateAsync(Set(rule), Doc());
+        report.Verdicts[0].Outcome.Should().Be(VerdictOutcome.Pass);
+    }
+
+    [Fact]
+    public async Task RequiredFactsAny_One_Set_But_Lambda_Fails_Yields_Fail_Not_NA()
+    {
+        // Alternative documented but with a non-compliant value — Fail,
+        // not NA. NA is reserved for "doc silent on all alternatives".
+        var sidecar = Sidecar(new()
+        {
+            ["s1"] = new() { ["encryption_declared"] = false },
+        });
+        var rule = FactRuleAny("R-any-3",
+            lambda: "facts.encryption_declared == true || facts.data_classification == \"Confidential\"",
+            requiredFactsAny: new[] { "encryption_declared", "data_classification" });
+        var svc = Build(sidecar);
+        var report = await svc.EvaluateAsync(Set(rule), Doc());
+        report.Verdicts[0].Outcome.Should().Be(VerdictOutcome.Fail);
+    }
+
+    [Fact]
+    public async Task RequiredFacts_And_RequiredFactsAny_Both_Enforced()
+    {
+        // AND-gate on key_rotation_days (must be set) plus OR-gate on
+        // (encryption_declared, data_classification). Doc sets rotation
+        // but neither of the Any-facts → NA via the Any-gate.
+        var sidecar = Sidecar(new()
+        {
+            ["s1"] = new() { ["key_rotation_days"] = 90L },
+        });
+        var rule = FactRuleAny("R-any-4",
+            lambda: "facts.key_rotation_days <= 90 && (facts.encryption_declared == true || facts.data_classification == \"Confidential\")",
+            requiredFacts:    new[] { "key_rotation_days" },
+            requiredFactsAny: new[] { "encryption_declared", "data_classification" });
+        var svc = Build(sidecar);
+        var report = await svc.EvaluateAsync(Set(rule), Doc());
+        report.Verdicts[0].Outcome.Should().Be(VerdictOutcome.NotApplicable);
+        report.Verdicts[0].ErrorMessage.Should().Contain("missing_required_facts_any");
+    }
+
+    [Fact]
+    public async Task RequiredFactsAny_Cross_Section_Union_Satisfies_Gate()
+    {
+        // Each alternative appears in a DIFFERENT section. The union bag
+        // has BOTH set, and the gate + lambda both succeed. Main
+        // motivator for the OR-gate: compound requirements spanning
+        // sections.
+        var sidecar = Sidecar(new()
+        {
+            ["s1"] = new() { ["encryption_declared"] = false },
+            ["s2"] = new() { ["data_classification"] = "Confidential" },
+        });
+        var rule = FactRuleAny("R-any-5",
+            lambda: "facts.encryption_declared == true || facts.data_classification == \"Confidential\"",
+            requiredFactsAny: new[] { "encryption_declared", "data_classification" });
+        var svc = Build(sidecar);
+        var report = await svc.EvaluateAsync(Set(rule), Doc());
+        report.Verdicts[0].Outcome.Should().Be(VerdictOutcome.Pass);
     }
 
     // ── Merge semantics ────────────────────────────────────────────────────

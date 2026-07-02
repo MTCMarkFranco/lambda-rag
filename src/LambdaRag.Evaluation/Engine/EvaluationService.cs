@@ -1102,6 +1102,29 @@ public sealed class EvaluationService
             }
         }
 
+        // Pillar 12 batch 3 (#154): RequiredFactsAny is the OR-compound
+        // gate. NA fires only when ALL listed concepts are null in the
+        // union bag — matching rules like "X SHALL either be brought
+        // under IaC OR be deleted within 30 days" where any single
+        // documented alternative resolves the requirement. If at least
+        // one Any-fact is non-null, the rule proceeds to lambda
+        // evaluation which decides Pass/Fail over the specific facts
+        // that ARE set. Runs after RequiredFacts (AND-gate) so both
+        // gates can co-exist on a single rule.
+        if (rule.RequiredFactsAny is { Count: > 0 })
+        {
+            var allNull = rule.RequiredFactsAny.All(rf => bag.Get(rf) is null);
+            if (allNull)
+            {
+                return BuildVerdict(rule, ruleSet, VerdictOutcome.NotApplicable,
+                    section: null,
+                    input: new JsonObject { ["_missing_facts_any"] = new JsonArray(rule.RequiredFactsAny.Select(m => (JsonNode?)JsonValue.Create(m)).ToArray()) },
+                    span: rule.SourceSpan,
+                    error: "fact_mode:missing_required_facts_any:" + string.Join(",", rule.RequiredFactsAny),
+                    remediationText: null);
+            }
+        }
+
         // Build the facts input as an ExpandoObject so the RulesEngine
         // dynamic binder resolves `facts.<concept>` cleanly. Every schema
         // concept appears — null when the union bag left it undecided.
@@ -1210,9 +1233,13 @@ public sealed class EvaluationService
             foreach (var s in explicitScope) scope.Add(s);
             return scope;
         }
-        if (rule.RequiredFacts is null || rule.RequiredFacts.Count == 0)
+        var hasRequired    = rule.RequiredFacts    is { Count: > 0 };
+        var hasRequiredAny = rule.RequiredFactsAny is { Count: > 0 };
+        if (!hasRequired && !hasRequiredAny)
             return scope;
-        var required = new HashSet<string>(rule.RequiredFacts, StringComparer.Ordinal);
+        var required = new HashSet<string>(StringComparer.Ordinal);
+        if (hasRequired)    foreach (var rf in rule.RequiredFacts!)    required.Add(rf);
+        if (hasRequiredAny) foreach (var rf in rule.RequiredFactsAny!) required.Add(rf);
         foreach (var (sectionId, facts) in sidecar.Sections)
         {
             foreach (var (conceptName, value) in facts)
