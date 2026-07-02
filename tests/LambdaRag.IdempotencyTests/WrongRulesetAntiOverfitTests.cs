@@ -128,78 +128,10 @@ public sealed class WrongRulesetAntiOverfitTests
     public async Task Arch_Ruleset_Against_OutOfDomain_Doc_Resolves_To_NotApplicable(
         string vertical, string docId)
     {
-        var sourcePath = Path.Combine(CorpusRoot, vertical, docId, "source.md");
-        File.Exists(sourcePath).Should().BeTrue($"golden doc must exist at {sourcePath}");
-        File.Exists(ArchRulesetPath).Should().BeTrue($"arch ruleset must exist at {ArchRulesetPath}");
+        var report = await RunWrongRulesetAsync(vertical, docId, ApplicabilityFloor);
+        DumpDiagnostics(report, $"{vertical}/{docId} vs arch @ floor {ApplicabilityFloor}");
 
-        // ── Wire the eval pipeline (matches CorpusRegression harness) ──
-        var services = new ServiceCollection();
-        services.AddLogging(b => b.SetMinimumLevel(LogLevel.Warning));
-        services.AddSingleton<TimeProvider>(new FrozenTimeProvider(FrozenInstant));
-        services
-            .AddLambdaRagParsing()
-            .AddLambdaRagProjection()
-            .AddLambdaRagSelectors()
-            .AddLambdaRagEvaluation();
-        await using var sp = services.BuildServiceProvider();
-        var parsers = sp.GetRequiredService<ParserRegistry>();
-
-        // Project through the doc's native topic map — same choice a
-        // real reviewer would make. The test is that the arch RULES,
-        // not the projector, honestly recognize themselves as out-of-
-        // domain. Using the arch topic map would beg the question.
-        var topicMap = TopicMapRegistry.Load($"{vertical}.v1");
-        var projector = new DeterministicContractProjector(topicMap);
-
-        var rulesetJson = await File.ReadAllTextAsync(ArchRulesetPath);
-        var ruleset = JsonSerializer.Deserialize<RuleSet>(rulesetJson, CanonicalJson.Options)!;
-
-        var parsed = await parsers.ParseAsync(sourcePath);
-        var projected = await projector.ProjectAsync(parsed);
-
-        var evalService = new EvaluationService(
-            sp.GetRequiredService<ISelectorMatcher>(),
-            sp.GetRequiredService<ILogger<EvaluationService>>(),
-            new FrozenTimeProvider(FrozenInstant),
-            applicabilityFloor: ApplicabilityFloor,
-            emitRuleLevelStats: true,
-            factExtractor: new EmptyBagsFactExtractor());
-
-        var report = await evalService.EvaluateAsync(ruleset, projected);
-
-        // ── Diagnostic dump for debuggability ──────────────────────────
-        var total = report.TotalUniqueRules ?? report.TotalRules;
-        var pass = report.RulesPassed ?? report.Passed;
-        var fail = report.RulesFailed ?? report.Failed;
-        var na = report.RulesNotApplicable ?? report.NotApplicable;
-        var gap = report.RulesGap ?? report.Gaps;
-        var err = report.RulesErrored ?? report.Errored;
-        var sk = report.RulesSkipped ?? report.Skipped ?? 0;
-
-        _output.WriteLine($"=== {vertical}/{docId} vs arch ruleset ===");
-        _output.WriteLine($"TotalUniqueRules: {total}");
-        _output.WriteLine($"  Pass         : {pass}  ({Pct(pass, total)})");
-        _output.WriteLine($"  Fail         : {fail}  ({Pct(fail, total)})");
-        _output.WriteLine($"  NotApplicable: {na}  ({Pct(na, total)})");
-        _output.WriteLine($"  Gap          : {gap}  ({Pct(gap, total)})");
-        _output.WriteLine($"  Error        : {err}  ({Pct(err, total)})");
-        _output.WriteLine($"  Skipped      : {sk}  ({Pct(sk, total)})");
-
-        // Emit a per-outcome tally of ErrorMessage prefixes to make it
-        // obvious *why* a rule landed where it did (e.g. what fraction
-        // of NAs came from the applicability floor vs. the fact-mode
-        // no-scoped-sections path).
-        var byError = report.Verdicts
-            .GroupBy(v => v.Outcome + "|" + PrefixOf(v.ErrorMessage))
-            .OrderByDescending(g => g.Count())
-            .Take(20)
-            .ToList();
-        _output.WriteLine("--- top outcome/error buckets ---");
-        foreach (var g in byError)
-            _output.WriteLine($"  {g.Key}: {g.Count()}");
-
-        // ── Thresholds ────────────────────────────────────────────────
-        total.Should().BeGreaterThan(0, "arch ruleset must have loaded");
+        var (total, pass, fail, na, gap, _, sk) = TallyOutcomes(report);
         var nonSignal = na + sk;
         var passRatio = (double)pass / total;
         var failRatio = (double)fail / total;
@@ -222,6 +154,162 @@ public sealed class WrongRulesetAntiOverfitTests
             $"Pillar 4: cross-domain Gap must be <=5%. Observed {gapRatio:P2} ({gap}/{total}). " +
             "Gaps here would claim a healthcare doc silently violated an arch mandate — the " +
             "applicability floor is supposed to demote those to NA.");
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // Issue #154 — Production-floor (0.20) ratchet gate.
+    //
+    // The floor-0.35 test above proves the ARCHITECTURE generalizes:
+    // fact-mode rules resolve to NA on empty bags, and the applicability
+    // filter at 0.35 sieves out the noisy classic-lambda leakers.
+    // But 0.20 is the ship default (in-domain review floor) and at 0.20
+    // the ~344 remaining classic-lambda rules (still using Contains(...)
+    // predicates) leak Fail on out-of-domain docs. Measured healthcare
+    // fail ≈ 9.3% today.
+    //
+    // This test is a RATCHET, not a fixed gate. It captures today's
+    // ceiling as the acceptance threshold so:
+    //   1) The number can only go DOWN as classic rules migrate to
+    //      fact-mode. Any regression fails loud.
+    //   2) The ceiling is tightened in-band whenever we cross a
+    //      milestone (see CHANGELOG for the tightening ledger).
+    //   3) The diagnostic output ranks classic-lambda rules by Fail
+    //      contribution — this is Phase 2 evidence for which concepts
+    //      to add to `factSchema` next. Evidence-driven conversion,
+    //      not vocabulary-driven (Flexibility principle).
+    //
+    // If you tighten these ceilings without shipping the corresponding
+    // classic→fact-mode conversions, you're moving the goalposts.
+    // Update CHANGELOG.md [Unreleased] instead.
+    // ────────────────────────────────────────────────────────────────
+    private const double ProductionApplicabilityFloor = 0.20;
+
+    public static IEnumerable<object[]> WrongRulesetScenariosAtProductionFloor()
+    {
+        // scenario, ceilingFailRatio — captured 2026-07-02, ratchet only
+        // downward. See docs/FOUR-PILLARS.md Flexibility section.
+        yield return new object[] { "healthcare", "acme-telehealth-gaps", 0.10 };
+        yield return new object[] { "contract",   "doc-002-clean-msa",    0.10 };
+    }
+
+    [Theory]
+    [MemberData(nameof(WrongRulesetScenariosAtProductionFloor))]
+    public async Task Arch_Ruleset_Against_OutOfDomain_Doc_At_Production_Floor_Ratchet(
+        string vertical, string docId, double ceilingFailRatio)
+    {
+        var report = await RunWrongRulesetAsync(vertical, docId, ProductionApplicabilityFloor);
+        DumpDiagnostics(report, $"{vertical}/{docId} vs arch @ floor {ProductionApplicabilityFloor} (RATCHET)");
+        DumpTopFailingRules(report, ruleset: null, topN: 25);
+
+        var (total, _, fail, _, _, _, _) = TallyOutcomes(report);
+        var failRatio = (double)fail / total;
+
+        failRatio.Should().BeLessThanOrEqualTo(ceilingFailRatio,
+            $"Issue #154 ratchet: production-floor Fail% must not regress above {ceilingFailRatio:P0}. " +
+            $"Observed {failRatio:P2} ({fail}/{total}). " +
+            "This ceiling tightens only when classic-lambda rules migrate to fact-mode (see " +
+            "docs/FOUR-PILLARS.md + CHANGELOG). Do not raise it to make a failing build green.");
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // Shared eval harness.
+    // ────────────────────────────────────────────────────────────────
+    private async Task<ComplianceReport> RunWrongRulesetAsync(
+        string vertical, string docId, double floor)
+    {
+        var sourcePath = Path.Combine(CorpusRoot, vertical, docId, "source.md");
+        File.Exists(sourcePath).Should().BeTrue($"golden doc must exist at {sourcePath}");
+        File.Exists(ArchRulesetPath).Should().BeTrue($"arch ruleset must exist at {ArchRulesetPath}");
+
+        var services = new ServiceCollection();
+        services.AddLogging(b => b.SetMinimumLevel(LogLevel.Warning));
+        services.AddSingleton<TimeProvider>(new FrozenTimeProvider(FrozenInstant));
+        services
+            .AddLambdaRagParsing()
+            .AddLambdaRagProjection()
+            .AddLambdaRagSelectors()
+            .AddLambdaRagEvaluation();
+        await using var sp = services.BuildServiceProvider();
+        var parsers = sp.GetRequiredService<ParserRegistry>();
+
+        var topicMap = TopicMapRegistry.Load($"{vertical}.v1");
+        var projector = new DeterministicContractProjector(topicMap);
+
+        var rulesetJson = await File.ReadAllTextAsync(ArchRulesetPath);
+        var ruleset = JsonSerializer.Deserialize<RuleSet>(rulesetJson, CanonicalJson.Options)!;
+
+        var parsed = await parsers.ParseAsync(sourcePath);
+        var projected = await projector.ProjectAsync(parsed);
+
+        var evalService = new EvaluationService(
+            sp.GetRequiredService<ISelectorMatcher>(),
+            sp.GetRequiredService<ILogger<EvaluationService>>(),
+            new FrozenTimeProvider(FrozenInstant),
+            applicabilityFloor: floor,
+            emitRuleLevelStats: true,
+            factExtractor: new EmptyBagsFactExtractor());
+
+        return await evalService.EvaluateAsync(ruleset, projected);
+    }
+
+    private static (int total, int pass, int fail, int na, int gap, int err, int sk)
+        TallyOutcomes(ComplianceReport report)
+    {
+        var total = report.TotalUniqueRules ?? report.TotalRules;
+        var pass = report.RulesPassed ?? report.Passed;
+        var fail = report.RulesFailed ?? report.Failed;
+        var na = report.RulesNotApplicable ?? report.NotApplicable;
+        var gap = report.RulesGap ?? report.Gaps;
+        var err = report.RulesErrored ?? report.Errored;
+        var sk = report.RulesSkipped ?? report.Skipped ?? 0;
+        return (total, pass, fail, na, gap, err, sk);
+    }
+
+    private void DumpDiagnostics(ComplianceReport report, string header)
+    {
+        var (total, pass, fail, na, gap, err, sk) = TallyOutcomes(report);
+        _output.WriteLine($"=== {header} ===");
+        _output.WriteLine($"TotalUniqueRules: {total}");
+        _output.WriteLine($"  Pass         : {pass}  ({Pct(pass, total)})");
+        _output.WriteLine($"  Fail         : {fail}  ({Pct(fail, total)})");
+        _output.WriteLine($"  NotApplicable: {na}  ({Pct(na, total)})");
+        _output.WriteLine($"  Gap          : {gap}  ({Pct(gap, total)})");
+        _output.WriteLine($"  Error        : {err}  ({Pct(err, total)})");
+        _output.WriteLine($"  Skipped      : {sk}  ({Pct(sk, total)})");
+
+        var byError = report.Verdicts
+            .GroupBy(v => v.Outcome + "|" + PrefixOf(v.ErrorMessage))
+            .OrderByDescending(g => g.Count())
+            .Take(20)
+            .ToList();
+        _output.WriteLine("--- top outcome/error buckets ---");
+        foreach (var g in byError)
+            _output.WriteLine($"  {g.Key}: {g.Count()}");
+    }
+
+    // Phase 2 diagnostic (Issue #154): rank classic-lambda rules by Fail
+    // contribution on out-of-domain docs. Feeds the concept-picking for
+    // schema expansion. Do NOT read this list and add concepts because
+    // *any single doc* surfaced them; look for concepts that appear
+    // across BOTH scenarios (arch-vs-healthcare AND arch-vs-contract)
+    // before promoting to schema (Flexibility principle).
+    private void DumpTopFailingRules(ComplianceReport report, RuleSet? ruleset, int topN)
+    {
+        var failing = report.Verdicts
+            .Where(v => v.Outcome == VerdictOutcome.Fail)
+            .GroupBy(v => v.RuleId)
+            .OrderByDescending(g => g.Count())
+            .Take(topN)
+            .ToList();
+
+        _output.WriteLine($"--- top-{topN} failing classic-lambda rules (Phase 2 evidence for issue #154) ---");
+        foreach (var g in failing)
+        {
+            var first = g.First();
+            var msg = first.ErrorMessage ?? "";
+            if (msg.Length > 120) msg = msg[..120] + "…";
+            _output.WriteLine($"  [{g.Count()}x] {g.Key}  |  {msg}");
+        }
     }
 
     private static string Pct(int part, int whole)

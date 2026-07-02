@@ -9,6 +9,28 @@ it reaches `1.0.0`.
 
 ### Added
 
+- **Flexibility ratchet gate at production applicability floor (issue #154)**.
+  Adds `Arch_Ruleset_Against_OutOfDomain_Doc_At_Production_Floor_Ratchet`
+  (`tests/LambdaRag.IdempotencyTests/WrongRulesetAntiOverfitTests.cs`) as a
+  companion to the existing floor-0.35 anti-overfit gate. This one runs at
+  the **ship-default floor (0.20)** — the setting used for real ARB reviews
+  — and asserts that classic-lambda rules do not manufacture Fail on
+  out-of-domain docs above today's measured ceiling. Also emits a
+  top-N failing-classic-rule diagnostic (Phase 2 evidence for issue #154):
+  ranks rules by Fail count so schema-expansion targets are picked from
+  concepts that leak across **both** scenarios (healthcare + contract),
+  never a single doc's vocabulary (Flexibility principle).
+
+  Ratchet ledger (tighten only when classic rules migrate to fact-mode):
+
+  | Scenario | Measured 2026-07-02 | Ceiling |
+  |---|---|---|
+  | `healthcare/acme-telehealth-gaps` | 9.34% Fail (34/364) | 10% |
+  | `contract/doc-002-clean-msa`      | 4.67% Fail (17/364) | 10% |
+
+  Do not raise the ceiling to make a failing build green. Convert classic
+  rules to fact-mode instead, then tighten the ceiling in this ledger.
+
 - **Fourth engineering pillar — Flexibility** (`docs/FOUR-PILLARS.md`).
   Elevated from an implicit norm to a first-class, tested property
   alongside Determinism, Idempotency, and Accuracy. Every future feature
