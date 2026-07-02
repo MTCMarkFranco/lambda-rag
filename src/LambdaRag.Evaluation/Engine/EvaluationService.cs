@@ -1060,10 +1060,16 @@ public sealed class EvaluationService
         var scope = ResolveFactScope(rule, sidecar);
         if (scope.Count == 0)
         {
-            return BuildVerdict(rule, ruleSet, NoMatchOutcome(rule),
+            // Fact-mode "no scoped sections" is an advisory-NA, not a Gap:
+            // no section in the doc even discusses any of the rule's
+            // RequiredFacts, so the concept is out-of-scope for this doc
+            // rather than a silent-missing required item. Softer + more
+            // honest signal than Gap. Diagnostic tag preserved in
+            // ErrorMessage for auditability.
+            return BuildVerdict(rule, ruleSet, VerdictOutcome.NotApplicable,
                 section: null, input: new JsonObject(), span: rule.SourceSpan,
                 error: "fact_mode:no_scoped_sections",
-                remediationText: NoMatchRemediation(rule));
+                remediationText: null);
         }
 
         var bag = new LambdaRag.Core.Facts.FactBag();
@@ -1075,21 +1081,24 @@ public sealed class EvaluationService
 
         // Contract null-handling: when any RequiredFact is null in the union
         // bag, the document is silent on the concept and the rule cannot
-        // adjudicate. Mandatory rules surface a Gap; Optional / Conditional
-        // rules produce NotApplicable. This runs BEFORE lambda evaluation
-        // so a genuinely absent concept can never silently pass through a
-        // permissive `== null` comparison.
+        // adjudicate. Emit NotApplicable — the doc simply doesn't discuss
+        // this concept, which is out-of-scope, not a silent-missing
+        // required item. Softer + more honest than Gap. This runs BEFORE
+        // lambda evaluation so a genuinely absent concept can never
+        // silently pass through a permissive `== null` comparison. The
+        // list of missing concepts is preserved in EvaluatedInput +
+        // ErrorMessage for audit.
         if (rule.RequiredFacts is { Count: > 0 })
         {
             var missing = rule.RequiredFacts.Where(rf => bag.Get(rf) is null).ToList();
             if (missing.Count > 0)
             {
-                return BuildVerdict(rule, ruleSet, NoMatchOutcome(rule),
+                return BuildVerdict(rule, ruleSet, VerdictOutcome.NotApplicable,
                     section: null,
                     input: new JsonObject { ["_missing_facts"] = new JsonArray(missing.Select(m => (JsonNode?)JsonValue.Create(m)).ToArray()) },
                     span: rule.SourceSpan,
                     error: "fact_mode:missing_required_facts:" + string.Join(",", missing),
-                    remediationText: NoMatchRemediation(rule));
+                    remediationText: null);
             }
         }
 

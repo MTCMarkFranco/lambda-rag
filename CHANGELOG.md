@@ -36,8 +36,15 @@ it reaches `1.0.0`.
     to a single `FactBag`, and evaluates the lambda ONCE with a named
     `facts` binding
     (`facts.encryption_declared == true && facts.key_rotation_days <= 90`).
-    Missing-fact semantics: any `RequiredFact` null → `NotApplicable`
-    (Advisory) / `Gap` (Mandatory).
+    Missing-fact semantics: any `RequiredFact` null in the union bag →
+    `NotApplicable` (advisory) regardless of rule applicability. Empty
+    scope (no section discusses any of the rule's `RequiredFacts`) also
+    resolves to `NotApplicable`. This is intentionally softer than `Gap`
+    because a fact-mode "the doc is silent on this concept" is a
+    scope-outside-doc signal, not a silent-missing-required-item signal;
+    the classic-lambda Gap semantics remain unchanged. Diagnostic tags
+    (`fact_mode:no_scoped_sections`, `fact_mode:missing_required_facts:<list>`)
+    are preserved in `verdict.errorMessage` for audit.
   - `LambdaRag.Core.Facts.IFactExtractor` — Pass-1 seam.
     `EvaluationService` takes an optional `factExtractor` ctor param;
     default `null` preserves byte-identity.
