@@ -9,6 +9,17 @@ it reaches `1.0.0`.
 
 ### Added
 
+- **Ruleset filename rename (naming consistency, follow-up to #159).**
+  Renamed
+  ulesets/architecture-review/enterprise-architecture-v1.json
+  → ulesets/architecture-review/architecture-v1.json. The ruleset's
+  internal `id` (`rs_enterprise_architecture_v1`) and rule prefix
+  (`EA-*`) are **unchanged** — those are fingerprint inputs and
+  renaming them would invalidate every cached review artifact and
+  break git blame on every rule. The user-visible `--ruleset` path
+  now matches the authored `"domain": "architecture"`. Updated
+  all in-tree string references to the old filename.
+
 - **Domain-scoped review + Flexibility scope refinement (issue #159).**
   lambda-rag now refuses to evaluate a document against a ruleset whose
   declared domain does not match the caller's. The guardrail lives at
@@ -50,7 +61,7 @@ it reaches `1.0.0`.
 - **Fact-mode conversion, batch 4 (issue #154).** Single-rule, single-
   concept batch — the only Flexibility-honest concept available in the
   current out-of-domain corpus. Added `console_action_migration_days:
-  Integer` to `enterprise-architecture-v1.json` `factSchema` (bumped
+  Integer` to `architecture-v1.json` `factSchema` (bumped
   schema version `4` → `5`).
 
   | Concept | Type | Rule converted |
@@ -94,7 +105,7 @@ it reaches `1.0.0`.
   when non-null).
 
   First user: `EA-SECR-007`. Added two concepts to
-  `enterprise-architecture-v1.json` `factSchema` (bumped schema
+  `architecture-v1.json` `factSchema` (bumped schema
   version `3` → `4` — loudly invalidates cached sidecars):
 
   | Concept | Type | Rule converted |
@@ -121,7 +132,7 @@ it reaches `1.0.0`.
   scenarios. Total fact-mode-converted rules: 25 out of 364 (~6.9%).
 
 - **Fact-mode conversion, batch 2 (issue #154)**. Added two new concepts
-  to `enterprise-architecture-v1.json` `factSchema` (bumped schema
+  to `architecture-v1.json` `factSchema` (bumped schema
   version `2` → `3` — loudly invalidates cached sidecars). Concept
   selection followed the Flexibility rule from batch 1: only convert
   rules whose concepts leak across **both** out-of-domain scenarios
@@ -154,7 +165,7 @@ it reaches `1.0.0`.
   concepts per rule, low leverage until we add more docs).
 
 - **Fact-mode conversion, first batch (issue #154)**. Added two new
-  concepts to `enterprise-architecture-v1.json` `factSchema` (bumped
+  concepts to `architecture-v1.json` `factSchema` (bumped
   schema version `1` → `2`, which invalidates all existing sidecars —
   intentional loud invalidation) and converted the two rules from the
   top-of-Fail leaderboard that cross-reference them:
@@ -432,7 +443,7 @@ it reaches `1.0.0`.
   Well-Architected, GCP Architecture Framework, NIST, OWASP, and CNCF
   with ~150 real citations. Includes 20 chapters + 3 appendices.
 
-- **`rulesets/architecture-review/enterprise-architecture-v1.json`**
+- **`rulesets/architecture-review/architecture-v1.json`**
   (new): 364-rule extracted ruleset from the policy above, emitted by
   `FoundryRuleAuthoringAgent`.
 

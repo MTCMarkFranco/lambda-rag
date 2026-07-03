@@ -44,7 +44,7 @@ public sealed class DomainMismatchGuardrailTests
 
     private static string CorpusRoot => Path.Combine(RepoRoot, "tests", "Goldens", "corpus");
     private static string ArchRulesetPath => Path.Combine(RepoRoot, "rulesets",
-        "architecture-review", "enterprise-architecture-v1.json");
+        "architecture-review", "architecture-v1.json");
 
     private static readonly DateTimeOffset FrozenInstant =
         new(2000, 1, 1, 0, 0, 0, TimeSpan.Zero);
@@ -97,7 +97,7 @@ public sealed class DomainMismatchGuardrailTests
     {
         // (declared-domain, corpus-vertical, doc-id) — the declared
         // domain is what the caller passes to review. All rulesets
-        // under test carry Domain="enterprise-architecture", so any
+        // under test carry Domain="architecture", so any
         // other declared value MUST throw.
         yield return new object[] { "healthcare", "healthcare", "acme-telehealth-gaps" };
         yield return new object[] { "contract",   "contract",   "doc-002-clean-msa" };
