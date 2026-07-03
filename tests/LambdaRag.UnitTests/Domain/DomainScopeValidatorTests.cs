@@ -34,7 +34,7 @@ public class DomainScopeValidatorTests
     [Fact]
     public void Null_Declared_Domain_Is_Silent_Pass()
     {
-        var rs = MakeRuleSet("enterprise-architecture");
+        var rs = MakeRuleSet("architecture");
         var act = () => DomainScopeValidator.RequireMatch(null, rs);
         act.Should().NotThrow();
     }
@@ -42,7 +42,7 @@ public class DomainScopeValidatorTests
     [Fact]
     public void Whitespace_Declared_Domain_Is_Silent_Pass()
     {
-        var rs = MakeRuleSet("enterprise-architecture");
+        var rs = MakeRuleSet("architecture");
         var act = () => DomainScopeValidator.RequireMatch("   ", rs);
         act.Should().NotThrow();
     }
@@ -50,31 +50,31 @@ public class DomainScopeValidatorTests
     [Fact]
     public void Matching_Domain_Passes()
     {
-        var rs = MakeRuleSet("enterprise-architecture");
-        var act = () => DomainScopeValidator.RequireMatch("enterprise-architecture", rs);
+        var rs = MakeRuleSet("architecture");
+        var act = () => DomainScopeValidator.RequireMatch("architecture", rs);
         act.Should().NotThrow();
     }
 
     [Fact]
     public void Case_Insensitive_Match_Passes()
     {
-        var rs = MakeRuleSet("enterprise-architecture");
-        var act = () => DomainScopeValidator.RequireMatch("Enterprise-Architecture", rs);
+        var rs = MakeRuleSet("architecture");
+        var act = () => DomainScopeValidator.RequireMatch("architecture", rs);
         act.Should().NotThrow();
     }
 
     [Fact]
     public void Mismatched_Domain_Throws_DomainMismatchException()
     {
-        var rs = MakeRuleSet("enterprise-architecture");
+        var rs = MakeRuleSet("architecture");
         var act = () => DomainScopeValidator.RequireMatch("healthcare", rs);
 
         var ex = act.Should().Throw<DomainMismatchException>().Which;
         ex.DeclaredDomain.Should().Be("healthcare");
-        ex.RulesetDomain.Should().Be("enterprise-architecture");
+        ex.RulesetDomain.Should().Be("architecture");
         ex.RulesetId.Should().Be("rs-test");
         ex.Message.Should().Contain("healthcare");
-        ex.Message.Should().Contain("enterprise-architecture");
+        ex.Message.Should().Contain("architecture");
         ex.Message.Should().Contain("rs-test");
     }
 

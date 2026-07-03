@@ -3,7 +3,7 @@ to evaluationMode='facts'. Idempotent — safe to rerun. Overwrites the
 existing rewrites."""
 import json, sys, copy
 
-P = r"rulesets/architecture-review/enterprise-architecture-v1.json"
+P = r"rulesets/architecture-review/architecture-v1.json"
 with open(P, "r", encoding="utf-8") as f:
     rs = json.load(f)
 

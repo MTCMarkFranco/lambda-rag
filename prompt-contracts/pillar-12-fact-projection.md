@@ -463,7 +463,7 @@ Every pre-Pillar-12 golden master must remain byte-identical. Approach:
   identical report across 5 consecutive runs.
 
 **Phase 4 — measured impact on the CTC arch doc.**
-- Reauthor a subset (~20) of `enterprise-architecture-v1` rules to use
+- Reauthor a subset (~20) of `architecture-v1` rules to use
   `EvaluationMode: "facts"`. Focus on the compound rules (encryption+rotation,
   data+residency, multi-clause requirements).
 - Re-run against the arch doc. Target: rule-level pass rate on the

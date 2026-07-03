@@ -50,7 +50,7 @@ Doc A and 10% on comparably-written Doc B *in the same domain* is a
 Flexibility failure, not an Accuracy win.
 
 **Scope note (issue #159).** Flexibility is an **in-domain** property.
-Running an out-of-domain ruleset (e.g. the enterprise-architecture
+Running an out-of-domain ruleset (e.g. the architecture
 ruleset against a healthcare doc) is not a Flexibility test — it is a
 category error. lambda-rag now **refuses** to run when the caller's
 declared domain does not match the ruleset's authored domain (see
