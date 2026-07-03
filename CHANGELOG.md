@@ -9,6 +9,30 @@ it reaches `1.0.0`.
 
 ### Added
 
+- **Paraphrase-corpus coverage batch (Pillar 4 Flexibility, follow-up to #159).**
+  Closed 9 of the 11 paraphrase-corpus coverage gaps identified against
+  the current fact-mode ruleset. Added ≥10 policy-language paraphrases
+  per concept for:
+
+  | Concept | Type | Rules newly covered |
+  |---|---|---|
+  | `encryption_at_rest` | Boolean | EA-AKS-013, EA-SECR-003 |
+  | `encryption_in_transit` | Boolean | EA-DATA-002 |
+  | `secrets_vaulted` | Boolean | EA-DATA-018 |
+  | `secrets_iac_managed` | Boolean | EA-SECR-007 |
+  | `break_glass_audited` | Boolean | EA-CICD-011 |
+  | `untagged_principal_disable_days` | Duration (30d) | EA-IAM-023 |
+  | `orphan_secret_deletion_days` | Duration (30d) | EA-SECR-007 |
+  | `console_action_migration_days` | Duration (90d) | EA-IAC-015 |
+  | `credential_rotation_days` | Duration (90d) | EA-DATA-019 |
+
+  Corpus now covers **22 concepts** (was 13), with **839 unit tests**
+  passing (was 721). Every rule-referenced fact-mode concept in the
+  architecture ruleset now has falsifiable Pillar 4 evidence, **except**
+  `rpo_hours` (needs an Integer-hours test-framework extension —
+  tracked as a follow-up) and the orphan concept `encryption_algorithm`
+  (paraphrase exists, no rule references it — decision needed:
+  wire in a rule or remove from corpus).
 - **Ruleset filename rename (naming consistency, follow-up to #159).**
   Renamed
   ulesets/architecture-review/enterprise-architecture-v1.json
