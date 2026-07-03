@@ -64,6 +64,49 @@ public class FactSchemaFingerprintTests
         b.Fingerprint().Value.Should().Be(a.Fingerprint().Value);
     }
 
+    // ── RequiredFactsAny (batch 3, issue #154) ──
+
+    [Fact]
+    public void Rule_Fingerprint_Unchanged_When_RequiredFactsAny_Null()
+    {
+        var a = MakeRule();
+        var b = MakeRule() with { RequiredFactsAny = null };
+        b.Fingerprint().Value.Should().Be(a.Fingerprint().Value);
+    }
+
+    [Fact]
+    public void Rule_Fingerprint_Unchanged_When_RequiredFactsAny_Empty()
+    {
+        var a = MakeRule();
+        var b = MakeRule() with { RequiredFactsAny = Array.Empty<string>() };
+        b.Fingerprint().Value.Should().Be(a.Fingerprint().Value);
+    }
+
+    [Fact]
+    public void Rule_Fingerprint_Changes_When_RequiredFactsAny_Set()
+    {
+        var a = MakeRule();
+        var b = MakeRule() with { RequiredFactsAny = new[] { "iac_managed", "deletion_days" } };
+        b.Fingerprint().Value.Should().NotBe(a.Fingerprint().Value);
+    }
+
+    [Fact]
+    public void Rule_Fingerprint_RequiredFactsAny_Order_Independent()
+    {
+        var a = MakeRule() with { RequiredFactsAny = new[] { "x", "y", "z" } };
+        var b = MakeRule() with { RequiredFactsAny = new[] { "z", "y", "x" } };
+        b.Fingerprint().Value.Should().Be(a.Fingerprint().Value);
+    }
+
+    [Fact]
+    public void Rule_Fingerprint_Distinguishes_RequiredFacts_From_RequiredFactsAny()
+    {
+        // AND-gate on {a,b} must not hash identically to OR-gate on {a,b}.
+        var a = MakeRule() with { RequiredFacts = new[] { "a", "b" } };
+        var b = MakeRule() with { RequiredFactsAny = new[] { "a", "b" } };
+        b.Fingerprint().Value.Should().NotBe(a.Fingerprint().Value);
+    }
+
     [Fact]
     public void RuleSet_Fingerprint_Unchanged_When_FactSchema_Null()
     {

@@ -185,14 +185,39 @@ public sealed record Rule(...)
     // Pillar 12 (#153) — the fact concepts this rule reads. Constrains
     // which sections are "relevant" for cross-section composition: only
     // sections whose fact bags mention at least one of these concepts
-    // (as true / non-null) participate in the union.
+    // (as true / non-null) participate in the union. AND-semantics NA
+    // gate: if ANY listed concept is null in the union bag, the rule
+    // resolves NotApplicable (doc silent on a mandatory input).
     public IReadOnlyList<string>? RequiredFacts { get; init; }
+
+    // Pillar 12 batch 3 (#154) — OR-semantics companion to RequiredFacts.
+    // When non-null, adds a second NA gate that fires only when ALL
+    // listed concepts are null in the union bag. Motivator: compound
+    // requirements like "X SHALL either be brought under IaC OR be
+    // deleted within 30 days" — any single documented alternative
+    // resolves the requirement, and the lambda decides Pass/Fail over
+    // the facts that ARE set. Coexists with RequiredFacts on the same
+    // rule (AND-gate runs first, then OR-gate). Both concept lists
+    // contribute to scope inference (a section is scoped in if it
+    // mentions any concept from either list).
+    public IReadOnlyList<string>? RequiredFactsAny { get; init; }
 }
 ```
 
-**Byte-identity guarantee**: both fields are nullable and defaulted to
-`null` on all existing rules. Fingerprint contribution only fires when
-non-null.
+**Byte-identity guarantee**: all three fields are nullable and defaulted
+to `null` on all existing rules. Fingerprint contribution only fires
+when non-null, and `RequiredFacts` vs `RequiredFactsAny` fold under
+distinct prefixes (`requiredFacts:` vs `requiredFactsAny:`) so an AND-
+gate on `{a,b}` never hashes identically to an OR-gate on `{a,b}`.
+
+**Diagnostic tags** (audit-visible in `verdict.ErrorMessage`):
+- `fact_mode:no_scoped_sections` — no section in the doc mentions any of
+  the rule's required concepts (either list); doc is silent on the
+  topic entirely.
+- `fact_mode:missing_required_facts:<a,b,...>` — a section was scoped
+  in, but at least one AND-required concept is null in the union bag.
+- `fact_mode:missing_required_facts_any:<a,b,...>` — a section was
+  scoped in, but ALL OR-alternatives are null in the union bag.
 
 ### `SectionFactSidecar` (new artifact, `<doc-basename>.facts.json`)
 
