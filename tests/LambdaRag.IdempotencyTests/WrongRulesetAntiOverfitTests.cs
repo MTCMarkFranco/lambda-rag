@@ -196,8 +196,10 @@ public sealed class WrongRulesetAntiOverfitTests
         //               (healthcare 8.24% ≤ 0.085, contract 3.57% ≤ 0.04)
         //   2026-07-02: batch 3 — RequiredFactsAny primitive + EA-SECR-007
         //               (healthcare 8.24% ≤ 0.085, contract 3.30% ≤ 0.036)
-        yield return new object[] { "healthcare", "acme-telehealth-gaps", 0.085 };
-        yield return new object[] { "contract",   "doc-002-clean-msa",    0.036 };
+        //   2026-07-02: batch 4 — EA-IAC-015 (console_action_migration_days)
+        //               (healthcare 7.97% ≤ 0.083, contract 3.02% ≤ 0.034)
+        yield return new object[] { "healthcare", "acme-telehealth-gaps", 0.083 };
+        yield return new object[] { "contract",   "doc-002-clean-msa",    0.034 };
     }
 
     [Theory]

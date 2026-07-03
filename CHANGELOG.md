@@ -9,6 +9,33 @@ it reaches `1.0.0`.
 
 ### Added
 
+- **Fact-mode conversion, batch 4 (issue #154).** Single-rule, single-
+  concept batch — the only Flexibility-honest concept available in the
+  current out-of-domain corpus. Added `console_action_migration_days:
+  Integer` to `enterprise-architecture-v1.json` `factSchema` (bumped
+  schema version `4` → `5`).
+
+  | Concept | Type | Rule converted |
+  |---|---|---|
+  | `console_action_migration_days` | Integer | EA-IAC-015 (90-day cap) |
+
+  This is the only rule currently failing in the top-25 of **both**
+  out-of-domain scenarios (healthcare 1× + contract 3×). All other
+  top-failing rules leak in only one scenario each — batch 5 will
+  need corpus expansion (a 3rd out-of-domain scenario) to unlock more
+  cross-scenario concepts.
+
+  Ratchet movement (production-floor test):
+
+  | Scenario | Batch 3 | Batch 4 | Rules removed |
+  |---|---|---|---|
+  | `healthcare/acme-telehealth-gaps` | 8.24% (30/364) | **7.97% (29/364)** | 1 |
+  | `contract/doc-002-clean-msa`      | 3.30% (12/364) | **3.02% (11/364)** | 1 |
+
+  Ceilings tightened: healthcare `0.085` → `0.083`, contract `0.036` →
+  `0.034`. Fact-mode NAs: 25 → 26 across both scenarios. Total fact-
+  mode-converted rules: 26 out of 364 (~7.1%).
+
 - **`RequiredFactsAny` engine primitive + fact-mode conversion, batch 3
   (issue #154).** New OR-semantics NA gate on `Rule.RequiredFactsAny`,
   companion to the existing AND-semantics `RequiredFacts`. Fires
