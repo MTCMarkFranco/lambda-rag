@@ -37,6 +37,14 @@ inside `reviewed.docx` and a byte-identical `report.json`.
 > guarantee — and is the most useful single page for anyone deciding
 > whether this tool fits a regulator-facing use case.
 
+> 🧭 **The engineering discipline** is codified in
+> [`docs/FOUR-PILLARS.md`](docs/FOUR-PILLARS.md) — Determinism,
+> Idempotency, Accuracy, and Flexibility (in-domain paraphrase
+> robustness). Every feature must pass a falsifiable test for each
+> pillar before it ships. Cross-domain review is blocked at the entry
+> point via `--domain` (defaults to the ruleset's authored domain) —
+> see `DomainScopeValidator`.
+
 > 🖼️ **One picture:**
 > [`docs/diagrams/authoring-vs-runtime.md`](docs/diagrams/authoring-vs-runtime.md)
 > is the canonical authoring-vs-runtime architecture diagram. Use it
@@ -306,7 +314,7 @@ verdict (asserted by `tests/LambdaRag.IdempotencyTests/AdditiveGuaranteeTests.cs
 ## CLI cheat sheet (commands)
 
 ```
-lambda-rag review        --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>] [--annotate-pass] [--rewrite] [--doc-kind <id>] [--topic-map <id-or-path>]
+lambda-rag review        --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>] [--annotate-pass] [--rewrite] [--doc-kind <id>] [--topic-map <id-or-path>] [--domain <name>]
 lambda-rag extract-rules --policy-dir <dir> --domain <name> --id <ruleset-id> --out <path>
 lambda-rag author        --chunk <path> --domain <name> --prefix <id-prefix> --out <path>
 lambda-rag coverage      --document <path> --ruleset <path> --out <path>
