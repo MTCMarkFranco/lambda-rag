@@ -139,6 +139,94 @@ public static class ParaphraseCorpusData
             "every 365-day",
         });
 
+    /// <summary>30-day cadence — untagged principal disable window.</summary>
+    public static readonly ConceptGroup UntaggedPrincipalDisableDays = new(
+        "untagged_principal_disable_days",
+        FactType.Duration,
+        30L,
+        new[]
+        {
+            "every 30 days",
+            "on a 30-day cycle",
+            "on a 30 day cycle",
+            "monthly",
+            "every month",
+            "Every 30 Days",
+            "monthly.",
+            "on a 30-day window",
+            "every 30-day",
+            "every 30-day cadence",
+            "on a 30-day rotation",
+            "every 30 days.",
+        });
+
+    /// <summary>30-day cadence for orphan secret deletion. Shares the
+    /// same numeric target as UntaggedPrincipalDisableDays but is a
+    /// distinct policy concept — the paraphrase corpus keeps them
+    /// separate so a normalizer regression on one concept surfaces as a
+    /// concept-scoped test failure.</summary>
+    public static readonly ConceptGroup OrphanSecretDeletionDays = new(
+        "orphan_secret_deletion_days",
+        FactType.Duration,
+        30L,
+        new[]
+        {
+            "every 30 days",
+            "on a 30-day cycle",
+            "monthly",
+            "every month",
+            "on a 30-day deletion window",
+            "every 30-day cleanup cycle",
+            "on a 30 day cycle",
+            "Every 30 days",
+            "on a 30-day retention window",
+            "every 30-day cadence",
+            "monthly.",
+        });
+
+    /// <summary>90-day console-action migration deadline (EA-IAC-015).</summary>
+    public static readonly ConceptGroup ConsoleActionMigrationDays = new(
+        "console_action_migration_days",
+        FactType.Duration,
+        90L,
+        new[]
+        {
+            "every 90 days",
+            "on a 90-day cycle",
+            "quarterly",
+            "every quarter",
+            "on a 90-day migration window",
+            "on a 90 day cycle",
+            "Every 90 days",
+            "every 90-day",
+            "on a 90-day cadence",
+            "every 90-day migration cycle",
+            "quarterly.",
+        });
+
+    /// <summary>90-day cadence family for credential rotation. The rule
+    /// EA-DATA-019 asserts <c>credential_rotation_days &gt; 0</c>, so
+    /// any positive cadence satisfies it; we anchor on 90 days as the
+    /// common industry baseline.</summary>
+    public static readonly ConceptGroup CredentialRotationDays = new(
+        "credential_rotation_days",
+        FactType.Duration,
+        90L,
+        new[]
+        {
+            "every 90 days",
+            "on a 90-day cycle",
+            "quarterly",
+            "every quarter",
+            "on a 90-day rotation",
+            "on a 90-day rotation window",
+            "Every 90 days",
+            "every 90-day",
+            "on a 90 day cycle",
+            "on a 90-day credential rotation",
+            "quarterly.",
+        });
+
     // ── Extraction-contract concepts (Boolean / Enum) ─────────────────────
 
     public static readonly ConceptGroup EncryptionDeclared = new(
@@ -296,6 +384,118 @@ public static class ParaphraseCorpusData
         })
     { EnumValues = new[] { "AES-256", "AES-128", "ChaCha20-Poly1305", "AES-GCM" } };
 
+    /// <summary>Encryption-at-rest boolean — used by EA-AKS-013 and
+    /// EA-SECR-003. Distinct from <see cref="EncryptionDeclared"/>
+    /// which is the umbrella "some form of encryption is declared"
+    /// signal; <c>encryption_at_rest</c> is the tighter at-rest-only
+    /// commitment.</summary>
+    public static readonly ConceptGroup EncryptionAtRest = new(
+        "encryption_at_rest",
+        FactType.Boolean,
+        true,
+        new[]
+        {
+            "All data at rest is encrypted.",
+            "Persisted data is encrypted using AES-256.",
+            "Storage-tier encryption is enabled for all volumes.",
+            "Data at rest SHALL be cryptographically protected.",
+            "Encryption at rest is enforced by the storage service.",
+            "Disks are encrypted using customer-managed keys.",
+            "Every persisted byte is encrypted before it lands on disk.",
+            "Envelope encryption is applied to all stored data.",
+            "Storage accounts have infrastructure encryption enabled.",
+            "The database uses transparent data encryption (TDE).",
+            "At-rest encryption is on by default for all workloads.",
+        });
+
+    /// <summary>Encryption-in-transit boolean — used by EA-DATA-002.
+    /// Complements <see cref="EncryptionAtRest"/>; policies often
+    /// mandate both together.</summary>
+    public static readonly ConceptGroup EncryptionInTransit = new(
+        "encryption_in_transit",
+        FactType.Boolean,
+        true,
+        new[]
+        {
+            "All traffic is encrypted in transit.",
+            "TLS is required for all network communication.",
+            "Traffic between services is encrypted using mTLS.",
+            "In-transit encryption is enforced for every hop.",
+            "All API calls SHALL be made over HTTPS.",
+            "Cross-service traffic uses TLS 1.2 or higher.",
+            "Data in motion is protected via TLS.",
+            "Every connection to the workload is TLS-terminated.",
+            "Internal traffic is encrypted end-to-end.",
+            "The workload rejects unencrypted transport.",
+            "HTTPS is enforced by conditional access at the ingress.",
+        });
+
+    /// <summary>Secrets-vaulted boolean — used by EA-DATA-018. Asserts
+    /// that secrets live in a managed vault rather than in code /
+    /// config / env vars.</summary>
+    public static readonly ConceptGroup SecretsVaulted = new(
+        "secrets_vaulted",
+        FactType.Boolean,
+        true,
+        new[]
+        {
+            "All secrets are stored in Azure Key Vault.",
+            "Secrets are managed by a centralized vault.",
+            "Application secrets are held in a managed secret store.",
+            "Secrets SHALL NOT be committed to source control.",
+            "Every credential is retrieved from Key Vault at runtime.",
+            "The workload uses a managed identity + vault pattern.",
+            "Secrets are vaulted and rotated by the platform.",
+            "No secrets appear in configuration files or environment variables.",
+            "Secrets are stored exclusively in a hardware-backed vault.",
+            "All service credentials live in a secret manager.",
+            "Secret material is externalized to a policy-controlled vault.",
+        });
+
+    /// <summary>Secrets-IaC-managed boolean — used by EA-SECR-007.
+    /// Asserts that vault contents / access are declared through
+    /// infrastructure-as-code, not click-ops.</summary>
+    public static readonly ConceptGroup SecretsIacManaged = new(
+        "secrets_iac_managed",
+        FactType.Boolean,
+        true,
+        new[]
+        {
+            "Secret configuration is managed via infrastructure-as-code.",
+            "All Key Vault entries are declared in Bicep.",
+            "Secret access policies are defined in Terraform.",
+            "Vault contents SHALL be provisioned by IaC.",
+            "Secrets and their access grants are code-reviewed via pull request.",
+            "No manual portal changes to the vault are permitted.",
+            "Vault RBAC is expressed as ARM templates under source control.",
+            "The pipeline is the only path that mutates vault state.",
+            "Secret rotation and access are declaratively managed.",
+            "All vault mutations go through GitOps.",
+            "Portal-based secret writes are disabled by policy.",
+        });
+
+    /// <summary>Break-glass-audited boolean — used by EA-CICD-011. The
+    /// concept is "when the break-glass account is used, that use is
+    /// captured to an audit trail," not "break-glass exists."</summary>
+    public static readonly ConceptGroup BreakGlassAudited = new(
+        "break_glass_audited",
+        FactType.Boolean,
+        true,
+        new[]
+        {
+            "Break-glass account usage is fully audited.",
+            "Any use of the emergency access account is logged to the SIEM.",
+            "Break-glass sign-ins trigger an audit alert.",
+            "Emergency-access invocations are captured in the audit pipeline.",
+            "The break-glass workflow is instrumented for post-incident review.",
+            "Every use of the break-glass credential SHALL be reviewed within 24 hours.",
+            "Break-glass activity is retained for forensic analysis.",
+            "The break-glass account is monitored by an always-on alerting rule.",
+            "Emergency credential use is escalated to security automatically.",
+            "All break-glass sessions are recorded to the tamper-evident log.",
+            "Post-hoc audit of break-glass access is mandatory.",
+        });
+
     // ── Master listing consumed by the test theories ─────────────────────
 
     /// <summary>All concept groups whose values are derivable from the
@@ -308,6 +508,10 @@ public static class ParaphraseCorpusData
         WeeklyCadence,
         EveryNDaysFamily,
         AnnualCadence,
+        UntaggedPrincipalDisableDays,
+        OrphanSecretDeletionDays,
+        ConsoleActionMigrationDays,
+        CredentialRotationDays,
     };
 
     /// <summary>All concept groups exercised through the
@@ -324,9 +528,14 @@ public static class ParaphraseCorpusData
         TlsMinVersion12,
         DataClassificationConfidential,
         EncryptionAlgorithmAes256,
+        EncryptionAtRest,
+        EncryptionInTransit,
+        SecretsVaulted,
+        SecretsIacManaged,
+        BreakGlassAudited,
     };
 
-    /// <summary>Union — the full corpus, 13 concepts × ≥10 paraphrases.</summary>
+    /// <summary>Union — the full corpus, 22 concepts × ≥10 paraphrases.</summary>
     public static IReadOnlyList<ConceptGroup> All =>
         NormalizerGroups.Concat(ExtractionContractGroups).ToList();
 }
