@@ -5,7 +5,12 @@ All notable changes to lambda-rag are documented here. The format follows
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) once
 it reaches `1.0.0`.
 
-## [Unreleased]
+## [1.2.0] — 2026-07-02
+
+Domain-scoped review + Flexibility pillar refinement. This release
+finalizes the shift from cross-domain ratchets to a hard entry-point
+guardrail, and closes paraphrase-corpus coverage for the current
+architecture ruleset's fact-mode concepts.
 
 ### Added
 
