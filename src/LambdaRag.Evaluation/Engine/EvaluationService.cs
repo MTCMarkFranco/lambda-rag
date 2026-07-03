@@ -90,7 +90,7 @@ public sealed class EvaluationService
         RuleSet ruleSet,
         ProjectedDocument document,
         CancellationToken ct = default)
-        => await EvaluateAsync(ruleSet, document, docKind: null, ct).ConfigureAwait(false);
+        => await EvaluateAsync(ruleSet, document, docKind: null, declaredDomain: null, ct).ConfigureAwait(false);
 
     /// <summary>
     /// Pillar 1 (#116) overload — when <paramref name="docKind"/> is non-null
@@ -107,7 +107,26 @@ public sealed class EvaluationService
         ProjectedDocument document,
         string? docKind,
         CancellationToken ct = default)
+        => await EvaluateAsync(ruleSet, document, docKind, declaredDomain: null, ct).ConfigureAwait(false);
+
+    /// <summary>
+    /// Issue #159 overload — enforces domain-scoped review. When
+    /// <paramref name="declaredDomain"/> is non-null and does not match
+    /// <c>ruleSet.Domain</c>, <see cref="DomainMismatchException"/> is
+    /// thrown BEFORE any rule is evaluated. A null <paramref name="declaredDomain"/>
+    /// inherits the ruleset's domain silently. Lambda-rag does not
+    /// attempt cross-domain evaluation — the caller declares intent and
+    /// the engine refuses to run outside it.
+    /// </summary>
+    public async Task<ComplianceReport> EvaluateAsync(
+        RuleSet ruleSet,
+        ProjectedDocument document,
+        string? docKind,
+        string? declaredDomain,
+        CancellationToken ct = default)
     {
+        DomainScopeValidator.RequireMatch(declaredDomain, ruleSet);
+
         // Pillar 3 (#118) — fail loud on embedder drift. When the ruleset
         // pinned an embedder id but the active vector store reports a
         // different model, the precomputed sourceEmbedding vectors on

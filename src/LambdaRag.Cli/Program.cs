@@ -71,7 +71,7 @@ static class CliEntry
             lambda-rag — deterministic rules-over-documents
 
             Usage:
-              lambda-rag review   --document <path> --ruleset <path> --out <dir> [--mode report|markup|both] [--overlay <path>] [--annotate-pass] [--rewrite] [--applicability-floor <0.0-1.0>] [--rule-level-stats] [--refresh-facts] [--facts-cache-dir <path>]
+              lambda-rag review   --document <path> --ruleset <path> --out <dir> [--domain <name>] [--mode report|markup|both] [--overlay <path>] [--annotate-pass] [--rewrite] [--applicability-floor <0.0-1.0>] [--rule-level-stats] [--refresh-facts] [--facts-cache-dir <path>]
               lambda-rag project  --document <path> --out <path>
               lambda-rag parse    --document <path> --out <path>
               lambda-rag coverage --document <path> --ruleset <path> --out <path>
@@ -201,6 +201,16 @@ static class CliEntry
         var ruleEmbedder = sp.GetRequiredService<IRuleEmbedder>();
 
         var ruleset = RuleSetIO.Load(rulesetPath);
+
+        // Issue #159 — domain-scoped review. Declared domain defaults to
+        // the ruleset's authored domain (1c: ruleset owns the domain,
+        // CLI can override). Mismatch throws DomainMismatchException at
+        // the entry point — lambda-rag does not perform cross-domain
+        // evaluation.
+        var declaredDomain = f.GetValueOrDefault("domain") ?? ruleset.Domain;
+        DomainScopeValidator.RequireMatch(declaredDomain, ruleset);
+        AnsiConsole.MarkupLine($"[dim]Domain:[/]    {Markup.Escape(declaredDomain)}");
+
         OverlayApplied? overlayAudit = null;
         var overlayPath = f.GetValueOrDefault("overlay");
         if (overlayPath is not null)
@@ -319,7 +329,7 @@ static class CliEntry
         var report = await AnsiConsole.Status()
             .Spinner(Spinner.Known.Dots)
             .StartAsync($"[bold]Evaluating[/] {ruleset.Rules.Count} rules…", async _ =>
-                await effectiveEvaluator.EvaluateAsync(ruleset, projected, resolvedDocKind));
+                await effectiveEvaluator.EvaluateAsync(ruleset, projected, resolvedDocKind, declaredDomain));
         if (overlayAudit is not null)
             report = report with { OverlayApplied = overlayAudit };
         if (report.WrongProfile == true)

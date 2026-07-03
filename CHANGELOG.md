@@ -9,6 +9,44 @@ it reaches `1.0.0`.
 
 ### Added
 
+- **Domain-scoped review + Flexibility scope refinement (issue #159).**
+  lambda-rag now refuses to evaluate a document against a ruleset whose
+  declared domain does not match the caller's. The guardrail lives at
+  the entry point of every review — before any fact extraction, embedder
+  drift check, or predicate evaluation runs.
+
+  - New `DomainScopeValidator` (in `LambdaRag.Core.Domain`) with
+    `RequireMatch(declaredDomain, ruleSet)`. Case-insensitive comparison;
+    null / whitespace `declaredDomain` silently inherits from the
+    ruleset (for programmatic callers).
+  - New `DomainMismatchException` carrying `DeclaredDomain`,
+    `RulesetDomain`, `RulesetId` for actionable error messages.
+  - New 4-arg `EvaluationService.EvaluateAsync(ruleSet, contract,
+    docKind, declaredDomain, ct)` overload. Existing 2- and 3-arg
+    overloads chain through and skip validation (null-inherit path) —
+    fully back-compat for existing callers.
+  - New `--domain <name>` CLI flag on `lambda-rag review`. Defaults to
+    `ruleset.Domain`, printed to the console as `Domain: <name>`, then
+    validated before overlay processing.
+  - `DomainScopeValidatorTests` (6 unit tests) + `DomainMismatchGuardrailTests`
+    (6 integration tests) cover the pass, inherit, and throw paths.
+
+  **Flexibility scope**: the fourth pillar is now explicitly an
+  *in-domain* property. The old cross-domain ratchet (arch ruleset run
+  against healthcare + contract corpora, monotonic Fail-% ceilings on
+  each) has been retired — see `docs/FOUR-PILLARS.md` for the updated
+  Pillar 4 definition. The retired `WrongRulesetAntiOverfitTests.cs`
+  encoded the batch 1–4 ratchet history in comments; that ledger is
+  preserved in git history and prior CHANGELOG entries only.
+
+  **Locked design decisions** (from issue #159):
+  1. Ruleset owns its authored domain; CLI can override via `--domain`.
+  2. Documents do NOT declare a domain (no in-band tagging).
+  3. Cross-domain review is a hard fail at entry, not a soft ratchet.
+  4. Batch conversions continue, now justified by in-domain
+     paraphrase-robustness rather than cross-scenario leak reduction.
+  5. PR #158 was the final batch merged under the old regime.
+
 - **Fact-mode conversion, batch 4 (issue #154).** Single-rule, single-
   concept batch — the only Flexibility-honest concept available in the
   current out-of-domain corpus. Added `console_action_migration_days:
