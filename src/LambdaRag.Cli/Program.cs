@@ -41,6 +41,7 @@ static class CliEntry
                 "review"   => await ReviewAsync(args.Skip(1).ToArray()),
                 "project"  => await ProjectAsync(args.Skip(1).ToArray()),
                 "parse"    => await ParseAsync(args.Skip(1).ToArray()),
+                "dump-tree" => await DumpTreeAsync(args.Skip(1).ToArray()),
                 "coverage" => await CoverageAsync(args.Skip(1).ToArray()),
                 "author"   => await AuthorAsync(args.Skip(1).ToArray()),
                 "index"    => await IndexAsync(args.Skip(1).ToArray()),
@@ -74,6 +75,7 @@ static class CliEntry
               lambda-rag review   --document <path> --ruleset <path> --out <dir> [--domain <name>] [--mode report|markup|both] [--overlay <path>] [--annotate-pass] [--rewrite] [--applicability-floor <0.0-1.0>] [--rule-level-stats] [--refresh-facts] [--facts-cache-dir <path>]
               lambda-rag project  --document <path> --out <path>
               lambda-rag parse    --document <path> --out <path>
+              lambda-rag dump-tree --document <path> [--out <path>]   # PageIndex-style section tree (offline, LLM-free)
               lambda-rag coverage --document <path> --ruleset <path> --out <path>
               lambda-rag author   --chunk <path> --domain <name> --prefix <id-prefix> --out <path>
               lambda-rag author   --source <pdf-or-dir> --search-service <name> --storage-url <blob-url>
@@ -677,6 +679,38 @@ static class CliEntry
         };
         File.WriteAllText(outPath, System.Text.Json.JsonSerializer.Serialize(dump, LambdaRag.Core.CanonicalJson.Options));
         Console.WriteLine($"Wrote:     {outPath}");
+        return 0;
+    }
+
+    static async Task<int> DumpTreeAsync(string[] args)
+    {
+        var f = ParseFlags(args);
+        var documentPath = f.GetValueOrDefault("document") ?? throw new ArgumentException("--document required");
+        var outPath = f.GetValueOrDefault("out") ?? "tree.json";
+
+        await using var sp = (ServiceProvider)BuildServices();
+        var parsers = sp.GetRequiredService<ParserRegistry>();
+        var parsed = await parsers.ParseAsync(documentPath);
+
+        var tree = new DocumentTreeBuilder().Build(parsed);
+        File.WriteAllText(outPath, DocumentTreeBuilder.ToJson(tree));
+
+        // Human summary — useful for rule authors picking anchors.
+        int nodeCount = 0, maxDepth = 0;
+        void Walk(LambdaRag.Core.Domain.TreeNode n, int depth)
+        {
+            nodeCount++;
+            if (depth > maxDepth) maxDepth = depth;
+            foreach (var c in n.Children) Walk(c, depth + 1);
+        }
+        Walk(tree.Root, 0);
+
+        Console.WriteLine($"Source:      {parsed.Source.FileName}");
+        Console.WriteLine($"Source Id:   {parsed.Source.Id.Value}");
+        Console.WriteLine($"Builder:     {tree.BuilderId}@{tree.BuilderVersion}");
+        Console.WriteLine($"Fingerprint: {tree.Fingerprint.Value}");
+        Console.WriteLine($"Nodes:       {nodeCount} (max depth {maxDepth})");
+        Console.WriteLine($"Wrote:       {outPath}");
         return 0;
     }
 
