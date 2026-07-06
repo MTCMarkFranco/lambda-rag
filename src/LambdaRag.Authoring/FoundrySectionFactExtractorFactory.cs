@@ -50,12 +50,41 @@ public static class FoundrySectionFactExtractorFactory
 #pragma warning restore OPENAI001
 
         var logger = loggerFactory?.CreateLogger<FoundrySectionFactExtractor>();
+
+        // Issue #181: fold deployment + region into the Locked Oracle
+        // fingerprint so that swapping endpoints or regions loudly
+        // invalidates the sidecar cache (via SectionFactSidecarMismatchException).
+        var determinism = LockedOracleSettings.Default.WithRuntime(
+            deploymentId: deployment,
+            region: TryExtractRegion(endpoint));
+
         return new FoundrySectionFactExtractor(
             chatClient,
             modelId: deployment,
             log: logger,
             cacheDirOverride: cacheDirOverride,
-            refresh: refresh);
+            refresh: refresh,
+            determinism: determinism);
+    }
+
+    /// <summary>
+    /// Best-effort region extractor from an Azure OpenAI / Foundry endpoint.
+    /// Recognizes hostnames like <c>foundry-cc-canada.services.ai.azure.com</c>
+    /// or <c>my-account-eastus.openai.azure.com</c> and returns the trailing
+    /// hyphen segment ("canada", "eastus"). Falls back to the full host if no
+    /// pattern matches. Never throws — a null endpoint returns null.
+    /// </summary>
+    public static string? TryExtractRegion(string? endpoint)
+    {
+        if (string.IsNullOrWhiteSpace(endpoint)) return null;
+        if (!Uri.TryCreate(endpoint, UriKind.Absolute, out var uri)) return endpoint;
+        var host = uri.Host;
+        var firstDot = host.IndexOf('.');
+        var account = firstDot < 0 ? host : host[..firstDot];
+        var lastHyphen = account.LastIndexOf('-');
+        return lastHyphen > 0 && lastHyphen < account.Length - 1
+            ? account[(lastHyphen + 1)..]
+            : host;
     }
 
     private static string? Resolve(IConfiguration? configuration, string key, string envVar)

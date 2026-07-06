@@ -40,7 +40,7 @@ public sealed class FoundrySectionFactExtractor : IFactExtractor
     //         determinism settings folded into PromptHash. Existing sidecars
     //         generated pre-1.1.0 will fail the fingerprint check on load,
     //         which is the intended cache-invalidation semantic.
-    public const string PromptVersion = "1.1.0";
+    public const string PromptVersion = "1.2.0";
 
     private static readonly SemaphoreSlim GlobalCallGate = new(initialCount: 4, maxCount: 4);
 
@@ -81,6 +81,21 @@ public sealed class FoundrySectionFactExtractor : IFactExtractor
 
     public string ModelId { get; }
     public string PromptHash { get; }
+
+    /// <summary>Locked Oracle settings applied to this extractor (issue #181).</summary>
+    public LockedOracleSettings DeterminismSettings => _determinism;
+
+    /// <summary>Tokens billed for the most recent <see cref="ExtractAsync"/> call.</summary>
+    public long LastRunInputTokens => Interlocked.Read(ref _runInputTokens);
+
+    /// <summary>Tokens returned for the most recent <see cref="ExtractAsync"/> call.</summary>
+    public long LastRunOutputTokens => Interlocked.Read(ref _runOutputTokens);
+
+    /// <summary>Model snapshot observed on the most recent <see cref="ExtractAsync"/> call.</summary>
+    public string? LastRunModelSnapshot => Volatile.Read(ref _observedModelId);
+
+    /// <summary>Section count on the most recent <see cref="ExtractAsync"/> call.</summary>
+    public int LastRunSectionsTotal => Volatile.Read(ref _runSectionsTotal);
 
     public FoundrySectionFactExtractor(
         IChatClient chat,
@@ -148,6 +163,7 @@ public sealed class FoundrySectionFactExtractor : IFactExtractor
         Interlocked.Exchange(ref _runInputTokens, 0);
         Interlocked.Exchange(ref _runOutputTokens, 0);
         Interlocked.Exchange(ref _observedModelId, null);
+        Volatile.Write(ref _runSectionsTotal, sections.Count);
 
         var schemaJson = SchemaToPromptJson(schema);
         var warnings = new List<string>();
@@ -213,7 +229,7 @@ public sealed class FoundrySectionFactExtractor : IFactExtractor
         // over 1200 calls in Phase 0 — see #175).
         var options = new ChatOptions
         {
-            MaxOutputTokens = 800,
+            MaxOutputTokens = _determinism.MaxOutputTokens ?? 800,
             ResponseFormat = ChatResponseFormat.Json,
             Temperature = _determinism.Temperature,
             TopP = _determinism.TopP,
@@ -437,6 +453,7 @@ public sealed class FoundrySectionFactExtractor : IFactExtractor
     // bounded by GlobalCallGate and we sum with Interlocked.
     private long _runInputTokens;
     private long _runOutputTokens;
+    private int _runSectionsTotal;
 
     private async Task<CallResult> CallWithRetryAsync(
         IEnumerable<ChatMessage> messages,
