@@ -8,18 +8,19 @@ internal static class ReportWriter
     public static async Task WriteAsync(
         string outDir,
         Metrics.Report metrics,
+        Pricing.CostReport cost,
         IReadOnlyList<ProbeRun> runs,
         string endpoint,
         string deployment,
         int n)
     {
         Directory.CreateDirectory(outDir);
-        await WriteJsonAsync(outDir, metrics, runs, endpoint, deployment, n).ConfigureAwait(false);
-        await WriteMarkdownAsync(outDir, metrics, runs, endpoint, deployment, n).ConfigureAwait(false);
+        await WriteJsonAsync(outDir, metrics, cost, runs, endpoint, deployment, n).ConfigureAwait(false);
+        await WriteMarkdownAsync(outDir, metrics, cost, runs, endpoint, deployment, n).ConfigureAwait(false);
     }
 
     private static async Task WriteJsonAsync(
-        string outDir, Metrics.Report m, IReadOnlyList<ProbeRun> runs,
+        string outDir, Metrics.Report m, Pricing.CostReport cost, IReadOnlyList<ProbeRun> runs,
         string endpoint, string deployment, int n)
     {
         var payload = new
@@ -35,6 +36,7 @@ internal static class ReportWriter
             timestamp_utc = DateTime.UtcNow.ToString("O"),
             verdict = Metrics.ClassifyVerdict(m),
             metrics = m,
+            cost,
             per_run = runs.Select(r => new
             {
                 index = r.Index,
@@ -43,6 +45,8 @@ internal static class ReportWriter
                 canonical_sha256 = r.CanonicalSha256,
                 system_fingerprint = r.SystemFingerprint,
                 model = r.ModelName,
+                input_tokens = r.InputTokens,
+                output_tokens = r.OutputTokens,
                 error = r.Error,
             }).ToList(),
         };
@@ -56,7 +60,7 @@ internal static class ReportWriter
     }
 
     private static async Task WriteMarkdownAsync(
-        string outDir, Metrics.Report m, IReadOnlyList<ProbeRun> runs,
+        string outDir, Metrics.Report m, Pricing.CostReport cost, IReadOnlyList<ProbeRun> runs,
         string endpoint, string deployment, int n)
     {
         var verdict = Metrics.ClassifyVerdict(m);
@@ -99,6 +103,30 @@ internal static class ReportWriter
         sb.AppendLine($"| Avg latency | {m.AvgLatencyMs:F0} ms |");
         sb.AppendLine($"| P95 latency | {m.P95LatencyMs:F0} ms |");
         sb.AppendLine();
+
+        sb.AppendLine("## Token usage & cost");
+        sb.AppendLine();
+        sb.AppendLine("| Metric | Value |");
+        sb.AppendLine("|---|---|");
+        sb.AppendLine($"| Total input tokens | {cost.TotalInputTokens:N0} |");
+        sb.AppendLine($"| Total output tokens | {cost.TotalOutputTokens:N0} |");
+        sb.AppendLine($"| Total tokens | {cost.TotalTokens:N0} |");
+        sb.AppendLine($"| Input rate | ${cost.InputRatePer1M:F4} / 1M tokens |");
+        sb.AppendLine($"| Output rate | ${cost.OutputRatePer1M:F4} / 1M tokens |");
+        sb.AppendLine($"| Input cost | ${cost.InputCostUsd:F4} USD |");
+        sb.AppendLine($"| Output cost | ${cost.OutputCostUsd:F4} USD |");
+        sb.AppendLine($"| **Total cost** | **${cost.TotalCostUsd:F4} USD** |");
+        sb.AppendLine($"| Avg cost per run | ${cost.AvgCostPerRunUsd:F6} USD |");
+        sb.AppendLine();
+        if (cost.RateIsPlaceholder)
+        {
+            sb.AppendLine("⚠️  **Rates are best-effort placeholders.** The Azure OpenAI pricing page renders");
+            sb.AppendLine("prices dynamically and cannot be scraped programmatically. Verify against");
+            sb.AppendLine("https://azure.microsoft.com/en-us/pricing/details/azure-openai/ or the Azure");
+            sb.AppendLine("Portal Cost Management view. Override with `--input-rate` and `--output-rate`");
+            sb.AppendLine("(USD per 1M tokens).");
+            sb.AppendLine();
+        }
 
         sb.AppendLine("## Provider metadata — shard/model distribution");
         sb.AppendLine();

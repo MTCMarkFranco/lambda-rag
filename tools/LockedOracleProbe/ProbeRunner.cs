@@ -16,7 +16,9 @@ internal sealed record ProbeRun(
     long LatencyMs,
     string? Error,
     string? SystemFingerprint,
-    string? ModelName);
+    string? ModelName,
+    long InputTokens,
+    long OutputTokens);
 
 internal sealed record ProbeOptions(
     float? Temperature,
@@ -100,6 +102,9 @@ internal sealed class ProbeRunner
             // wrapper doesn't provide them we degrade gracefully to null.
             var (fingerprint, modelName) = TryExtractProviderMetadata(response);
 
+            long inputTokens  = response.Usage?.InputTokenCount  ?? 0;
+            long outputTokens = response.Usage?.OutputTokenCount ?? 0;
+
             string? canonical = null;
             string? canonicalSha = null;
             StructuredFacts? parsed = null;
@@ -120,7 +125,8 @@ internal sealed class ProbeRunner
             }
 
             return new ProbeRun(index, raw, rawSha, canonical, canonicalSha, parsed,
-                sw.ElapsedMilliseconds, error, fingerprint, modelName);
+                sw.ElapsedMilliseconds, error, fingerprint, modelName,
+                inputTokens, outputTokens);
         }
         catch (Exception ex)
         {
@@ -129,7 +135,7 @@ internal sealed class ProbeRunner
             if (ex.InnerException is not null)
                 msg += " | inner: " + ex.InnerException.GetType().Name + ": " + ex.InnerException.Message;
             return new ProbeRun(index, string.Empty, string.Empty, null, null, null,
-                sw.ElapsedMilliseconds, msg, null, null);
+                sw.ElapsedMilliseconds, msg, null, null, 0, 0);
         }
     }
 

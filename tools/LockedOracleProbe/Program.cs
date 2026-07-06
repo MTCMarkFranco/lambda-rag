@@ -41,6 +41,9 @@ bool jsonMode = !flags.ContainsKey("no-json-mode");
 int? maxTokens = flags.TryGetValue("max-tokens", out var mv) && int.TryParse(mv, out var mi) ? mi
     : flags.ContainsKey("no-max-tokens") ? (int?)null : 512;
 
+decimal? inRate  = flags.TryGetValue("input-rate",  out var ir) && decimal.TryParse(ir, out var ird) ? ird : (decimal?)null;
+decimal? outRate = flags.TryGetValue("output-rate", out var or) && decimal.TryParse(or, out var ord) ? ord : (decimal?)null;
+
 var probeOpts = new ProbeOptions(temperature, topP, seed, jsonMode, maxTokens);
 
 string endpoint = flags.GetValueOrDefault("endpoint")
@@ -111,7 +114,12 @@ Console.WriteLine("Computing metrics...");
 var metrics = Metrics.Compute(runs);
 var verdict = Metrics.ClassifyVerdict(metrics);
 
-await ReportWriter.WriteAsync(outDir, metrics, runs, endpoint, deployment, n)
+// --- Token usage + cost ---
+var reportedModel = runs.FirstOrDefault(r => r.ModelName is not null)?.ModelName;
+var (inR, outR, isPlaceholder) = Pricing.Resolve(deployment, reportedModel, inRate, outRate);
+var cost = Pricing.Compute(runs, inR, outR, isPlaceholder);
+
+await ReportWriter.WriteAsync(outDir, metrics, cost, runs, endpoint, deployment, n)
     .ConfigureAwait(false);
 
 Console.WriteLine();
@@ -129,6 +137,26 @@ Console.WriteLine();
 Console.WriteLine($"  Unique system_fingerprints: {metrics.SystemFingerprintDistribution.Count}");
 foreach (var kv in metrics.SystemFingerprintDistribution.OrderByDescending(x => x.Value))
     Console.WriteLine($"    {kv.Key,-40} {kv.Value,4}");
+Console.WriteLine();
+Console.WriteLine("  Token usage:");
+Console.WriteLine($"    Input tokens:            {cost.TotalInputTokens,10:N0}");
+Console.WriteLine($"    Output tokens:           {cost.TotalOutputTokens,10:N0}");
+Console.WriteLine($"    Total tokens:            {cost.TotalTokens,10:N0}");
+Console.WriteLine();
+Console.WriteLine($"  Cost (USD, rates {(cost.RateIsPlaceholder ? "PLACEHOLDER ⚠️" : "explicit")}):");
+Console.WriteLine($"    Input rate:              ${cost.InputRatePer1M,10:F4} / 1M tokens");
+Console.WriteLine($"    Output rate:             ${cost.OutputRatePer1M,10:F4} / 1M tokens");
+Console.WriteLine($"    Input cost:              ${cost.InputCostUsd,10:F4}");
+Console.WriteLine($"    Output cost:             ${cost.OutputCostUsd,10:F4}");
+Console.WriteLine($"    Total cost:              ${cost.TotalCostUsd,10:F4}");
+Console.WriteLine($"    Cost per run:            ${cost.AvgCostPerRunUsd,10:F6}");
+if (cost.RateIsPlaceholder)
+{
+    Console.WriteLine();
+    Console.WriteLine("  ⚠️  Rates above are best-effort placeholders. Verify against:");
+    Console.WriteLine("     https://azure.microsoft.com/en-us/pricing/details/azure-openai/");
+    Console.WriteLine("     Override with --input-rate <usd-per-1M> --output-rate <usd-per-1M>");
+}
 Console.WriteLine();
 Console.WriteLine($"  Report: {Path.Combine(outDir, "probe-report.md")}");
 Console.WriteLine();
