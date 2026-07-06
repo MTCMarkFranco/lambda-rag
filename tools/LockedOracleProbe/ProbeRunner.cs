@@ -14,19 +14,35 @@ internal sealed record ProbeRun(
     string? CanonicalSha256,
     StructuredFacts? Parsed,
     long LatencyMs,
-    string? Error);
+    string? Error,
+    string? SystemFingerprint,
+    string? ModelName);
+
+internal sealed record ProbeOptions(
+    float? Temperature,
+    float? TopP,
+    long? Seed,
+    bool JsonMode,
+    int? MaxOutputTokens);
 
 internal sealed class ProbeRunner
 {
     private readonly IChatClient _chat;
     private readonly int _n;
     private readonly string _runDir;
+    private readonly ProbeOptions _opts;
+    private readonly string _documentId;
+    private readonly string _documentText;
 
-    public ProbeRunner(IChatClient chat, int n, string runDir)
+    public ProbeRunner(IChatClient chat, int n, string runDir, ProbeOptions opts,
+        string documentId, string documentText)
     {
         _chat = chat;
         _n = n;
         _runDir = runDir;
+        _opts = opts;
+        _documentId = documentId;
+        _documentText = documentText;
         Directory.CreateDirectory(_runDir);
     }
 
@@ -48,7 +64,7 @@ internal sealed class ProbeRunner
             if (run.Error != null)
                 Console.WriteLine($"ERROR ({run.LatencyMs} ms): {run.Error}");
             else
-                Console.WriteLine($"ok  ({run.LatencyMs,5} ms)  sha={run.RawSha256[..12]}");
+                Console.WriteLine($"ok  ({run.LatencyMs,5} ms)  sha={run.RawSha256[..12]}  fp={run.SystemFingerprint ?? "<none>"}");
         }
 
         return results;
@@ -65,14 +81,12 @@ internal sealed class ProbeRunner
                 new(ChatRole.User,   userMessage),
             };
 
-            var options = new ChatOptions
-            {
-                Temperature = 0.0f,
-                TopP = 1.0f,
-                Seed = 42, // pinned; provider may or may not honor
-                MaxOutputTokens = 512,
-                ResponseFormat = ChatResponseFormat.Json,
-            };
+            var options = new ChatOptions();
+            if (_opts.Temperature.HasValue)     options.Temperature = _opts.Temperature.Value;
+            if (_opts.TopP.HasValue)            options.TopP = _opts.TopP.Value;
+            if (_opts.Seed.HasValue)            options.Seed = _opts.Seed.Value;
+            if (_opts.MaxOutputTokens.HasValue) options.MaxOutputTokens = _opts.MaxOutputTokens.Value;
+            if (_opts.JsonMode)                 options.ResponseFormat = ChatResponseFormat.Json;
 
             var response = await _chat.GetResponseAsync(messages, options, ct)
                 .ConfigureAwait(false);
@@ -80,6 +94,11 @@ internal sealed class ProbeRunner
 
             var raw = response.Text ?? string.Empty;
             var rawSha = Sha256(raw);
+
+            // Extract system_fingerprint and model from the raw representation
+            // (Azure OpenAI SDK exposes these on ChatCompletion). If the
+            // wrapper doesn't provide them we degrade gracefully to null.
+            var (fingerprint, modelName) = TryExtractProviderMetadata(response);
 
             string? canonical = null;
             string? canonicalSha = null;
@@ -101,19 +120,53 @@ internal sealed class ProbeRunner
             }
 
             return new ProbeRun(index, raw, rawSha, canonical, canonicalSha, parsed,
-                sw.ElapsedMilliseconds, error);
+                sw.ElapsedMilliseconds, error, fingerprint, modelName);
         }
         catch (Exception ex)
         {
             sw.Stop();
+            var msg = ex.GetType().Name + ": " + ex.Message;
+            if (ex.InnerException is not null)
+                msg += " | inner: " + ex.InnerException.GetType().Name + ": " + ex.InnerException.Message;
             return new ProbeRun(index, string.Empty, string.Empty, null, null, null,
-                sw.ElapsedMilliseconds, ex.GetType().Name + ": " + ex.Message);
+                sw.ElapsedMilliseconds, msg, null, null);
         }
     }
 
-    private static string BuildUserMessage() =>
-        "Document id: " + ProbeDocument.DocumentId + "\n\n" +
-        "Document text:\n" + ProbeDocument.Text + "\n\n" +
+    private static (string? Fingerprint, string? Model) TryExtractProviderMetadata(ChatResponse response)
+    {
+        // Best-effort. Different providers expose these differently.
+        // The OpenAI ChatCompletion type has SystemFingerprint and Model fields.
+        // We reflect on the raw representation to avoid a hard SDK dependency
+        // on OpenAI-specific types here.
+        try
+        {
+            var raw = response.RawRepresentation;
+            if (raw is null) return (null, null);
+
+            var t = raw.GetType();
+            string? fp = null;
+            string? model = null;
+
+            var fpProp = t.GetProperty("SystemFingerprint") ?? t.GetProperty("system_fingerprint");
+            if (fpProp is not null)
+                fp = fpProp.GetValue(raw) as string;
+
+            var modelProp = t.GetProperty("Model") ?? t.GetProperty("model");
+            if (modelProp is not null)
+                model = modelProp.GetValue(raw)?.ToString();
+
+            return (fp, model);
+        }
+        catch
+        {
+            return (null, null);
+        }
+    }
+
+    private string BuildUserMessage() =>
+        "Document id: " + _documentId + "\n\n" +
+        "Document text:\n" + _documentText + "\n\n" +
         "Extract the facts.";
 
     private static string CanonicalizeJson(StructuredFacts facts)

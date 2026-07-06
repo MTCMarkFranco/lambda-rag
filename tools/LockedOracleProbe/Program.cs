@@ -21,6 +21,28 @@ var flags = ParseFlags(args);
 
 int n = int.TryParse(flags.GetValueOrDefault("n"), out var pn) ? pn : 100;
 string outRoot = flags.GetValueOrDefault("out") ?? Path.Combine("out", "locked-oracle-probe");
+string docName = flags.GetValueOrDefault("document") ?? "default";
+
+(string docId, string docText) doc;
+try { doc = Documents.Get(docName); }
+catch (ArgumentException ax) { Console.Error.WriteLine("ERROR: " + ax.Message); return 64; }
+
+// Deterministic-inference knobs. Reasoning-class models (gpt-5.x, o-series)
+// often reject non-default temperature, seed, and json_object response_format.
+// When any of these is disabled we cannot claim source ⑤ (sampling noise)
+// is pinned — the probe still runs and still measures response variance,
+// but the reported number is drift+sampling, not drift alone.
+float? temperature = flags.TryGetValue("temperature", out var tv) && float.TryParse(tv, out var tf) ? tf
+    : flags.ContainsKey("no-temperature") ? (float?)null : 0.0f;
+float? topP = flags.ContainsKey("no-top-p") ? (float?)null : 1.0f;
+long? seed = flags.TryGetValue("seed", out var sv) && long.TryParse(sv, out var sl) ? sl
+    : flags.ContainsKey("no-seed") ? (long?)null : 42L;
+bool jsonMode = !flags.ContainsKey("no-json-mode");
+int? maxTokens = flags.TryGetValue("max-tokens", out var mv) && int.TryParse(mv, out var mi) ? mi
+    : flags.ContainsKey("no-max-tokens") ? (int?)null : 512;
+
+var probeOpts = new ProbeOptions(temperature, topP, seed, jsonMode, maxTokens);
+
 string endpoint = flags.GetValueOrDefault("endpoint")
     ?? Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT")
     ?? string.Empty;
@@ -40,16 +62,29 @@ if (string.IsNullOrWhiteSpace(endpoint))
 }
 
 var stamp = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss");
-var outDir = Path.Combine(outRoot, $"probe-{stamp}");
+var outDir = Path.Combine(outRoot, $"probe-{docName}-{stamp}");
 var runDir = Path.Combine(outDir, "runs");
 
 Console.WriteLine("Locked Oracle Probe — Phase 0");
-Console.WriteLine($"  Endpoint:   {endpoint}");
-Console.WriteLine($"  Deployment: {deployment}");
-Console.WriteLine($"  N:          {n}");
-Console.WriteLine($"  Document:   {ProbeDocument.DocumentId}  (~{ProbeDocument.Text.Length} chars)");
-Console.WriteLine($"  Out:        {outDir}");
+Console.WriteLine($"  Endpoint:      {endpoint}");
+Console.WriteLine($"  Deployment:    {deployment}");
+Console.WriteLine($"  N:             {n}");
+Console.WriteLine($"  Document:      {doc.docId}  (~{doc.docText.Length} chars)  [--document {docName}]");
+Console.WriteLine($"  Out:           {outDir}");
+Console.WriteLine($"  Temperature:   {(probeOpts.Temperature?.ToString("F1") ?? "<model default>")}");
+Console.WriteLine($"  Top-P:         {(probeOpts.TopP?.ToString("F1") ?? "<model default>")}");
+Console.WriteLine($"  Seed:          {(probeOpts.Seed?.ToString() ?? "<unpinned>")}");
+Console.WriteLine($"  JSON mode:     {probeOpts.JsonMode}");
+Console.WriteLine($"  Max tokens:    {(probeOpts.MaxOutputTokens?.ToString() ?? "<model default>")}");
 Console.WriteLine();
+if (probeOpts.Temperature is null || probeOpts.Seed is null)
+{
+    Console.WriteLine("⚠️  Sampling noise (randomness source ⑤ in the FID-Lottery paper) is NOT pinned.");
+    Console.WriteLine("   Any measured variance is drift + sampling combined, not drift alone.");
+    Console.WriteLine("   The GREEN/AMBER/RED verdict still reflects real-world Locked Oracle behavior,");
+    Console.WriteLine("   but cannot be attributed to hardware drift specifically.");
+    Console.WriteLine();
+}
 Console.WriteLine("Auth via DefaultAzureCredential (Entra ID). Ensure `az login` succeeded.");
 Console.WriteLine();
 
@@ -65,7 +100,7 @@ catch (Exception ex)
     return 65;
 }
 
-var runner = new ProbeRunner(chat, n, runDir);
+var runner = new ProbeRunner(chat, n, runDir, probeOpts, doc.docId, doc.docText);
 Console.WriteLine($"Running {n} probes sequentially...");
 Console.WriteLine();
 
@@ -90,6 +125,10 @@ Console.WriteLine();
 Console.WriteLine("  Per-field modal agreement:");
 foreach (var kv in metrics.PerFieldAgreementPct)
     Console.WriteLine($"    {kv.Key,-34} {kv.Value,6:F1}%   modal={metrics.ModalFieldValues[kv.Key]}");
+Console.WriteLine();
+Console.WriteLine($"  Unique system_fingerprints: {metrics.SystemFingerprintDistribution.Count}");
+foreach (var kv in metrics.SystemFingerprintDistribution.OrderByDescending(x => x.Value))
+    Console.WriteLine($"    {kv.Key,-40} {kv.Value,4}");
 Console.WriteLine();
 Console.WriteLine($"  Report: {Path.Combine(outDir, "probe-report.md")}");
 Console.WriteLine();

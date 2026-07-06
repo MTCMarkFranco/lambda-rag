@@ -41,6 +41,8 @@ internal static class ReportWriter
                 latency_ms = r.LatencyMs,
                 raw_sha256 = r.RawSha256,
                 canonical_sha256 = r.CanonicalSha256,
+                system_fingerprint = r.SystemFingerprint,
+                model = r.ModelName,
                 error = r.Error,
             }).ToList(),
         };
@@ -98,8 +100,32 @@ internal static class ReportWriter
         sb.AppendLine($"| P95 latency | {m.P95LatencyMs:F0} ms |");
         sb.AppendLine();
 
-        sb.AppendLine("## Per-field modal agreement");
+        sb.AppendLine("## Provider metadata — shard/model distribution");
         sb.AppendLine();
+        sb.AppendLine("Azure OpenAI's `system_fingerprint` identifies the backend model checkpoint/shard. Multiple fingerprints = we hit multiple shards (good — the result is representative of real traffic). Single fingerprint = all N runs served by one shard (result may not generalize).");
+        sb.AppendLine();
+        if (m.SystemFingerprintDistribution.Count == 0)
+        {
+            sb.AppendLine("_No `system_fingerprint` returned by the endpoint._");
+        }
+        else
+        {
+            sb.AppendLine("| system_fingerprint | Count |");
+            sb.AppendLine("|---|---|");
+            foreach (var kv in m.SystemFingerprintDistribution.OrderByDescending(kv => kv.Value))
+                sb.AppendLine($"| `{kv.Key}` | {kv.Value} |");
+        }
+        sb.AppendLine();
+        if (m.ModelDistribution.Count > 0)
+        {
+            sb.AppendLine("| Reported model | Count |");
+            sb.AppendLine("|---|---|");
+            foreach (var kv in m.ModelDistribution.OrderByDescending(kv => kv.Value))
+                sb.AppendLine($"| `{kv.Key}` | {kv.Value} |");
+            sb.AppendLine();
+        }
+
+        sb.AppendLine("## Per-field modal agreement");        sb.AppendLine();
         sb.AppendLine("Each field's agreement rate: fraction of successful runs whose value equals the modal (most common) value.");
         sb.AppendLine();
         sb.AppendLine("| Field | Modal value | Agreement |");

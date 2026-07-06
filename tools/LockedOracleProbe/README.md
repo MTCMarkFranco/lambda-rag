@@ -29,6 +29,11 @@ Exit codes: GREEN=0, AMBER=10, RED=20.
    $env:AZURE_OPENAI_DEPLOYMENT = "gpt-4o-mini"    # or your deployment name
    ```
 
+   ⚠️ **Foundry endpoint URL gotcha.** Use the `*.cognitiveservices.azure.com` form,
+   not the Foundry-portal-displayed `*.services.ai.azure.com` form. The
+   Azure.AI.OpenAI SDK's `/openai/deployments/{name}/...` path routes correctly
+   on the former; the latter returns HTTP 500 "Unable to get resource information."
+
 ## Run
 
 ```powershell

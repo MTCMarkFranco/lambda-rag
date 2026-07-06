@@ -28,6 +28,8 @@ internal static class Metrics
         Dictionary<string, string> ModalFieldValues,
         Dictionary<string, int> UniqueRawResponses,
         Dictionary<string, int> UniqueCanonicalResponses,
+        Dictionary<string, int> SystemFingerprintDistribution,
+        Dictionary<string, int> ModelDistribution,
         double AvgLatencyMs,
         double P95LatencyMs);
 
@@ -79,6 +81,16 @@ internal static class Metrics
             modalValues[name] = modal.Key;
         }
 
+        // Provider metadata distribution
+        var fpDist = runs
+            .Where(r => r.SystemFingerprint is not null)
+            .GroupBy(r => r.SystemFingerprint!)
+            .ToDictionary(g => g.Key, g => g.Count());
+        var modelDist = runs
+            .Where(r => r.ModelName is not null)
+            .GroupBy(r => r.ModelName!)
+            .ToDictionary(g => g.Key, g => g.Count());
+
         // Latency
         var latencies = runs.Select(r => (double)r.LatencyMs).OrderBy(x => x).ToList();
         var avg = latencies.Count == 0 ? 0 : latencies.Average();
@@ -94,6 +106,8 @@ internal static class Metrics
             ModalFieldValues: modalValues,
             UniqueRawResponses: rawHashCounts,
             UniqueCanonicalResponses: canonHashCounts,
+            SystemFingerprintDistribution: fpDist,
+            ModelDistribution: modelDist,
             AvgLatencyMs: avg,
             P95LatencyMs: p95);
     }
