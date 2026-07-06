@@ -5,6 +5,35 @@ All notable changes to lambda-rag are documented here. The format follows
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) once
 it reaches `1.0.0`.
 
+## [Unreleased]
+
+### Added
+
+- **Locked Oracle Pattern — Phase 1 (#177).** LLM-backed fact extraction
+  is now pinned to deterministic sampling knobs per the Phase 0 empirical
+  result (#175, #176 — 100.0% raw byte-identity across 1200 calls on
+  `gpt-5.4-mini`).
+  - `LambdaRag.Authoring.LockedOracleSettings` — new record with
+    `Default = { Temperature=0, TopP=1, Seed=42 }` and an
+    `Unpinned = { null, null, null }` fallback for reasoning models
+    that reject sampling parameters. Its `Fingerprint()` is folded into
+    the extractor's `PromptHash` so any change forces loud cache
+    invalidation via `SectionFactSidecarMismatchException`.
+  - `FoundrySectionFactExtractor` — pins `Temperature`/`TopP`/`Seed` on
+    every `ChatOptions`; captures `response.ModelId` (Azure returns the
+    versioned tag, e.g. `gpt-5.4-mini-2026-03-17`) into
+    `SectionFactSidecar.ModelSnapshot` for audit; sums per-run
+    `Usage.InputTokenCount + OutputTokenCount` and logs at completion
+    for cost telemetry.
+  - `PromptVersion` bumped `1.0.0` → `1.1.0`. Existing sidecars generated
+    on `1.0.0` will fail the fingerprint check on next load — this is the
+    intended cache-invalidation semantic. Rerun with `--refresh-facts`.
+  - `LockedOracleLiveIdempotencyTests` — new env-gated
+    (`LAMBDA_RAG_LOCKED_ORACLE_LIVE_TESTS=1` + `LAMBDA_RAG_FACTS_ENDPOINT`
+    + `LAMBDA_RAG_FACTS_DEPLOYMENT`) live-LLM guardrail that asserts
+    ≥99% canonical-JSON identity across 5 cache-miss extractions.
+    Skipped in CI, costs ~US¢1 per run.
+
 ## [1.2.0] — 2026-07-02
 
 Domain-scoped review + Flexibility pillar refinement. This release
