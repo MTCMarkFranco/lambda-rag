@@ -36,7 +36,11 @@ public sealed class FoundrySectionFactExtractor : IFactExtractor
 {
     public const string SidecarVersion = "1.0";
     // Bumping this string invalidates every cached sidecar loudly.
-    public const string PromptVersion = "1.0.0";
+    // 1.1.0 — Locked Oracle Phase 1 (#177): temperature/top_p/seed pinned +
+    //         determinism settings folded into PromptHash. Existing sidecars
+    //         generated pre-1.1.0 will fail the fingerprint check on load,
+    //         which is the intended cache-invalidation semantic.
+    public const string PromptVersion = "1.1.0";
 
     private static readonly SemaphoreSlim GlobalCallGate = new(initialCount: 4, maxCount: 4);
 
@@ -68,6 +72,12 @@ public sealed class FoundrySectionFactExtractor : IFactExtractor
     private readonly string? _cacheDirOverride;
     private readonly bool _refresh;
     private readonly DurationNormalizer _normalizer;
+    private readonly LockedOracleSettings _determinism;
+
+    // Populated as responses come back so the sidecar can record the
+    // observed model checkpoint (e.g. "gpt-5.4-mini-2026-03-17") alongside
+    // the deployment-name ModelId used for cache-key stability.
+    private string? _observedModelId;
 
     public string ModelId { get; }
     public string PromptHash { get; }
@@ -79,7 +89,8 @@ public sealed class FoundrySectionFactExtractor : IFactExtractor
         int maxRetries = 3,
         string? cacheDirOverride = null,
         bool refresh = false,
-        DurationNormalizer? normalizer = null)
+        DurationNormalizer? normalizer = null,
+        LockedOracleSettings? determinism = null)
     {
         _chat = chat ?? throw new ArgumentNullException(nameof(chat));
         ModelId = string.IsNullOrWhiteSpace(modelId) ? "unknown-model" : modelId;
@@ -88,13 +99,16 @@ public sealed class FoundrySectionFactExtractor : IFactExtractor
         _cacheDirOverride = cacheDirOverride;
         _refresh = refresh;
         _normalizer = normalizer ?? DurationNormalizer.Default;
+        _determinism = determinism ?? LockedOracleSettings.Default;
         // Prompt fingerprint folds in system prompt + prompt version +
-        // normalizer table hash so any of those drifting invalidates cache.
+        // normalizer table hash + Locked Oracle determinism knobs. Any of
+        // these drifting invalidates the cache.
         PromptHash = ContentHash.Compose(
             SystemPrompt,
             PromptVersion,
             _normalizer.Version,
-            _normalizer.TableHash.Value).Value;
+            _normalizer.TableHash.Value,
+            _determinism.Fingerprint()).Value;
     }
 
     public async Task<SectionFactSidecar> ExtractAsync(
@@ -123,8 +137,17 @@ public sealed class FoundrySectionFactExtractor : IFactExtractor
             return cached;
         }
 
-        _log.LogInformation("Extracting facts for {Sections} sections via model {Model}",
-            sections.Count, ModelId);
+        _log.LogInformation("Extracting facts for {Sections} sections via model {Model} " +
+            "(temp={T}, top_p={P}, seed={S})",
+            sections.Count, ModelId,
+            _determinism.Temperature?.ToString("F1") ?? "unset",
+            _determinism.TopP?.ToString("F1") ?? "unset",
+            _determinism.Seed?.ToString() ?? "unset");
+
+        // Reset per-run token counters (Locked Oracle Phase 1 telemetry).
+        Interlocked.Exchange(ref _runInputTokens, 0);
+        Interlocked.Exchange(ref _runOutputTokens, 0);
+        Interlocked.Exchange(ref _observedModelId, null);
 
         var schemaJson = SchemaToPromptJson(schema);
         var warnings = new List<string>();
@@ -143,6 +166,10 @@ public sealed class FoundrySectionFactExtractor : IFactExtractor
         foreach (var (id, bag) in results.OrderBy(r => r.sectionId, StringComparer.Ordinal))
             bags[id] = bag;
 
+        var totalIn = Interlocked.Read(ref _runInputTokens);
+        var totalOut = Interlocked.Read(ref _runOutputTokens);
+        var observedModel = Volatile.Read(ref _observedModelId);
+
         var sidecar = new SectionFactSidecar(
             SidecarVersion: SidecarVersion,
             DocumentId: docHashStr,
@@ -154,14 +181,16 @@ public sealed class FoundrySectionFactExtractor : IFactExtractor
             Sections: bags)
         {
             Fingerprint = expectedFp.Value,
+            ModelSnapshot = observedModel,
             Warnings = warnings.Count > 0 ? warnings : null,
             RuleScope = scope.Count > 0
                 ? scope.ToDictionary(kv => kv.Key, kv => (IReadOnlyList<string>)kv.Value, StringComparer.Ordinal)
                 : null,
         };
         SectionFactSidecarIO.Save(sidecar, path);
-        _log.LogInformation("Wrote fact sidecar ({Sections} sections, {Warn} warnings) to {Path}",
-            sidecar.Sections.Count, warnings.Count, path);
+        _log.LogInformation(
+            "Wrote fact sidecar ({Sections} sections, {Warn} warnings, {InTok} in / {OutTok} out tokens, observed model '{Observed}') to {Path}",
+            sidecar.Sections.Count, warnings.Count, totalIn, totalOut, observedModel ?? "(none reported)", path);
         return sidecar;
     }
 
@@ -179,10 +208,16 @@ public sealed class FoundrySectionFactExtractor : IFactExtractor
         if (string.IsNullOrWhiteSpace(sectionText) || sectionText.Length < 40)
             return bag;
         var user = $"Schema:\n{schemaJson}\n\nSection id: {sectionId}\nSection text:\n{sectionText}\n\nEmit the JSON object now.";
+        // Locked Oracle Phase 1 (#177): temperature/top_p/seed pinned so
+        // cache-miss extraction stays ≥99% idempotent (empirically 100%
+        // over 1200 calls in Phase 0 — see #175).
         var options = new ChatOptions
         {
             MaxOutputTokens = 800,
             ResponseFormat = ChatResponseFormat.Json,
+            Temperature = _determinism.Temperature,
+            TopP = _determinism.TopP,
+            Seed = _determinism.Seed,
             AdditionalProperties = new AdditionalPropertiesDictionary
             {
                 ["user"] = "lambda-rag-fact-extractor",
@@ -191,11 +226,12 @@ public sealed class FoundrySectionFactExtractor : IFactExtractor
         string? raw = null;
         try
         {
-            raw = await CallWithRetryAsync(new[]
+            var result = await CallWithRetryAsync(new[]
             {
                 new ChatMessage(ChatRole.System, SystemPrompt),
                 new ChatMessage(ChatRole.User, user),
             }, options, ct).ConfigureAwait(false);
+            raw = result.Text;
         }
         catch (OperationCanceledException) { throw; }
         catch (Exception ex)
@@ -388,7 +424,21 @@ public sealed class FoundrySectionFactExtractor : IFactExtractor
         return JsonSerializer.Serialize(obj, CanonicalJson.Options);
     }
 
-    private async Task<string> CallWithRetryAsync(
+    private readonly struct CallResult
+    {
+        public string Text { get; init; }
+        public string? ModelId { get; init; }
+        public long InputTokens { get; init; }
+        public long OutputTokens { get; init; }
+    }
+
+    // Aggregated across the current ExtractAsync run. Reset at the top of
+    // each call. Kept as fields (not thread-locals) because the fanout is
+    // bounded by GlobalCallGate and we sum with Interlocked.
+    private long _runInputTokens;
+    private long _runOutputTokens;
+
+    private async Task<CallResult> CallWithRetryAsync(
         IEnumerable<ChatMessage> messages,
         ChatOptions options,
         CancellationToken ct)
@@ -401,7 +451,24 @@ public sealed class FoundrySectionFactExtractor : IFactExtractor
             try
             {
                 var response = await _chat.GetResponseAsync(messages, options, cancellationToken: ct).ConfigureAwait(false);
-                return response.Text ?? string.Empty;
+                var inTok = response.Usage?.InputTokenCount ?? 0;
+                var outTok = response.Usage?.OutputTokenCount ?? 0;
+                Interlocked.Add(ref _runInputTokens, inTok);
+                Interlocked.Add(ref _runOutputTokens, outTok);
+                if (!string.IsNullOrWhiteSpace(response.ModelId))
+                {
+                    // First writer wins; races are benign — every response
+                    // reports the same version tag in practice (Phase 0
+                    // observed 1200/1200 identical model tags).
+                    Interlocked.CompareExchange(ref _observedModelId, response.ModelId, null);
+                }
+                return new CallResult
+                {
+                    Text = response.Text ?? string.Empty,
+                    ModelId = response.ModelId,
+                    InputTokens = inTok,
+                    OutputTokens = outTok,
+                };
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
             catch (Exception ex) when (attempt <= _maxRetries && FoundryRuleAuthoringAgent.IsTransient(ex))
