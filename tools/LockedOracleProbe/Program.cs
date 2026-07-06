@@ -119,7 +119,7 @@ var reportedModel = runs.FirstOrDefault(r => r.ModelName is not null)?.ModelName
 var (inR, outR, isPlaceholder) = Pricing.Resolve(deployment, reportedModel, inRate, outRate);
 var cost = Pricing.Compute(runs, inR, outR, isPlaceholder);
 
-await ReportWriter.WriteAsync(outDir, metrics, cost, runs, endpoint, deployment, n)
+await ReportWriter.WriteAsync(outDir, metrics, cost, runs, endpoint, deployment, doc.docId, n)
     .ConfigureAwait(false);
 
 Console.WriteLine();

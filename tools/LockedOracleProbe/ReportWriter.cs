@@ -12,22 +12,23 @@ internal static class ReportWriter
         IReadOnlyList<ProbeRun> runs,
         string endpoint,
         string deployment,
+        string documentId,
         int n)
     {
         Directory.CreateDirectory(outDir);
-        await WriteJsonAsync(outDir, metrics, cost, runs, endpoint, deployment, n).ConfigureAwait(false);
-        await WriteMarkdownAsync(outDir, metrics, cost, runs, endpoint, deployment, n).ConfigureAwait(false);
+        await WriteJsonAsync(outDir, metrics, cost, runs, endpoint, deployment, documentId, n).ConfigureAwait(false);
+        await WriteMarkdownAsync(outDir, metrics, cost, runs, endpoint, deployment, documentId, n).ConfigureAwait(false);
     }
 
     private static async Task WriteJsonAsync(
         string outDir, Metrics.Report m, Pricing.CostReport cost, IReadOnlyList<ProbeRun> runs,
-        string endpoint, string deployment, int n)
+        string endpoint, string deployment, string documentId, int n)
     {
         var payload = new
         {
             probe = "locked-oracle-phase-0",
             issue = "https://github.com/MTCMarkFranco/lambda-rag/issues/175",
-            document_id = ProbeDocument.DocumentId,
+            document_id = documentId,
             schema_version = SchemaText.SchemaVersion,
             system_prompt_version = SchemaText.SystemPromptVersion,
             endpoint,
@@ -61,7 +62,7 @@ internal static class ReportWriter
 
     private static async Task WriteMarkdownAsync(
         string outDir, Metrics.Report m, Pricing.CostReport cost, IReadOnlyList<ProbeRun> runs,
-        string endpoint, string deployment, int n)
+        string endpoint, string deployment, string documentId, int n)
     {
         var verdict = Metrics.ClassifyVerdict(m);
         var sb = new StringBuilder();
@@ -71,7 +72,7 @@ internal static class ReportWriter
         sb.AppendLine($"**Timestamp (UTC):** {DateTime.UtcNow:O}  ");
         sb.AppendLine($"**Endpoint:** `{endpoint}`  ");
         sb.AppendLine($"**Deployment:** `{deployment}`  ");
-        sb.AppendLine($"**Document:** `{ProbeDocument.DocumentId}`  ");
+        sb.AppendLine($"**Document:** `{documentId}`  ");
         sb.AppendLine($"**Schema version:** `{SchemaText.SchemaVersion}`  ");
         sb.AppendLine($"**System-prompt version:** `{SchemaText.SystemPromptVersion}`  ");
         sb.AppendLine($"**N (runs):** {n}");
