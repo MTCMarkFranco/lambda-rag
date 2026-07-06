@@ -508,3 +508,6 @@ infra/**/deploy-params*.json
 
 # Pillar 6 (#126) scratch dir
 tmp-pillar6/
+
+# Issue #180 — append-only run telemetry ledger (local dev + CI only)
+bench-results/run-telemetry.jsonl

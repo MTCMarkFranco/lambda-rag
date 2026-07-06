@@ -9,6 +9,31 @@ it reaches `1.0.0`.
 
 ### Added
 
+- **FID Lottery audit follow-up — replay ledger + telemetry (#179, #180, #181).**
+  Closes the observability gap surfaced by the "Production LLM Reliability —
+  Lessons from the FID Lottery" audit. Every `lambda-rag review` now emits a
+  per-run replay ledger and appends a summary row to a JSONL telemetry ledger.
+  - `run-manifest.json` (issue #179) — written sibling to `report.json`.
+    Deterministic `runId` composed from engine version, git SHA, doc hash,
+    ruleset fingerprint, and (when present) fact-extractor settings +
+    prompt hash. Identical inputs → identical `runId` even across days;
+    timestamp and elapsed live outside the hash so replays remain stable.
+  - `bench-results/run-telemetry.jsonl` (issue #180) — append-only, one
+    line per review. Records tokens in/out, verdict counts, elapsed ms,
+    and a post-hoc USD cost estimate via `TokenCostEstimator`. Path is
+    gitignored; the ledger is a local + CI operational artifact.
+  - `LockedOracleSettings` extended (issue #181) with three new
+    reproducibility fields: `MaxOutputTokens` (default 800),
+    `DeploymentId`, and `Region`. All three participate in
+    `Fingerprint()` — deployment or region drift now forces a sidecar
+    cache miss the same way temperature/topP/seed drift already did.
+    Fingerprint version prefix rev'd `v1` → `v2`.
+  - `PromptVersion` bumped `1.1.0` → `1.2.0` (intentionally invalidates
+    all Phase-1 sidecars so the new determinism inputs are folded into
+    the prompt hash from a clean baseline). Rerun with `--refresh-facts`.
+  - `EngineVersion` reads `AssemblyInformationalVersionAttribute` first
+    (release builds) and falls back to `git rev-parse HEAD` (dev builds).
+
 - **Locked Oracle Pattern — Phase 1 (#177).** LLM-backed fact extraction
   is now pinned to deterministic sampling knobs per the Phase 0 empirical
   result (#175, #176 — 100.0% raw byte-identity across 1200 calls on

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using LambdaRag.Authoring;
 using LambdaRag.Authoring.AISearch;
@@ -8,6 +9,7 @@ using LambdaRag.Core.Semantic;
 using LambdaRag.Core;
 using LambdaRag.Core.Abstractions;
 using LambdaRag.Core.Domain;
+using LambdaRag.Core.Observability;
 using LambdaRag.Evaluation;
 using LambdaRag.Evaluation.Engine;
 using LambdaRag.Indexing;
@@ -193,6 +195,10 @@ static class CliEntry
         var factsCacheDir = f.GetValueOrDefault("facts-cache-dir");
         Directory.CreateDirectory(outDir);
 
+        // FID Lottery audit follow-up (#179/#180) — start the wall clock so the
+        // per-review run-manifest and telemetry ledger record honest elapsed time.
+        var reviewStopwatch = Stopwatch.StartNew();
+
         await using var sp = (ServiceProvider)BuildServices();
 
         var parsers = sp.GetRequiredService<ParserRegistry>();
@@ -345,6 +351,22 @@ static class CliEntry
         {
             reportPath = Path.Combine(outDir, "report.json");
             File.WriteAllText(reportPath, RuleSetIO.SerializeReport(report));
+        }
+
+        // FID Lottery audit follow-ups (#179, #180) — emit the per-review
+        // replay ledger (run-manifest.json) and append one telemetry row to
+        // bench-results/run-telemetry.jsonl. Non-fatal on failure: the review
+        // report is the primary artifact and must not be blocked by ledger IO.
+        string? manifestPath = null;
+        try
+        {
+            manifestPath = EmitRunManifestAndTelemetry(
+                outDir, documentPath, resolvedDocKind, declaredDomain,
+                rulesetPath, ruleset, factExtractor, report, reviewStopwatch.ElapsedMilliseconds);
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[yellow]Manifest:[/]  ledger emit failed ({Markup.Escape(ex.GetType().Name)}) — review report is unaffected");
         }
 
         string? markupPath = null;
@@ -626,12 +648,132 @@ static class CliEntry
             .AddColumn("[bold]Path[/]");
         if (reportPath is not null)
             fileTable.AddRow("Report", Markup.Escape(Path.GetFullPath(reportPath)));
+        if (manifestPath is not null)
+            fileTable.AddRow("Manifest", Markup.Escape(Path.GetFullPath(manifestPath)));
         if (markupPath is not null)
             fileTable.AddRow("Markup", Markup.Escape(Path.GetFullPath(markupPath)));
         if (fileTable.Rows.Count > 0)
             AnsiConsole.Write(fileTable);
 
         return 0;
+    }
+
+    // FID Lottery audit follow-up (#179 + #180) — emit run-manifest.json
+    // sibling to report.json + append one line to bench-results/run-telemetry.jsonl.
+    // Isolated so the try/catch in ReviewAsync keeps ledger emission
+    // non-fatal to the primary review pipeline.
+    static string EmitRunManifestAndTelemetry(
+        string outDir,
+        string documentPath,
+        string docKind,
+        string declaredDomain,
+        string rulesetPath,
+        RuleSet ruleset,
+        LambdaRag.Core.Facts.IFactExtractor? factExtractor,
+        ComplianceReport report,
+        long elapsedMs)
+    {
+        var docHash = report.DocumentId.Value;
+        var rulesetFp = ruleset.Fingerprint().Value;
+        var docSizeBytes = File.Exists(documentPath) ? new FileInfo(documentPath).Length : 0L;
+
+        RunManifestFacts? factsManifest = null;
+        TelemetryExtractor? factsTelemetry = null;
+        long tokensIn = 0, tokensOut = 0;
+        string? factsSettingsFp = null;
+        string? factsPromptHash = null;
+
+        if (factExtractor is FoundrySectionFactExtractor fe)
+        {
+            var settings = fe.DeterminismSettings;
+            factsSettingsFp = settings.Fingerprint();
+            factsPromptHash = fe.PromptHash;
+            tokensIn = fe.LastRunInputTokens;
+            tokensOut = fe.LastRunOutputTokens;
+
+            factsManifest = new RunManifestFacts(
+                ExtractorKind: nameof(FoundrySectionFactExtractor),
+                ModelId: fe.ModelId,
+                ModelSnapshot: fe.LastRunModelSnapshot,
+                DeploymentId: settings.DeploymentId,
+                Region: settings.Region,
+                PromptHash: fe.PromptHash,
+                PromptVersion: FoundrySectionFactExtractor.PromptVersion,
+                SettingsFingerprint: factsSettingsFp,
+                SectionsTotal: fe.LastRunSectionsTotal,
+                TokensIn: tokensIn,
+                TokensOut: tokensOut);
+
+            factsTelemetry = new TelemetryExtractor(
+                Model: fe.ModelId,
+                ModelSnapshot: fe.LastRunModelSnapshot,
+                Deployment: settings.DeploymentId,
+                Region: settings.Region,
+                SettingsFingerprint: factsSettingsFp);
+        }
+
+        var engineVersion = EngineVersion.AssemblyVersion;
+        var gitSha = EngineVersion.GitSha;
+
+        var runId = RunManifestIO.ComposeRunId(
+            engineVersion, gitSha, docHash, rulesetFp, factsSettingsFp, factsPromptHash);
+
+        var manifest = new RunManifest(
+            ManifestVersion: RunManifestIO.CurrentVersion,
+            RunId: runId,
+            TimestampUtc: DateTimeOffset.UtcNow.ToString("O"),
+            Engine: new RunManifestEngine(
+                Version: engineVersion,
+                GitSha: gitSha,
+                AssemblyVersion: typeof(CliEntry).Assembly.GetName().Version?.ToString() ?? "0.0.0"),
+            Input: new RunManifestInput(
+                DocPath: documentPath,
+                DocHash: docHash,
+                DocKind: docKind,
+                DeclaredDomain: declaredDomain),
+            RuleSet: new RunManifestRuleSet(
+                Path: rulesetPath,
+                Id: ruleset.Id,
+                Version: ruleset.Version,
+                Fingerprint: rulesetFp,
+                RuleCount: ruleset.Rules.Count),
+            Facts: factsManifest,
+            Verdicts: new RunManifestVerdicts(
+                Pass: report.Passed,
+                Fail: report.Failed,
+                Gap: report.Gaps,
+                Na: report.NotApplicable,
+                Errored: report.Errored,
+                Total: report.TotalRules,
+                Score: report.Score),
+            Elapsed: new RunManifestElapsed(TotalMs: elapsedMs),
+            Refusal: null);
+
+        var manifestPath = Path.Combine(outDir, "run-manifest.json");
+        RunManifestIO.Write(manifest, manifestPath);
+
+        var estimatedUsd = TokenCostEstimator.EstimateUsd(
+            factsManifest?.DeploymentId ?? factsManifest?.ModelId, tokensIn, tokensOut);
+
+        var telemetryPath = Path.Combine("bench-results", "run-telemetry.jsonl");
+        var entry = new RunTelemetryEntry(
+            TimestampUtc: manifest.TimestampUtc,
+            RunId: runId,
+            GitSha: gitSha,
+            EngineVersion: engineVersion,
+            Doc: new TelemetryDoc(Hash: docHash, Kind: docKind, SizeBytes: docSizeBytes),
+            RuleSet: new TelemetryRuleSet(
+                Fingerprint: rulesetFp, Domain: declaredDomain, RuleCount: ruleset.Rules.Count),
+            Extractor: factsTelemetry,
+            Tokens: new TelemetryTokens(In: tokensIn, Out: tokensOut, EstimatedUsd: estimatedUsd),
+            Verdicts: new TelemetryVerdicts(
+                Pass: report.Passed, Fail: report.Failed, Gap: report.Gaps,
+                Na: report.NotApplicable, Errored: report.Errored),
+            ElapsedMs: new TelemetryElapsed(Total: elapsedMs),
+            Refusal: null);
+        RunTelemetryWriter.Append(entry, telemetryPath);
+
+        return manifestPath;
     }
 
     static async Task<int> ProjectAsync(string[] args)
